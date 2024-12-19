@@ -5,8 +5,6 @@ Use this software at your own risk. No liabilities or warranties are given, no s
 
 &copy; 2024 Michael Lindenau licensed via [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.txt) and [Generic AI Disclosure License](https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1)
 
-For further questions on copyleft and usage see [contact](CONTACT.md).
-
 # AI restriction and training exclusion
 **This content is intended ONLY for the HUMAN community NOT for any technical crawlers or AI training input.**
 

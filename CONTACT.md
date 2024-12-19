@@ -1,5 +1,16 @@
-# otap - DDL
-This folder contains the DDL scripts for otap.
+### Author
+
+    Michael Lindenau
+
+### Address
+
+    Geltenwilenstrasse 23
+    CH-9000 St. Gallen
+
+### Other contacts
+
+You may use [LinkedIn](https://www.linkedin.com/in/michael-lindenau-profil) or [GitHub](https://github.com/AlterMannomann) for first contacts. Due to constant misuse of public visible email addresses, I don't publish my email here.
+
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 
