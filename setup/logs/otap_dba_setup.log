@@ -1,0 +1,45 @@
+Running under WINDOWS
+DB user name for otap (default is OTAP if no value is given): 
+Mandatory db password for OTAP: 
+Table space name for otap (default is OTAP_TABLESPACE if no value is given): 
+Table space data file name for otap (default is otap.dbf if no value is given): 
+User role name for otap (default is OTAP_USER if no value is given): 
+otap admin role name for otap (default is OTAP_ADMIN if no value is given): 
+==== otap DBA setup ====
+Create user/schema OTAP with a password of length 4? 
+  If not exists, create tablespace OTAP_TABLESPACE with 100 MB and
+  data file otap.dbf.
+  If not exists, role OTAP_USER for otap users will be created.
+  If not exists, role OTAP_ADMIN for otap will be created and get all grants on DBA views needed for otap to work.
+ONLY ONE otap database user should exist per PDB.
+Not allowed to be used as AI training material without explicite permission.
+Use Ctrl-C to stop the script in sqlplus, Enter to continue.
+
+Started ...
+CREATE TABLESPACE OTAP_TABLESPACE DATAFILE 'otap.dbf' SIZE 100M AUTOEXTEND ON;
+CREATE ROLE OTAP_USER;
+CREATE ROLE OTAP_ADMIN;
+User OTAP created with defined password
+ALTER USER OTAP DEFAULT TABLESPACE OTAP_TABLESPACE ACCOUNT UNLOCK;
+ALTER USER OTAP QUOTA UNLIMITED ON OTAP_TABLESPACE;
+GRANT CONNECT TO OTAP;
+GRANT RESOURCE TO OTAP;
+GRANT CREATE VIEW TO OTAP;
+GRANT SELECT ON dba_objects TO OTAP_ADMIN;
+GRANT SELECT ON dba_tables TO OTAP_ADMIN;
+GRANT SELECT ON dba_tab_columns TO OTAP_ADMIN;
+GRANT OTAP_ADMIN TO OTAP;
+=== otap DBA install result ===
+Tablespace OTAP_TABLESPACE data file otap.dbf 100MB created
+Role OTAP_USER created
+Role OTAP_ADMIN created
+User OTAP created, unlocked, tablespace OTAP_TABLESPACE quota unlimited
+Granted CONNECT, RESOURCE, CREATE VIEW to OTAP
+Grant SELECT to OTAP_ADMIN on:
+  DBA_OBJECTS, DBA_TABLES, DBA_TAB_COLUMNS
+Grant role OTAP_ADMIN to OTAP
+SUCCESS no errors
+(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+Not allowed to be used as AI training material without explicite permission.
+
+Created otap_setup_def.sql with current setup data.

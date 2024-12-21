@@ -1,7 +1,7 @@
-# otap - DDL
-This folder contains the DDL scripts for otap.
+# otap installation logs
+This folder contains the installation logs of otap.
 
-- [Back to main](../README.md)
+- [Back to main](../../README.md)
 
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.

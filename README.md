@@ -3,6 +3,8 @@ Current state: Design
 # otap - Oracle Test Automation Protocol
 Automated testing for Oracle databases. Can be used with [SOSL](https://github.com/AlterMannomann/sosl).
 
+I would have preferred a PRIVATE TEMPORARY TABLE for results, but this construct does not support CLOB columns. Thus otap needs job execution rights to keep the OTAP_RESULTS table as small as possible with automatic result deletions.
+
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 

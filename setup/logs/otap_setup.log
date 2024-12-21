@@ -1,0 +1,477 @@
+SQL> -- tables
+SQL> @@../otap_ddl/tables/otap_config.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- requires login with the correct schema
+SQL> -- table is NOT qualified and created in the schema active at execution, columns ordered by access and then space consumption
+SQL> CREATE TABLE otap_config
+  2    ( config_name	     VARCHAR2(128)					       NOT NULL
+  3    , config_value	     VARCHAR2(4000)					       NOT NULL
+  4    , config_max_length   NUMBER	     DEFAULT -1 			       NOT NULL
+  5    , config_type	     VARCHAR2(6)     DEFAULT 'CHAR'			       NOT NULL
+  6    , created	     DATE	     DEFAULT SYSDATE			       NOT NULL
+  7    , updated	     DATE	     DEFAULT SYSDATE			       NOT NULL
+  8    , created_by	     VARCHAR2(256)   DEFAULT USER			       NOT NULL
+  9    , created_by_os	     VARCHAR2(256)   DEFAULT SYS_CONTEXT('USERENV', 'OS_USER') NOT NULL
+ 10    , updated_by	     VARCHAR2(256)   DEFAULT USER			       NOT NULL
+ 11    , updated_by_os	     VARCHAR2(256)   DEFAULT SYS_CONTEXT('USERENV', 'OS_USER') NOT NULL
+ 12    , config_description  VARCHAR2(4000)
+ 13    )
+ 14  ;
+
+Table created.
+
+SQL> -- description
+SQL> COMMENT ON TABLE otap_config IS 'Holds the configuration used by otap. Will use the alias scfg.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.config_name IS 'The unique case sensitive name of the otap configuration object.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.config_value IS 'The configuration value always as VARCHAR2. Type handling and conversion must be done by the caller.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.config_type IS 'Defines how the config value has to be interpreted. Currently supports CHAR and NUMBER.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.config_max_length IS 'Defines a maximum length for CHAR type config values if set to a number > 0. Default is -1, do not not check length.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.config_description IS 'Optional description of the otap config object.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.created IS 'Date created, managed by default and trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.updated IS 'Date updated, managed by default and trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.created_by IS 'DB user who created the record, managed by default and trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.created_by_os IS 'OS user who created the record, managed by default and trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.updated_by IS 'DB user who updated the record, managed by default and trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_config.updated_by_os IS 'OS user who updated the record, managed by default and trigger.';
+
+Comment created.
+
+SQL> 
+SQL> -- primary key
+SQL> ALTER TABLE otap_config
+  2    ADD CONSTRAINT otap_config_pk
+  3    PRIMARY KEY (config_name)
+  4    ENABLE
+  5  ;
+
+Table altered.
+
+SQL> -- constraints
+SQL> ALTER TABLE otap_config
+  2    ADD CONSTRAINT otap_config_chk_type
+  3    CHECK (config_type IN ('CHAR', 'NUMBER'))
+  4  ;
+
+Table altered.
+
+SQL> ALTER TABLE otap_config
+  2    ADD CONSTRAINT otap_config_chk_max_length
+  3    CHECK (config_max_length = -1 OR config_max_length > 0)
+  4  ;
+
+Table altered.
+
+SQL> 
+SQL> -- trigger
+SQL> CREATE OR REPLACE TRIGGER otap_config_ins_trg
+  2    BEFORE INSERT ON otap_config
+  3    FOR EACH ROW
+  4  DECLARE
+  5    l_ok		   BOOLEAN;
+  6  BEGIN
+  7    -- only allow defined configuration names
+  8    IF :NEW.config_name NOT IN ( 'PRESERVE_DAYS'
+  9  				  , 'DELETE_DELAY'
+ 10  				  , 'DELETE_BATCH_SIZE'
+ 11  				  )
+ 12    THEN
+ 13  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
+ 14    END IF;
+ 15    -- remove any leading and trailing blanks from config_value
+ 16    :NEW.config_value   := TRIM(:NEW.config_value);
+ 17    :NEW.created	   := SYSDATE;
+ 18    :NEW.created_by	   := SYS_CONTEXT('USERENV', 'SESSION_USER');
+ 19    :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
+ 20    -- check max length if defined
+ 21    IF :NEW.config_type = 'CHAR'
+ 22    THEN
+ 23  	 IF :NEW.config_max_length > 0
+ 24  	 THEN
+ 25  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
+ 26  	   THEN
+ 27  	     RAISE_APPLICATION_ERROR(-20002, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
+ 28  	   END IF;
+ 29  	 END IF;
+ 30    END IF;
+ 31    -- check number type
+ 32    IF :NEW.config_type = 'NUMBER'
+ 33    THEN
+ 34  	 l_ok := TRUE;
+ 35  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
+ 36  	 BEGIN
+ 37  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
+ 38  	 EXCEPTION
+ 39  	   WHEN OTHERS THEN
+ 40  	     l_ok := FALSE;
+ 41  	 END;
+ 42  	 IF NOT l_ok
+ 43  	 THEN
+ 44  	   RAISE_APPLICATION_ERROR(-20003, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
+ 45  	 END IF;
+ 46    END IF;
+ 47    -- handle NULLs
+ 48    IF :NEW.config_name = 'PRESERVE_DAYS'
+ 49    THEN
+ 50  	 :NEW.config_value := NVL(:NEW.config_value, '1');
+ 51    END IF;
+ 52    IF :NEW.config_name = 'DELETE_DELAY'
+ 53    THEN
+ 54  	 :NEW.config_value := NVL(:NEW.config_value, '10');
+ 55    END IF;
+ 56    IF :NEW.config_name = 'DELETE_BATCH_SIZE'
+ 57    THEN
+ 58  	 :NEW.config_value := NVL(:NEW.config_value, '1000');
+ 59    END IF;
+ 60  END;
+ 61  /
+
+Trigger created.
+
+SQL> CREATE OR REPLACE TRIGGER otap_config_upd_trg
+  2    BEFORE UPDATE ON otap_config
+  3    FOR EACH ROW
+  4  DECLARE
+  5    l_ok		   BOOLEAN;
+  6  BEGIN
+  7    -- only allow defined configuration names
+  8    IF :NEW.config_name NOT IN ( 'PRESERVE_DAYS'
+  9  				  , 'DELETE_DELAY'
+ 10  				  , 'DELETE_BATCH_SIZE'
+ 11  				  )
+ 12    THEN
+ 13  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
+ 14    END IF;
+ 15    -- remove any leading and trailing blanks from config_value
+ 16    :NEW.config_value := TRIM(:NEW.config_value);
+ 17    -- ensure some values are not overwritten
+ 18    :NEW.created	   := :OLD.created;
+ 19    :NEW.created_by	   := :OLD.created_by;
+ 20    :NEW.created_by_os  := :OLD.created_by_os;
+ 21    -- check max length if defined
+ 22    IF :NEW.config_type = 'CHAR'
+ 23    THEN
+ 24  	 IF :NEW.config_max_length > 0
+ 25  	 THEN
+ 26  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
+ 27  	   THEN
+ 28  	     RAISE_APPLICATION_ERROR(-20002, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
+ 29  	   END IF;
+ 30  	 END IF;
+ 31    END IF;
+ 32    -- check number type
+ 33    IF :NEW.config_type = 'NUMBER'
+ 34    THEN
+ 35  	 l_ok := TRUE;
+ 36  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
+ 37  	 BEGIN
+ 38  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
+ 39  	 EXCEPTION
+ 40  	   WHEN OTHERS THEN
+ 41  	     l_ok := FALSE;
+ 42  	 END;
+ 43  	 IF NOT l_ok
+ 44  	 THEN
+ 45  	   RAISE_APPLICATION_ERROR(-20003, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
+ 46  	 END IF;
+ 47    END IF;
+ 48    -- check range
+ 49    IF :NEW.config_name = 'PRESERVE_DAYS'
+ 50    THEN
+ 51  	 IF    TO_NUMBER(:NEW.config_value) > 7
+ 52  	    OR TO_NUMBER(:NEW.config_value) < 1
+ 53  	 THEN
+ 54  	   :NEW.config_value := '1';
+ 55  	 END IF;
+ 56    END IF;
+ 57    IF :NEW.config_name = 'DELETE_DELAY'
+ 58    THEN
+ 59  	 IF    TO_NUMBER(:NEW.config_value) > 600
+ 60  	    OR TO_NUMBER(:NEW.config_value) < 1
+ 61  	 THEN
+ 62  	   :NEW.config_value := '10';
+ 63  	 END IF;
+ 64    END IF;
+ 65    IF :NEW.config_name = 'DELETE_BATCH_SIZE'
+ 66    THEN
+ 67  	 IF    TO_NUMBER(:NEW.config_value) > 10000
+ 68  	    OR TO_NUMBER(:NEW.config_value) < 100
+ 69  	 THEN
+ 70  	   :NEW.config_value := '1000';
+ 71  	 END IF;
+ 72    END IF;
+ 73  END;
+ 74  /
+
+Trigger created.
+
+SQL> CREATE OR REPLACE TRIGGER otap_config_upd_trg
+  2    BEFORE UPDATE ON otap_config
+  3    FOR EACH ROW
+  4  BEGIN
+  5    -- deny delete of defined configuration names
+  6    IF :OLD.config_name IN ( 'PRESERVE_DAYS'
+  7  			      , 'DELETE_DELAY'
+  8  			      , 'DELETE_BATCH_SIZE'
+  9  			      )
+ 10    THEN
+ 11  	 RAISE_APPLICATION_ERROR(-20004, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
+ 12    END IF;
+ 13  END;
+ 14  /
+
+Trigger created.
+
+SQL> -- create base entries
+SQL> INSERT INTO otap_config
+  2    (config_name, config_value, config_type, config_description)
+  3    VALUES
+  4    ('PRESERVE_DAYS', '1', 'NUMBER', 'The number of days otap will keep test result records. Maximum is 7 days, minimum 1 day. Default is 1.')
+  5  ;
+
+1 row created.
+
+SQL> INSERT INTO otap_config
+  2    (config_name, config_value, config_type, config_description)
+  3    VALUES
+  4    ('DELETE_DELAY', '10', 'NUMBER', 'The seconds to wait between batch size delete commits to give other applications and requests room to execute. Maximum is 600, minimum is 1. Default is 10.')
+  5  ;
+
+1 row created.
+
+SQL> INSERT INTO otap_config
+  2    (config_name, config_value, config_type, config_description)
+  3    VALUES
+  4    ('DELETE_BATCH_SIZE', '1000', 'NUMBER', 'The records to delete before commit. Maximum is 10000, minimum is 100. Default is 1000.')
+  5  ;
+
+1 row created.
+
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> @@../otap_ddl/tables/otap_results.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- requires login with the correct otap schema
+SQL> -- table is NOT qualified and created in the schema active at execution
+SQL> -- a private temporary table is no option as it does not support CLOB
+SQL> CREATE TABLE otap_results
+  2    ( otap_testrun_id NUMBER(38, 0)	 GENERATED ALWAYS AS IDENTITY (NOCACHE CYCLE MAXVALUE 9999999999999999999999999999)
+  3    , otap_test_date  DATE		 DEFAULT SYSDATE				   NOT NULL
+  4    , to_delete	 VARCHAR(1)	 DEFAULT 'N'					   NOT NULL
+  5    , test_passed	 NUMBER(1, 0)	 DEFAULT 0					   NOT NULL
+  6    , test_executor	 VARCHAR2(128)	 DEFAULT SYS_CONTEXT('USERENV', 'SESSION_USER')    NOT NULL
+  7    , test_set	 VARCHAR2(256)	 DEFAULT 'otap GENERIC test set'		   NOT NULL
+  8    , db_user	 VARCHAR2(128)	 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')    NOT NULL
+  9    , db_schema	 VARCHAR2(128)	 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')  NOT NULL
+ 10    , test_group	 VARCHAR2(256)	 DEFAULT 'otap DEFAULT test group'		   NOT NULL
+ 11    , deleted	 DATE
+ 12    , deleted_by	 VARCHAR2(128)
+ 13    , test_name	 VARCHAR2(256)
+ 14    , test_desc	 VARCHAR2(4000)
+ 15    , test_errors	 CLOB
+ 16    , test_trace	 CLOB
+ 17    )
+ 18  ;
+
+Table created.
+
+SQL> -- description
+SQL> COMMENT ON TABLE otap_results IS 'Persist the results of otap test runs. Flat table. Restricted update by trigger. Will use the alias ores.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.otap_testrun_id IS 'The generated id for each record, part of the primary key.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.otap_test_date IS 'The date of executing the test, part of the primary key. Set by trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.to_delete IS 'Indicator for deletion of this record. Only N (no) and Y (yes) allowed.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_passed IS 'Indicator for test passed. 0 test not started or incomplete, 1 test passed, -1 test failed. No other values allowed.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.deleted IS 'The last date TO_DELETE was set to Y. Set by trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.deleted_by IS 'The session user that set TO_DELETE to Y. Set by trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_executor IS 'The session user that created the entry. Set by trigger.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_set IS 'The name of the test set the entry belongs to. Default otap GENERIC test set. Use test sets to separate application tests.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_group IS 'The name of the test group the entry belongs to. Default otap DEFAULT test group. Use test groups to separate functionality tests.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.db_user IS 'The database user owning the test object. Set to current user by default. Can be overwritten.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.db_schema IS 'The database schema of the test object. Set to current schema by default. Can be overwritten.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_name IS 'The name of a single test. Use short names describing the test. Limited to 256 chars.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_desc IS 'An optional test description with more comment space. Limited to 4000 chars.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_errors IS 'Error text information that has been accessibly to otap.';
+
+Comment created.
+
+SQL> COMMENT ON COLUMN otap_results.test_trace IS 'Trace text information that has been supplied by otap.';
+
+Comment created.
+
+SQL> -- primary key
+SQL> ALTER TABLE otap_results
+  2    ADD CONSTRAINT otap_results_pk
+  3    PRIMARY KEY (otap_testrun_id, otap_test_date)
+  4    ENABLE
+  5  ;
+
+Table altered.
+
+SQL> -- check constraints
+SQL> ALTER TABLE otap_results
+  2    ADD CONSTRAINT otap_results_chk_to_delete
+  3    CHECK (to_delete IN ('Y', 'N'))
+  4    ENABLE
+  5  ;
+
+Table altered.
+
+SQL> ALTER TABLE otap_results
+  2    ADD CONSTRAINT otap_results_chk_test_passed
+  3    CHECK (test_passed IN (-1, 0, 1))
+  4    ENABLE
+  5  ;
+
+Table altered.
+
+SQL> -- trigger
+SQL> CREATE OR REPLACE TRIGGER otap_results_ins_trg
+  2    BEFORE INSERT ON otap_results
+  3    FOR EACH ROW
+  4  BEGIN
+  5    :NEW.otap_test_date   := SYSDATE;
+  6    :NEW.test_executor    := SYS_CONTEXT('USERENV', 'SESSION_USER');
+  7    IF :NEW.to_delete = 'Y'
+  8    THEN
+  9  	 :NEW.deleted	 := SYSDATE;
+ 10  	 :NEW.deleted_by := SYS_CONTEXT('USERENV', 'SESSION_USER');
+ 11    ELSE
+ 12  	 :NEW.deleted	 := NULL;
+ 13  	 :NEW.deleted_by := NULL;
+ 14    END IF;
+ 15  END;
+ 16  /
+
+Trigger created.
+
+SQL> CREATE OR REPLACE TRIGGER otap_results_upd_trg
+  2    BEFORE UPDATE ON otap_results
+  3    FOR EACH ROW
+  4  BEGIN
+  5    -- keep values already set
+  6    IF :NEW.otap_test_date != :OLD.otap_test_date
+  7    THEN
+  8  	 :NEW.otap_test_date := :OLD.otap_test_date;
+  9    END IF;
+ 10    IF :NEW.test_executor != :OLD.test_executor
+ 11    THEN
+ 12  	 :NEW.test_executor := :OLD.test_executor;
+ 13    END IF;
+ 14    IF :NEW.test_set != :OLD.test_set
+ 15    THEN
+ 16  	 :NEW.test_set := :OLD.test_set;
+ 17    END IF;
+ 18    IF :NEW.test_group != :OLD.test_group
+ 19    THEN
+ 20  	 :NEW.test_group := :OLD.test_group;
+ 21    END IF;
+ 22    IF     :NEW.to_delete != :OLD.to_delete
+ 23  	  AND :NEW.to_delete  = 'Y'
+ 24    THEN
+ 25  	 :NEW.deleted	 := SYSDATE;
+ 26  	 :NEW.deleted_by := SYS_CONTEXT('USERENV', 'SESSION_USER');
+ 27    END IF;
+ 28    IF     :OLD.test_name IS NOT NULL
+ 29  	  AND :NEW.test_name != :OLD.test_name
+ 30    THEN
+ 31  	 :NEW.test_name := :OLD.test_name;
+ 32    END IF;
+ 33    IF     :OLD.test_desc IS NOT NULL
+ 34  	  AND :NEW.test_desc != :OLD.test_desc
+ 35    THEN
+ 36  	 :NEW.test_desc := :OLD.test_desc;
+ 37    END IF;
+ 38  END;
+ 39  /
+
+Trigger created.
+
+SQL> @@util/log_silent.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> SET ECHO OFF
+SUCCESS - no errors found during setup
+(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+Not allowed to be used as AI training material without explicite permission.
+
