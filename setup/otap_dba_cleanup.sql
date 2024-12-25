@@ -35,7 +35,7 @@ SELECT '==== otap DBA cleanup ====' || '&LINE_FEED' ||
        'Drop user/schema &OTAP_DROP_USER.? ' || '&LINE_FEED' ||
        '  Set tablespace drop to &OTAP_DROP_TS. for &OTAP_TS..' || '&LINE_FEED' ||
        '  Set role drop to &OTAP_DROP_ROLES..' || '&LINE_FEED' ||
-       '  Roles checked: &OTAP_ROLE., &OTAP_ADMIN_ROLE.' || '&LINE_FEED' ||
+       '  Roles checked: &OTAP_ROLE.' || '&LINE_FEED' ||
        'Not allowed to be used as AI training material without explicite permission.' || '&LINE_FEED' ||
        'Use Ctrl-C to stop the script in sqlplus, Enter to continue.' AS OTAP_MSG
   FROM dual;
@@ -45,8 +45,8 @@ PAUSE &OTAP_MSG
 -- drop objects depending on demand
 SELECT 'Started ...' AS info FROM dual;
 DECLARE
-  l_statement VARCHAR2(32000);
-  l_output    VARCHAR2(32000);
+  l_statement VARCHAR2(32767);
+  l_output    VARCHAR2(32767);
   l_lf        VARCHAR2(1) := CHR(10);
   l_count     NUMBER;
 BEGIN
@@ -101,23 +101,6 @@ BEGIN
         END IF;
       ELSE
         l_output := l_output || 'WARNING role &OTAP_ROLE. does not exist' || l_lf;
-      END IF;
-      SELECT COUNT(*) INTO l_count FROM dba_roles WHERE role = '&OTAP_ADMIN_ROLE';
-      IF l_count = 1
-      THEN
-        -- check if others are assigned to role
-        SELECT COUNT(*) INTO l_count FROM dba_role_privs WHERE granted_role = '&OTAP_ADMIN_ROLE' AND grantee NOT IN ('&ROLE_CREATOR', '&OTAP_USER');
-        IF l_count = 0
-        THEN
-          l_statement := 'DROP ROLE &OTAP_ADMIN_ROLE';
-          DBMS_OUTPUT.PUT_LINE(l_statement || ';');
-          EXECUTE IMMEDIATE l_statement;
-          l_output := l_output || 'Role &OTAP_ADMIN_ROLE. successfully dropped' || l_lf;
-        ELSE
-          l_output := l_output || 'WARNING keep role &OTAP_ADMIN_ROLE., assigned to other users' || l_lf;
-        END IF;
-      ELSE
-        l_output := l_output || 'WARNING role &OTAP_ADMIN_ROLE. does not exist' || l_lf;
       END IF;
     ELSE
       l_output := l_output || 'Keep roles, drop option &OTAP_DROP_ROLES.' || l_lf;

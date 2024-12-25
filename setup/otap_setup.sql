@@ -13,9 +13,26 @@ SET ERRORLOGGING ON
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============INSTALL start==============
 SPOOL logs/otap_setup.log
+-- types
+@@../otap_ddl/types/otap_session.sql
+-- independent packages
+@@../otap_ddl/packages/otap_constants.pks
+@@../otap_ddl/packages/otap_constants.pkb
 -- tables
 @@../otap_ddl/tables/otap_config.sql
 @@../otap_ddl/tables/otap_results.sql
+-- packages
+@@../otap_ddl/packages/otap_util.pks
+@@../otap_ddl/packages/otap_util.pkb
+@@../otap_ddl/packages/otap_plan.pks
+@@../otap_ddl/packages/otap_plan.pkb
+@@../otap_ddl/packages/otap_schema.pks
+@@../otap_ddl/packages/otap_schema.pkb
+@@../otap_ddl/packages/otap_test.pks
+@@../otap_ddl/packages/otap_test.pkb
+-- jobs
+@@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
+-- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so
 SELECT CASE

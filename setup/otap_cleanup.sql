@@ -13,9 +13,25 @@ SET ERRORLOGGING ON
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============UNINSTALL start==============
 SPOOL logs/otap_cleanup.log
+-- jobs
+@@../otap_ddl/jobs/drop/drop_OTAP_MAINTENANCE.sql
+-- package objects
+@@../otap_ddl/packages/drop/drop_otap_test_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_test_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_schema_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_schema_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_plan_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_plan_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_util_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_util_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_constants_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_constants_pks.sql
 -- table objects including associated table trigger
 @@../otap_ddl/tables/drop/drop_otap_results.sql
 @@../otap_ddl/tables/drop/drop_otap_config.sql
+-- types
+@@../otap_ddl/types/drop/drop_otap_session.sql
+-- ==============UNINSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so
 SELECT CASE

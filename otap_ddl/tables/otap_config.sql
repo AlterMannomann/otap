@@ -18,7 +18,7 @@ CREATE TABLE otap_config
   )
 ;
 -- description
-COMMENT ON TABLE otap_config IS 'Holds the configuration used by otap. Will use the alias scfg.';
+COMMENT ON TABLE otap_config IS 'Holds the configuration used by otap. Will use the alias ocfg.';
 COMMENT ON COLUMN otap_config.config_name IS 'The unique case sensitive name of the otap configuration object.';
 COMMENT ON COLUMN otap_config.config_value IS 'The configuration value always as VARCHAR2. Type handling and conversion must be done by the caller.';
 COMMENT ON COLUMN otap_config.config_type IS 'Defines how the config value has to be interpreted. Currently supports CHAR and NUMBER.';
@@ -58,6 +58,7 @@ BEGIN
   IF :NEW.config_name NOT IN ( 'PRESERVE_DAYS'
                              , 'DELETE_DELAY'
                              , 'DELETE_BATCH_SIZE'
+                             , 'DEBUG_MODE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -107,6 +108,10 @@ BEGIN
   THEN
     :NEW.config_value := NVL(:NEW.config_value, '1000');
   END IF;
+  IF :NEW.config_name = 'DEBUG_MODE'
+  THEN
+    :NEW.config_value := NVL(:NEW.config_value, '0');
+  END IF;
 END;
 /
 CREATE OR REPLACE TRIGGER otap_config_upd_trg
@@ -119,6 +124,7 @@ BEGIN
   IF :NEW.config_name NOT IN ( 'PRESERVE_DAYS'
                              , 'DELETE_DELAY'
                              , 'DELETE_BATCH_SIZE'
+                             , 'DEBUG_MODE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -181,16 +187,24 @@ BEGIN
       :NEW.config_value := '1000';
     END IF;
   END IF;
+  IF :NEW.config_name = 'DEBUG_MODE'
+  THEN
+    IF TO_NUMBER(:NEW.config_value) NOT IN (0, 1)
+    THEN
+      :NEW.config_value := '0';
+    END IF;
+  END IF;
 END;
 /
-CREATE OR REPLACE TRIGGER otap_config_upd_trg
-  BEFORE UPDATE ON otap_config
+CREATE OR REPLACE TRIGGER otap_config_del_trg
+  BEFORE DELETE ON otap_config
   FOR EACH ROW
 BEGIN
   -- deny delete of defined configuration names
   IF :OLD.config_name IN ( 'PRESERVE_DAYS'
                          , 'DELETE_DELAY'
                          , 'DELETE_BATCH_SIZE'
+                         , 'DEBUG_MODE'
                          )
   THEN
     RAISE_APPLICATION_ERROR(-20004, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
@@ -212,5 +226,10 @@ INSERT INTO otap_config
   (config_name, config_value, config_type, config_description)
   VALUES
   ('DELETE_BATCH_SIZE', '1000', 'NUMBER', 'The records to delete before commit. Maximum is 10000, minimum is 100. Default is 1000.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_description)
+  VALUES
+  ('DEBUG_MODE', '0', 'NUMBER', 'Enables debugging on demand, logged in SPERRORLOG. Either 0 (disable) or 1 (enabled). Default is 0.')
 ;
 COMMIT;

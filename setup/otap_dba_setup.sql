@@ -34,7 +34,6 @@ ACCEPT OTAP_PASS CHAR PROMPT 'Mandatory db password for &OTAP_USER.: ' HIDE
 ACCEPT OTAP_TS CHAR DEFAULT 'OTAP_TABLESPACE' PROMPT 'Table space name for otap (default is OTAP_TABLESPACE if no value is given): '
 ACCEPT OTAP_DBF CHAR DEFAULT 'otap.dbf' PROMPT 'Table space data file name for otap (default is otap.dbf if no value is given): '
 ACCEPT OTAP_ROLE CHAR DEFAULT 'OTAP_USER' PROMPT 'User role name for otap (default is OTAP_USER if no value is given): '
-ACCEPT OTAP_ADMIN_ROLE CHAR DEFAULT 'OTAP_ADMIN' PROMPT 'otap admin role name for otap (default is OTAP_ADMIN if no value is given): '
 SPOOL OFF
 SET TERMOUT OFF
 COLUMN OTAP_MSG NEW_VAL OTAP_MSG
@@ -43,7 +42,6 @@ SELECT '==== otap DBA setup ====' || '&LINE_FEED' ||
        '  If not exists, create tablespace &OTAP_TS. with 100 MB and' || '&LINE_FEED' ||
        '  data file &OTAP_DBF..' || '&LINE_FEED' ||
        '  If not exists, role &OTAP_ROLE. for otap users will be created.' || '&LINE_FEED' ||
-       '  If not exists, role &OTAP_ADMIN_ROLE. for otap will be created and get all grants on DBA views needed for otap to work.' || '&LINE_FEED' ||
        'ONLY ONE otap database user should exist per PDB.' || '&LINE_FEED' ||
        'Not allowed to be used as AI training material without explicite permission.' || '&LINE_FEED' ||
        'Use Ctrl-C to stop the script in sqlplus, Enter to continue.' AS OTAP_MSG
@@ -54,8 +52,8 @@ PAUSE &OTAP_MSG
 SELECT 'Started ...' AS info FROM dual;
 -- do most of the things dynamically
 DECLARE
-  l_statement VARCHAR2(32000);
-  l_output    VARCHAR2(32000);
+  l_statement VARCHAR2(32767);
+  l_output    VARCHAR2(32767);
   l_lf        VARCHAR2(1) := CHR(10);
   l_count     NUMBER;
 BEGIN
@@ -88,17 +86,6 @@ BEGIN
       DBMS_OUTPUT.PUT_LINE('Role &OTAP_ROLE. already exists, do nothing');
       l_output := l_output || 'Role &OTAP_ROLE. already exists' || l_lf;
     END IF;
-    SELECT COUNT(*) INTO l_count FROM dba_roles WHERE role = UPPER('&OTAP_ADMIN_ROLE');
-    IF l_count = 0
-    THEN
-      l_statement := 'CREATE ROLE &OTAP_ADMIN_ROLE';
-      DBMS_OUTPUT.PUT_LINE(l_statement || ';');
-      EXECUTE IMMEDIATE l_statement;
-      l_output := l_output || 'Role &OTAP_ADMIN_ROLE. created' || l_lf;
-    ELSE
-      DBMS_OUTPUT.PUT_LINE('Role &OTAP_ADMIN_ROLE. already exists, do nothing');
-      l_output := l_output || 'Role &OTAP_ADMIN_ROLE. already exists' || l_lf;
-    END IF;
     -- otap user already verified
     l_statement := 'CREATE USER &OTAP_USER. IDENTIFIED BY &OTAP_PASS.';
     EXECUTE IMMEDIATE l_statement;
@@ -124,25 +111,25 @@ BEGIN
     l_statement := 'GRANT CREATE VIEW TO &OTAP_USER';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
-    l_output := l_output || 'CREATE VIEW to &OTAP_USER' || l_lf;
-    -- admin role grants
-    l_statement := 'GRANT SELECT ON dba_objects TO &OTAP_ADMIN_ROLE';
+    l_output := l_output || 'CREATE VIEW, ';
+    l_statement := 'GRANT CREATE JOB TO &OTAP_USER';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
-    l_output := l_output || 'Grant SELECT to &OTAP_ADMIN_ROLE. on:' || l_lf;
+    l_output := l_output || 'CREATE JOB to &OTAP_USER' || l_lf;
+    -- admin role grants
+    l_statement := 'GRANT SELECT ON dba_objects TO &OTAP_USER.';
+    DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+    EXECUTE IMMEDIATE l_statement;
+    l_output := l_output || 'Grant SELECT to &OTAP_USER. on:' || l_lf;
     l_output := l_output || '  DBA_OBJECTS, ';
-    l_statement := 'GRANT SELECT ON dba_tables TO &OTAP_ADMIN_ROLE';
+    l_statement := 'GRANT SELECT ON dba_tables TO &OTAP_USER.';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
     l_output := l_output || 'DBA_TABLES, ';
-    l_statement := 'GRANT SELECT ON dba_tab_columns TO &OTAP_ADMIN_ROLE';
+    l_statement := 'GRANT SELECT ON dba_tab_columns TO &OTAP_USER.';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
     l_output := l_output || 'DBA_TAB_COLUMNS' || l_lf;
-    l_statement := 'GRANT &OTAP_ADMIN_ROLE. TO &OTAP_USER';
-    DBMS_OUTPUT.PUT_LINE(l_statement || ';');
-    EXECUTE IMMEDIATE l_statement;
-    l_output := l_output || 'Grant role &OTAP_ADMIN_ROLE. to &OTAP_USER' || l_lf;
     l_output := l_output || 'SUCCESS no errors';
   ELSE
     l_output := l_output || 'WARNING User &OTAP_USER. already exists. NO CHANGES APPLIED.' || l_lf;
@@ -164,7 +151,6 @@ SELECT '-- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/a
 SELECT 'DEFINE OTAP_USER="&OTAP_USER."' FROM dual;
 SELECT 'DEFINE OTAP_TABLESPACE="&OTAP_TS."' FROM dual;
 SELECT 'DEFINE OTAP_ROLE="' || role || '"' FROM dba_roles WHERE role = UPPER('&OTAP_ROLE');
-SELECT 'DEFINE OTAP_ADMIN_ROLE="' || role || '"' FROM dba_roles WHERE role = UPPER('&OTAP_ADMIN_ROLE');
 SELECT 'DEFINE ROLE_CREATOR="' || SYS_CONTEXT('USERENV', 'CURRENT_USER') || '"' FROM dual;
 SPOOL OFF
 SET TERMOUT ON
