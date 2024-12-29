@@ -232,4 +232,67 @@ INSERT INTO otap_config
   VALUES
   ('DEBUG_MODE', '0', 'NUMBER', 'Enables debugging on demand, logged in SPERRORLOG. Either 0 (disable) or 1 (enabled). Default is 0.')
 ;
+/*
+
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FORMAT_HEADER_CHAR', '=', 'CHAR', 1, 'Used to format the report header line. Limited to 1 char.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FORMAT_SET_CHAR', '*', 'CHAR', 1, 'Used to separate the report set information. Limited to 1 char.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FORMAT_GROUP_CHAR', '+', 'CHAR', 1, 'Used to separate the report group information. Limited to 1 char.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FORMAT_NAME_CHAR', '-', 'CHAR', 1, 'Used to separate the report test name information. Limited to 1 char.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('TEXT_REPORT_START', 'OTAP test summary report', 'CHAR', 256, 'Used as report title. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('TEXT_REPORT_END', 'OTAP test summary report finished', 'CHAR', 256, 'Used as report footer. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('TEXT_RESULT_HEADER', 'Result    Setup     Runtime             Test', 'CHAR', 256, 'Used as result header, depending on formatting and size of test passed, setup passed and runtime. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FORMAT_RESULT_HEADER', '--------- --------- ------------------- ----------------------------------------', 'CHAR', 256, 'Used as result header underlining, depending on formatting and size of test passed, setup passed and runtime. Limited to 256 chars, recommended equal or shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('SNIPPET_NO_DATA', 'NO_DATA - no tests found for test session id', 'CHAR', 256, 'Used as leading information text if no test data could be found. Extended by the used test session id. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('SNIPPET_SUMMARY_SUCCESS', 'SUCCESS', 'CHAR', 256, 'Used as leading information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('SNIPPET_SUMMARY_ERROR', 'ERROR', 'CHAR', 256, 'Used as leading information text if a set, group or test name has executed with errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('SNIPPET_SUMMARY_TEMPLATE', 'runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by correspondig values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+*/
 COMMIT;

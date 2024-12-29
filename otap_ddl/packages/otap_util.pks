@@ -106,5 +106,18 @@ AS
   */
   PROCEDURE result_cleanup;
 
+  /** FUNCTION otap_util.format_test_result
+  * Get a standard formatted string for test result and description.
+  *
+  * @param p_test_passed A valid test state identifier, as defined in otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED and otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  *
+  * @return A formatted text string with text representation of test state and test description.
+  */
+  FUNCTION format_test_result( p_test_passed IN INTEGER
+                             , p_description IN VARCHAR2
+                             )
+    RETURN VARCHAR2
+  ;
+
 END;
 /

@@ -15,6 +15,10 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 SPOOL logs/otap_setup.log
 -- types
 @@../otap_ddl/types/otap_session.sql
+@@../otap_ddl/types/otap_view_result_rec.sql
+@@../otap_ddl/types/otap_view_result_tbl.sql
+-- sequences
+@@../otap_ddl/sequences/otap_test_session_seq.sql
 -- independent packages
 @@../otap_ddl/packages/otap_constants.pks
 @@../otap_ddl/packages/otap_constants.pkb
@@ -24,6 +28,8 @@ SPOOL logs/otap_setup.log
 -- packages
 @@../otap_ddl/packages/otap_util.pks
 @@../otap_ddl/packages/otap_util.pkb
+@@../otap_ddl/packages/otap_objects.pks
+@@../otap_ddl/packages/otap_objects.pkb
 @@../otap_ddl/packages/otap_plan.pks
 @@../otap_ddl/packages/otap_plan.pkb
 @@../otap_ddl/packages/otap_schema.pks

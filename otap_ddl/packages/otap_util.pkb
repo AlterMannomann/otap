@@ -207,8 +207,8 @@ AS
     IS
       SELECT *
         FROM otap_results
-       WHERE otap_test_date < cp_delete_before
-         AND to_delete      = otap_constants.OTAP_NUM_TRUE
+       WHERE test_run_date < cp_delete_before
+         AND to_delete     = otap_constants.OTAP_NUM_TRUE
     ;
   BEGIN
     -- read config values before starting, values will not change until finished
@@ -233,7 +233,7 @@ AS
         -- wait defined time
         DBMS_SESSION.SLEEP(l_delete_delay);
       END IF;
-      DELETE FROM otap_results WHERE otap_testrun_id = rec.otap_testrun_id AND otap_test_date = rec.otap_test_date;
+      DELETE FROM otap_results WHERE test_run_id = rec.test_run_id AND test_run_date = rec.test_run_date;
       l_row_counter := l_row_counter + 1;
       l_processed   := l_processed + 1;
     END LOOP;
@@ -244,6 +244,28 @@ AS
     WHEN OTHERS THEN
       otap_util.log(SQLERRM, 'otap_util.result_cleanup', 'DELETE FROM otap_results');
   END result_cleanup;
+
+  FUNCTION format_test_result( p_test_passed IN INTEGER
+                             , p_description IN VARCHAR2
+                             )
+    RETURN VARCHAR2
+  IS
+    l_test_result VARCHAR2(256);
+    l_statement   VARCHAR2(32767);
+  BEGIN
+    -- result column
+    l_test_result := RPAD(otap_constants.translate_test_result(p_test_passed), 10, ' ');
+    -- we still have 246 chars
+    l_test_result := l_test_result || TRIM(SUBSTR(p_description, 1, 246));
+    RETURN l_test_result;
+  EXCEPTION
+    WHEN OTHERS THEN
+      l_statement := q'[l_test_result := RPAD(otap_constants.translate_test_result(p_test_passed), 10, ' ');
+l_test_result := l_test_result || TRIM(SUBSTR(p_description, 1, 246));]'
+      ;
+      otap_util.log('Unexpected exception. Internal error:' || SQLERRM, 'otap_util.format_test_result', l_statement);
+      RAISE;
+  END format_test_result;
 
 END;
 /

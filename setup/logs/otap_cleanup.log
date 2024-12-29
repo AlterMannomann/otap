@@ -88,6 +88,22 @@ SQL> DROP PACKAGE otap_plan;
 
 Package dropped.
 
+SQL> @@../otap_ddl/packages/drop/drop_otap_objects_pkb.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE BODY otap_objects;
+
+Package body dropped.
+
+SQL> @@../otap_ddl/packages/drop/drop_otap_objects_pks.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE otap_objects;
+
+Package dropped.
+
 SQL> @@../otap_ddl/packages/drop/drop_otap_util_pkb.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
@@ -153,7 +169,32 @@ SQL> DROP TABLE otap_config PURGE;
 
 Table dropped.
 
+SQL> -- sequences
+SQL> @@../otap_ddl/sequences/drop/drop_otap_test_session_seq.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP SEQUENCE otap_test_session_seq;
+
+Sequence dropped.
+
 SQL> -- types
+SQL> @@../otap_ddl/types/drop/drop_otap_view_result_tbl.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP TYPE otap_view_result_tbl;
+
+Type dropped.
+
+SQL> @@../otap_ddl/types/drop/drop_otap_view_result_rec.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP TYPE otap_view_result_rec;
+
+Type dropped.
+
 SQL> @@../otap_ddl/types/drop/drop_otap_session.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1

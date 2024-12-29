@@ -6,6 +6,7 @@
 
 -- read setup configuration as written by DBA setup, path relative to setup caller
 @@../setup/otap_setup_def.sql
+
 CREATE OR REPLACE PACKAGE otap_constants
 AS
   /**
@@ -40,9 +41,9 @@ AS
   OTAP_DEFAULT_PREFIX         CONSTANT CHAR(4)        := 'TEST';
   -- default name delimiter, $ and # are not recommended by Oracle and therefore not used
   OTAP_DEFAULT_DELIMITER      CONSTANT CHAR(1)        := '_';
-  OTAP_DEFAULT_TEST_SET       CONSTANT CHAR(21)       := 'otap GENERIC test set';
-  OTAP_DEFAULT_TEST_GROUP     CONSTANT CHAR(23)       := 'otap DEFAULT test group';
-  OTAP_DEFAULT_TEST_NAME      CONSTANT CHAR(14)       := 'Anonymous test';
+  OTAP_DEFAULT_TEST_SET       CONSTANT CHAR(13)       := 'OTAP test set';
+  OTAP_DEFAULT_TEST_GROUP     CONSTANT CHAR(15)       := 'OTAP test group';
+  OTAP_DEFAULT_TEST_NAME      CONSTANT CHAR(14)       := 'OTAP test name';
   /*====================================== end package constants used by otap ======================================*/
 
   /*====================================== start package constant get functions ======================================*/

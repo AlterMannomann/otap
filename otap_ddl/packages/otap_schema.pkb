@@ -12,6 +12,7 @@ AS
     RETURN VARCHAR2
   IS
     l_script            VARCHAR2(1024) := 'otap_schema.has_table';
+    l_default_message   VARCHAR2(256)  := 'Test table exists: ';
     l_has_table         INTEGER;
     l_test_passed       INTEGER;
     l_schema_to_use     VARCHAR2(130);
@@ -20,19 +21,25 @@ AS
     l_test_description  VARCHAR2(256);
     l_errors            VARCHAR2(4000);
     l_statement         VARCHAR2(32767);
+    l_start             TIMESTAMP;
+    l_end               TIMESTAMP;
     l_tmp_otap_session  OTAP_SESSION;
   BEGIN
-    l_errors := NULL;
-    IF     p_table_name              IS NOT NULL
-       AND LENGTH(TRIM(p_table_name)) > 0
+    l_start := SYSTIMESTAMP;
+    -- verify OTAP_SESSION object
+    otap_objects.otap_session_verify(o_otap_session);
+    l_errors     := NULL;
+    l_table_name := TRIM(p_table_name);
+    IF     l_table_name        IS NOT NULL
+       AND LENGTH(l_table_name) > 0
     THEN
       -- check description
-      l_test_description := NVL(p_description, 'Test table ' || p_table_name || ' exists');
-      l_schema_to_use := NVL(p_schema, o_otap_session.db_schema);
+      l_schema_to_use := TRIM(NVL(p_schema, o_otap_session.db_schema));
+      l_test_description := NVL(p_description, l_default_message || l_schema_to_use || '.' || l_table_name);
       SELECT COUNT(*)
         INTO l_has_table
         FROM dba_tables
-       WHERE table_name = p_table_name
+       WHERE table_name = l_table_name
          AND owner      = l_schema_to_use
       ;
       -- we should find one or zero entries
@@ -50,7 +57,7 @@ AS
         l_statement := q'[SELECT COUNT(*)
  INTO l_has_table
  FROM dba_tables
-WHERE table_name = '"' || p_table_name || '"'
+WHERE table_name = '"' || l_table_name || '"'
   AND owner      = '"' || l_schema_to_use || '"']'
         ;
         l_errors := 'Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_table;
@@ -59,35 +66,28 @@ WHERE table_name = '"' || p_table_name || '"'
     ELSE
       -- invalid table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-      l_statement         := 'p_table_name IS NOT NULL AND LENGTH(TRIM(p_table_name)) > 0';
+      l_statement         := 'l_table_name IS NOT NULL AND LENGTH(l_table_name) > 0';
       l_errors            := 'Missing table name';
-      l_test_description  := 'Test table ? exists';
+      l_test_description  := l_default_message || 'ERROR name missing';
       l_schema_to_use     := NVL(p_schema, o_otap_session.db_schema);
       otap_util.log(l_errors, l_script, l_statement);
     END IF;
     -- due to a possible schema override prepare a temporary object with the schema used
-    l_tmp_otap_session := OTAP_SESSION( o_otap_session.test_executor
-                                      , o_otap_session.test_set
-                                      , o_otap_session.test_group
-                                      , o_otap_session.test_name
-                                      , o_otap_session.db_user
-                                      , l_schema_to_use
-                                      , o_otap_session.test_prefix
-                                      , o_otap_session.test_count
-                                      , o_otap_session.intended_count
-                                      , o_otap_session.persist_test
-                                      , o_otap_session.name_precedence
-                                      , o_otap_session.include_packages
-                                      )
-    ;
-    otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_errors);
+    l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
+    l_tmp_otap_session.db_schema  := l_schema_to_use;
+    l_end                         := SYSTIMESTAMP;
+    otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
     -- now update the session record with new test done
-    otap_plan.add_test(o_otap_session);
-    l_test_result := otap_plan.format_test_result(l_test_passed, l_test_description);
+    otap_objects.otap_session_add_test(l_test_passed, o_otap_session);
+    l_test_result := otap_util.format_test_result(l_test_passed, l_test_description);
     RETURN l_test_result;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_util.log('Unexpected exception. Internal error:' || SQLERRM, 'otap_schema.has_table', 'otap_schema.has_table call');
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
       RAISE;
   END has_table;
 

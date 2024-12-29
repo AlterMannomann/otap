@@ -13,14 +13,17 @@
 -- should not require more than a byte. If only 0 and 1 is possible a bit should be more than enough.
 CREATE TABLE otap_results
   ( to_delete       NUMBER(1, 0)    DEFAULT 0                                         NOT NULL
-  , otap_testrun_id NUMBER(38, 0)   GENERATED ALWAYS AS IDENTITY (NOCACHE CYCLE MAXVALUE 9999999999999999999999999999)
-  , otap_test_date  DATE            DEFAULT SYSDATE                                   NOT NULL
+  , test_run_id     NUMBER(38, 0)   GENERATED ALWAYS AS IDENTITY (NOCACHE CYCLE MAXVALUE 9999999999999999999999999999)
+  , test_run_date   TIMESTAMP       DEFAULT SYSTIMESTAMP                              NOT NULL
   , test_passed     NUMBER(1, 0)    DEFAULT 0                                         NOT NULL
+  , test_session_id NUMBER(38, 0)   DEFAULT 0                                         NOT NULL
   , test_executor   VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'SESSION_USER')    NOT NULL
   , test_set        VARCHAR2(256)   DEFAULT 'otap GENERIC test set'                   NOT NULL
   , db_user         VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')    NOT NULL
   , db_schema       VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')  NOT NULL
   , test_group      VARCHAR2(256)   DEFAULT 'otap DEFAULT test group'                 NOT NULL
+  , test_start      TIMESTAMP                                                         NOT NULL
+  , test_end        TIMESTAMP                                                         NOT NULL
   , test_name       VARCHAR2(256)                                                     NOT NULL
   , test_desc       VARCHAR2(256)                                                     NOT NULL
   , deleted         DATE
@@ -31,14 +34,17 @@ CREATE TABLE otap_results
 -- description
 COMMENT ON TABLE otap_results IS 'Persist the results of otap test runs. Flat table. Restricted update by trigger. Will use the alias ores.';
 COMMENT ON COLUMN otap_results.to_delete IS 'Indicator for deletion of this record. Only 0 (no) and 1 (yes) allowed. Placed as first column to speed up test result cleanup.';
-COMMENT ON COLUMN otap_results.otap_testrun_id IS 'The generated id for each record, part of the primary key. The primary key is only implemented for correct DELETE access.';
-COMMENT ON COLUMN otap_results.otap_test_date IS 'The date of executing the test, part of the primary key. Set by trigger. The primary key is only implemented for correct DELETE access. Defines the persist duration, if TO_DELETE is set to 1.';
+COMMENT ON COLUMN otap_results.test_run_id IS 'The generated id for each record, part of the primary key. The primary key is only implemented for correct DELETE access.';
+COMMENT ON COLUMN otap_results.test_run_date IS 'The date of executing the test, part of the primary key. Set by trigger. The primary key is only implemented for correct DELETE access. Defines the persist duration, if TO_DELETE is set to 1.';
 COMMENT ON COLUMN otap_results.test_passed IS 'Indicator for test passed. 0 test not started or incomplete, 1 test passed, -1 test failed. No other values allowed.';
+COMMENT ON COLUMN otap_results.test_session_id IS 'The internal id for a test session. Keeping tests of a test session together. Managed by OTAP_TEST package and sequence OTAP_TEST_SESSION_SEQ. Once set to a value other then 0, not changed on updates.';
 COMMENT ON COLUMN otap_results.deleted IS 'The last date TO_DELETE was set to 1. Set by trigger.';
 COMMENT ON COLUMN otap_results.deleted_by IS 'The session user that set TO_DELETE to 1. Set by trigger.';
 COMMENT ON COLUMN otap_results.test_executor IS 'The session user that created the entry. Set by trigger.';
 COMMENT ON COLUMN otap_results.test_set IS 'The name of the test set the entry belongs to. Default otap GENERIC test set. Use test sets to separate application tests.';
 COMMENT ON COLUMN otap_results.test_group IS 'The name of the test group the entry belongs to. Default otap DEFAULT test group. Use test groups to separate functionality tests.';
+COMMENT ON COLUMN otap_results.test_start IS 'The timestamp of the test start. To be set by test functions';
+COMMENT ON COLUMN otap_results.test_end IS 'The timestamp of the test end. To be set by test functions';
 COMMENT ON COLUMN otap_results.db_user IS 'The database user owning the test object. Set to current user by default. Can be overwritten.';
 COMMENT ON COLUMN otap_results.db_schema IS 'The database schema of the test object. Set to current schema by default. Can be overwritten.';
 COMMENT ON COLUMN otap_results.test_name IS 'The name of a test. Use short names describing the test. Limited to 256 chars.';
@@ -48,7 +54,7 @@ COMMENT ON COLUMN otap_results.test_errors IS 'Error text information that has b
 -- no index apart from primary key, just overhead not needed
 ALTER TABLE otap_results
   ADD CONSTRAINT otap_results_pk
-  PRIMARY KEY (otap_testrun_id, otap_test_date)
+  PRIMARY KEY (test_run_id, test_run_date)
   ENABLE
 ;
 -- check constraints
@@ -67,11 +73,11 @@ CREATE OR REPLACE TRIGGER otap_results_ins_trg
   BEFORE INSERT ON otap_results
   FOR EACH ROW
 BEGIN
-  :NEW.otap_test_date   := SYSDATE;
-  :NEW.test_executor    := SYS_CONTEXT('USERENV', 'SESSION_USER');
+  :NEW.test_run_date   := SYSTIMESTAMP;
+  :NEW.test_executor   := SYS_CONTEXT('USERENV', 'SESSION_USER');
   IF :NEW.to_delete = otap_constants.OTAP_NUM_TRUE
   THEN
-    :NEW.deleted    := SYSDATE;
+    :NEW.deleted    := SYSTIMESTAMP;
     :NEW.deleted_by := SYS_CONTEXT('USERENV', 'SESSION_USER');
   ELSE
     :NEW.deleted    := NULL;
@@ -84,9 +90,14 @@ CREATE OR REPLACE TRIGGER otap_results_upd_trg
   FOR EACH ROW
 BEGIN
   -- keep values already set
-  IF :NEW.otap_test_date != :OLD.otap_test_date
+  IF :NEW.test_run_date != :OLD.test_run_date
   THEN
-    :NEW.otap_test_date := :OLD.otap_test_date;
+    :NEW.test_run_date := :OLD.test_run_date;
+  END IF;
+  IF     :OLD.test_session_id != 0
+     AND :NEW.test_session_id != :OLD.test_session_id
+  THEN
+    :NEW.test_session_id := :OLD.test_session_id;
   END IF;
   IF :NEW.test_executor != :OLD.test_executor
   THEN
@@ -103,7 +114,7 @@ BEGIN
   IF     :NEW.to_delete != :OLD.to_delete
      AND :NEW.to_delete  = otap_constants.OTAP_NUM_TRUE
   THEN
-    :NEW.deleted    := SYSDATE;
+    :NEW.deleted    := SYSTIMESTAMP;
     :NEW.deleted_by := SYS_CONTEXT('USERENV', 'SESSION_USER');
   END IF;
   IF     :OLD.test_name IS NOT NULL
@@ -116,5 +127,16 @@ BEGIN
   THEN
     :NEW.test_desc := :OLD.test_desc;
   END IF;
+  IF     :OLD.test_start IS NOT NULL
+     AND :NEW.test_start != :OLD.test_start
+  THEN
+    :NEW.test_start := :OLD.test_start;
+  END IF;
+  IF     :OLD.test_end IS NOT NULL
+     AND :NEW.test_end != :OLD.test_end
+  THEN
+    :NEW.test_end := :OLD.test_end;
+  END IF;
+
 END;
 /

@@ -22,6 +22,8 @@ SPOOL logs/otap_cleanup.log
 @@../otap_ddl/packages/drop/drop_otap_schema_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_plan_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_plan_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_objects_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_objects_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_util_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_util_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_constants_pkb.sql
@@ -29,7 +31,11 @@ SPOOL logs/otap_cleanup.log
 -- table objects including associated table trigger
 @@../otap_ddl/tables/drop/drop_otap_results.sql
 @@../otap_ddl/tables/drop/drop_otap_config.sql
+-- sequences
+@@../otap_ddl/sequences/drop/drop_otap_test_session_seq.sql
 -- types
+@@../otap_ddl/types/drop/drop_otap_view_result_tbl.sql
+@@../otap_ddl/types/drop/drop_otap_view_result_rec.sql
 @@../otap_ddl/types/drop/drop_otap_session.sql
 -- ==============UNINSTALL end==============
 @@util/log_silent.sql
