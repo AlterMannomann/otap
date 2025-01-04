@@ -11,24 +11,25 @@
 -- As this is mainly some special sort of temporary table the delete marker is the first bit or byte
 -- depending on database implementation, to make delete runs as fast as possible. An integer below 128
 -- should not require more than a byte. If only 0 and 1 is possible a bit should be more than enough.
+-- Using CHAR for different language support.
 CREATE TABLE otap_results
-  ( to_delete       NUMBER(1, 0)    DEFAULT 0                                         NOT NULL
-  , test_run_id     NUMBER(38, 0)   GENERATED ALWAYS AS IDENTITY (NOCACHE CYCLE MAXVALUE 9999999999999999999999999999)
-  , test_run_date   TIMESTAMP       DEFAULT SYSTIMESTAMP                              NOT NULL
-  , test_passed     NUMBER(1, 0)    DEFAULT 0                                         NOT NULL
-  , test_session_id NUMBER(38, 0)   DEFAULT 0                                         NOT NULL
-  , test_executor   VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'SESSION_USER')    NOT NULL
-  , test_set        VARCHAR2(256)   DEFAULT 'otap GENERIC test set'                   NOT NULL
-  , db_user         VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')    NOT NULL
-  , db_schema       VARCHAR2(128)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')  NOT NULL
-  , test_group      VARCHAR2(256)   DEFAULT 'otap DEFAULT test group'                 NOT NULL
-  , test_start      TIMESTAMP                                                         NOT NULL
-  , test_end        TIMESTAMP                                                         NOT NULL
-  , test_name       VARCHAR2(256)                                                     NOT NULL
-  , test_desc       VARCHAR2(256)                                                     NOT NULL
+  ( to_delete       NUMBER(1, 0)         DEFAULT 0                                         NOT NULL
+  , test_run_id     NUMBER(38, 0)        GENERATED ALWAYS AS IDENTITY (NOCACHE CYCLE MAXVALUE 9999999999999999999999999999)
+  , test_run_date   TIMESTAMP            DEFAULT SYSTIMESTAMP                              NOT NULL
+  , test_passed     NUMBER(1, 0)         DEFAULT 0                                         NOT NULL
+  , test_session_id NUMBER(38, 0)        DEFAULT 0                                         NOT NULL
+  , test_executor   VARCHAR2(128 CHAR)   DEFAULT SYS_CONTEXT('USERENV', 'SESSION_USER')    NOT NULL
+  , test_set        VARCHAR2(256 CHAR)   DEFAULT 'OTAP test set'                           NOT NULL
+  , db_user         VARCHAR2(128 CHAR)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')    NOT NULL
+  , db_schema       VARCHAR2(128 CHAR)   DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')  NOT NULL
+  , test_group      VARCHAR2(256 CHAR)   DEFAULT 'OTAP test group'                         NOT NULL
+  , test_start      TIMESTAMP                                                              NOT NULL
+  , test_end        TIMESTAMP                                                              NOT NULL
+  , test_name       VARCHAR2(256 CHAR)                                                     NOT NULL
+  , test_desc       VARCHAR2(256 CHAR)                                                     NOT NULL
   , deleted         DATE
-  , deleted_by      VARCHAR2(128)
-  , test_errors     VARCHAR2(4000)
+  , deleted_by      VARCHAR2(128 CHAR)
+  , test_errors     VARCHAR2(4000 CHAR)
   )
 ;
 -- description
@@ -41,8 +42,8 @@ COMMENT ON COLUMN otap_results.test_session_id IS 'The internal id for a test se
 COMMENT ON COLUMN otap_results.deleted IS 'The last date TO_DELETE was set to 1. Set by trigger.';
 COMMENT ON COLUMN otap_results.deleted_by IS 'The session user that set TO_DELETE to 1. Set by trigger.';
 COMMENT ON COLUMN otap_results.test_executor IS 'The session user that created the entry. Set by trigger.';
-COMMENT ON COLUMN otap_results.test_set IS 'The name of the test set the entry belongs to. Default otap GENERIC test set. Use test sets to separate application tests.';
-COMMENT ON COLUMN otap_results.test_group IS 'The name of the test group the entry belongs to. Default otap DEFAULT test group. Use test groups to separate functionality tests.';
+COMMENT ON COLUMN otap_results.test_set IS 'The name of the test set the entry belongs to. Default OTAP test set. Use test sets to separate application tests.';
+COMMENT ON COLUMN otap_results.test_group IS 'The name of the test group the entry belongs to. Default OTAP test group. Use test groups to separate functionality tests.';
 COMMENT ON COLUMN otap_results.test_start IS 'The timestamp of the test start. To be set by test functions';
 COMMENT ON COLUMN otap_results.test_end IS 'The timestamp of the test end. To be set by test functions';
 COMMENT ON COLUMN otap_results.db_user IS 'The database user owning the test object. Set to current user by default. Can be overwritten.';
@@ -138,5 +139,16 @@ BEGIN
     :NEW.test_end := :OLD.test_end;
   END IF;
 
+END;
+/
+
+CREATE OR REPLACE TRIGGER otap_results_del_trg
+  BEFORE DELETE ON otap_results
+  FOR EACH ROW
+BEGIN
+  IF :OLD.to_delete != otap_constants.OTAP_NUM_TRUE
+  THEN
+    RAISE_APPLICATION_ERROR(-20010, 'Record must be marked with TO_DELETE = 1. Peristent records cannot be deleted. Set TO_DELETE for run id ' || :OLD.test_run_id || ' and timestamp ' || TO_CHAR(:OLD.test_run_date, 'YYYY-MM-DD HH24:MI:SS.FF9'));
+  END IF;
 END;
 /

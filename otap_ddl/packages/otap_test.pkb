@@ -65,7 +65,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.init_test', 'l_message := otap_plan.init_test( p_test_count ...');
+        otap_log.log(SQLERRM, 'otap_test.init_test', 'l_message := otap_plan.init_test( p_test_count ...');
       END IF;
       RAISE;
   END init_test;
@@ -81,7 +81,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.finish_test', 'l_message := otap_plan.finish_test(p_write_count_rec, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.finish_test', 'l_message := otap_plan.finish_test(p_write_count_rec, session_record)');
       END IF;
       RAISE;
   END finish_test;
@@ -210,7 +210,7 @@ AS
             FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
             LOOP
               l_text_column := RPAD(otap_constants.translate_test_result(rec_tst.test_passed), 10) ||
-                               RPAD(CASE WHEN rec_tst.test_errors IS NULL THEN otap_constants.OTAP_CHAR_TEST_PASSED ELSE otap_constants.OTAP_CHAR_TEST_FAILED END, 10) ||
+                               RPAD(CASE WHEN rec_tst.test_errors IS NULL THEN otap_constants.OTAP_TEXT_TEST_PASSED ELSE otap_constants.OTAP_TEXT_TEST_FAILED END, 10) ||
                                rec_tst.run_time || ' ' ||
                                TRIM(rec_tst.test_desc)
               ;
@@ -257,7 +257,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
+        otap_log.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
       END IF;
       RAISE;
   END result_view;
@@ -273,7 +273,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_objects.otap_session_show(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_objects.otap_session_show(session_record)');
       END IF;
       RAISE;
   END current_settings;
@@ -289,7 +289,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_objects.otap_session_summary(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_objects.otap_session_summary(session_record)');
       END IF;
       RAISE;
   END current_summary;
@@ -305,7 +305,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_objects.otap_session_set_test_name(p_test_name, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_objects.otap_session_set_test_name(p_test_name, session_record)');
       END IF;
       RAISE;
   END set_test_name;
@@ -321,7 +321,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_objects.otap_session_set_test_group(p_test_group, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_objects.otap_session_set_test_group(p_test_group, session_record)');
       END IF;
       RAISE;
   END set_test_group;
@@ -337,7 +337,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_objects.otap_session_set_test_set(p_test_set, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_objects.otap_session_set_test_set(p_test_set, session_record)');
       END IF;
       RAISE;
   END set_test_set;
@@ -353,7 +353,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_objects.otap_session_get_test_id(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_objects.otap_session_get_test_id(session_record)');
       END IF;
       RAISE;
   END get_session_id;
@@ -372,7 +372,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_schema.has_table(p_table_name, session_record, p_schema, p_description)');
+        otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_schema.has_table(p_table_name, session_record, p_schema, p_description)');
       END IF;
       RAISE;
   END has_table;

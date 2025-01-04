@@ -26,10 +26,19 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/tables/otap_config.sql
 @@../otap_ddl/tables/otap_results.sql
 -- packages
-@@../otap_ddl/packages/otap_util.pks
-@@../otap_ddl/packages/otap_util.pkb
+@@../otap_ddl/packages/otap_log.pks
+@@../otap_ddl/packages/otap_log.pkb
+@@../otap_ddl/packages/otap_string.pks
+@@../otap_ddl/packages/otap_string.pkb
+@@../otap_ddl/packages/otap_config_util.pks
+@@../otap_ddl/packages/otap_config_util.pkb
+@@../otap_ddl/packages/otap_results_util.pks
+@@../otap_ddl/packages/otap_results_util.pkb
+@@../otap_ddl/packages/otap_report.pks
+@@../otap_ddl/packages/otap_report.pkb
 @@../otap_ddl/packages/otap_objects.pks
 @@../otap_ddl/packages/otap_objects.pkb
+/*
 @@../otap_ddl/packages/otap_plan.pks
 @@../otap_ddl/packages/otap_plan.pkb
 @@../otap_ddl/packages/otap_schema.pks
@@ -38,6 +47,7 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_test.pkb
 -- jobs
 @@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
+*/
 -- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so

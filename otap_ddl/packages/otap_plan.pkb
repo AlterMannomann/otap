@@ -32,7 +32,7 @@ AS
     ELSE
       l_test_passed := otap_constants.OTAP_NUM_TEST_FAILED;
       l_errors      := SUBSTR('Invalid test passed value: ' || p_test_passed || otap_constants.OTAP_LF || l_errors, 1, 4000);
-      otap_util.log('ERROR The given value for test passed ' || p_test_passed || ' for test description ' || p_test_description || ' is not valid.', l_script, 'p_test_passed IN (otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_UNDEFINED)');
+      otap_log.log('ERROR The given value for test passed ' || p_test_passed || ' for test description ' || p_test_description || ' is not valid.', l_script, 'p_test_passed IN (otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_UNDEFINED)');
     END IF;
     IF p_test_description IS NULL
     THEN
@@ -50,42 +50,27 @@ AS
     -- set delete flag as stored
     l_to_delete := CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_NUM_FALSE ELSE otap_constants.OTAP_NUM_TRUE END;
     -- ready to insert
-    INSERT INTO otap_results
-      ( to_delete
-      , test_passed
-      , test_session_id
-      , test_executor
-      , test_set
-      , test_group
-      , test_name
-      , test_desc
-      , test_start
-      , test_end
-      , db_user
-      , db_schema
-      , test_errors
-      ) VALUES ( l_to_delete
-               , l_test_passed
-               , p_otap_session.session_id
-               , p_otap_session.test_executor
-               , p_otap_session.test_set
-               , p_otap_session.test_group
-               , p_otap_session.test_name
-               , l_test_description
-               , p_test_start
-               , p_test_end
-               , p_otap_session.db_user
-               , p_otap_session.db_schema
-               , l_errors
-               )
+    otap_results_util.write_test_result( l_to_delete
+                                       , l_test_passed
+                                       , p_otap_session.session_id
+                                       , p_otap_session.test_executor
+                                       , p_otap_session.test_set
+                                       , p_otap_session.db_user
+                                       , p_otap_session.db_schema
+                                       , p_otap_session.test_group
+                                       , p_test_start
+                                       , p_test_end
+                                       , p_otap_session.test_name
+                                       , l_test_description
+                                       , l_errors
+                                       )
     ;
-    COMMIT;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
         -- log unhandled exceptions
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END write_test_result;
@@ -114,7 +99,7 @@ AS
       IF SQLCODE != -20099
       THEN
         -- log unhandled exceptions
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END write_count_result;
@@ -168,7 +153,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END init_test;
@@ -208,7 +193,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END run_tests;
@@ -231,7 +216,7 @@ AS
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END finish_test;

@@ -3,7 +3,7 @@
   WITH base AS
        (SELECT /*+MATERIALIZE*/
                ores.*
-             , CASE WHEN test_errors IS NULL THEN otap_constants.get_otap_id_test_passed ELSE otap_constants.get_otap_id_test_failed END AS test_setup_num
+             , CASE WHEN test_errors IS NULL THEN otap_constants.get_otap_num_test_passed ELSE otap_constants.get_otap_num_test_failed END AS test_setup_num
           FROM otap_results ores
          WHERE ores.test_session_id = otap_test.get_session_id
          ORDER BY test_run_date

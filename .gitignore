@@ -1,2 +1,3 @@
 setup/install.sh
 setup/uninstall.sh
+setup/reinstall.sh

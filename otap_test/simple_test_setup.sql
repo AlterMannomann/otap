@@ -20,3 +20,6 @@ SELECT * FROM TABLE(otap_test.result_view(otap_test.get_session_id));
 -- empty lines
 -- set:, group: and test: prefix instead of indentation
 -- text constants in function or package, not in code
+-- only raise on -20099 exception, wrapper for test functions to provide the exception to test_errors field
+-- provide translations (only general, for all, no user defined translations)
+-- system check, all triggers active and so on, if not, point out that otap is not stable -> report

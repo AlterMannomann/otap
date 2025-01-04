@@ -61,7 +61,7 @@ WHERE table_name = '"' || l_table_name || '"'
   AND owner      = '"' || l_schema_to_use || '"']'
         ;
         l_errors := 'Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_table;
-        otap_util.log(l_errors, l_script, l_statement);
+        otap_log.log(l_errors, l_script, l_statement);
       END IF;
     ELSE
       -- invalid table name
@@ -70,7 +70,7 @@ WHERE table_name = '"' || l_table_name || '"'
       l_errors            := 'Missing table name';
       l_test_description  := l_default_message || 'ERROR name missing';
       l_schema_to_use     := NVL(p_schema, o_otap_session.db_schema);
-      otap_util.log(l_errors, l_script, l_statement);
+      otap_log.log(l_errors, l_script, l_statement);
     END IF;
     -- due to a possible schema override prepare a temporary object with the schema used
     l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
@@ -79,14 +79,14 @@ WHERE table_name = '"' || l_table_name || '"'
     otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
     -- now update the session record with new test done
     otap_objects.otap_session_add_test(l_test_passed, o_otap_session);
-    l_test_result := otap_util.format_test_result(l_test_passed, l_test_description);
+    l_test_result := otap_report.format_test_result(l_test_passed, l_test_description);
     RETURN l_test_result;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
         -- log unhandled exceptions
-        otap_util.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
       END IF;
       RAISE;
   END has_table;

@@ -10,7 +10,7 @@ BEGIN
     -- install job
     DBMS_SCHEDULER.CREATE_JOB( job_name => 'OTAP_MAINTENANCE'
                              , job_type => 'PLSQL_BLOCK'
-                             , job_action => 'otap_util.result_cleanup;'
+                             , job_action => 'otap_results_util.result_cleanup;'
                              , repeat_interval => 'FREQ=WEEKLY;BYTIME=230000;BYDAY=MON,TUE,WED,THU,FRI'
                              , enabled => FALSE
                              , auto_drop => FALSE
