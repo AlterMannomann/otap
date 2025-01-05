@@ -209,7 +209,7 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_report.get_test_name_text
+  /** FUNCTION otap_report.get_result_line
   * Builds the test result line from template. Does minor NVL handling, N/A for NULL.
   *
   * @param p_test_state The test state as text representation for a test result report, e.g. passed, failed or undefined.
@@ -242,6 +242,21 @@ AS
   FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
                              , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
                              )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_report.get_has_table_msg
+  * Builds a user message for the has_table test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_table_name The table name that was tested.
+  * @param p_schema_name The schema of the table tested.
+  *
+  * @return The formatted and reduced has table test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_has_table_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                            , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                            )
     RETURN VARCHAR2
   ;
 

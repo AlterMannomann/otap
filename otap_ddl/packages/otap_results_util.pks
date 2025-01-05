@@ -55,5 +55,17 @@ AS
   */
   PROCEDURE result_cleanup;
 
+  /** FUNCTION otap_results_util.max_text_size
+  * Determines the maximum size for a session id the text label test_set, test_group, test_name and test_description.
+  * Used for report formatting. Error text is not considered as this might get huge.
+  *
+  * @param p_session_id A valid session id to get the maximum text size for.
+  *
+  * @return The maximum text size for the given session id or otap_constants.OTAP_REPORT_MIN_FILL_LENGTH on errors.
+  */
+  FUNCTION max_text_size(p_session_id IN NUMBER)
+    RETURN NUMBER
+  ;
+
 END;
 /

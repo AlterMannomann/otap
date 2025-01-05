@@ -92,6 +92,7 @@ BEGIN
                              , 'GROUP_TEMPLATE'
                              , 'TEST_NAME_TEMPLATE'
                              , 'RESULT_LINE_TEMPLATE'
+                             , 'FN_HAS_TABLE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -215,6 +216,7 @@ BEGIN
                              , 'GROUP_TEMPLATE'
                              , 'TEST_NAME_TEMPLATE'
                              , 'RESULT_LINE_TEMPLATE'
+                             , 'FN_HAS_TABLE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -358,6 +360,7 @@ BEGIN
                          , 'GROUP_TEMPLATE'
                          , 'TEST_NAME_TEMPLATE'
                          , 'RESULT_LINE_TEMPLATE'
+                         , 'FN_HAS_TABLE_TEMPLATE'
                          )
   THEN
     RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
@@ -565,6 +568,13 @@ INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('RESULT_LINE_TEMPLATE', '@teststate@ @issuestate@ @runtime@ @testdesc@', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+-- @schema@ represents the schema of the table
+-- @tablename@ represents the table name
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FN_HAS_TABLE_TEMPLATE', 'TEST if table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 
 COMMIT;

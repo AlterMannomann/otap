@@ -7,25 +7,29 @@ AS
 
   /**
   * This package provides the internal available test functions for schema objects which
-  * are used by OTAP_TEST. It has also dependencies to OTAP_PLAN, OTAP_UTIL and OTAP_CONSTANTS.
+  * are used by OTAP_API. All functions use PLSQL variable types as they are behind OTAP_API.
+  *
+  * All functions return a numeric test result as defined in otap_constants.OTAP_NUM_TEST_PASSED,
+  * otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  *
+  * Test functions never manage session variables, but they always provide an error output. Decisions
+  * based on session objects, e.g. which schema to use, must be managed by OTAP_API.
   */
 
   /** FUNCTION otap_schema.has_table
-  * Tests if a table exists or not, writes the test result, add a test to the counter and outputs the test result.
+  * Tests if a table exists and returns a numeric test result.
   *
-  * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
-  * @param o_otap_session The otap_session object from package OTAP_TEST.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-  * @param p_description The test description if any. If not given, a description is generated: Test table x exists.
+  * @param p_table_name The table name of the table, taken as is. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
   *
-  * @return The test result as text.
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_table( p_table_name   IN            VARCHAR2
-                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
-                    , p_schema       IN            VARCHAR2     DEFAULT NULL
-                    , p_description  IN            VARCHAR2     DEFAULT NULL
+  FUNCTION has_table( p_table_name   IN     VARCHAR2
+                    , o_errors          OUT VARCHAR2
+                    , p_schema       IN     VARCHAR2 DEFAULT NULL
                     )
-    RETURN VARCHAR2
+    RETURN INTEGER
   ;
 
 END;

@@ -61,7 +61,7 @@ AS
   * Main functionality is setting the amount of tests to expect. If greater than 0 this will include a test report section
   * containing differences in tests expected and tests executed.
   *
-  * Wrapper for otap_plan.init_test.
+  * Wrapper for otap_api.init_test.
   *
   * @param p_test_count The amount of tests expected to be executed when called.
   * @param p_test_set The name of the test set applied if the name of the executed test procedure or function does not provide a test set name or name precendence is disabled.
@@ -102,7 +102,7 @@ AS
   * Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names
   * for test set, group and name. When a test session is finished, the test session view will not
   * longer show the tests from the old session. If intended count is set, a test record about
-  * executed and expected tests is written. Wrapper for otap_plan.finish_test.
+  * executed and expected tests is written. Wrapper for otap_api.finish_test.
   *
   * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
   *
@@ -116,7 +116,7 @@ AS
 
   /** FUNCTION otap_test.current_settings
   * Returns a LF terminated string about the current package session state.
-  * Wrapper for otap_objects.otap_session_show.
+  * Wrapper for otap_api.otap_session_show.
   *
   * @return An info message about the current package session variables.
   */
@@ -126,7 +126,7 @@ AS
 
   /** FUNCTION otap_test.current_summary
   * Returns a string with a current summary of the test session. Session id, run time, tests executed
-  * and test in error. Wrapper for otap_objects.otap_session_summary.
+  * and test in error. Wrapper for otap_api.otap_session_summary.
   *
   * @return An info message about the current package session variables.
   */
@@ -138,7 +138,7 @@ AS
   * Handles and sets the current active test name. If test name is longer than 256 chars
   * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_NAME
   * is used. Only valid within one session, if session ends, test name is reset.
-  * Wrapper for otap_objects.otap_session_set_test_name.
+  * Wrapper for otap_api.otap_session_set_test_name.
   *
   * Test names are usually retrieved from the executed test function or procedure. Can
   * be used to overwrite the group within a test function or procedure.
@@ -155,7 +155,7 @@ AS
   * Handles and sets the current active test group. If test group name is longer than 256 chars
   * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_GROUP
   * is used. Only valid within one session, if session ends, test name is reset.
-  * Wrapper for otap_objects.otap_session_set_test_group.
+  * Wrapper for otap_api.otap_session_set_test_group.
   *
   * Test group names are usually retrieved from the executed test function or procedure. Can
   * be used to overwrite the group within a test function or procedure.
@@ -171,7 +171,7 @@ AS
   /** FUNCTION otap_test.set_test_set
   * Handles and sets the current active test set. If test set name is longer than 256 chars
   * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_SET
-  * is used. Wrapper for otap_objects.otap_session_set_test_set.
+  * is used. Wrapper for otap_api.otap_session_set_test_set.
   *
   * Test set names are usually retrieved from the executed test function or procedure. Can
   * be used to overwrite the set within a test function or procedure.
@@ -186,7 +186,7 @@ AS
 
   /** FUNCTION otap_test.get_session_id
   * Retrieves the current active test session id. Usually used in views.
-  * Wrapper for otap_objects.otap_session_get_test_id.
+  * Wrapper for otap_api.otap_session_get_test_id.
   *
   * @return The current active test session id.
   */
@@ -207,11 +207,12 @@ AS
   ;
 
   /** FUNCTION otap_test.has_table
-  * Tests if a table exists or not and outputs the test result. Wrapper for otap_schema.has_table.
+  * Tests if a table exists or not and outputs the test result. Wrapper for otap_api.has_table.
+  * Writes and adds the test result for the current active test session.
   *
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-  * @param p_description The test description if any. If not given, a description is generated: Test table x exists.
+  * @param p_description The test description if any. If not given, a description is generated: TEST if table x exists.
   *
   * @return The test result as text.
   */
@@ -220,6 +221,12 @@ AS
                     , p_description  IN            VARCHAR2     DEFAULT NULL
                     )
     RETURN VARCHAR2
+  ;
+
+
+  -- debug function
+  FUNCTION get_session_var
+    RETURN OTAP_SESSION
   ;
 
 END;

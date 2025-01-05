@@ -20,20 +20,220 @@ AS
   * otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_UNDEFINED or exception.
   *
   * Test results, after persisting, are always delivered to the caller of OTAP_API as VARCHAR2 test result text.
+  *
+  * Comments are kept short, as this package gets huge. See wrapped functions for details.
   */
 
+  /** FUNCTION otap_api.init_test
+  * @see otap_plan.init_test
+  */
+  FUNCTION init_test( p_test_count          IN            NUMBER
+                    , p_test_set            IN            VARCHAR2
+                    , p_test_group          IN            VARCHAR2
+                    , p_test_name           IN            VARCHAR2
+                    , p_prefix              IN            VARCHAR2
+                    , p_name_precedence     IN            NUMBER
+                    , p_include_pkg         IN            NUMBER
+                    , p_persist             IN            NUMBER
+                    , p_schema              IN            VARCHAR2
+                    , p_user                IN            VARCHAR2
+                    , p_executor            IN            VARCHAR2
+                    , o_otap_session        IN OUT NOCOPY OTAP_SESSION
+                    )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.finish_test
+  * @see otap_plan.finish_test
+  */
+  FUNCTION finish_test( p_write_count_rec IN            NUMBER
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_show
+  * @see otap_objects.otap_session_show
+  */
+  FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_summary
+  * @see otap_objects.otap_session_summary
+  */
+  FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_set_test_name
+  * @see otap_objects.otap_session_set_test_name
+  */
+  FUNCTION otap_session_set_test_name( p_test_name    IN            VARCHAR2
+                                     , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                                     )
+    RETURN VARCHAR2
+  ;
+
+
+  /** FUNCTION otap_api.otap_session_set_test_group
+  * @see otap_objects.otap_session_set_test_group
+  */
+  FUNCTION otap_session_set_test_group( p_test_group   IN            VARCHAR2
+                                      , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_set_test_set
+  * @see otap_objects.otap_session_set_test_set
+  */
+  FUNCTION otap_session_set_test_set( p_test_set     IN            VARCHAR2
+                                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                                    )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_get_test_id
+  * @see otap_objects.otap_session_get_test_id
+  */
+  FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
+    RETURN NUMBER
+  ;
+
+  /** FUNCTION otap_api.max_text_size
+  * @see otap_results_util.max_text_size
+  */
+  FUNCTION max_text_size(p_session_id IN NUMBER)
+    RETURN NUMBER
+  ;
+
+  /** FUNCTION otap_api.get_report_header
+  * @see otap_report.get_report_header
+  */
+  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_session_id_text
+  * @see otap_report.get_session_id_text
+  */
+  FUNCTION get_session_id_text( p_session_id IN NUMBER
+                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                              )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_set_text
+  * @see otap_report.get_set_text
+  */
+  FUNCTION get_set_text( p_test_set IN VARCHAR2
+                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_summary
+  * @see otap_report.get_summary
+  * Calculates status needed by errors and issues.
+  */
+  FUNCTION get_summary( p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                      , p_runs     IN NUMBER   DEFAULT 0
+                      , p_errors   IN NUMBER   DEFAULT 0
+                      , p_issues   IN NUMBER   DEFAULT 0
+                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_group_text
+  * @see otap_report.get_group_text
+  */
+  FUNCTION get_group_text( p_test_group IN VARCHAR2
+                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                         )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_test_name_text
+  * @see otap_report.get_test_name_text
+  */
+  FUNCTION get_test_name_text( p_test_name IN VARCHAR2
+                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                             )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_result_header
+  * @see otap_report.get_result_header
+  */
+  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_result_underline
+  * @see otap_report.get_result_underline
+  */
+  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_result_line
+  * @see otap_report.get_result_line
+  */
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+                          , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                          , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                          )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.test_result_to_text
+  * @see otap_config_util.test_result_to_text
+  */
+  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+    RETURN VARCHAR
+  ;
+
+  /** FUNCTION otap_api.get_error_result_header
+  * @see otap_report.get_error_result_header
+  */
+  FUNCTION get_error_result_header( p_test_name IN VARCHAR2
+                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                                  )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_error_details
+  * @see otap_report.get_error_details
+  */
+  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                            )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_no_data_text
+  * @see otap_report.get_no_data_text
+  */
+  FUNCTION get_no_data_text( p_session_id IN NUMBER
+                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                           )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.get_report_footer
+  * @see otap_report.get_report_footer
+  */
+  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.has_table
-  * Tests if a table exists or not, writes the test result, add a test to the counter and outputs the test result.
-  * Uses otap_schema to get a test result and testing for any exception, then writing the test result including the
-  * internal issues of otap, if any and add a new test done to the session variable. If error is manageable, no exception
-  * will be raised. Nevertheless there are still option that the construct may fail on user side by severe database errors.
-  *
-  * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
-  * @param o_otap_session The otap_session object from package OTAP_TEST.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-  * @param p_description The test description if any. If not given, a description is generated: Test table x exists.
-  *
-  * @return The test result as text.
+  * @see otap_schema.has_table
   */
   FUNCTION has_table( p_table_name   IN            VARCHAR2
                     , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -44,3 +244,4 @@ AS
   ;
 
 END;
+/

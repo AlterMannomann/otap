@@ -77,7 +77,7 @@ AS
   END get_otap_num_test_undefined;
 
   FUNCTION get_otap_report_min_fill_length
-    RETURN VARCHAR2
+    RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
@@ -86,7 +86,7 @@ AS
   END get_otap_report_min_fill_length;
 
   FUNCTION get_otap_report_max_fill_length
-    RETURN VARCHAR2
+    RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS

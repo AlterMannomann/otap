@@ -46,26 +46,26 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_plan.init_test( NVL(p_test_count, 0)
-                                    , NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET)
-                                    , NVL(p_test_group, otap_constants.OTAP_DEFAULT_TEST_GROUP)
-                                    , NVL(p_test_name, otap_constants.OTAP_DEFAULT_TEST_NAME)
-                                    , NVL(p_prefix, otap_constants.OTAP_DEFAULT_PREFIX)
-                                    , NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE)
-                                    , NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE)
-                                    , NVL(p_persist, otap_constants.OTAP_NUM_FALSE)
-                                    , p_schema
-                                    , p_user
-                                    , p_executor
-                                    , session_record
-                                    )
+    l_message := otap_api.init_test( NVL(p_test_count, 0)
+                                   , NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET)
+                                   , NVL(p_test_group, otap_constants.OTAP_DEFAULT_TEST_GROUP)
+                                   , NVL(p_test_name, otap_constants.OTAP_DEFAULT_TEST_NAME)
+                                   , NVL(p_prefix, otap_constants.OTAP_DEFAULT_PREFIX)
+                                   , NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE)
+                                   , NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE)
+                                   , NVL(p_persist, otap_constants.OTAP_NUM_FALSE)
+                                   , p_schema
+                                   , p_user
+                                   , p_executor
+                                   , session_record
+                                   )
     ;
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.init_test', 'l_message := otap_plan.init_test( p_test_count ...');
+        otap_log.log(SQLERRM, 'otap_test.init_test', 'l_message := otap_api.init_test( p_test_count ...');
       END IF;
       RAISE;
   END init_test;
@@ -75,13 +75,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_plan.finish_test(p_write_count_rec, session_record);
+    l_message := otap_api.finish_test(p_write_count_rec, session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.finish_test', 'l_message := otap_plan.finish_test(p_write_count_rec, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.finish_test', 'l_message := otap_api.finish_test(p_write_count_rec, session_record)');
       END IF;
       RAISE;
   END finish_test;
@@ -94,6 +94,7 @@ AS
     l_text_column  VARCHAR2(4000);
     l_has_errors   INTEGER;
     l_has_records  INTEGER;
+    l_report_size  INTEGER;
     CURSOR cur_test_sets(cp_session_id IN NUMBER)
     IS
       SELECT test_set
@@ -146,8 +147,10 @@ AS
     IS
       SELECT test_desc
            , test_passed
+           , otap_api.test_result_to_text(test_passed) AS test_state
            , TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
            , test_errors
+           , otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END) AS issue_state
         FROM otap_results
        WHERE test_session_id = cp_session_id
          AND test_set        = cp_test_set
@@ -156,10 +159,11 @@ AS
        ORDER BY test_run_date
     ;
   BEGIN
+    l_report_size := otap_api.max_text_size(p_session_id);
     -- header row
-    l_text_column := RPAD(l_delim_updown, 27, l_delim_updown) || ' OTAP test summary start ' || RPAD(l_delim_updown, 28, l_delim_updown);
+    l_text_column := otap_api.get_report_header(l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := 'Test session id: ' || p_session_id;
+    l_text_column := otap_api.get_session_id_text(p_session_id, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     -- check for records
     SELECT COUNT(*) INTO l_has_records FROM otap_results WHERE test_session_id = p_session_id;
@@ -168,52 +172,37 @@ AS
       -- loop through the set
       FOR rec_set IN cur_test_sets(p_session_id)
       LOOP
-        -- build the set
-        l_text_column := rec_set.test_set || ' ' ||
-                         'run time: ' || rec_set.run_time || ' (' ||
-                         'runs: ' || TRIM(TO_CHAR(rec_set.test_runs)) || ' ' ||
-                         'errors: ' || TRIM(TO_CHAR(rec_set.test_errors)) || ' ' ||
-                         'issues: ' || TRIM(TO_CHAR(rec_set.setup_errors)) || ')'
-        ;
+        -- build test set column
+        l_text_column := otap_api.get_set_text(rec_set.test_set, l_report_size);
+        PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+        -- build test set summary
+        l_text_column := otap_api.get_summary(rec_set.run_time, rec_set.test_runs, rec_set.test_errors, rec_set.setup_errors, l_report_size);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         -- loop through the group
         FOR rec_grp IN cur_test_groups(p_session_id, rec_set.test_set)
         LOOP
-          -- build the group
-          l_text_column := ' - ' || rec_grp.test_group || ' ' ||
-                           'run time: ' || rec_grp.run_time || ' (' ||
-                           'runs: ' || TRIM(TO_CHAR(rec_grp.test_runs)) || ' ' ||
-                           'errors: ' || TRIM(TO_CHAR(rec_grp.test_errors)) || ' ' ||
-                           'issues: ' || TRIM(TO_CHAR(rec_grp.setup_errors)) || ')'
-          ;
+          l_text_column := otap_api.get_group_text(rec_grp.test_group, l_report_size);
+          PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+          -- build test set summary
+          l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size);
           PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           -- loop through the names
           FOR rec_nam IN cur_test_names(p_session_id, rec_set.test_set, rec_grp.test_group)
           LOOP
-            -- build the name
-            l_text_column := '  - ' || rec_nam.test_name || ' ' ||
-                             'run time: ' || rec_nam.run_time || ' (' ||
-                             'runs: ' || TRIM(TO_CHAR(rec_nam.test_runs)) || ' ' ||
-                             'errors: ' || TRIM(TO_CHAR(rec_nam.test_errors)) || ' ' ||
-                             'issues: ' || TRIM(TO_CHAR(rec_nam.setup_errors)) || ')'
-            ;
+            l_text_column := otap_api.get_test_name_text(rec_nam.test_name, l_report_size);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-            -- build delimiter for tests
-            l_text_column := RPAD(l_delim_tests, 20, l_delim_tests) || ' ' || rec_nam.test_name || ' test results ' || RPAD(l_delim_tests, 20, l_delim_tests);
+            -- build test set summary
+            l_text_column := otap_api.get_summary(rec_nam.run_time, rec_nam.test_runs, rec_nam.test_errors, rec_nam.setup_errors, l_report_size);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- build header
-            l_text_column := 'Result    Setup     Runtime             Test';
+            l_text_column := otap_api.get_result_header(l_report_size);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-            l_text_column := '--------- --------- ------------------- ----------------------------------------';
+            l_text_column := otap_api.get_result_underline(l_report_size);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- loop through the tests
             FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
             LOOP
-              l_text_column := RPAD(otap_constants.translate_test_result(rec_tst.test_passed), 10) ||
-                               RPAD(CASE WHEN rec_tst.test_errors IS NULL THEN otap_constants.OTAP_TEXT_TEST_PASSED ELSE otap_constants.OTAP_TEXT_TEST_FAILED END, 10) ||
-                               rec_tst.run_time || ' ' ||
-                               TRIM(rec_tst.test_desc)
-              ;
+              l_text_column := otap_api.get_result_line(rec_tst.test_state, rec_tst.issue_state, rec_tst.run_time, rec_tst.test_desc, l_report_size);
               PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
             END LOOP;
             SELECT COUNT(*)
@@ -228,29 +217,26 @@ AS
             IF l_has_errors > 0
             THEN
               -- build error delimiter for tests
-              l_text_column := RPAD(l_delim_tests, 20, l_delim_tests) || ' ' || rec_nam.test_name || ' test errors ' || RPAD(l_delim_tests, 20, l_delim_tests);
+              l_text_column := otap_api.get_error_result_header(rec_nam.test_name, l_report_size);
               PIPE ROW (otap_view_result_rec(l_text_column, NULL));
               FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
               LOOP
                 IF rec_tst.test_errors IS NOT NULL
                 THEN
-                  l_text_column := '- ' || TRIM(rec_tst.test_desc) || ': ' || REGEXP_REPLACE(rec_tst.test_errors, '\s{2,}', ' ');
+                  l_text_column := otap_api.get_error_details(rec_tst.test_desc, otap_string.flatten(rec_tst.test_errors, 4000), l_report_size);
                   PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
                 END IF;
               END LOOP;
             END IF;
-            -- build end delimiter for tests
-            l_text_column := RPAD(l_delim_tests, 20, l_delim_tests) || ' ' || rec_nam.test_name || ' test done ' || RPAD(l_delim_tests, 20, l_delim_tests);
-            PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           END LOOP;
         END LOOP;
       END LOOP;
     ELSE
-      l_text_column := 'NO_DATA - no tests found for test session id ' || p_session_id;
+      l_text_column := otap_api.get_no_data_text(p_session_id, l_report_size);
       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     END IF;
     -- footer row
-    l_text_column := RPAD(l_delim_updown, 28, l_delim_updown) || ' OTAP test summary end ' || RPAD(l_delim_updown, 29, l_delim_updown);
+    l_text_column := otap_api.get_report_footer(l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     RETURN;
   EXCEPTION
@@ -267,13 +253,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_objects.otap_session_show(session_record);
+    l_message := otap_api.otap_session_show(session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_objects.otap_session_show(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_api.otap_session_show(session_record)');
       END IF;
       RAISE;
   END current_settings;
@@ -283,13 +269,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_objects.otap_session_summary(session_record);
+    l_message := otap_api.otap_session_summary(session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_objects.otap_session_summary(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_api.otap_session_summary(session_record)');
       END IF;
       RAISE;
   END current_summary;
@@ -299,13 +285,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_objects.otap_session_set_test_name(p_test_name, session_record);
+    l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_objects.otap_session_set_test_name(p_test_name, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_api.otap_session_set_test_name(p_test_name, session_record)');
       END IF;
       RAISE;
   END set_test_name;
@@ -315,13 +301,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_objects.otap_session_set_test_group(p_test_group, session_record);
+    l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_objects.otap_session_set_test_group(p_test_group, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_api.otap_session_set_test_group(p_test_group, session_record)');
       END IF;
       RAISE;
   END set_test_group;
@@ -331,13 +317,13 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_objects.otap_session_set_test_set(p_test_set, session_record);
+    l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_objects.otap_session_set_test_set(p_test_set, session_record)');
+        otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_api.otap_session_set_test_set(p_test_set, session_record)');
       END IF;
       RAISE;
   END set_test_set;
@@ -345,15 +331,15 @@ AS
   FUNCTION get_session_id
     RETURN NUMBER
   IS
-    l_message VARCHAR2(4000);
+    l_return NUMBER;
   BEGIN
-    l_message := otap_objects.otap_session_get_test_id(session_record);
-    RETURN l_message;
+    l_return := otap_api.otap_session_get_test_id(session_record);
+    RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_objects.otap_session_get_test_id(session_record)');
+        otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_api.otap_session_get_test_id(session_record)');
       END IF;
       RAISE;
   END get_session_id;
@@ -366,16 +352,24 @@ AS
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_schema.has_table(p_table_name, session_record, p_schema, p_description);
+    l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_schema.has_table(p_table_name, session_record, p_schema, p_description)');
+        otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
       END IF;
       RAISE;
   END has_table;
+
+  -- debug function
+  FUNCTION get_session_var
+    RETURN OTAP_SESSION
+  IS
+  BEGIN
+    RETURN session_record;
+  END get_session_var;
 
 END;
 /

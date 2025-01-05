@@ -38,16 +38,16 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_report.pkb
 @@../otap_ddl/packages/otap_objects.pks
 @@../otap_ddl/packages/otap_objects.pkb
-/*
 @@../otap_ddl/packages/otap_plan.pks
 @@../otap_ddl/packages/otap_plan.pkb
 @@../otap_ddl/packages/otap_schema.pks
 @@../otap_ddl/packages/otap_schema.pkb
+@@../otap_ddl/packages/otap_api.pks
+@@../otap_ddl/packages/otap_api.pkb
 @@../otap_ddl/packages/otap_test.pks
 @@../otap_ddl/packages/otap_test.pkb
 -- jobs
 @@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
-*/
 -- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so

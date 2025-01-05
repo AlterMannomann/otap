@@ -92,7 +92,7 @@ AS
       l_test_description := 'Run ' || p_otap_session.test_count || ' of ' || p_otap_session.intended_count || ' tests, this test excluded';
       l_errors           := NULL;
       l_end              := SYSTIMESTAMP;
-      write_test_result(l_test_description, p_otap_session, l_test_passed, l_start, l_end, l_errors);
+      otap_plan.write_test_result(l_test_description, p_otap_session, l_test_passed, l_start, l_end, l_errors);
     END IF;
   EXCEPTION
     WHEN OTHERS THEN
@@ -129,7 +129,7 @@ AS
            )
     THEN
       -- write record with current values
-      write_count_result(o_otap_session);
+      otap_plan.write_count_result(o_otap_session);
       l_message := 'Closed test session summary' || otap_constants.OTAP_LF;
       l_message := l_message || otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_LF;
     END IF;

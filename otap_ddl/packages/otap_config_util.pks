@@ -360,6 +360,13 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_config_util.get_fn_has_table_template
+  *  @return The setting of FN_HAS_TABLE_TEMPLATE in OTAP_CONFIG.
+  */
+  FUNCTION get_fn_has_table_template
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_config_util.get_text_false
   *  @return The setting of TEXT_FALSE in OTAP_CONFIG.
   */

@@ -173,25 +173,24 @@ OR p_otap_session.session_view_id             IS NULL]'
     -- verify the current object
     otap_objects.otap_session_verify(p_otap_session);
     -- build the message
-    l_message := otap_string.reduce( 'Current test settings' || otap_constants.OTAP_LF ||
-                                     'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_LF ||
-                                     'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_LF ||
-                                     'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_LF ||
-                                     'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_LF ||
-                                     'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_LF ||
-                                     'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_LF ||
-                                     'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_LF ||
-                                     'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_LF ||
-                                     'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_LF ||
-                                     'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_LF ||
-                                     'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                                     'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                                     'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                                     'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE p_otap_session.session_view_id END || otap_constants.OTAP_LF ||
-                                     'Test start: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
-                                   , 4000
-                                  )
+    l_message := 'Current test settings' || otap_constants.OTAP_LF ||
+                 'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_LF ||
+                 'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_LF ||
+                 'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_LF ||
+                 'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_LF ||
+                 'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_LF ||
+                 'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_LF ||
+                 'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_LF ||
+                 'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_LF ||
+                 'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_LF ||
+                 'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_LF ||
+                 'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
+                 'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
+                 'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
+                 'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE TO_CHAR(p_otap_session.session_view_id) END || otap_constants.OTAP_LF ||
+                 'Test start: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
     ;
+    l_message := otap_string.reduce(l_message, 4000);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN

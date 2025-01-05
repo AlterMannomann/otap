@@ -4,38 +4,26 @@
 CREATE OR REPLACE PACKAGE BODY otap_schema
 AS
   -- for description see header file
-  FUNCTION has_table( p_table_name   IN            VARCHAR2
-                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
-                    , p_schema       IN            VARCHAR2     DEFAULT NULL
-                    , p_description  IN            VARCHAR2     DEFAULT NULL
+  FUNCTION has_table( p_table_name   IN     VARCHAR2
+                    , o_errors          OUT VARCHAR2
+                    , p_schema       IN     VARCHAR2 DEFAULT NULL
                     )
-    RETURN VARCHAR2
+    RETURN INTEGER
   IS
     l_script            VARCHAR2(1024) := 'otap_schema.has_table';
-    l_default_message   VARCHAR2(256)  := 'Test table exists: ';
     l_has_table         INTEGER;
     l_test_passed       INTEGER;
-    l_schema_to_use     VARCHAR2(130);
-    l_table_name        VARCHAR2(130);
-    l_test_result       VARCHAR2(256);
-    l_test_description  VARCHAR2(256);
-    l_errors            VARCHAR2(4000);
-    l_statement         VARCHAR2(32767);
-    l_start             TIMESTAMP;
-    l_end               TIMESTAMP;
-    l_tmp_otap_session  OTAP_SESSION;
+    l_schema_to_use     VARCHAR2(128);
+    l_table_name        VARCHAR2(128);
+    l_errors            VARCHAR2(32767);
   BEGIN
-    l_start := SYSTIMESTAMP;
-    -- verify OTAP_SESSION object
-    otap_objects.otap_session_verify(o_otap_session);
     l_errors     := NULL;
-    l_table_name := TRIM(p_table_name);
+    l_table_name := otap_string.reduce(p_table_name, 128);
     IF     l_table_name        IS NOT NULL
        AND LENGTH(l_table_name) > 0
     THEN
       -- check description
-      l_schema_to_use := TRIM(NVL(p_schema, o_otap_session.db_schema));
-      l_test_description := NVL(p_description, l_default_message || l_schema_to_use || '.' || l_table_name);
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
       SELECT COUNT(*)
         INTO l_has_table
         FROM dba_tables
@@ -54,33 +42,17 @@ AS
       -- report abnormal results and store them in errors
       IF l_has_table NOT IN (0, 1)
       THEN
-        l_statement := q'[SELECT COUNT(*)
- INTO l_has_table
- FROM dba_tables
-WHERE table_name = '"' || l_table_name || '"'
-  AND owner      = '"' || l_schema_to_use || '"']'
-        ;
-        l_errors := 'Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_table;
-        otap_log.log(l_errors, l_script, l_statement);
+        l_errors := otap_string.reduce('Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_table, 4000);
+        otap_log.log(l_errors, l_script, 'Table name or search condition not unique');
       END IF;
     ELSE
       -- invalid table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-      l_statement         := 'l_table_name IS NOT NULL AND LENGTH(l_table_name) > 0';
       l_errors            := 'Missing table name';
-      l_test_description  := l_default_message || 'ERROR name missing';
-      l_schema_to_use     := NVL(p_schema, o_otap_session.db_schema);
-      otap_log.log(l_errors, l_script, l_statement);
+      otap_log.log(l_errors, l_script, 'NULL test on table name');
     END IF;
-    -- due to a possible schema override prepare a temporary object with the schema used
-    l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-    l_tmp_otap_session.db_schema  := l_schema_to_use;
-    l_end                         := SYSTIMESTAMP;
-    otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
-    -- now update the session record with new test done
-    otap_objects.otap_session_add_test(l_test_passed, o_otap_session);
-    l_test_result := otap_report.format_test_result(l_test_passed, l_test_description);
-    RETURN l_test_result;
+    o_errors := otap_string.reduce(l_errors, 4000);
+    RETURN l_test_passed;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099

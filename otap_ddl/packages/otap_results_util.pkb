@@ -126,5 +126,31 @@ AS
       otap_log.log(SQLERRM, l_script, 'DELETE FROM otap_results');
   END result_cleanup;
 
+  FUNCTION max_text_size(p_session_id IN NUMBER)
+    RETURN NUMBER
+  IS
+    l_result NUMBER;
+  BEGIN
+    -- use UNION not GREATEST to get a result in any case
+    SELECT MAX(str_length) AS max_length
+      INTO l_result
+      FROM (SELECT otap_constants.get_otap_report_min_fill_length AS str_length FROM dual
+             UNION ALL
+            SELECT MAX(LENGTH(test_set)) FROM otap_results WHERE test_session_id = 1
+             UNION ALL
+            SELECT MAX(LENGTH(test_group)) FROM otap_results WHERE test_session_id = 1
+             UNION ALL
+            SELECT MAX(LENGTH(test_name)) FROM otap_results WHERE test_session_id = 1
+             UNION ALL
+            SELECT MAX(LENGTH(test_desc)) FROM otap_results WHERE test_session_id = 1
+           )
+    ;
+    RETURN l_result;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_results_util.max_text_size', 'Get max text size for a given session id');
+      RAISE;
+  END max_text_size;
+
 END;
 /

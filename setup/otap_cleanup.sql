@@ -14,17 +14,16 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============UNINSTALL start==============
 SPOOL logs/otap_cleanup.log
 -- jobs
-/*
 @@../otap_ddl/jobs/drop/drop_OTAP_MAINTENANCE.sql
 -- package objects
-
 @@../otap_ddl/packages/drop/drop_otap_test_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_test_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_api_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_api_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_schema_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_schema_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_plan_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_plan_pks.sql
-*/
 @@../otap_ddl/packages/drop/drop_otap_objects_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_objects_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_report_pkb.sql
