@@ -220,8 +220,8 @@ SQL> CREATE OR REPLACE PACKAGE otap_constants
 123    OTAP_RESULT_LINE_TEMPLATE	CONSTANT CHAR(45)	:= '@teststate@ @issuestate@ @runtime@ @testdesc@';
 124    OTAP_COUNT_DESC_TEMPLATE 	CONSTANT CHAR(46)	:= '@testsrun@ from @testsexpected@ tests executed';
 125    OTAP_REPORT_TOTAL_TEMPLATE	CONSTANT CHAR(66)	:= 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
-126    OTAP_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(41)	:= 'TEST if table @schema@.@tablename@ exists';
-127    OTAP_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(61)	:= 'TEST if column @column@ for table @schema@.@tablename@ exists';
+126    OTAP_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(41)	:= 'Table @schema@.@tablename@ exists';
+127    OTAP_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(61)	:= 'Column @column@ (@schema@.@tablename@) exists';
 128    OTAP_LAYOUT_RIGHT		CONSTANT CHAR(1)	:= 'R';
 129    OTAP_LAYOUT_MIDDLE		CONSTANT CHAR(1)	:= 'M';
 130    OTAP_LAYOUT_LEFT 		CONSTANT CHAR(1)	:= 'L';
@@ -1276,7 +1276,7 @@ SQL> -- @tablename@ represents the table name
 SQL> INSERT INTO otap_config
   2    (config_name, config_value, config_type, config_max_length, config_description)
   3    VALUES
-  4    ('FN_HAS_TABLE_TEMPLATE', 'TEST if table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  4    ('FN_HAS_TABLE_TEMPLATE', 'Table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
   5  ;
 
 1 row created.
@@ -1286,7 +1286,7 @@ SQL> -- @tablename@ represents the table name
 SQL> INSERT INTO otap_config
   2    (config_name, config_value, config_type, config_max_length, config_description)
   3    VALUES
-  4    ('FN_HAS_COLUMN_TEMPLATE', 'TEST if column @column@ for table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  4    ('FN_HAS_COLUMN_TEMPLATE', 'Column @column@ (@schema@.@tablename@) exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
   5  ;
 
 1 row created.
@@ -5824,7 +5824,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
  45  	 ELSE
  46  	   -- invalid table name
  47  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
- 48  	   l_errors	       := 'Missing table name';
+ 48  	   l_errors	       := 'Missing: p_table_name(NULL)';
  49  	   otap_log.log(l_errors, l_script, 'NULL test on table name');
  50  	 END IF;
  51  	 o_errors := otap_string.reduce(l_errors, 4000);
@@ -5904,11 +5904,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 125  	   l_errors	       := 'Missing: ' ||
 126  				  CASE
 127  				    WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
-128  				    THEN 'table name '
+128  				    THEN 'p_table_name(NULL) '
 129  				  END ||
 130  				  CASE
 131  				    WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
-132  				    THEN 'column name '
+132  				    THEN 'p_column_name(NULL) '
 133  				  END
 134  	   ;
 135  	   otap_log.log(l_errors, l_script, 'NULL test on table or column name');
@@ -7687,197 +7687,204 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 335  	 -- footer row
 336  	 l_text_column := otap_api.get_report_footer(l_report_size);
 337  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-338  	 RETURN;
-339    EXCEPTION
-340  	 WHEN NO_DATA_NEEDED THEN
-341  	   RAISE;
-342  	 WHEN OTHERS THEN
-343  	   IF SQLCODE != -20099
-344  	   THEN
-345  	     otap_log.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
-346  	   END IF;
-347  	   RAISE;
-348    END result_view;
-349  
-350    FUNCTION current_settings
-351  	 RETURN VARCHAR2
-352    IS
-353  	 l_message VARCHAR2(4000);
-354    BEGIN
-355  	 l_message := otap_api.otap_session_show(session_record);
-356  	 RETURN l_message;
-357    EXCEPTION
-358  	 WHEN OTHERS THEN
-359  	   IF SQLCODE != -20099
-360  	   THEN
-361  	     otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_api.otap_session_show(session_record)');
-362  	   END IF;
-363  	   RAISE;
-364    END current_settings;
-365  
-366    FUNCTION current_summary
-367  	 RETURN VARCHAR2
-368    IS
-369  	 l_message VARCHAR2(4000);
-370    BEGIN
-371  	 l_message := otap_api.otap_session_summary(session_record);
-372  	 RETURN l_message;
-373    EXCEPTION
-374  	 WHEN OTHERS THEN
-375  	   IF SQLCODE != -20099
-376  	   THEN
-377  	     otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_api.otap_session_summary(session_record)');
-378  	   END IF;
-379  	   RAISE;
-380    END current_summary;
-381  
-382    FUNCTION set_test_name(p_test_name IN VARCHAR2)
-383  	 RETURN VARCHAR2
-384    IS
-385  	 l_message VARCHAR2(4000);
-386    BEGIN
-387  	 l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
-388  	 RETURN l_message;
-389    EXCEPTION
-390  	 WHEN OTHERS THEN
-391  	   IF SQLCODE != -20099
-392  	   THEN
-393  	     otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_api.otap_session_set_test_name(p_test_name, session_record)');
-394  	   END IF;
-395  	   RAISE;
-396    END set_test_name;
-397  
-398    FUNCTION set_test_group(p_test_group IN VARCHAR2)
-399  	 RETURN VARCHAR2
-400    IS
-401  	 l_message VARCHAR2(4000);
-402    BEGIN
-403  	 l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
-404  	 RETURN l_message;
-405    EXCEPTION
-406  	 WHEN OTHERS THEN
-407  	   IF SQLCODE != -20099
-408  	   THEN
-409  	     otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_api.otap_session_set_test_group(p_test_group, session_record)');
-410  	   END IF;
-411  	   RAISE;
-412    END set_test_group;
-413  
-414    FUNCTION set_test_set(p_test_set IN VARCHAR2)
-415  	 RETURN VARCHAR2
-416    IS
-417  	 l_message VARCHAR2(4000);
-418    BEGIN
-419  	 l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
-420  	 RETURN l_message;
-421    EXCEPTION
-422  	 WHEN OTHERS THEN
-423  	   IF SQLCODE != -20099
-424  	   THEN
-425  	     otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_api.otap_session_set_test_set(p_test_set, session_record)');
-426  	   END IF;
-427  	   RAISE;
-428    END set_test_set;
-429  
-430    FUNCTION get_session_id
-431  	 RETURN NUMBER
-432    IS
-433  	 l_return NUMBER;
-434    BEGIN
-435  	 l_return := otap_api.otap_session_get_test_id(session_record);
-436  	 RETURN l_return;
-437    EXCEPTION
-438  	 WHEN OTHERS THEN
-439  	   IF SQLCODE != -20099
-440  	   THEN
-441  	     otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_api.otap_session_get_test_id(session_record)');
-442  	   END IF;
-443  	   RAISE;
-444    END get_session_id;
-445  
-446    FUNCTION get_report_id
-447  	 RETURN NUMBER
-448    IS
-449  	 l_return NUMBER;
-450    BEGIN
-451  	 l_return := otap_api.otap_session_get_report_id(session_record);
-452  	 RETURN l_return;
-453    EXCEPTION
-454  	 WHEN OTHERS THEN
-455  	   IF SQLCODE != -20099
-456  	   THEN
-457  	     otap_log.log(SQLERRM, 'otap_test.get_report_id', 'l_message := otap_api.otap_session_get_report_id(session_record)');
-458  	   END IF;
-459  	   RAISE;
-460    END get_report_id;
-461  
-462    FUNCTION has_table( p_table_name   IN VARCHAR2
-463  			 , p_schema	  IN VARCHAR2 DEFAULT NULL
-464  			 , p_description  IN VARCHAR2 DEFAULT NULL
-465  			 )
-466  	 RETURN VARCHAR2
-467    IS
-468  	 l_message VARCHAR2(4000);
-469    BEGIN
-470  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description);
-471  	 RETURN l_message;
-472    EXCEPTION
-473  	 WHEN OTHERS THEN
-474  	   IF SQLCODE != -20099
-475  	   THEN
-476  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
-477  	   END IF;
-478  	   RAISE;
-479    END has_table;
-480  
-481    FUNCTION has_column( p_table_name     IN  VARCHAR2
-482  			  , p_column_name    IN  VARCHAR2
-483  			  , p_schema	     IN  VARCHAR2 DEFAULT NULL
-484  			  , p_description    IN  VARCHAR2 DEFAULT NULL
-485  			  , p_data_type      IN  VARCHAR2 DEFAULT NULL
-486  			  , p_data_length    IN  NUMBER   DEFAULT NULL
-487  			  , p_data_precision IN  NUMBER   DEFAULT NULL
-488  			  , p_data_scale     IN  NUMBER   DEFAULT NULL
-489  			  , p_nullable	     IN  VARCHAR2 DEFAULT NULL
-490  			  , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
-491  			  )
-492  	 RETURN VARCHAR2
-493    IS
-494  	 l_message VARCHAR2(4000);
-495    BEGIN
-496  	 l_message := otap_api.has_column( p_table_name
-497  					 , p_column_name
-498  					 , session_record
-499  					 , p_schema
-500  					 , p_description
-501  					 , p_data_type
-502  					 , p_data_length
-503  					 , p_data_precision
-504  					 , p_data_scale
-505  					 , p_nullable
-506  					 , p_data_default
-507  					 )
-508  	 ;
-509  	 RETURN l_message;
-510    EXCEPTION
-511  	 WHEN OTHERS THEN
-512  	   IF SQLCODE != -20099
-513  	   THEN
-514  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
-515  	   END IF;
-516  	   RAISE;
-517    END has_column;
-518  
-519    -- debug function
-520    FUNCTION get_session_var
-521  	 RETURN OTAP_SESSION
-522    IS
-523    BEGIN
-524  	 RETURN session_record;
-525    END get_session_var;
-526  
-527  END;
-528  /
+338  	 -- add AI and copyrigth
+339  	 l_text_column := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
+340  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+341  	 l_text_column := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
+342  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+343  	 l_text_column := 'Not allowed to be used as AI training material without explicite permission.';
+344  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+345  	 RETURN;
+346    EXCEPTION
+347  	 WHEN NO_DATA_NEEDED THEN
+348  	   RAISE;
+349  	 WHEN OTHERS THEN
+350  	   IF SQLCODE != -20099
+351  	   THEN
+352  	     otap_log.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
+353  	   END IF;
+354  	   RAISE;
+355    END result_view;
+356  
+357    FUNCTION current_settings
+358  	 RETURN VARCHAR2
+359    IS
+360  	 l_message VARCHAR2(4000);
+361    BEGIN
+362  	 l_message := otap_api.otap_session_show(session_record);
+363  	 RETURN l_message;
+364    EXCEPTION
+365  	 WHEN OTHERS THEN
+366  	   IF SQLCODE != -20099
+367  	   THEN
+368  	     otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_api.otap_session_show(session_record)');
+369  	   END IF;
+370  	   RAISE;
+371    END current_settings;
+372  
+373    FUNCTION current_summary
+374  	 RETURN VARCHAR2
+375    IS
+376  	 l_message VARCHAR2(4000);
+377    BEGIN
+378  	 l_message := otap_api.otap_session_summary(session_record);
+379  	 RETURN l_message;
+380    EXCEPTION
+381  	 WHEN OTHERS THEN
+382  	   IF SQLCODE != -20099
+383  	   THEN
+384  	     otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_api.otap_session_summary(session_record)');
+385  	   END IF;
+386  	   RAISE;
+387    END current_summary;
+388  
+389    FUNCTION set_test_name(p_test_name IN VARCHAR2)
+390  	 RETURN VARCHAR2
+391    IS
+392  	 l_message VARCHAR2(4000);
+393    BEGIN
+394  	 l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
+395  	 RETURN l_message;
+396    EXCEPTION
+397  	 WHEN OTHERS THEN
+398  	   IF SQLCODE != -20099
+399  	   THEN
+400  	     otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_api.otap_session_set_test_name(p_test_name, session_record)');
+401  	   END IF;
+402  	   RAISE;
+403    END set_test_name;
+404  
+405    FUNCTION set_test_group(p_test_group IN VARCHAR2)
+406  	 RETURN VARCHAR2
+407    IS
+408  	 l_message VARCHAR2(4000);
+409    BEGIN
+410  	 l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
+411  	 RETURN l_message;
+412    EXCEPTION
+413  	 WHEN OTHERS THEN
+414  	   IF SQLCODE != -20099
+415  	   THEN
+416  	     otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_api.otap_session_set_test_group(p_test_group, session_record)');
+417  	   END IF;
+418  	   RAISE;
+419    END set_test_group;
+420  
+421    FUNCTION set_test_set(p_test_set IN VARCHAR2)
+422  	 RETURN VARCHAR2
+423    IS
+424  	 l_message VARCHAR2(4000);
+425    BEGIN
+426  	 l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
+427  	 RETURN l_message;
+428    EXCEPTION
+429  	 WHEN OTHERS THEN
+430  	   IF SQLCODE != -20099
+431  	   THEN
+432  	     otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_api.otap_session_set_test_set(p_test_set, session_record)');
+433  	   END IF;
+434  	   RAISE;
+435    END set_test_set;
+436  
+437    FUNCTION get_session_id
+438  	 RETURN NUMBER
+439    IS
+440  	 l_return NUMBER;
+441    BEGIN
+442  	 l_return := otap_api.otap_session_get_test_id(session_record);
+443  	 RETURN l_return;
+444    EXCEPTION
+445  	 WHEN OTHERS THEN
+446  	   IF SQLCODE != -20099
+447  	   THEN
+448  	     otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_api.otap_session_get_test_id(session_record)');
+449  	   END IF;
+450  	   RAISE;
+451    END get_session_id;
+452  
+453    FUNCTION get_report_id
+454  	 RETURN NUMBER
+455    IS
+456  	 l_return NUMBER;
+457    BEGIN
+458  	 l_return := otap_api.otap_session_get_report_id(session_record);
+459  	 RETURN l_return;
+460    EXCEPTION
+461  	 WHEN OTHERS THEN
+462  	   IF SQLCODE != -20099
+463  	   THEN
+464  	     otap_log.log(SQLERRM, 'otap_test.get_report_id', 'l_message := otap_api.otap_session_get_report_id(session_record)');
+465  	   END IF;
+466  	   RAISE;
+467    END get_report_id;
+468  
+469    FUNCTION has_table( p_table_name   IN VARCHAR2
+470  			 , p_schema	  IN VARCHAR2 DEFAULT NULL
+471  			 , p_description  IN VARCHAR2 DEFAULT NULL
+472  			 )
+473  	 RETURN VARCHAR2
+474    IS
+475  	 l_message VARCHAR2(4000);
+476    BEGIN
+477  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description);
+478  	 RETURN l_message;
+479    EXCEPTION
+480  	 WHEN OTHERS THEN
+481  	   IF SQLCODE != -20099
+482  	   THEN
+483  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
+484  	   END IF;
+485  	   RAISE;
+486    END has_table;
+487  
+488    FUNCTION has_column( p_table_name     IN  VARCHAR2
+489  			  , p_column_name    IN  VARCHAR2
+490  			  , p_schema	     IN  VARCHAR2 DEFAULT NULL
+491  			  , p_description    IN  VARCHAR2 DEFAULT NULL
+492  			  , p_data_type      IN  VARCHAR2 DEFAULT NULL
+493  			  , p_data_length    IN  NUMBER   DEFAULT NULL
+494  			  , p_data_precision IN  NUMBER   DEFAULT NULL
+495  			  , p_data_scale     IN  NUMBER   DEFAULT NULL
+496  			  , p_nullable	     IN  VARCHAR2 DEFAULT NULL
+497  			  , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+498  			  )
+499  	 RETURN VARCHAR2
+500    IS
+501  	 l_message VARCHAR2(4000);
+502    BEGIN
+503  	 l_message := otap_api.has_column( p_table_name
+504  					 , p_column_name
+505  					 , session_record
+506  					 , p_schema
+507  					 , p_description
+508  					 , p_data_type
+509  					 , p_data_length
+510  					 , p_data_precision
+511  					 , p_data_scale
+512  					 , p_nullable
+513  					 , p_data_default
+514  					 )
+515  	 ;
+516  	 RETURN l_message;
+517    EXCEPTION
+518  	 WHEN OTHERS THEN
+519  	   IF SQLCODE != -20099
+520  	   THEN
+521  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
+522  	   END IF;
+523  	   RAISE;
+524    END has_column;
+525  
+526    -- debug function
+527    FUNCTION get_session_var
+528  	 RETURN OTAP_SESSION
+529    IS
+530    BEGIN
+531  	 RETURN session_record;
+532    END get_session_var;
+533  
+534  END;
+535  /
 
 Package body created.
 

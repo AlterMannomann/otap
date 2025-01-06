@@ -132,8 +132,8 @@ AS
   OTAP_RESULT_LINE_TEMPLATE        CONSTANT CHAR(45)       := '@teststate@ @issuestate@ @runtime@ @testdesc@';
   OTAP_COUNT_DESC_TEMPLATE         CONSTANT CHAR(46)       := '@testsrun@ from @testsexpected@ tests executed';
   OTAP_REPORT_TOTAL_TEMPLATE       CONSTANT CHAR(66)       := 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
-  OTAP_FN_HAS_TABLE_TEMPLATE       CONSTANT CHAR(41)       := 'TEST if table @schema@.@tablename@ exists';
-  OTAP_FN_HAS_COLUMN_TEMPLATE      CONSTANT CHAR(61)       := 'TEST if column @column@ for table @schema@.@tablename@ exists';
+  OTAP_FN_HAS_TABLE_TEMPLATE       CONSTANT CHAR(41)       := 'Table @schema@.@tablename@ exists';
+  OTAP_FN_HAS_COLUMN_TEMPLATE      CONSTANT CHAR(61)       := 'Column @column@ (@schema@.@tablename@) exists';
   OTAP_LAYOUT_RIGHT                CONSTANT CHAR(1)        := 'R';
   OTAP_LAYOUT_MIDDLE               CONSTANT CHAR(1)        := 'M';
   OTAP_LAYOUT_LEFT                 CONSTANT CHAR(1)        := 'L';
