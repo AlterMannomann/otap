@@ -48,7 +48,7 @@ AS
     ELSE
       -- invalid table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-      l_errors            := 'Missing table name';
+      l_errors            := 'Missing: p_table_name(NULL)';
       otap_log.log(l_errors, l_script, 'NULL test on table name');
     END IF;
     o_errors := otap_string.reduce(l_errors, 4000);
@@ -128,11 +128,11 @@ AS
       l_errors            := 'Missing: ' ||
                              CASE
                                WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
-                               THEN 'table name '
+                               THEN 'p_table_name(NULL) '
                              END ||
                              CASE
                                WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
-                               THEN 'column name '
+                               THEN 'p_column_name(NULL) '
                              END
       ;
       otap_log.log(l_errors, l_script, 'NULL test on table or column name');

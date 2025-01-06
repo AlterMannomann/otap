@@ -338,6 +338,13 @@ AS
     -- footer row
     l_text_column := otap_api.get_report_footer(l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+    -- add AI and copyrigth
+    l_text_column := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
+    PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+    l_text_column := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
+    PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+    l_text_column := 'Not allowed to be used as AI training material without explicite permission.';
+    PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     RETURN;
   EXCEPTION
     WHEN NO_DATA_NEEDED THEN

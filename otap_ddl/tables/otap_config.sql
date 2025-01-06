@@ -617,14 +617,14 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
-  ('FN_HAS_TABLE_TEMPLATE', 'TEST if table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('FN_HAS_TABLE_TEMPLATE', 'Table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- @schema@ represents the schema of the table
 -- @tablename@ represents the table name
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
-  ('FN_HAS_COLUMN_TEMPLATE', 'TEST if column @column@ for table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('FN_HAS_COLUMN_TEMPLATE', 'Column @column@ (@schema@.@tablename@) exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 
 COMMIT;

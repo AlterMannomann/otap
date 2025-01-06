@@ -18,6 +18,10 @@ SELECT otap_test.set_test_group('ERROR reaction') FROM dual;
 SELECT otap_test.set_test_name('HAS_TABLE') FROM dual;
 SELECT otap_test.has_table(NULL) FROM dual;
 SELECT otap_test.has_table('HAB ICH NICHT') FROM dual;
+SELECT otap_test.set_test_name('HAS_COLUMN') FROM dual;
+SELECT otap_test.has_column(NULL, NULL) FROM dual;
+SELECT otap_test.has_column(NULL, 'CONFIG_NAME') FROM dual;
+SELECT otap_test.has_column('OTAP_CONFIG', NULL) FROM dual;
 SELECT otap_test.finish_test FROM dual;
 
 SELECT * FROM otap_latest_test_results_v;
