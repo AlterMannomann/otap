@@ -2,6 +2,8 @@
 Current state: Pre-alpha with has_table and has_column test and result view. To do: Extend test functions, fix minor formatting issued.
 See [simple_test_setup.sql](./otap_test/simple_test_setup.sql) for a first impression.
 
+![otap_test_report](https://github.com/user-attachments/assets/10a7ed08-1e31-44f8-90f7-2a38c6b68113)
+
 **SQL Developer 23.x not recommmended for development** Refresh of objects after reinstall does not work, not even after log out and log in again. Relogin has no effect at all. Wrong object code in memory. Shutdown and restart of SQL Developer needed in case of doubts (in most cases with a good reason) to ensure propper mapping of objects and object code. Works only more (or less) with stable database schemas. Last failing version 23.1. Currently it is a user tool, not a developer tool. Oracle should rename it to SQL User.
 # otap - Oracle Test Automation Protocol
 Automated testing for Oracle databases. Can be used with [SOSL](https://github.com/AlterMannomann/sosl).
