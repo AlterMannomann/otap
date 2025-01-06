@@ -1,19 +1,12 @@
-# UNDER CONSTRUCTION
-Current state: Pre-alpha with has_table and has_column test and result view. To do: Extend test functions, fix minor formatting issued.
-See [simple_test_setup.sql](./otap_test/simple_test_setup.sql) for a first impression.
+# otap - DDL
+This folder contains the internal test procedures for otap.
 
-**SQL Developer 23.x not recommmended for development** Refresh of objects after reinstall does not work, not even after log out and log in again. Relogin has no effect at all. Wrong object code in memory. Shutdown and restart of SQL Developer needed in case of doubts (in most cases with a good reason) to ensure propper mapping of objects and object code. Works only more (or less) with stable database schemas. Last failing version 23.1. Currently it is a user tool, not a developer tool. Oracle should rename it to SQL User.
-# otap - Oracle Test Automation Protocol
-Automated testing for Oracle databases. Can be used with [SOSL](https://github.com/AlterMannomann/sosl).
-
-I would have preferred a PRIVATE TEMPORARY TABLE for results, but this construct did not support CLOB columns. Thus otap needs job execution rights to keep the OTAP_RESULTS table as small as possible with automatic result deletions. Otherwise some tests are probably worth to be persisted.
+- [Back to main](../README.md)
 
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 
 &copy; 2024 Michael Lindenau licensed via [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.txt) and [Generic AI Disclosure License](https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1)
-
-For further questions on copyleft and usage see [contact](CONTACT.md).
 
 # AI restriction and training exclusion
 **This content is intended ONLY for the HUMAN community NOT for any technical crawlers or AI training input.**
