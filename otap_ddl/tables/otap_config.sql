@@ -78,9 +78,12 @@ BEGIN
                              , 'DEFAULT_RESULT_LAYOUT'
                              , 'DEFAULT_BORDER'
                              , 'TEXT_REPORT_START'
+                             , 'TEXT_REPORT_TOTAL'
                              , 'TEXT_REPORT_END'
                              , 'TEXT_RESULT_HEADER'
                              , 'FORMAT_RESULT_HEADER'
+                             , 'TEXT_TEST_COUNT_HEADER'
+                             , 'TEXT_TEST_COUNT_NAME'
                              , 'TEXT_SUMMARY_SUCCESS'
                              , 'TEXT_SUMMARY_ERROR'
                              , 'SUMMARY_TEMPLATE'
@@ -92,7 +95,10 @@ BEGIN
                              , 'GROUP_TEMPLATE'
                              , 'TEST_NAME_TEMPLATE'
                              , 'RESULT_LINE_TEMPLATE'
+                             , 'COUNT_DESC_TEMPLATE'
+                             , 'REPORT_TOTAL_TEMPLATE'
                              , 'FN_HAS_TABLE_TEMPLATE'
+                             , 'FN_HAS_COLUMN_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -202,9 +208,12 @@ BEGIN
                              , 'DEFAULT_RESULT_LAYOUT'
                              , 'DEFAULT_BORDER'
                              , 'TEXT_REPORT_START'
+                             , 'TEXT_REPORT_TOTAL'
                              , 'TEXT_REPORT_END'
                              , 'TEXT_RESULT_HEADER'
                              , 'FORMAT_RESULT_HEADER'
+                             , 'TEXT_TEST_COUNT_HEADER'
+                             , 'TEXT_TEST_COUNT_NAME'
                              , 'TEXT_SUMMARY_SUCCESS'
                              , 'TEXT_SUMMARY_ERROR'
                              , 'SUMMARY_TEMPLATE'
@@ -216,7 +225,10 @@ BEGIN
                              , 'GROUP_TEMPLATE'
                              , 'TEST_NAME_TEMPLATE'
                              , 'RESULT_LINE_TEMPLATE'
+                             , 'COUNT_DESC_TEMPLATE'
+                             , 'REPORT_TOTAL_TEMPLATE'
                              , 'FN_HAS_TABLE_TEMPLATE'
+                             , 'FN_HAS_COLUMN_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -346,9 +358,12 @@ BEGIN
                          , 'DEFAULT_RESULT_LAYOUT'
                          , 'DEFAULT_BORDER'
                          , 'TEXT_REPORT_START'
+                         , 'TEXT_REPORT_TOTAL'
                          , 'TEXT_REPORT_END'
                          , 'TEXT_RESULT_HEADER'
                          , 'FORMAT_RESULT_HEADER'
+                         , 'TEXT_TEST_COUNT_HEADER'
+                         , 'TEXT_TEST_COUNT_NAME'
                          , 'TEXT_SUMMARY_SUCCESS'
                          , 'TEXT_SUMMARY_ERROR'
                          , 'SUMMARY_TEMPLATE'
@@ -360,7 +375,10 @@ BEGIN
                          , 'GROUP_TEMPLATE'
                          , 'TEST_NAME_TEMPLATE'
                          , 'RESULT_LINE_TEMPLATE'
+                         , 'COUNT_DESC_TEMPLATE'
+                         , 'REPORT_TOTAL_TEMPLATE'
                          , 'FN_HAS_TABLE_TEMPLATE'
+                         , 'FN_HAS_COLUMN_TEMPLATE'
                          )
   THEN
     RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
@@ -436,12 +454,12 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
-  ('TEXT_TEST_FAILED', 'Failed', 'CHAR', 50, 'Used as text representation for tests executed with errors. If you change the length, you need to adapt also TEXT_RESULT_HEADER and FORMAT_RESULT_HEADER. Limited to 50 chars, recommended as short as possible.')
+  ('TEXT_TEST_FAILED', 'FAILED', 'CHAR', 50, 'Used as text representation for tests executed with errors. If you change the length, you need to adapt also TEXT_RESULT_HEADER and FORMAT_RESULT_HEADER. Limited to 50 chars, recommended as short as possible.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
-  ('TEXT_TEST_UNDEFINED', 'Undefined', 'CHAR', 50, 'Used as text representation for tests with undefined state, e.g. due to setup errors. If you change the length, you need to adapt also TEXT_RESULT_HEADER and FORMAT_RESULT_HEADER. Limited to 50 chars, recommended as short as possible.')
+  ('TEXT_TEST_UNDEFINED', 'UNDEFINED', 'CHAR', 50, 'Used as text representation for tests with undefined state, e.g. due to setup errors. If you change the length, you need to adapt also TEXT_RESULT_HEADER and FORMAT_RESULT_HEADER. Limited to 50 chars, recommended as short as possible.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
@@ -486,6 +504,11 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
+  ('TEXT_REPORT_TOTAL', 'OTAP test report totals', 'CHAR', 256, 'Used as report title. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
   ('TEXT_REPORT_END', 'OTAP test summary report finished', 'CHAR', 256, 'Used as report footer. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 INSERT INTO otap_config
@@ -497,6 +520,16 @@ INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('FORMAT_RESULT_HEADER', '--------- --------- ------------------- ----------------------------------------', 'CHAR', 256, 'Used as result header underlining, depending on formatting and size of test passed, setup passed and runtime. Limited to 256 chars, recommended equal or shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('TEXT_TEST_COUNT_HEADER', 'Test count summary', 'CHAR', 256, 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('TEXT_TEST_COUNT_NAME', 'Session test count', 'CHAR', 256, 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
@@ -569,12 +602,29 @@ INSERT INTO otap_config
   VALUES
   ('RESULT_LINE_TEMPLATE', '@teststate@ @issuestate@ @runtime@ @testdesc@', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('COUNT_DESC_TEMPLATE', '@testsrun@ from @testsexpected@ tests executed', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('REPORT_TOTAL_TEMPLATE', 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
 -- @schema@ represents the schema of the table
 -- @tablename@ represents the table name
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('FN_HAS_TABLE_TEMPLATE', 'TEST if table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+-- @schema@ represents the schema of the table
+-- @tablename@ represents the table name
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FN_HAS_COLUMN_TEMPLATE', 'TEST if column @column@ for table @schema@.@tablename@ exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 
 COMMIT;

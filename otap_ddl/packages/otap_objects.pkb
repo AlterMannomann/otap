@@ -444,6 +444,25 @@ OR p_otap_session.session_view_id             IS NULL]'
       RAISE;
   END otap_session_get_test_id;
 
+  FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+    RETURN NUMBER
+  IS
+    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_get_report_id';
+    l_view_id NUMBER;
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    l_view_id := CASE WHEN p_otap_session.session_view_id != 0 THEN p_otap_session.session_view_id ELSE p_otap_session.session_id END;
+    RETURN l_view_id;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_get_report_id;
+
   PROCEDURE otap_session_add_test( p_test_passed  IN NUMBER
                                  , o_otap_session IN OUT NOCOPY OTAP_SESSION
                                  )

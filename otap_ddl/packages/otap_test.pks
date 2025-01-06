@@ -185,7 +185,7 @@ AS
   ;
 
   /** FUNCTION otap_test.get_session_id
-  * Retrieves the current active test session id. Usually used in views.
+  * Retrieves the current active test session id.
   * Wrapper for otap_api.otap_session_get_test_id.
   *
   * @return The current active test session id.
@@ -194,9 +194,20 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_test.get_report_id
+  * Retrieves the last view id from finsih or the current active test session id. Usually used in views.
+  * Wrapper for otap_api.otap_session_get_report_id.
+  *
+  * @return The last view id or the current active test session id.
+  */
+  FUNCTION get_report_id
+    RETURN NUMBER
+  ;
+
   /** FUNCTION otap_test.result_view
   * Returns the results and provides hierarchical master detail test results.
   * To be called with SELECT * FROM TABLE(otap_test.result_view(otap_test.get_session_id));
+  * The only function which is no wrapper due to limitation with piped rows.
   *
   * @param p_session_id The test session id for filtering the results.
   *
@@ -212,17 +223,52 @@ AS
   *
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-  * @param p_description The test description if any. If not given, a description is generated: TEST if table x exists.
+  * @param p_description The test description if any. If not given, a description is generated, see FN template.
   *
   * @return The test result as text.
   */
-  FUNCTION has_table( p_table_name   IN            VARCHAR2
-                    , p_schema       IN            VARCHAR2     DEFAULT NULL
-                    , p_description  IN            VARCHAR2     DEFAULT NULL
+  FUNCTION has_table( p_table_name   IN VARCHAR2
+                    , p_schema       IN VARCHAR2 DEFAULT NULL
+                    , p_description  IN VARCHAR2 DEFAULT NULL
                     )
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.has_column
+  * Tests if a table column exists. Additional tests on the column can be added by using the additional
+  * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
+  * column and schema.
+  *
+  * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
+  * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
+  * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
+  *
+  * @param p_table_name The name of the table, taken as is. Case sensitive.
+  * @param p_column_name The column name of the table, taken as is. Case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
+  * @param p_data_length Optional check the data length of the column. Ignored if NULL.
+  * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
+  * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
+  * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
+  * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_column( p_table_name     IN  VARCHAR2
+                     , p_column_name    IN  VARCHAR2
+                     , p_schema         IN  VARCHAR2 DEFAULT NULL
+                     , p_description    IN  VARCHAR2 DEFAULT NULL
+                     , p_data_type      IN  VARCHAR2 DEFAULT NULL
+                     , p_data_length    IN  NUMBER   DEFAULT NULL
+                     , p_data_precision IN  NUMBER   DEFAULT NULL
+                     , p_data_scale     IN  NUMBER   DEFAULT NULL
+                     , p_nullable       IN  VARCHAR2 DEFAULT NULL
+                     , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+                     )
+    RETURN VARCHAR2
+  ;
 
   -- debug function
   FUNCTION get_session_var

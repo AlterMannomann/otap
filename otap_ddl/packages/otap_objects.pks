@@ -153,6 +153,20 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_objects.otap_session_get_report_id
+  * Gets the last view id if available or the current active test session id
+  * from OTAP_SESSION object.
+  *
+  * @param p_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The last view id if available or the current active test session id.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+    RETURN NUMBER
+  ;
+
   /** PROCEDURE otap_objects.otap_session_add_test
   * Adds a test run to the OTAP_SESSION object. If the test is not passed, raises
   * the error count for this test session.

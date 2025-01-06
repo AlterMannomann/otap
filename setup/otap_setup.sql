@@ -48,6 +48,8 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_test.pkb
 -- jobs
 @@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
+-- views
+@@../otap_ddl/views/otap_latest_test_results_v.sql
 -- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so

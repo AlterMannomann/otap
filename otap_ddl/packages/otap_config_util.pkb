@@ -252,6 +252,7 @@ AS
       FROM otap_config
      WHERE config_name IN ( otap_constants.OTAP_CFG_TEXT_REPORT_START
                           , otap_constants.OTAP_CFG_TEXT_REPORT_END
+                          , otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL
                           )
     ;
     RETURN l_return;
@@ -458,12 +459,33 @@ AS
     RETURN get_config_value(otap_constants.OTAP_CFG_RESULT_LINE_TEMPLATE);
   END get_result_line_template;
 
+  FUNCTION get_count_desc_template
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_COUNT_DESC_TEMPLATE);
+  END get_count_desc_template;
+
+  FUNCTION get_report_total_template
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_REPORT_TOTAL_TEMPLATE);
+  END get_report_total_template;
+
   FUNCTION get_fn_has_table_template
     RETURN VARCHAR2
   IS
   BEGIN
     RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_TABLE_TEMPLATE);
   END get_fn_has_table_template;
+
+  FUNCTION get_fn_has_column_template
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_COLUMN_TEMPLATE);
+  END get_fn_has_column_template;
 
   FUNCTION get_text_false
     RETURN VARCHAR2
@@ -486,6 +508,13 @@ AS
     RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_END);
   END get_text_report_end;
 
+  FUNCTION get_text_report_total
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL);
+  END get_text_report_total;
+
   FUNCTION get_text_report_start
     RETURN VARCHAR2
   IS
@@ -499,6 +528,20 @@ AS
   BEGIN
     RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_RESULT_HEADER);
   END get_text_result_header;
+
+  FUNCTION get_text_test_count_header
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_HEADER);
+  END get_text_test_count_header;
+
+  FUNCTION get_text_test_count_name
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_NAME);
+  END get_text_test_count_name;
 
   FUNCTION get_text_summary_error
     RETURN VARCHAR2

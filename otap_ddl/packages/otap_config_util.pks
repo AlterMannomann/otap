@@ -360,10 +360,31 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_config_util.get_count_desc_template
+  *  @return The setting of COUNT_DESC_TEMPLATE in OTAP_CONFIG.
+  */
+  FUNCTION get_count_desc_template
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_report_total_template
+  *  @return The setting of REPORT_TOTAL_TEMPLATE in OTAP_CONFIG.
+  */
+  FUNCTION get_report_total_template
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_config_util.get_fn_has_table_template
   *  @return The setting of FN_HAS_TABLE_TEMPLATE in OTAP_CONFIG.
   */
   FUNCTION get_fn_has_table_template
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_fn_has_column_template
+  *  @return The setting of FN_HAS_COLUMN_TEMPLATE in OTAP_CONFIG.
+  */
+  FUNCTION get_fn_has_column_template
     RETURN VARCHAR2
   ;
 
@@ -388,6 +409,13 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_config_util.get_text_report_total
+  *  @return The setting of OTAP_TEXT_REPORT_TOTAL in OTAP_CONFIG.
+  */
+  FUNCTION get_text_report_total
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_config_util.get_text_report_start
   *  @return The setting of TEXT_REPORT_START in OTAP_CONFIG.
   */
@@ -399,6 +427,20 @@ AS
   *  @return The setting of TEXT_RESULT_HEADER in OTAP_CONFIG.
   */
   FUNCTION get_text_result_header
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_text_test_count_header
+  *  @return The setting of TEXT_TEST_COUNT_HEADER in OTAP_CONFIG.
+  */
+  FUNCTION get_text_test_count_header
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_text_test_count_name
+  *  @return The setting of TEXT_TEST_COUNT_NAME in OTAP_CONFIG.
+  */
+  FUNCTION get_text_test_count_name
     RETURN VARCHAR2
   ;
 

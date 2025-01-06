@@ -396,10 +396,13 @@ AS
     END IF;
     l_line_size   := GREATEST(l_min_length, otap_string.check_string_size(NVL(LENGTH(p_string), 0)));
     l_string      := otap_string.reduce(p_string, l_line_size);
-    -- now pad the string for the right side, left does not need padding
+    -- now pad the string for the right or left side
     IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
     THEN
       l_string := LPAD(l_string, l_line_size, ' ');
+    ELSE
+      -- middle and left are treated equally
+      l_string := RPAD(l_string, l_line_size, ' ');
     END IF;
     RETURN l_string;
   EXCEPTION

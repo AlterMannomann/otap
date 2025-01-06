@@ -83,16 +83,19 @@ AS
     l_errors            VARCHAR2(4000);
     l_start             TIMESTAMP;
     l_end               TIMESTAMP;
+    l_tmp_otap_session  OTAP_SESSION;
   BEGIN
     l_start := SYSTIMESTAMP;
     -- only write a record, if intended count is set, do nothing otherwise
     IF p_otap_session.intended_count > 0
     THEN
       l_test_passed      := CASE WHEN p_otap_session.test_count = p_otap_session.intended_count THEN otap_constants.OTAP_NUM_TEST_PASSED ELSE otap_constants.OTAP_NUM_TEST_FAILED END;
-      l_test_description := 'Run ' || p_otap_session.test_count || ' of ' || p_otap_session.intended_count || ' tests, this test excluded';
+      l_test_description := otap_string.reduce(otap_report.get_count_desc(p_otap_session.test_count, p_otap_session.intended_count), 256);
       l_errors           := NULL;
       l_end              := SYSTIMESTAMP;
-      otap_plan.write_test_result(l_test_description, p_otap_session, l_test_passed, l_start, l_end, l_errors);
+      l_tmp_otap_session := otap_objects.otap_session_copy(p_otap_session);
+      l_tmp_otap_session.test_name := otap_config_util.get_text_test_count_name;
+      otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
     END IF;
   EXCEPTION
     WHEN OTHERS THEN
