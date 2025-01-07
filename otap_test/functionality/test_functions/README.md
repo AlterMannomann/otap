@@ -1,5 +1,5 @@
-# otap - Functionality tests
-This folder contains the internal test procedures and scripts for otap.
+# otap - Functionality basic tests
+This folder contains internal test procedures and scripts for otap.
 
 - [Back to main](../README.md)
 
