@@ -213,7 +213,7 @@ AS
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_package, l_errors, l_script);
     ELSE
-      -- invalid package name, type or state
+      -- invalid package name or type
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
       l_errors            := 'Not allowed: ' || CASE
                                                   WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
@@ -246,6 +246,147 @@ AS
       END IF;
       RAISE;
   END has_package;
+
+  FUNCTION has_procedure( p_procedure_name  IN     VARCHAR2
+                        , o_errors             OUT VARCHAR2
+                        , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                        , p_procedure_type  IN     VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN     VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN     VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
+    RETURN INTEGER
+  IS
+    l_script         VARCHAR2(1024 CHAR)    := 'otap_schema.has_procedure';
+    l_procedure      VARCHAR2(9 CHAR)       := 'PROCEDURE';
+    l_function       VARCHAR2(8 CHAR)       := 'FUNCTION';
+    l_test_passed    INTEGER;
+    l_expected       INTEGER;
+    l_has_procedure  INTEGER;
+    l_procedure_name VARCHAR2(128 CHAR);
+    l_package_name   VARCHAR2(128 CHAR);
+    l_procedure_type VARCHAR2(9 CHAR);
+    l_return_type    VARCHAR2(128 CHAR);
+    l_schema_to_use  VARCHAR2(128 CHAR);
+    l_errors         VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_procedure_name  := otap_string.reduce(p_procedure_name, 128);
+    l_package_name    := otap_string.reduce(p_package_name, 128);
+    l_procedure_type  := otap_string.reduce(UPPER(p_procedure_type), 9);
+    l_return_type     := otap_string.reduce(UPPER(p_return_type), 128);
+    IF     l_procedure_name        IS NOT NULL
+       AND LENGTH(l_procedure_name) > 0
+       AND l_procedure_type        IN (l_procedure, l_function)
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+        WITH prc AS
+             (SELECT dbo.owner
+                   , dbp.procedure_name
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN 'FUNCTION'
+                       ELSE 'PROCEDURE'
+                     END AS procedure_type
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN dbr.data_type
+                       ELSE NULL
+                     END AS return_type
+                   , dbo.status
+                   , dbo.object_name AS package_name
+                FROM dba_objects dbo
+                LEFT OUTER JOIN dba_procedures dbp
+                  ON dbo.owner       = dbp.owner
+                 AND dbo.object_name = dbp.object_name
+                 AND dbo.object_type = dbp.object_type
+                LEFT OUTER JOIN dba_arguments dbr
+                  ON dbp.owner          = dbr.owner
+                 AND dbp.object_name    = dbr.package_name
+                 AND dbp.procedure_name = dbr.object_name
+                 AND dbp.object_id      = dbr.object_id
+                 AND dbp.subprogram_id  = dbr.subprogram_id
+                 AND dbr.sequence       = 1
+               WHERE dbo.owner        = l_schema_to_use
+                 AND dbo.object_type  = 'PACKAGE'
+                     -- exclude package itself
+                 AND dbp.procedure_name IS NOT NULL
+               UNION ALL
+              SELECT dbo.owner
+                   , dbo.object_name AS procedure_name
+                   , dbo.object_type AS procedure_type
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN dbr.data_type
+                       ELSE NULL
+                     END AS return_type
+                   , dbo.status
+                   , NULL AS package_name
+                FROM dba_objects dbo
+                LEFT OUTER JOIN dba_procedures dbp
+                  ON dbo.owner       = dbp.owner
+                 AND dbo.object_name = dbp.object_name
+                 AND dbo.object_type = dbp.object_type
+                LEFT OUTER JOIN dba_arguments dbr
+                  ON dbp.owner         = dbr.owner
+                 AND dbp.object_name   = dbr.object_name
+                 AND dbp.object_id     = dbr.object_id
+                 AND dbp.subprogram_id = dbr.subprogram_id
+                 AND dbr.sequence      = 1
+               WHERE dbo.owner        = l_schema_to_use
+                 AND dbo.object_type IN ('FUNCTION', 'PROCEDURE')
+             )
+      SELECT COUNT(*)
+        INTO l_has_procedure
+        FROM prc
+       WHERE procedure_name           = l_procedure_name
+         AND procedure_type           = l_procedure_type
+         AND NVL(return_type, 'n/a')  = NVL(l_return_type, NVL(return_type, 'n/a'))
+         AND NVL(package_name, 'n/a') = NVL(l_package_name, NVL(package_name, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_procedure, l_errors, l_script);
+    ELSE
+      -- invalid package name, type or state
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: ' || CASE
+                                                  WHEN l_procedure_name IS NULL OR LENGTH(l_procedure_name) = 0
+                                                  THEN 'p_procedure_name(NULL) '
+                                                END ||
+                                                CASE
+                                                  WHEN l_procedure_type NOT IN (l_procedure, l_function)
+                                                  THEN 'p_procedure_type(' || l_procedure_type || ') '
+                                                END
+      ;
+      otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_procedure;
 
 END;
 /

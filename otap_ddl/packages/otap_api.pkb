@@ -866,5 +866,78 @@ AS
     RETURN l_return;
   END has_package;
 
+  FUNCTION has_procedure( p_procedure_name  IN            VARCHAR2
+                        , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                        , p_schema          IN            VARCHAR2 DEFAULT NULL
+                        , p_description     IN            VARCHAR2 DEFAULT NULL
+                        , p_procedure_type  IN            VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN            VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN            VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_procedure';
+    l_start            TIMESTAMP;
+    l_end              TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+    l_tmp_otap_session OTAP_SESSION;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_procedure_msg(p_procedure_name, l_schema, p_procedure_type, p_package_name)), 256);
+        -- call function
+        l_result := otap_schema.has_procedure( p_procedure_name
+                                             , l_errors
+                                             , l_schema
+                                             , p_procedure_type
+                                             , p_package_name
+                                             , p_return_type
+                                             , p_expected_result
+                                             )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error has_procedure: ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute has_procedure function');
+      END;
+      l_end := SYSTIMESTAMP;
+      -- set session variable according current value, a part where otap could fail
+      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
+      l_tmp_otap_session.db_schema  := l_schema;
+      -- try to write the test record
+      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+      otap_objects.otap_session_add_test(l_result, o_otap_session);
+      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error has_procedure: ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute has_procedure function');
+        -- try again to write a record with the new informations, which may again raise an exception
+        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
+        l_tmp_otap_session.db_schema  := l_schema;
+        l_end := SYSTIMESTAMP;
+        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_procedure_msg(p_procedure_name, l_schema, p_procedure_type, p_package_name)), 256);
+        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_procedure;
+
 END;
 /

@@ -12,3 +12,27 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_SCHEMA'
                             , p_package_type => 'PACKAGE BODY'
                             )
   FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TABLE'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_return_type => 'NUMBER'
+                              , p_package_name => 'OTAP_SCHEMA'
+                              )
+  FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_COLUMN'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_return_type => 'NUMBER'
+                              , p_package_name => 'OTAP_SCHEMA'
+                              )
+  FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_PACKAGE'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_return_type => 'NUMBER'
+                              , p_package_name => 'OTAP_SCHEMA'
+                              )
+  FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_PROCEDURE'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_return_type => 'NUMBER'
+                              , p_package_name => 'OTAP_SCHEMA'
+                              )
+  FROM dual;

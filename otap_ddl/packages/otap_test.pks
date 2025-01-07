@@ -222,7 +222,7 @@ AS
   * Writes and adds the test result for the current active test session.
   *
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
   * @param p_description The test description if any. If not given, a description is generated, see FN template.
   * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
   *
@@ -247,7 +247,7 @@ AS
   *
   * @param p_table_name The name of the table, taken as is. Case sensitive.
   * @param p_column_name The column name of the table, taken as is. Case sensitive.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. Case sensitive.
   * @param p_description The test description if any. If not given, a description is generated, see FN template.
   * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
   * @param p_data_length Optional check the data length of the column. Ignored if NULL.
@@ -278,9 +278,9 @@ AS
   * Checks if a given package exists. Check if header and body, if available, are valid by default.
   *
   * @param p_package_name The name of the package, take as is. Case sensitive.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the package must exist in this schema. Case sensitive.
   * @param p_description The test description if any. If not given, a description is generated, see FN template.
-  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
   * @return The test result as text.
@@ -291,6 +291,31 @@ AS
                       , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
                       , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_schema.has_procedure
+  * Checks if a given procedure or function exists. If package is given, the package procedure or function
+  * is checked.
+  *
+  * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
+  * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
+  * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_procedure( p_procedure_name  IN     VARCHAR2
+                        , p_schema          IN     VARCHAR2 DEFAULT NULL
+                        , p_description     IN     VARCHAR2 DEFAULT NULL
+                        , p_procedure_type  IN     VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN     VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN     VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
     RETURN VARCHAR2
   ;
 

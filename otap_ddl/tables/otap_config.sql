@@ -100,6 +100,7 @@ BEGIN
                              , 'FN_HAS_TABLE_TEMPLATE'
                              , 'FN_HAS_COLUMN_TEMPLATE'
                              , 'FN_HAS_PACKAGE_TEMPLATE'
+                             , 'FN_HAS_PROCEDURE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -231,6 +232,7 @@ BEGIN
                              , 'FN_HAS_TABLE_TEMPLATE'
                              , 'FN_HAS_COLUMN_TEMPLATE'
                              , 'FN_HAS_PACKAGE_TEMPLATE'
+                             , 'FN_HAS_PROCEDURE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -382,6 +384,7 @@ BEGIN
                          , 'FN_HAS_TABLE_TEMPLATE'
                          , 'FN_HAS_COLUMN_TEMPLATE'
                          , 'FN_HAS_PACKAGE_TEMPLATE'
+                         , 'FN_HAS_PROCEDURE_TEMPLATE'
                          )
   THEN
     RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
@@ -605,11 +608,17 @@ INSERT INTO otap_config
   VALUES
   ('RESULT_LINE_TEMPLATE', '@teststate@ @issuestate@ @runtime@ @testdesc@', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
+-- @testsrun@ represents the executed tests
+-- @testsexpected@ represents the expected tests
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('COUNT_DESC_TEMPLATE', '@testsrun@ from @testsexpected@ tests executed', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
+-- @sets@ represents the executed test sets
+-- @groups@ represents the executed test groups
+-- @names@ represents the executed test names
+-- @descs@ represents the executed tests by discription (can differ from runs on equal descriptions)
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
@@ -624,15 +633,27 @@ INSERT INTO otap_config
 ;
 -- @schema@ represents the schema of the table
 -- @tablename@ represents the table name
+-- @column@ represents the column name
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('FN_HAS_COLUMN_TEMPLATE', 'Column @column@ (@schema@.@tablename@) exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
+-- @schema@ represents the schema of the package
+-- @package@ represents the package name
+-- @packagetype@ represents the package type, e.g. PACKAGE or PACKAGE BODY
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('FN_HAS_PACKAGE_TEMPLATE', 'Package @schema@.@package@ exists (@packagetype@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+-- @type@ represents the procedure type FUNCTION or PROCEDURE
+-- @proc@ represents the procedure name including a package prefix if given
+-- @schema@ represents the schema of the procedure or function
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FN_HAS_PROCEDURE_TEMPLATE', '@proctype@ @proc@ exists (@schema@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 
 COMMIT;

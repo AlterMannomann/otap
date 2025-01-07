@@ -78,7 +78,7 @@ AS
   * @param p_package_name The name of the package, take as is. Case sensitive.
   * @param o_error Error information, if any, on the test executed.
   * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
-  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
@@ -92,10 +92,39 @@ AS
     RETURN INTEGER
   ;
 
+  /** FUNCTION otap_schema.has_procedure
+  * Checks if a given procedure or function exists. If package is given, the package procedure or function
+  * is checked.
+  *
+  * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
+  * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
+  * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_procedure( p_procedure_name  IN     VARCHAR2
+                        , o_errors             OUT VARCHAR2
+                        , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                        , p_procedure_type  IN     VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN     VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN     VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
+    RETURN INTEGER
+  ;
+
 END;
 /
 
 /* SQLs for schema objects
+
+FUNCTION has_procedure(procedure_name, procedure_type, package NULL, return_type NULL)
+FUNCTION has_pkg_procedure, has_def_procedure - by package (NOT) NULL
+
 -- package functions and procedures - only package joins with object_id, not package body, no result
 SELECT dbo.owner
      , dbo.object_name

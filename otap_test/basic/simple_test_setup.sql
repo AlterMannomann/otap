@@ -67,4 +67,75 @@ BEGIN
 END;
 /
 
+-- generate test functions, be careful you get current state not desired state
+        WITH prc AS
+             (SELECT dbo.owner
+                   , dbp.procedure_name
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN 'FUNCTION'
+                       ELSE 'PROCEDURE'
+                     END AS procedure_type
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN dbr.data_type
+                       ELSE NULL
+                     END AS return_type
+                   , dbo.status
+                   , dbo.object_name AS package_name
+                FROM dba_objects dbo
+                LEFT OUTER JOIN dba_procedures dbp
+                  ON dbo.owner       = dbp.owner
+                 AND dbo.object_name = dbp.object_name
+                 AND dbo.object_type = dbp.object_type
+                LEFT OUTER JOIN dba_arguments dbr
+                  ON dbp.owner         = dbr.owner
+                 AND dbp.object_name   = dbr.package_name
+                 AND dbp.procedure_name = dbr.object_name
+                 AND dbp.object_id     = dbr.object_id
+                 AND dbp.subprogram_id = dbr.subprogram_id
+                 AND dbr.sequence      = 1
+               WHERE dbo.owner        = 'OTAP'
+                 AND dbo.object_type  = 'PACKAGE'
+                     -- exclude package itself
+                 AND dbp.procedure_name IS NOT NULL
+               UNION ALL
+              SELECT dbo.owner
+                   , dbo.object_name AS procedure_name
+                   , dbo.object_type AS procedure_type
+                   , CASE
+                       WHEN dbr.position       = 0
+                        AND dbr.argument_name IS NULL
+                       THEN dbr.data_type
+                       ELSE NULL
+                     END AS return_type
+                   , dbo.status
+                   , NULL AS package_name
+                FROM dba_objects dbo
+                LEFT OUTER JOIN dba_procedures dbp
+                  ON dbo.owner       = dbp.owner
+                 AND dbo.object_name = dbp.object_name
+                 AND dbo.object_type = dbp.object_type
+                LEFT OUTER JOIN dba_arguments dbr
+                  ON dbp.owner         = dbr.owner
+                 AND dbp.object_name   = dbr.object_name
+                 AND dbp.object_id     = dbr.object_id
+                 AND dbp.subprogram_id = dbr.subprogram_id
+                 AND dbr.sequence      = 1
+               WHERE dbo.owner        = 'OTAP'
+                 AND dbo.object_type IN ('FUNCTION', 'PROCEDURE')
+             )
+      SELECT procedure_name
+           , 'SELECT otap_test.has_procedure( p_procedure_name => ''' || procedure_name || '''' || CHR(10) ||
+             '                              , p_procedure_type => ''' || procedure_type || '''' || CHR(10) ||
+             CASE WHEN procedure_type = 'FUNCTION' THEN '                              , p_return_type => ''' || return_type || '''' || CHR(10) END ||
+             '                              , p_package_name => ''' || package_name || '''' || CHR(10) ||
+             '                              )' || CHR(10) ||
+             '  FROM dual;' AS code
+        FROM prc
+       WHERE package_name = 'OTAP_CONFIG_UTIL'
+      ;
+
 */
