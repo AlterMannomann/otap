@@ -9,8 +9,8 @@ AS
                  )
     RETURN VARCHAR2
   IS
-    l_script VARCHAR2(256) := 'otap_string.reduce';
-    l_string VARCHAR2(32767);
+    l_script VARCHAR2(256 CHAR) := 'otap_string.reduce';
+    l_string VARCHAR2(32767 CHAR);
   BEGIN
     l_string := CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
     RETURN l_string;
@@ -25,8 +25,8 @@ AS
               )
     RETURN VARCHAR2
   IS
-    l_script VARCHAR2(256) := 'otap_string.cut';
-    l_string VARCHAR2(32767);
+    l_script VARCHAR2(256 CHAR) := 'otap_string.cut';
+    l_string VARCHAR2(32767 CHAR);
   BEGIN
     l_string := CASE WHEN LENGTH(p_string) > p_size THEN SUBSTR(p_string, 1, p_size) ELSE p_string END;
     RETURN l_string;
@@ -41,8 +41,8 @@ AS
                   )
     RETURN VARCHAR2
   IS
-    l_script VARCHAR2(256) := 'otap_string.flatten';
-    l_string VARCHAR2(32767);
+    l_script VARCHAR2(256 CHAR) := 'otap_string.flatten';
+    l_string VARCHAR2(32767 CHAR);
   BEGIN
     l_string := REGEXP_REPLACE(p_string, '\s{2,}', ' ');
     l_string := CASE WHEN LENGTH(l_string) > p_size THEN SUBSTR(l_string, 1, p_size) ELSE l_string END;
@@ -56,7 +56,7 @@ AS
   FUNCTION check_border(p_border IN INTEGER DEFAULT otap_constants.OTAP_BORDER_DEFAULT)
     RETURN NUMBER
   IS
-    l_script VARCHAR2(256) := 'otap_string.check_border';
+    l_script VARCHAR2(256 CHAR) := 'otap_string.check_border';
     l_border INTEGER;
   BEGIN
     IF NVL(p_border, otap_constants.OTAP_BORDER_DEFAULT) NOT BETWEEN 2 AND 10
@@ -75,7 +75,7 @@ AS
   FUNCTION check_line_size(p_line_size IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN NUMBER
   IS
-    l_script    VARCHAR2(256) := 'otap_string.check_line_size';
+    l_script    VARCHAR2(256 CHAR) := 'otap_string.check_line_size';
     l_line_size INTEGER;
   BEGIN
     IF NVL(p_line_size, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH) NOT BETWEEN otap_constants.OTAP_REPORT_MIN_FILL_LENGTH AND otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
@@ -101,7 +101,7 @@ AS
                            )
     RETURN NUMBER
   IS
-    l_script     VARCHAR2(256) := 'otap_string.check_title_size';
+    l_script     VARCHAR2(256 CHAR) := 'otap_string.check_title_size';
     l_title_size INTEGER;
     l_border     INTEGER;
   BEGIN
@@ -122,7 +122,7 @@ AS
   FUNCTION check_string_size(p_string_length IN INTEGER DEFAULT 0)
     RETURN NUMBER
   IS
-    l_script      VARCHAR2(256) := 'otap_string.check_string_size';
+    l_script      VARCHAR2(256 CHAR) := 'otap_string.check_string_size';
     l_string_size INTEGER;
   BEGIN
     IF NVL(p_string_length, 0) > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
@@ -144,8 +144,8 @@ AS
   FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
     RETURN VARCHAR2
   IS
-    l_script VARCHAR2(256) := 'otap_string.check_layout';
-    l_layout VARCHAR2(1);
+    l_script VARCHAR2(256 CHAR) := 'otap_string.check_layout';
+    l_layout VARCHAR2(1 CHAR);
   BEGIN
     l_layout := CASE
                   WHEN p_layout IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
@@ -163,8 +163,8 @@ AS
   FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR)
     RETURN VARCHAR2
   IS
-    l_script     VARCHAR2(256) := 'otap_string.check_decoration';
-    l_decoration VARCHAR2(1);
+    l_script     VARCHAR2(256 CHAR) := 'otap_string.check_decoration';
+    l_decoration VARCHAR2(1 CHAR);
   BEGIN
     l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1);
     RETURN l_decoration;
@@ -180,7 +180,7 @@ AS
                     )
     RETURN INTEGER
   IS
-    l_script     VARCHAR2(256) := 'otap_string.line_size';
+    l_script     VARCHAR2(256 CHAR) := 'otap_string.line_size';
     l_length     INTEGER;
     l_border     INTEGER;
     l_line_size  INTEGER;
@@ -212,7 +212,7 @@ AS
                    )
     RETURN INTEGER
   IS
-    l_script VARCHAR2(256) := 'otap_string.max_size';
+    l_script VARCHAR2(256 CHAR) := 'otap_string.max_size';
     l_title_length INTEGER;
     l_line_size    INTEGER;
     l_border       INTEGER;
@@ -247,15 +247,15 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_script        VARCHAR2(256) := 'otap_string.left_deco';
-    l_deco          VARCHAR2(1);
-    l_layout        VARCHAR2(1);
+    l_script        VARCHAR2(256 CHAR) := 'otap_string.left_deco';
+    l_deco          VARCHAR2(1 CHAR);
+    l_layout        VARCHAR2(1 CHAR);
     l_border        INTEGER;
     l_pad_size      INTEGER;
     l_min_fill      INTEGER;
     l_line_size     INTEGER;
     l_title_length  INTEGER;
-    l_left_pad      VARCHAR2(32767);
+    l_left_pad      VARCHAR2(32767 CHAR);
   BEGIN
     l_min_fill      := otap_string.check_line_size(p_min_fill);
     l_deco          := otap_string.check_decoration(p_decoration);
@@ -293,15 +293,15 @@ AS
                      )
     RETURN VARCHAR2
   IS
-    l_script        VARCHAR2(256) := 'otap_string.right_deco';
-    l_deco          VARCHAR2(1);
-    l_layout        VARCHAR2(1);
+    l_script        VARCHAR2(256 CHAR) := 'otap_string.right_deco';
+    l_deco          VARCHAR2(1 CHAR);
+    l_layout        VARCHAR2(1 CHAR);
     l_border        INTEGER;
     l_pad_size      INTEGER;
     l_min_fill      INTEGER;
     l_line_size     INTEGER;
     l_title_length  INTEGER;
-    l_right_pad     VARCHAR2(32767);
+    l_right_pad     VARCHAR2(32767 CHAR);
   BEGIN
     l_min_fill      := otap_string.check_line_size(p_min_fill);
     l_deco          := otap_string.check_decoration(p_decoration);
@@ -338,7 +338,7 @@ AS
                    )
     RETURN VARCHAR2
   IS
-    l_script        VARCHAR2(256) := 'otap_string.decorate';
+    l_script        VARCHAR2(256 CHAR) := 'otap_string.decorate';
     l_deco_length   INTEGER;
     l_pad_length    INTEGER;
     l_title_length  INTEGER;
@@ -347,10 +347,10 @@ AS
     l_add           INTEGER;
     l_padding       INTEGER;
     l_border        INTEGER;
-    l_deco          VARCHAR2(1);
-    l_layout        VARCHAR2(1);
-    l_deco_string   VARCHAR2(32767);
-    l_title         VARCHAR2(32767);
+    l_deco          VARCHAR2(1 CHAR);
+    l_layout        VARCHAR2(1 CHAR);
+    l_deco_string   VARCHAR2(32767 CHAR);
+    l_title         VARCHAR2(32767 CHAR);
   BEGIN
     otap_log.log('Parameter p_title: ' || p_title || ' p_decoration: ' || p_decoration || ' p_min_length: ' || p_min_length || ' p_layout: ' || p_layout || ' p_border: ' || p_border, l_script, 'Call', 'OTAP_DEBUG');
     -- check params, assign defaults
@@ -382,11 +382,11 @@ AS
                      )
     RETURN VARCHAR2
   IS
-    l_script      VARCHAR2(256) := 'otap_string.borderless';
-    l_layout      VARCHAR2(1);
+    l_script      VARCHAR2(256 CHAR) := 'otap_string.borderless';
+    l_layout      VARCHAR2(1 CHAR);
     l_min_length  INTEGER;
     l_line_size   INTEGER;
-    l_string      VARCHAR2(32767);
+    l_string      VARCHAR2(32767 CHAR);
   BEGIN
     l_min_length := otap_string.check_line_size(p_min_length);
     l_layout     := otap_string.check_layout(p_layout);

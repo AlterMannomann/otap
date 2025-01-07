@@ -62,7 +62,7 @@ SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
 SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
                            , p_column_name => 'IDENTIFIER'
                            , p_description => 'Data length correct'
-                           , p_data_length => 256
+                           , p_data_length => 1024
                            )
   FROM dual;
 SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'

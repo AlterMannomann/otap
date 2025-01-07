@@ -21,7 +21,7 @@ AS
                              )
   IS
     PRAGMA AUTONOMOUS_TRANSACTION;
-    l_script      VARCHAR2(256) := 'otap_results_util.write_test_result';
+    l_script      VARCHAR2(256 CHAR) := 'otap_results_util.write_test_result';
     l_to_delete   NUMBER;
     l_test_passed NUMBER;
   BEGIN
@@ -76,14 +76,14 @@ AS
   PROCEDURE result_cleanup
   IS
     PRAGMA AUTONOMOUS_TRANSACTION;
-    l_script            VARCHAR2(256) := 'otap_results_util.result_cleanup';
+    l_script            VARCHAR2(256 CHAR) := 'otap_results_util.result_cleanup';
     l_delete_before     DATE;
     l_delete_start      DATE;
     l_delete_batch_size NUMBER;
     l_delete_delay      NUMBER;
     l_row_counter       NUMBER;
     l_processed         NUMBER;
-    l_delete_msg        VARCHAR2(32767);
+    l_delete_msg        VARCHAR2(32767 CHAR);
     CURSOR cur_delete_tests(cp_delete_before IN DATE)
     IS
       SELECT *

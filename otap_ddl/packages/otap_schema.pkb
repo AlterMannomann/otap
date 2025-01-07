@@ -35,13 +35,13 @@ AS
                     )
     RETURN INTEGER
   IS
-    l_script        VARCHAR2(1024) := 'otap_schema.has_table';
+    l_script        VARCHAR2(1024 CHAR) := 'otap_schema.has_table';
     l_has_table     INTEGER;
     l_test_passed   INTEGER;
     l_expected      INTEGER;
-    l_schema_to_use VARCHAR2(128);
-    l_table_name    VARCHAR2(128);
-    l_errors        VARCHAR2(32767);
+    l_schema_to_use VARCHAR2(128 CHAR);
+    l_table_name    VARCHAR2(128 CHAR);
+    l_errors        VARCHAR2(32767 CHAR);
   BEGIN
     l_errors      := NULL;
     l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -101,14 +101,14 @@ AS
                      )
     RETURN INTEGER
   IS
-    l_script        VARCHAR2(1024) := 'otap_schema.has_column';
+    l_script        VARCHAR2(1024 CHAR) := 'otap_schema.has_column';
     l_has_column    INTEGER;
     l_test_passed   INTEGER;
     l_expected      INTEGER;
-    l_schema_to_use VARCHAR2(128);
-    l_table_name    VARCHAR2(128);
-    l_column_name   VARCHAR2(128);
-    l_errors        VARCHAR2(32767);
+    l_schema_to_use VARCHAR2(128 CHAR);
+    l_table_name    VARCHAR2(128 CHAR);
+    l_column_name   VARCHAR2(128 CHAR);
+    l_errors        VARCHAR2(32767 CHAR);
   BEGIN
     l_errors      := NULL;
     l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -182,20 +182,20 @@ AS
                       )
     RETURN INTEGER
   IS
-    l_script        VARCHAR2(1024)    := 'otap_schema.has_package';
-    l_ignore        VARCHAR2(6)       := 'IGNORE';
-    l_valid         VARCHAR2(5)       := 'VALID';
-    l_invalid       VARCHAR2(7)       := 'INVALID';
-    l_header        VARCHAR2(7)       := 'PACKAGE';
-    l_body          VARCHAR2(12)      := 'PACKAGE BODY';
+    l_script        VARCHAR2(1024 CHAR)    := 'otap_schema.has_package';
+    l_ignore        VARCHAR2(6 CHAR)       := 'IGNORE';
+    l_valid         VARCHAR2(5 CHAR)       := 'VALID';
+    l_invalid       VARCHAR2(7 CHAR)       := 'INVALID';
+    l_header        VARCHAR2(7 CHAR)       := 'PACKAGE';
+    l_body          VARCHAR2(12 CHAR)      := 'PACKAGE BODY';
     l_has_package   INTEGER;
     l_test_passed   INTEGER;
     l_expected      INTEGER;
-    l_schema_to_use VARCHAR2(128);
-    l_package_name  VARCHAR2(128);
-    l_package_type  VARCHAR2(12);
-    l_object_state  VARCHAR2(7);
-    l_errors        VARCHAR2(32767);
+    l_schema_to_use VARCHAR2(128 CHAR);
+    l_package_name  VARCHAR2(128 CHAR);
+    l_package_type  VARCHAR2(12 CHAR);
+    l_object_state  VARCHAR2(7 CHAR);
+    l_errors        VARCHAR2(32767 CHAR);
   BEGIN
     l_errors        := NULL;
     l_test_passed   := otap_constants.OTAP_NUM_TEST_UNDEFINED;

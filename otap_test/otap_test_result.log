@@ -1,101 +1,120 @@
 ================================ OTAP test summary report ================================
-Session id: 32
+Session id: 8
 ****************************** Test set: OTAP functionality ******************************
-Passed runtime: +00 00:00:00.623097 (runs: 35 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.617638 (runs: 35 errors: 0 issues: 0)
 ++++++++++++++++++++++++++++ Test group: OTAP test functions +++++++++++++++++++++++++++++
-Passed runtime: +00 00:00:00.623097 (runs: 35 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.617638 (runs: 35 errors: 0 issues: 0)
 ------------------------- Test name: Verify otap_test.has_table --------------------------
-Passed runtime: +00 00:00:00.139178 (runs: 6 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.068853 (runs: 6 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.003327 DUAL table
-Passed    Passed    +00 00:00:00.000975 Invalid table name
-Passed    Passed    +00 00:00:00.003279 NULL table name
-Passed    Passed    +00 00:00:00.002501 Default schema
-Passed    Passed    +00 00:00:00.001239 Fallback schema
-Passed    Passed    +00 00:00:00.000759 Table SYS.DUAL exists
+Passed    Passed    +00 00:00:00.003591 DUAL table
+Passed    Passed    +00 00:00:00.000544 Invalid table name
+Passed    Passed    +00 00:00:00.002505 NULL table name
+Passed    Passed    +00 00:00:00.001313 Default schema
+Passed    Passed    +00 00:00:00.000842 Fallback schema
+Passed    Passed    +00 00:00:00.000983 Table SYS.DUAL exists
 ------------------------- Test name: Verify otap_test.has_column -------------------------
-Passed runtime: +00 00:00:00.378664 (runs: 20 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.359220 (runs: 20 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.002015 DUAL table column DUMMY
-Passed    Passed    +00 00:00:00.000653 Invalid table name
-Passed    Passed    +00 00:00:00.000395 Invalid column name
-Passed    Passed    +00 00:00:00.002078 NULL table name
-Passed    Passed    +00 00:00:00.001331 NULL column name
-Passed    Passed    +00 00:00:00.001216 Default schema
-Passed    Passed    +00 00:00:00.001092 Fallback schema
-Passed    Passed    +00 00:00:00.000841 Datatype correct
-Passed    Passed    +00 00:00:00.000945 Datatype wrong
-Passed    Passed    +00 00:00:00.001019 Data length correct
-Passed    Passed    +00 00:00:00.001015 Data length wrong
-Passed    Passed    +00 00:00:00.002302 Nullable correct
-Passed    Passed    +00 00:00:00.000790 Nullable wrong
-Passed    Passed    +00 00:00:00.001214 Data scale correct
-Passed    Passed    +00 00:00:00.001298 Data scale wrong
-Passed    Passed    +00 00:00:00.001030 Data precision correct
-Passed    Passed    +00 00:00:00.000781 Data precision wrong
-Passed    Passed    +00 00:00:00.001223 Data default correct
-Passed    Passed    +00 00:00:00.000676 Data default wrong
-Passed    Passed    +00 00:00:00.000845 Column DUMMY (SYS.DUAL) exists
+Passed    Passed    +00 00:00:00.002334 DUAL table column DUMMY
+Passed    Passed    +00 00:00:00.000447 Invalid table name
+Passed    Passed    +00 00:00:00.000606 Invalid column name
+Passed    Passed    +00 00:00:00.001607 NULL table name
+Passed    Passed    +00 00:00:00.001935 NULL column name
+Passed    Passed    +00 00:00:00.001359 Default schema
+Passed    Passed    +00 00:00:00.001271 Fallback schema
+Passed    Passed    +00 00:00:00.001230 Datatype correct
+Passed    Passed    +00 00:00:00.001388 Datatype wrong
+Passed    Passed    +00 00:00:00.000968 Data length correct
+Passed    Passed    +00 00:00:00.000280 Data length wrong
+Passed    Passed    +00 00:00:00.001066 Nullable correct
+Passed    Passed    +00 00:00:00.003067 Nullable wrong
+Passed    Passed    +00 00:00:00.001471 Data scale correct
+Passed    Passed    +00 00:00:00.000835 Data scale wrong
+Passed    Passed    +00 00:00:00.000852 Data precision correct
+Passed    Passed    +00 00:00:00.000479 Data precision wrong
+Passed    Passed    +00 00:00:00.000982 Data default correct
+Passed    Passed    +00 00:00:00.000258 Data default wrong
+Passed    Passed    +00 00:00:00.001593 Column DUMMY (SYS.DUAL) exists
 ------------------------ Test name: Verify otap_test.has_package -------------------------
-Passed runtime: +00 00:00:00.076024 (runs: 9 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.125996 (runs: 9 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000300 DBMS_OUTPUT package
-Passed    Passed    +00 00:00:00.000660 Invalid package
-Passed    Passed    +00 00:00:00.000191 Correct package type
-Passed    Passed    +00 00:00:00.001433 Wrong package type
-Passed    Passed    +00 00:00:00.000161 Correct package state
-Passed    Passed    +00 00:00:00.000522 Wrong package state
-Passed    Passed    +00 00:00:00.001308 Invalid package state
-Passed    Passed    +00 00:00:00.000390 Package SYS.DBMS_OUTPUT exists (PACKAGE state VALID)
-Passed    Passed    +00 00:00:00.000374 Package SYS.DBMS_OUTPUT exists (PACKAGE BODY state VALID)
+Passed    Passed    +00 00:00:00.001273 DBMS_OUTPUT package
+Passed    Passed    +00 00:00:00.000309 Invalid package
+Passed    Passed    +00 00:00:00.000392 Correct package type
+Passed    Passed    +00 00:00:00.001275 Wrong package type
+Passed    Passed    +00 00:00:00.000413 Correct package state
+Passed    Passed    +00 00:00:00.000517 Wrong package state
+Passed    Passed    +00 00:00:00.002816 Invalid package state
+Passed    Passed    +00 00:00:00.000396 Package SYS.DBMS_OUTPUT exists (PACKAGE state VALID)
+Passed    Passed    +00 00:00:00.000408 Package SYS.DBMS_OUTPUT exists (PACKAGE BODY state VALID)
 ********************************* Test set: OTAP objects *********************************
-Passed runtime: +00 00:00:00.680876 (runs: 30 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.966744 (runs: 39 errors: 0 issues: 0)
 ++++++++++++++++++++++++++++++++ Test group: OTAP tables +++++++++++++++++++++++++++++++++
-Passed runtime: +00 00:00:00.680876 (runs: 30 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.866567 (runs: 37 errors: 0 issues: 0)
 ------------------------------ Test name: Table OTAP_CONFIG ------------------------------
-Passed runtime: +00 00:00:00.177828 (runs: 12 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.292909 (runs: 12 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000808 Table OTAP.OTAP_CONFIG exists
-Passed    Passed    +00 00:00:00.000854 Column CONFIG_NAME (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.000671 Column CONFIG_VALUE (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001558 Column CONFIG_MAX_LENGTH (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001307 Column CONFIG_TYPE (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.002205 Column CREATED (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001164 Column UPDATED (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.000923 Column CREATED_BY (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001057 Column CREATED_BY_OS (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001242 Column UPDATED_BY (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001276 Column UPDATED_BY_OS (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001474 Column CONFIG_DESCRIPTION (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001273 Table OTAP.OTAP_CONFIG exists
+Passed    Passed    +00 00:00:00.001012 Column CONFIG_NAME (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.000951 Column CONFIG_VALUE (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001020 Column CONFIG_MAX_LENGTH (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001238 Column CONFIG_TYPE (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001265 Column CREATED (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001145 Column UPDATED (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001553 Column CREATED_BY (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.000969 Column CREATED_BY_OS (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001269 Column UPDATED_BY (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001210 Column UPDATED_BY_OS (OTAP.OTAP_CONFIG) exists
+Passed    Passed    +00 00:00:00.001740 Column CONFIG_DESCRIPTION (OTAP.OTAP_CONFIG) exists
 ----------------------------- Test name: Table OTAP_RESULTS ------------------------------
-Passed runtime: +00 00:00:00.474052 (runs: 18 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.407235 (runs: 18 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001754 Table OTAP.OTAP_RESULTS exists
-Passed    Passed    +00 00:00:00.001444 Column TO_DELETE (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001269 Column TEST_RUN_ID (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001416 Column TEST_RUN_DATE (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000926 Column TEST_PASSED (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000891 Column TEST_SESSION_ID (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001936 Column TEST_EXECUTOR (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.008714 Column TEST_SET (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001808 Column DB_USER (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001035 Column DB_SCHEMA (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000946 Column TEST_GROUP (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000930 Column TEST_START (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000972 Column TEST_END (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001190 Column TEST_NAME (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001415 Column TEST_DESC (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001241 Column DELETED (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001858 Column DELETED_BY (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.002631 Column TEST_ERRORS (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.000986 Table OTAP.OTAP_RESULTS exists
+Passed    Passed    +00 00:00:00.001281 Column TO_DELETE (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.005525 Column TEST_RUN_ID (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.004236 Column TEST_RUN_DATE (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001201 Column TEST_PASSED (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001288 Column TEST_SESSION_ID (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001213 Column TEST_EXECUTOR (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001263 Column TEST_SET (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.002913 Column DB_USER (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001048 Column DB_SCHEMA (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.000967 Column TEST_GROUP (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001515 Column TEST_START (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001017 Column TEST_END (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.002289 Column TEST_NAME (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.002921 Column TEST_DESC (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.003263 Column DELETED (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001204 Column DELETED_BY (OTAP.OTAP_RESULTS) exists
+Passed    Passed    +00 00:00:00.001275 Column TEST_ERRORS (OTAP.OTAP_RESULTS) exists
+------------------------------ Test name: Table SPERRORLOG -------------------------------
+Passed runtime: +00 00:00:00.114054 (runs: 7 errors: 0 issues: 0)
+Result    Setup     Runtime             Test
+--------- --------- ------------------- ----------------------------------------
+Passed    Passed    +00 00:00:00.001224 Table OTAP.SPERRORLOG exists
+Passed    Passed    +00 00:00:00.001526 Column USERNAME (OTAP.SPERRORLOG) exists
+Passed    Passed    +00 00:00:00.001155 Column TIMESTAMP (OTAP.SPERRORLOG) exists
+Passed    Passed    +00 00:00:00.000965 Column SCRIPT (OTAP.SPERRORLOG) exists
+Passed    Passed    +00 00:00:00.000828 Column IDENTIFIER (OTAP.SPERRORLOG) exists
+Passed    Passed    +00 00:00:00.001261 Column MESSAGE (OTAP.SPERRORLOG) exists
+Passed    Passed    +00 00:00:00.002054 Column STATEMENT (OTAP.SPERRORLOG) exists
++++++++++++++++++++++++++++++++ Test group: OTAP packages ++++++++++++++++++++++++++++++++
+Passed runtime: +00 00:00:00.039168 (runs: 2 errors: 0 issues: 0)
+--------------------------- Test name: Package OTAP_CONSTANTS ----------------------------
+Passed runtime: +00 00:00:00.039168 (runs: 2 errors: 0 issues: 0)
+Result    Setup     Runtime             Test
+--------- --------- ------------------- ----------------------------------------
+Passed    Passed    +00 00:00:00.000719 Package OTAP.OTAP_CONSTANTS exists (PACKAGE state IGNORE)
+Passed    Passed    +00 00:00:00.000536 Package OTAP.OTAP_CONSTANTS exists (PACKAGE BODY state IGNORE)
 ================================ OTAP test report totals =================================
-sets: 2 groups: 2 names: 5 descriptions: 61
-Passed runtime: +00 00:00:01.333597 (runs: 65 errors: 0 issues: 0)
+sets: 2 groups: 3 names: 7 descriptions: 70
+Passed runtime: +00 00:00:01.643616 (runs: 74 errors: 0 issues: 0)
 =========================== OTAP test summary report finished ============================
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1

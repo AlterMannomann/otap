@@ -13,10 +13,10 @@ AS
                              )
   IS
     PRAGMA AUTONOMOUS_TRANSACTION;
-    l_script            VARCHAR2(1024) := 'otap_plan.write_test_result';
+    l_script            VARCHAR2(1024 CHAR) := 'otap_plan.write_test_result';
     l_test_passed       INTEGER;
-    l_test_description  VARCHAR2(256);
-    l_errors            VARCHAR2(4000);
+    l_test_description  VARCHAR2(256 CHAR);
+    l_errors            VARCHAR2(4000 CHAR);
     l_to_delete         INTEGER;
   BEGIN
     otap_objects.otap_session_verify(p_otap_session);
@@ -77,10 +77,10 @@ AS
 
   PROCEDURE write_count_result(p_otap_session IN OTAP_SESSION)
   IS
-    l_script            VARCHAR2(1024) := 'otap_plan.write_count_result';
+    l_script            VARCHAR2(1024 CHAR) := 'otap_plan.write_count_result';
     l_test_passed       INTEGER;
-    l_test_description  VARCHAR2(256);
-    l_errors            VARCHAR2(4000);
+    l_test_description  VARCHAR2(256 CHAR);
+    l_errors            VARCHAR2(4000 CHAR);
     l_start             TIMESTAMP;
     l_end               TIMESTAMP;
     l_tmp_otap_session  OTAP_SESSION;
@@ -122,8 +122,8 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_plan.init_test';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_plan.init_test';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     -- if test count is not 0 this is a reset, write a test count record, if intended count is set
     IF     o_otap_session.test_count      > 0
@@ -167,11 +167,11 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_plan.run_tests';
-    l_message VARCHAR2(4000);
-    l_schema  VARCHAR2(128);
-    l_like    VARCHAR2(256);
-    l_test    VARCHAR2(257);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_plan.run_tests';
+    l_message VARCHAR2(4000 CHAR);
+    l_schema  VARCHAR2(128 CHAR);
+    l_like    VARCHAR2(256 CHAR);
+    l_test    VARCHAR2(257 CHAR);
     CURSOR cur_tests_to_run( cp_schema IN VARCHAR2
                            , cp_like   IN VARCHAR2
                            )
@@ -206,8 +206,8 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_plan.finish_test';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_plan.finish_test';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     IF p_write_count_rec = otap_constants.OTAP_NUM_TRUE
     THEN
