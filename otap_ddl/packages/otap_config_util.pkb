@@ -487,6 +487,13 @@ AS
     RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_COLUMN_TEMPLATE);
   END get_fn_has_column_template;
 
+  FUNCTION get_fn_has_package_template
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_PACKAGE_TEMPLATE);
+  END get_fn_has_package_template;
+
   FUNCTION get_text_false
     RETURN VARCHAR2
   IS

@@ -22,12 +22,14 @@ AS
   * @param p_table_name The name of the table, taken as is. Case sensitive.
   * @param o_error Error information, if any, on the test executed.
   * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_table( p_table_name   IN     VARCHAR2
-                    , o_errors          OUT VARCHAR2
-                    , p_schema       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+  FUNCTION has_table( p_table_name      IN     VARCHAR2
+                    , o_errors             OUT VARCHAR2
+                    , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN INTEGER
   ;
@@ -51,22 +53,154 @@ AS
   * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
   * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
   * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_column( p_table_name     IN     VARCHAR2
-                     , p_column_name    IN     VARCHAR2
-                     , o_errors            OUT VARCHAR2
-                     , p_schema         IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                     , p_data_type      IN     VARCHAR2 DEFAULT NULL
-                     , p_data_length    IN     NUMBER   DEFAULT NULL
-                     , p_data_precision IN     NUMBER   DEFAULT NULL
-                     , p_data_scale     IN     NUMBER   DEFAULT NULL
-                     , p_nullable       IN     VARCHAR2 DEFAULT NULL
-                     , p_data_default   IN     VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+  FUNCTION has_column( p_table_name      IN     VARCHAR2
+                     , p_column_name     IN     VARCHAR2
+                     , o_errors             OUT VARCHAR2
+                     , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_data_type       IN     VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN     NUMBER   DEFAULT NULL
+                     , p_data_precision  IN     NUMBER   DEFAULT NULL
+                     , p_data_scale      IN     NUMBER   DEFAULT NULL
+                     , p_nullable        IN     VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN     VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
+    RETURN INTEGER
+  ;
+
+  /** FUNCTION otap_schema.has_package
+  * Checks if a given package exists. Check if header and body, if available, are valid by default.
+  * If the package exists but is not valid, and package state is not IGNORE the test will fail.
+  *
+  * @param p_package_name The name of the package, take as is. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+  * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_package( p_package_name    IN     VARCHAR2
+                      , o_errors             OUT VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
     RETURN INTEGER
   ;
 
 END;
 /
+
+/* SQLs for schema objects
+-- package functions and procedures - only package joins with object_id, not package body, no result
+SELECT dbo.owner
+     , dbo.object_name
+     , dbo.object_type
+     , dbo.status
+     , dbp.procedure_name
+     , CASE
+         WHEN dbr.position       = 0
+          AND dbr.argument_name IS NULL
+         THEN 'FUNCTION'
+         ELSE 'PROCEDURE'
+       END AS procedure_type
+     , CASE
+         WHEN dbr.position       = 0
+          AND dbr.argument_name IS NULL
+         THEN dbr.data_type
+         ELSE NULL
+       END AS return_type
+  FROM dba_objects dbo
+  LEFT OUTER JOIN dba_procedures dbp
+    ON dbo.object_id    = dbp.object_id
+  LEFT OUTER JOIN dba_arguments dbr
+    ON dbp.object_id     = dbr.object_id
+   AND dbp.subprogram_id = dbr.subprogram_id
+   AND dbr.sequence      = 1
+ WHERE dbo.owner        = 'OTAP'
+   AND dbo.object_type  = 'PACKAGE'
+   AND dbo.object_name  = 'OTAP_RESULTS_UTIL'
+;
+
+-- package function and procedure parameter
+SELECT dbo.owner
+     , dbo.object_name
+     , dbo.object_type
+     , dbo.status
+     , dbp.procedure_name
+     , dbr.argument_name
+     , dbr.data_type
+     , dbr.position
+  FROM dba_objects dbo
+  LEFT OUTER JOIN dba_procedures dbp
+    ON dbo.object_id    = dbp.object_id
+  LEFT OUTER JOIN dba_arguments dbr
+    ON dbp.object_id      = dbr.object_id
+   AND dbp.subprogram_id  = dbr.subprogram_id
+   AND dbr.argument_name IS NOT NULL
+ WHERE dbo.owner            = 'OTAP'
+   AND dbo.object_type      = 'PACKAGE'
+   AND dbo.object_name      = 'OTAP_RESULTS_UTIL'
+   AND dbp.procedure_name   = 'WRITE_TEST_RESULT'
+--   AND dbp.procedure_name   = 'MAX_TEXT_SIZE'
+;
+
+-- functions, procedures and trigger
+SELECT dbo.owner
+     , dbo.object_name
+     , dbo.object_type
+     , dbo.status
+     , dbp.procedure_name
+     , CASE
+         WHEN dbr.position       = 0
+          AND dbr.argument_name IS NULL
+         THEN 'FUNCTION'
+         ELSE 'PROCEDURE'
+       END AS procedure_type
+     , CASE
+         WHEN dbr.position       = 0
+          AND dbr.argument_name IS NULL
+         THEN dbr.data_type
+         ELSE NULL
+       END AS return_type
+  FROM dba_objects dbo
+  LEFT OUTER JOIN dba_procedures dbp
+    ON dbo.object_id    = dbp.object_id
+  LEFT OUTER JOIN dba_arguments dbr
+    ON dbp.object_id     = dbr.object_id
+   AND dbp.subprogram_id = dbr.subprogram_id
+   AND dbr.sequence      = 1
+ WHERE dbo.owner        = 'OTAP'
+   AND dbo.object_type IN ('FUNCTION', 'PROCEDURE', 'TRIGGER')
+--   AND dbo.object_name  = 'DUMMY_PROCEDURE'
+;
+
+-- parameters functions and procedures
+SELECT dbo.owner
+     , dbo.object_name
+     , dbo.object_type
+     , dbo.status
+     , dbp.procedure_name
+     , dbr.argument_name
+     , dbr.data_type
+     , dbr.position
+  FROM dba_objects dbo
+  LEFT OUTER JOIN dba_procedures dbp
+    ON dbo.object_id    = dbp.object_id
+  LEFT OUTER JOIN dba_arguments dbr
+    ON dbp.object_id     = dbr.object_id
+   AND dbp.subprogram_id = dbr.subprogram_id
+   AND dbr.argument_name IS NOT NULL
+ WHERE dbo.owner            = 'OTAP'
+   AND dbo.object_type     IN ('FUNCTION', 'PROCEDURE')
+   AND dbo.object_name      = 'DUMMY_FUNCTION'
+;
+
+*/

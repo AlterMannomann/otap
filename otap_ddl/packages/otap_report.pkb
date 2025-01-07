@@ -530,5 +530,27 @@ AS
       RAISE;
   END get_has_column_msg;
 
+  FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              )
+    RETURN VARCHAR2
+  IS
+    l_template_text VARCHAR2(32767);
+  BEGIN
+    l_template_text := otap_config_util.get_fn_has_package_template;
+    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
+    l_template_text := REPLACE(l_template_text, '@package@', NVL(p_package_name, otap_constants.OTAP_CHAR_NA));
+    l_template_text := REPLACE(l_template_text, '@packagetype@', NVL(p_package_type, otap_constants.OTAP_CHAR_NA));
+    l_template_text := REPLACE(l_template_text, '@packagestate@', NVL(p_package_state, otap_constants.OTAP_CHAR_NA));
+    l_template_text := otap_string.reduce(l_template_text, 4000);
+    RETURN l_template_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_has_package_msg', 'Build has_package result message');
+      RAISE;
+  END get_has_package_msg;
+
 END;
 /

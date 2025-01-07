@@ -320,20 +320,39 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_report.get_has_table_msg
-  * Builds a user message for the has_table test function based on given values from template. Will always
+  /** FUNCTION otap_report.get_has_column_msg
+  * Builds a user message for the has_column test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.
   *
   * @param p_table_name The table name that was tested.
   * @param p_column_name The column name that was tested.
   * @param p_schema_name The schema of the table tested.
   *
-  * @return The formatted and reduced has table test message. Restricted to 4000 chars.
+  * @return The formatted and reduced has column test message. Restricted to 4000 chars.
   */
   FUNCTION get_has_column_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                              , p_column_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                              , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                              )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_report.get_has_column_msg
+  * Builds a user message for the has_column test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_package_name The package name that was tested.
+  * @param p_schema_name The schema of the package tested.
+  * @param p_package_type The package type of the package that was tested.
+  * @param p_package_state The package state of the package that was tested.
+  *
+  * @return The formatted and reduced has column test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              )
     RETURN VARCHAR2
   ;
 

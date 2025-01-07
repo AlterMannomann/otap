@@ -469,15 +469,16 @@ AS
       RAISE;
   END get_report_id;
 
-  FUNCTION has_table( p_table_name   IN VARCHAR2
-                    , p_schema       IN VARCHAR2 DEFAULT NULL
-                    , p_description  IN VARCHAR2 DEFAULT NULL
+  FUNCTION has_table( p_table_name      IN VARCHAR2
+                    , p_schema          IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN VARCHAR2
   IS
     l_message VARCHAR2(4000);
   BEGIN
-    l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description);
+    l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
@@ -488,16 +489,17 @@ AS
       RAISE;
   END has_table;
 
-  FUNCTION has_column( p_table_name     IN  VARCHAR2
-                     , p_column_name    IN  VARCHAR2
-                     , p_schema         IN  VARCHAR2 DEFAULT NULL
-                     , p_description    IN  VARCHAR2 DEFAULT NULL
-                     , p_data_type      IN  VARCHAR2 DEFAULT NULL
-                     , p_data_length    IN  NUMBER   DEFAULT NULL
-                     , p_data_precision IN  NUMBER   DEFAULT NULL
-                     , p_data_scale     IN  NUMBER   DEFAULT NULL
-                     , p_nullable       IN  VARCHAR2 DEFAULT NULL
-                     , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+  FUNCTION has_column( p_table_name      IN VARCHAR2
+                     , p_column_name     IN VARCHAR2
+                     , p_schema          IN VARCHAR2 DEFAULT NULL
+                     , p_description     IN VARCHAR2 DEFAULT NULL
+                     , p_data_type       IN VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN NUMBER   DEFAULT NULL
+                     , p_data_precision  IN NUMBER   DEFAULT NULL
+                     , p_data_scale      IN NUMBER   DEFAULT NULL
+                     , p_nullable        IN VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN VARCHAR2
   IS
@@ -514,6 +516,7 @@ AS
                                     , p_data_scale
                                     , p_nullable
                                     , p_data_default
+                                    , p_expected_result
                                     )
     ;
     RETURN l_message;
@@ -525,6 +528,29 @@ AS
       END IF;
       RAISE;
   END has_column;
+
+  FUNCTION has_package( p_package_name    IN     VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT NULL
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000);
+  BEGIN
+    l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
+      END IF;
+      RAISE;
+  END has_package;
+
 
   -- debug function
   FUNCTION get_session_var

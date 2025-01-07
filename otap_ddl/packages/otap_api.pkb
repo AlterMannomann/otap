@@ -649,10 +649,11 @@ AS
     RETURN l_message;
   END get_report_total_details;
 
-  FUNCTION has_table( p_table_name   IN            VARCHAR2
-                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
-                    , p_schema       IN            VARCHAR2     DEFAULT NULL
-                    , p_description  IN            VARCHAR2     DEFAULT NULL
+  FUNCTION has_table( p_table_name      IN            VARCHAR2
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_schema          IN            VARCHAR2     DEFAULT NULL
+                    , p_description     IN            VARCHAR2     DEFAULT NULL
+                    , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN VARCHAR2
   IS
@@ -679,6 +680,7 @@ AS
         l_result := otap_schema.has_table( p_table_name
                                          , l_errors
                                          , l_schema
+                                         , p_expected_result
                                          )
         ;
       EXCEPTION
@@ -714,17 +716,18 @@ AS
     RETURN l_return;
   END has_table;
 
-  FUNCTION has_column( p_table_name     IN            VARCHAR2
-                     , p_column_name    IN            VARCHAR2
-                     , o_otap_session   IN OUT NOCOPY OTAP_SESSION
-                     , p_schema         IN            VARCHAR2 DEFAULT NULL
-                     , p_description    IN            VARCHAR2 DEFAULT NULL
-                     , p_data_type      IN            VARCHAR2 DEFAULT NULL
-                     , p_data_length    IN            NUMBER   DEFAULT NULL
-                     , p_data_precision IN            NUMBER   DEFAULT NULL
-                     , p_data_scale     IN            NUMBER   DEFAULT NULL
-                     , p_nullable       IN            VARCHAR2 DEFAULT NULL
-                     , p_data_default   IN            VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+  FUNCTION has_column( p_table_name      IN            VARCHAR2
+                     , p_column_name     IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2 DEFAULT NULL
+                     , p_description     IN            VARCHAR2 DEFAULT NULL
+                     , p_data_type       IN            VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN            NUMBER   DEFAULT NULL
+                     , p_data_precision  IN            NUMBER   DEFAULT NULL
+                     , p_data_scale      IN            NUMBER   DEFAULT NULL
+                     , p_nullable        IN            VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN            VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN VARCHAR2
   IS
@@ -758,6 +761,7 @@ AS
                                           , p_data_scale
                                           , p_nullable
                                           , p_data_default
+                                          , p_expected_result
                                           )
         ;
       EXCEPTION
@@ -792,6 +796,77 @@ AS
     -- return result or let exception happen
     RETURN l_return;
   END has_column;
+
+  FUNCTION has_package( p_package_name    IN            VARCHAR2
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      , p_schema          IN            VARCHAR2 DEFAULT NULL
+                      , p_description     IN            VARCHAR2 DEFAULT NULL
+                      , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_package_state   IN            VARCHAR2 DEFAULT 'VALID'
+                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024)                  := 'otap_api.has_package';
+    l_start            TIMESTAMP;
+    l_end              TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+    l_tmp_otap_session OTAP_SESSION;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+        -- call function
+        l_result := otap_schema.has_package( p_package_name
+                                           , l_errors
+                                           , l_schema
+                                           , p_package_type
+                                           , p_package_state
+                                           , p_expected_result
+                                           )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+      END;
+      l_end := SYSTIMESTAMP;
+      -- set session variable according current value, a part where otap could fail
+      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
+      l_tmp_otap_session.db_schema  := l_schema;
+      -- try to write the test record
+      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+      otap_objects.otap_session_add_test(l_result, o_otap_session);
+      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+        -- try again to write a record with the new informations, which may again raise an exception
+        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
+        l_tmp_otap_session.db_schema  := l_schema;
+        l_end := SYSTIMESTAMP;
+        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_package;
 
 END;
 /
