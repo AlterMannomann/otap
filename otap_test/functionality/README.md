@@ -1,5 +1,5 @@
-# otap - DDL
-This folder contains the internal test procedures and scripts for otap functionality.
+# otap - Functionality tests
+This folder contains internal test procedures and scripts for otap functionality.
 
 - [Back to main](../README.md)
 
