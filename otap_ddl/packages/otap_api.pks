@@ -320,7 +320,6 @@ AS
                       , p_schema          IN            VARCHAR2 DEFAULT NULL
                       , p_description     IN            VARCHAR2 DEFAULT NULL
                       , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_package_state   IN            VARCHAR2 DEFAULT 'VALID'
                       , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2

@@ -74,13 +74,11 @@ AS
 
   /** FUNCTION otap_schema.has_package
   * Checks if a given package exists. Check if header and body, if available, are valid by default.
-  * If the package exists but is not valid, and package state is not IGNORE the test will fail.
   *
   * @param p_package_name The name of the package, take as is. Case sensitive.
   * @param o_error Error information, if any, on the test executed.
   * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
   * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
-  * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
@@ -89,7 +87,6 @@ AS
                       , o_errors             OUT VARCHAR2
                       , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                       , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
                       , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN INTEGER

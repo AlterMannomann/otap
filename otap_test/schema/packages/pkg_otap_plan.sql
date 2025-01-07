@@ -3,11 +3,12 @@
 -- Not allowed to be used as AI training material without explicite permission.
 
 -- sets the test name and calls the tests for this test name
+-- ignore package states currently, extra function to validate objects to be created
 
-SELECT otap_test.set_test_name('Package OTAP_CONSTANTS') FROM dual;
+SELECT otap_test.set_test_name('Package OTAP_PLAN') FROM dual;
 
-SELECT otap_test.has_package('OTAP_CONSTANTS') FROM dual;
-SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
+SELECT otap_test.has_package('OTAP_PLAN') FROM dual;
+SELECT otap_test.has_package( p_package_name => 'OTAP_PLAN'
                             , p_package_type => 'PACKAGE BODY'
                             )
   FROM dual;

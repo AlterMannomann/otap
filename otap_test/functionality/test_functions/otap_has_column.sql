@@ -35,6 +35,13 @@ SELECT otap_test.has_column( p_table_name => 'DUAL'
                            , p_expected_result => otap_constants.get_otap_num_test_undefined
                            )
   FROM dual;
+SELECT otap_test.has_column( p_table_name => NULL
+                           , p_column_name => NULL
+                           , p_schema => 'SYS'
+                           , p_description => 'NULL table and column name'
+                           , p_expected_result => otap_constants.get_otap_num_test_undefined
+                           )
+  FROM dual;
 SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
                            , p_column_name => 'IDENTIFIER'
                            , p_description => 'Default schema'

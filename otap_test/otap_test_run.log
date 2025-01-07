@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 0
+SQL> SELECT otap_test.init_test( p_test_count => 92
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 8
+Test session id: 23
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: Not set
+Expected tests: 92
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 8
-Test start: 2025-01-07 02:47:21
+Current view id: 23
+Test start: 2025-01-07 03:47:53
 
 
 1 row selected.
@@ -161,6 +161,17 @@ SQL> SELECT otap_test.has_column( p_table_name => 'DUAL'
   6  				)
   7    FROM dual;
 Passed NULL column name
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => NULL
+  2  				, p_column_name => NULL
+  3  				, p_schema => 'SYS'
+  4  				, p_description => 'NULL table and column name'
+  5  				, p_expected_result => otap_constants.get_otap_num_test_undefined
+  6  				)
+  7    FROM dual;
+Passed NULL table and column name
 
 1 row selected.
 
@@ -365,41 +376,9 @@ Passed Wrong package type
 
 1 row selected.
 
-SQL> SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
-  2  				 , p_schema => 'SYS'
-  3  				 , p_description => 'Correct package state'
-  4  				 , p_package_state => 'VALID'
-  5  				 )
-  6    FROM dual;
-Passed Correct package state
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
-  2  				 , p_schema => 'SYS'
-  3  				 , p_description => 'Wrong package state'
-  4  				 , p_package_state => 'INVALID'
-  5  				 , p_expected_result => otap_constants.get_otap_num_test_failed
-  6  				 )
-  7    FROM dual;
-Passed Wrong package state
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
-  2  				 , p_schema => 'SYS'
-  3  				 , p_description => 'Invalid package state'
-  4  				 , p_package_state => 'SUCCESS'
-  5  				 , p_expected_result => otap_constants.get_otap_num_test_undefined
-  6  				 )
-  7    FROM dual;
-Passed Invalid package state
-
-1 row selected.
-
 SQL> -- test default description
 SQL> SELECT otap_test.has_package('DBMS_OUTPUT', 'SYS') FROM dual;
-Passed Package SYS.DBMS_OUTPUT exists (PACKAGE state VALID)
+Passed Package SYS.DBMS_OUTPUT exists (PACKAGE)
 
 1 row selected.
 
@@ -408,7 +387,7 @@ SQL> SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
   3  				 , p_package_type => 'PACKAGE BODY'
   4  				 )
   5    FROM dual;
-Passed Package SYS.DBMS_OUTPUT exists (PACKAGE BODY state VALID)
+Passed Package SYS.DBMS_OUTPUT exists (PACKAGE BODY)
 
 1 row selected.
 
@@ -914,7 +893,6 @@ SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
 SQL> 
 SQL> -- sets the test name and calls the tests for this test name
-SQL> -- ignore package states currently, extra function to validate objects to be created
 SQL> 
 SQL> SELECT otap_test.set_test_name('Package OTAP_CONSTANTS') FROM dual;
 Current test: Package OTAP_CONSTANTS
@@ -922,30 +900,297 @@ Current test: Package OTAP_CONSTANTS
 1 row selected.
 
 SQL> 
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
-  2  				 , p_package_state => 'IGNORE'
-  3  				 )
-  4    FROM dual;
-Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE state IGNORE)
+SQL> SELECT otap_test.has_package('OTAP_CONSTANTS') FROM dual;
+Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE)
 
 1 row selected.
 
 SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
   2  				 , p_package_type => 'PACKAGE BODY'
-  3  				 , p_package_state => 'IGNORE'
-  4  				 )
-  5    FROM dual;
-Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE BODY state IGNORE)
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE BODY)
 
 1 row selected.
 
+SQL> @@pkg_otap_log.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_LOG') FROM dual;
+Current test: Package OTAP_LOG
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_LOG') FROM dual;
+Passed Package OTAP.OTAP_LOG exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_LOG exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_string.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_STRING') FROM dual;
+Current test: Package OTAP_STRING
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_STRING') FROM dual;
+Passed Package OTAP.OTAP_STRING exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_STRING'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_STRING exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_config_util.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_CONFIG_UTIL') FROM dual;
+Current test: Package OTAP_CONFIG_UTIL
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_CONFIG_UTIL') FROM dual;
+Passed Package OTAP.OTAP_CONFIG_UTIL exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONFIG_UTIL'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_CONFIG_UTIL exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_results_util.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_RESULTS_UTIL') FROM dual;
+Current test: Package OTAP_RESULTS_UTIL
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_RESULTS_UTIL') FROM dual;
+Passed Package OTAP.OTAP_RESULTS_UTIL exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_RESULTS_UTIL'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_RESULTS_UTIL exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_report.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_REPORT') FROM dual;
+Current test: Package OTAP_REPORT
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_REPORT') FROM dual;
+Passed Package OTAP.OTAP_REPORT exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_REPORT'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_REPORT exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_objects.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_OBJECTS') FROM dual;
+Current test: Package OTAP_OBJECTS
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_OBJECTS') FROM dual;
+Passed Package OTAP.OTAP_OBJECTS exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_OBJECTS'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_OBJECTS exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_plan.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_PLAN') FROM dual;
+Current test: Package OTAP_PLAN
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_PLAN') FROM dual;
+Passed Package OTAP.OTAP_PLAN exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_PLAN'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_PLAN exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_schema.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_SCHEMA') FROM dual;
+Current test: Package OTAP_SCHEMA
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_SCHEMA') FROM dual;
+Passed Package OTAP.OTAP_SCHEMA exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_SCHEMA'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_SCHEMA exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_api.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_API') FROM dual;
+Current test: Package OTAP_API
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_API') FROM dual;
+Passed Package OTAP.OTAP_API exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_API'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_API exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> @@pkg_otap_test.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_TEST') FROM dual;
+Current test: Package OTAP_TEST
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package('OTAP_TEST') FROM dual;
+Passed Package OTAP.OTAP_TEST exists (PACKAGE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_TEST'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_TEST exists (PACKAGE BODY)
+
+1 row selected.
+
+SQL> 
 SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 8 tests: 74 errors: 0 run time: +000000000 00:00:02.000000000 started: 2025-01-07 02:47:21
+Summary id: 23 tests: 92 from 92 errors: 0 run time: +000000000 00:00:02.000000000 started: 2025-01-07 03:47:53
 Current test settings
-Test session id: 9
+Test session id: 24
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -958,8 +1203,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 8
-Test start: 2025-01-07 02:47:23
+Current view id: 23
+Test start: 2025-01-07 03:47:55
 
 
 1 row selected.

@@ -344,14 +344,12 @@ AS
   * @param p_package_name The package name that was tested.
   * @param p_schema_name The schema of the package tested.
   * @param p_package_type The package type of the package that was tested.
-  * @param p_package_state The package state of the package that was tested.
   *
   * @return The formatted and reduced has column test message. Restricted to 4000 chars.
   */
   FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               )
     RETURN VARCHAR2
   ;

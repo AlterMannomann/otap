@@ -223,7 +223,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_constants
 126    OTAP_REPORT_TOTAL_TEMPLATE	CONSTANT CHAR(66)	:= 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
 127    OTAP_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(41)	:= 'Table @schema@.@tablename@ exists';
 128    OTAP_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(61)	:= 'Column @column@ (@schema@.@tablename@) exists';
-129    OTAP_FN_HAS_PACKAGE_TEMPLATE	CONSTANT CHAR(70)	:= 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)';
+129    OTAP_FN_HAS_PACKAGE_TEMPLATE	CONSTANT CHAR(49)	:= 'Package @schema@.@package@ exists (@packagetype@)';
 130    OTAP_LAYOUT_RIGHT		CONSTANT CHAR(1)	:= 'R';
 131    OTAP_LAYOUT_MIDDLE		CONSTANT CHAR(1)	:= 'M';
 132    OTAP_LAYOUT_LEFT 		CONSTANT CHAR(1)	:= 'L';
@@ -1299,7 +1299,7 @@ SQL> INSERT INTO otap_config
 SQL> INSERT INTO otap_config
   2    (config_name, config_value, config_type, config_max_length, config_description)
   3    VALUES
-  4    ('FN_HAS_PACKAGE_TEMPLATE', 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  4    ('FN_HAS_PACKAGE_TEMPLATE', 'Package @schema@.@package@ exists (@packagetype@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
   5  ;
 
 1 row created.
@@ -4047,20 +4047,18 @@ SQL> CREATE OR REPLACE PACKAGE otap_report
 340    * @param p_package_name The package name that was tested.
 341    * @param p_schema_name The schema of the package tested.
 342    * @param p_package_type The package type of the package that was tested.
-343    * @param p_package_state The package state of the package that was tested.
-344    *
-345    * @return The formatted and reduced has column test message. Restricted to 4000 chars.
-346    */
-347    FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-348  				   , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-349  				   , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-350  				   , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-351  				   )
-352  	 RETURN VARCHAR2
-353    ;
-354  
-355  END;
-356  /
+343    *
+344    * @return The formatted and reduced has column test message. Restricted to 4000 chars.
+345    */
+346    FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+347  				   , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+348  				   , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+349  				   )
+350  	 RETURN VARCHAR2
+351    ;
+352  
+353  END;
+354  /
 
 Package created.
 
@@ -4600,27 +4598,25 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 530    FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
 531  				   , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
 532  				   , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-533  				   , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-534  				   )
-535  	 RETURN VARCHAR2
-536    IS
-537  	 l_template_text VARCHAR2(32767 CHAR);
-538    BEGIN
-539  	 l_template_text := otap_config_util.get_fn_has_package_template;
-540  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
-541  	 l_template_text := REPLACE(l_template_text, '@package@', NVL(p_package_name, otap_constants.OTAP_CHAR_NA));
-542  	 l_template_text := REPLACE(l_template_text, '@packagetype@', NVL(p_package_type, otap_constants.OTAP_CHAR_NA));
-543  	 l_template_text := REPLACE(l_template_text, '@packagestate@', NVL(p_package_state, otap_constants.OTAP_CHAR_NA));
-544  	 l_template_text := otap_string.reduce(l_template_text, 4000);
-545  	 RETURN l_template_text;
-546    EXCEPTION
-547  	 WHEN OTHERS THEN
-548  	   otap_log.log(SQLERRM, 'otap_report.get_has_package_msg', 'Build has_package result message');
-549  	   RAISE;
-550    END get_has_package_msg;
-551  
-552  END;
-553  /
+533  				   )
+534  	 RETURN VARCHAR2
+535    IS
+536  	 l_template_text VARCHAR2(32767 CHAR);
+537    BEGIN
+538  	 l_template_text := otap_config_util.get_fn_has_package_template;
+539  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
+540  	 l_template_text := REPLACE(l_template_text, '@package@', NVL(p_package_name, otap_constants.OTAP_CHAR_NA));
+541  	 l_template_text := REPLACE(l_template_text, '@packagetype@', NVL(p_package_type, otap_constants.OTAP_CHAR_NA));
+542  	 l_template_text := otap_string.reduce(l_template_text, 4000);
+543  	 RETURN l_template_text;
+544    EXCEPTION
+545  	 WHEN OTHERS THEN
+546  	   otap_log.log(SQLERRM, 'otap_report.get_has_package_msg', 'Build has_package result message');
+547  	   RAISE;
+548    END get_has_package_msg;
+549  
+550  END;
+551  /
 
 Package body created.
 
@@ -5842,29 +5838,26 @@ SQL> CREATE OR REPLACE PACKAGE otap_schema
  70  
  71    /** FUNCTION otap_schema.has_package
  72    * Checks if a given package exists. Check if header and body, if available, are valid by default.
- 73    * If the package exists but is not valid, and package state is not IGNORE the test will fail.
- 74    *
- 75    * @param p_package_name The name of the package, take as is. Case sensitive.
- 76    * @param o_error Error information, if any, on the test executed.
- 77    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
- 78    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
- 79    * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
- 80    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
- 81    *
- 82    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
- 83    */
- 84    FUNCTION has_package( p_package_name    IN     VARCHAR2
- 85  			   , o_errors		  OUT VARCHAR2
- 86  			   , p_schema	       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 87  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
- 88  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
- 89  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
- 90  			   )
- 91  	 RETURN INTEGER
- 92    ;
- 93  
- 94  END;
- 95  /
+ 73    *
+ 74    * @param p_package_name The name of the package, take as is. Case sensitive.
+ 75    * @param o_error Error information, if any, on the test executed.
+ 76    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+ 77    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+ 78    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+ 79    *
+ 80    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+ 81    */
+ 82    FUNCTION has_package( p_package_name    IN     VARCHAR2
+ 83  			   , o_errors		  OUT VARCHAR2
+ 84  			   , p_schema	       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 85  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+ 86  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 87  			   )
+ 88  	 RETURN INTEGER
+ 89    ;
+ 90  
+ 91  END;
+ 92  /
 
 Package created.
 
@@ -6155,89 +6148,78 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 174  			   , o_errors		  OUT VARCHAR2
 175  			   , p_schema	       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
 176  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-177  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
-178  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-179  			   )
-180  	 RETURN INTEGER
-181    IS
-182  	 l_script	 VARCHAR2(1024 CHAR)	:= 'otap_schema.has_package';
-183  	 l_ignore	 VARCHAR2(6 CHAR)	:= 'IGNORE';
-184  	 l_valid	 VARCHAR2(5 CHAR)	:= 'VALID';
-185  	 l_invalid	 VARCHAR2(7 CHAR)	:= 'INVALID';
-186  	 l_header	 VARCHAR2(7 CHAR)	:= 'PACKAGE';
-187  	 l_body 	 VARCHAR2(12 CHAR)	:= 'PACKAGE BODY';
-188  	 l_has_package	 INTEGER;
-189  	 l_test_passed	 INTEGER;
-190  	 l_expected	 INTEGER;
-191  	 l_schema_to_use VARCHAR2(128 CHAR);
-192  	 l_package_name  VARCHAR2(128 CHAR);
-193  	 l_package_type  VARCHAR2(12 CHAR);
-194  	 l_object_state  VARCHAR2(7 CHAR);
-195  	 l_errors	 VARCHAR2(32767 CHAR);
-196    BEGIN
-197  	 l_errors	 := NULL;
-198  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-199  	 l_expected	 := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-200  	 l_package_name  := otap_string.reduce(p_package_name, 128);
-201  	 l_object_state  := otap_string.reduce(UPPER(p_package_state), 7);
-202  	 l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
-203  	 IF	l_package_name	       IS NOT NULL
-204  	    AND LENGTH(l_package_name)	> 0
-205  	    AND l_object_state	       IN (l_ignore, l_valid, l_invalid)
-206  	    AND l_package_type	       IN (l_header, l_body)
-207  	 THEN
-208  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-209  	   SELECT COUNT(*)
-210  	     INTO l_has_package
-211  	     FROM dba_objects
-212  	    WHERE owner       = l_schema_to_use
-213  	      AND object_name = l_package_name
-214  	      AND object_type = l_package_type
-215  	      AND status      = CASE WHEN l_object_state = l_ignore THEN status ELSE l_object_state END
-216  	   ;
-217  	   -- we should find one or zero entries
-218  	   l_test_passed := count_chk(l_has_package, l_errors, l_script);
-219  	 ELSE
-220  	   -- invalid package name, type or state
-221  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-222  	   l_errors	       := 'Not allowed: ' || CASE
-223  						       WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
-224  						       THEN 'p_package_name(NULL) '
-225  						     END ||
-226  						     CASE
-227  						       WHEN l_object_state NOT IN (l_ignore, l_valid, l_invalid)
-228  						       THEN 'p_package_state(' || l_object_state || ') '
-229  						     END ||
-230  						     CASE
-231  						       WHEN l_package_type NOT IN (l_header, l_body)
-232  						       THEN 'p_package_type(' || l_package_type || ') '
-233  						     END
-234  	   ;
-235  	   otap_log.log(l_errors, l_script, 'Package name NULL or type and state invalid');
-236  	 END IF;
-237  	 -- now decide on the expected result the final state and if errors are returned
-238  	 IF l_test_passed != l_expected
-239  	 THEN
-240  	   o_errors := otap_string.reduce(l_errors, 4000);
-241  	 ELSE
-242  	   -- overwrite states from before, as we fulfill expected
-243  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-244  	   -- overwrite errors expected
-245  	   o_errors := NULL;
-246  	 END IF;
-247  	 RETURN l_test_passed;
-248    EXCEPTION
-249  	 WHEN OTHERS THEN
-250  	   IF SQLCODE != -20099
-251  	   THEN
-252  	     -- log unhandled exceptions
-253  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-254  	   END IF;
-255  	   RAISE;
-256    END has_package;
-257  
-258  END;
-259  /
+177  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+178  			   )
+179  	 RETURN INTEGER
+180    IS
+181  	 l_script	 VARCHAR2(1024 CHAR)	:= 'otap_schema.has_package';
+182  	 l_ignore	 VARCHAR2(6 CHAR)	:= 'IGNORE';
+183  	 l_header	 VARCHAR2(7 CHAR)	:= 'PACKAGE';
+184  	 l_body 	 VARCHAR2(12 CHAR)	:= 'PACKAGE BODY';
+185  	 l_has_package	 INTEGER;
+186  	 l_test_passed	 INTEGER;
+187  	 l_expected	 INTEGER;
+188  	 l_schema_to_use VARCHAR2(128 CHAR);
+189  	 l_package_name  VARCHAR2(128 CHAR);
+190  	 l_package_type  VARCHAR2(12 CHAR);
+191  	 l_errors	 VARCHAR2(32767 CHAR);
+192    BEGIN
+193  	 l_errors	 := NULL;
+194  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+195  	 l_expected	 := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+196  	 l_package_name  := otap_string.reduce(p_package_name, 128);
+197  	 l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
+198  	 IF	l_package_name	       IS NOT NULL
+199  	    AND LENGTH(l_package_name)	> 0
+200  	    AND l_package_type	       IN (l_header, l_body)
+201  	 THEN
+202  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+203  	   SELECT COUNT(*)
+204  	     INTO l_has_package
+205  	     FROM dba_objects
+206  	    WHERE owner       = l_schema_to_use
+207  	      AND object_name = l_package_name
+208  	      AND object_type = l_package_type
+209  	   ;
+210  	   -- we should find one or zero entries
+211  	   l_test_passed := count_chk(l_has_package, l_errors, l_script);
+212  	 ELSE
+213  	   -- invalid package name, type or state
+214  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+215  	   l_errors	       := 'Not allowed: ' || CASE
+216  						       WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
+217  						       THEN 'p_package_name(NULL) '
+218  						     END ||
+219  						     CASE
+220  						       WHEN l_package_type NOT IN (l_header, l_body)
+221  						       THEN 'p_package_type(' || l_package_type || ') '
+222  						     END
+223  	   ;
+224  	   otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
+225  	 END IF;
+226  	 -- now decide on the expected result the final state and if errors are returned
+227  	 IF l_test_passed != l_expected
+228  	 THEN
+229  	   o_errors := otap_string.reduce(l_errors, 4000);
+230  	 ELSE
+231  	   -- overwrite states from before, as we fulfill expected
+232  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+233  	   -- overwrite errors expected
+234  	   o_errors := NULL;
+235  	 END IF;
+236  	 RETURN l_test_passed;
+237    EXCEPTION
+238  	 WHEN OTHERS THEN
+239  	   IF SQLCODE != -20099
+240  	   THEN
+241  	     -- log unhandled exceptions
+242  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+243  	   END IF;
+244  	   RAISE;
+245    END has_package;
+246  
+247  END;
+248  /
 
 Package body created.
 
@@ -6564,14 +6546,13 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
 315  			   , p_schema	       IN	     VARCHAR2 DEFAULT NULL
 316  			   , p_description     IN	     VARCHAR2 DEFAULT NULL
 317  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
-318  			   , p_package_state   IN	     VARCHAR2 DEFAULT 'VALID'
-319  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-320  			   )
-321  	 RETURN VARCHAR2
-322    ;
-323  
-324  END;
-325  /
+318  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+319  			   )
+320  	 RETURN VARCHAR2
+321    ;
+322  
+323  END;
+324  /
 
 Package created.
 
@@ -7380,74 +7361,72 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 799  			   , p_schema	       IN	     VARCHAR2 DEFAULT NULL
 800  			   , p_description     IN	     VARCHAR2 DEFAULT NULL
 801  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
-802  			   , p_package_state   IN	     VARCHAR2 DEFAULT 'VALID'
-803  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-804  			   )
-805  	 RETURN VARCHAR2
-806    IS
-807  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_package';
-808  	 l_start	    TIMESTAMP;
-809  	 l_end		    TIMESTAMP;
-810  	 l_result	    INTEGER;
-811  	 l_return	    VARCHAR2(4000 CHAR);
-812  	 l_errors	    otap_results.test_errors%TYPE;
-813  	 l_schema	    otap_results.db_schema%TYPE;
-814  	 l_desc 	    otap_results.test_desc%TYPE;
-815  	 l_tmp_otap_session OTAP_SESSION;
-816    BEGIN
-817  	 l_start  := SYSTIMESTAMP;
-818  	 -- default return
-819  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
-820  	 -- own begin-end for the transaction after the function
-821  	 BEGIN
-822  	   -- own begin-end block for the function itself and prepare
-823  	   BEGIN
-824  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-825  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
-826  	     -- call function
-827  	     l_result := otap_schema.has_package( p_package_name
-828  						, l_errors
-829  						, l_schema
-830  						, p_package_type
-831  						, p_package_state
-832  						, p_expected_result
-833  						)
-834  	     ;
-835  	   EXCEPTION
-836  	     WHEN OTHERS THEN
-837  	     -- consume error
-838  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-839  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
-840  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
-841  	   END;
-842  	   l_end := SYSTIMESTAMP;
-843  	   -- set session variable according current value, a part where otap could fail
-844  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
-845  	   l_tmp_otap_session.db_schema  := l_schema;
-846  	   -- try to write the test record
-847  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-848  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
-849  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-850  	 EXCEPTION
-851  	   WHEN OTHERS THEN
-852  	     -- consume error
-853  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-854  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
-855  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
-856  	     -- try again to write a record with the new informations, which may again raise an exception
-857  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
-858  	     l_tmp_otap_session.db_schema  := l_schema;
-859  	     l_end := SYSTIMESTAMP;
-860  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-861  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
-862  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-863  	 END;
-864  	 -- return result or let exception happen
-865  	 RETURN l_return;
-866    END has_package;
-867  
-868  END;
-869  /
+802  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+803  			   )
+804  	 RETURN VARCHAR2
+805    IS
+806  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_package';
+807  	 l_start	    TIMESTAMP;
+808  	 l_end		    TIMESTAMP;
+809  	 l_result	    INTEGER;
+810  	 l_return	    VARCHAR2(4000 CHAR);
+811  	 l_errors	    otap_results.test_errors%TYPE;
+812  	 l_schema	    otap_results.db_schema%TYPE;
+813  	 l_desc 	    otap_results.test_desc%TYPE;
+814  	 l_tmp_otap_session OTAP_SESSION;
+815    BEGIN
+816  	 l_start  := SYSTIMESTAMP;
+817  	 -- default return
+818  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+819  	 -- own begin-end for the transaction after the function
+820  	 BEGIN
+821  	   -- own begin-end block for the function itself and prepare
+822  	   BEGIN
+823  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+824  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
+825  	     -- call function
+826  	     l_result := otap_schema.has_package( p_package_name
+827  						, l_errors
+828  						, l_schema
+829  						, p_package_type
+830  						, p_expected_result
+831  						)
+832  	     ;
+833  	   EXCEPTION
+834  	     WHEN OTHERS THEN
+835  	     -- consume error
+836  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+837  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+838  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+839  	   END;
+840  	   l_end := SYSTIMESTAMP;
+841  	   -- set session variable according current value, a part where otap could fail
+842  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
+843  	   l_tmp_otap_session.db_schema  := l_schema;
+844  	   -- try to write the test record
+845  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+846  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
+847  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+848  	 EXCEPTION
+849  	   WHEN OTHERS THEN
+850  	     -- consume error
+851  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+852  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+853  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+854  	     -- try again to write a record with the new informations, which may again raise an exception
+855  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
+856  	     l_tmp_otap_session.db_schema  := l_schema;
+857  	     l_end := SYSTIMESTAMP;
+858  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+859  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
+860  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+861  	 END;
+862  	 -- return result or let exception happen
+863  	 RETURN l_return;
+864    END has_package;
+865  
+866  END;
+867  /
 
 Package body created.
 
@@ -7738,34 +7717,31 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 269  
 270    /** FUNCTION otap_test.has_package
 271    * Checks if a given package exists. Check if header and body, if available, are valid by default.
-272    * If the package exists but is not valid, and package state is not IGNORE the test will fail.
-273    *
-274    * @param p_package_name The name of the package, take as is. Case sensitive.
-275    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-276    * @param p_description The test description if any. If not given, a description is generated, see FN template.
-277    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
-278    * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
-279    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
-280    *
-281    * @return The test result as text.
-282    */
-283    FUNCTION has_package( p_package_name    IN     VARCHAR2
-284  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
-285  			   , p_description     IN     VARCHAR2 DEFAULT NULL
-286  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-287  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
-288  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-289  			   )
-290  	 RETURN VARCHAR2
-291    ;
-292  
-293    -- debug function
-294    FUNCTION get_session_var
-295  	 RETURN OTAP_SESSION
-296    ;
-297  
-298  END;
-299  /
+272    *
+273    * @param p_package_name The name of the package, take as is. Case sensitive.
+274    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+275    * @param p_description The test description if any. If not given, a description is generated, see FN template.
+276    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+277    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+278    *
+279    * @return The test result as text.
+280    */
+281    FUNCTION has_package( p_package_name    IN     VARCHAR2
+282  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+283  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+284  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+285  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+286  			   )
+287  	 RETURN VARCHAR2
+288    ;
+289  
+290    -- debug function
+291    FUNCTION get_session_var
+292  	 RETURN OTAP_SESSION
+293    ;
+294  
+295  END;
+296  /
 
 Package created.
 
@@ -8311,35 +8287,34 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 530  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
 531  			   , p_description     IN     VARCHAR2 DEFAULT NULL
 532  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-533  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
-534  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-535  			   )
-536  	 RETURN VARCHAR2
-537    IS
-538  	 l_message VARCHAR2(4000 CHAR);
-539    BEGIN
-540  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
-541  	 RETURN l_message;
-542    EXCEPTION
-543  	 WHEN OTHERS THEN
-544  	   IF SQLCODE != -20099
-545  	   THEN
-546  	     otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
-547  	   END IF;
-548  	   RAISE;
-549    END has_package;
+533  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+534  			   )
+535  	 RETURN VARCHAR2
+536    IS
+537  	 l_message VARCHAR2(4000 CHAR);
+538    BEGIN
+539  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_expected_result);
+540  	 RETURN l_message;
+541    EXCEPTION
+542  	 WHEN OTHERS THEN
+543  	   IF SQLCODE != -20099
+544  	   THEN
+545  	     otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
+546  	   END IF;
+547  	   RAISE;
+548    END has_package;
+549  
 550  
-551  
-552    -- debug function
-553    FUNCTION get_session_var
-554  	 RETURN OTAP_SESSION
-555    IS
-556    BEGIN
-557  	 RETURN session_record;
-558    END get_session_var;
-559  
-560  END;
-561  /
+551    -- debug function
+552    FUNCTION get_session_var
+553  	 RETURN OTAP_SESSION
+554    IS
+555    BEGIN
+556  	 RETURN session_record;
+557    END get_session_var;
+558  
+559  END;
+560  /
 
 Package body created.
 
