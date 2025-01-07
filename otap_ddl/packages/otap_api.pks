@@ -284,10 +284,11 @@ AS
   /** FUNCTION otap_api.has_table
   * @see otap_schema.has_table and otap_test.has_column
   */
-  FUNCTION has_table( p_table_name   IN            VARCHAR2
-                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
-                    , p_schema       IN            VARCHAR2     DEFAULT NULL
-                    , p_description  IN            VARCHAR2     DEFAULT NULL
+  FUNCTION has_table( p_table_name      IN            VARCHAR2
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_schema          IN            VARCHAR2     DEFAULT NULL
+                    , p_description     IN            VARCHAR2     DEFAULT NULL
+                    , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN VARCHAR2
   ;
@@ -295,18 +296,33 @@ AS
   /** FUNCTION otap_api.has_column
   * @see otap_schema.has_column and otap_test.has_column
   */
-  FUNCTION has_column( p_table_name     IN            VARCHAR2
-                     , p_column_name    IN            VARCHAR2
-                     , o_otap_session   IN OUT NOCOPY OTAP_SESSION
-                     , p_schema         IN            VARCHAR2 DEFAULT NULL
-                     , p_description    IN            VARCHAR2 DEFAULT NULL
-                     , p_data_type      IN            VARCHAR2 DEFAULT NULL
-                     , p_data_length    IN            NUMBER   DEFAULT NULL
-                     , p_data_precision IN            NUMBER   DEFAULT NULL
-                     , p_data_scale     IN            NUMBER   DEFAULT NULL
-                     , p_nullable       IN            VARCHAR2 DEFAULT NULL
-                     , p_data_default   IN            VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+  FUNCTION has_column( p_table_name      IN            VARCHAR2
+                     , p_column_name     IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2 DEFAULT NULL
+                     , p_description     IN            VARCHAR2 DEFAULT NULL
+                     , p_data_type       IN            VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN            NUMBER   DEFAULT NULL
+                     , p_data_precision  IN            NUMBER   DEFAULT NULL
+                     , p_data_scale      IN            NUMBER   DEFAULT NULL
+                     , p_nullable        IN            VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN            VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_package
+  * @see otap_schema.has_package and otap_test.has_package
+  */
+  FUNCTION has_package( p_package_name    IN            VARCHAR2
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      , p_schema          IN            VARCHAR2 DEFAULT NULL
+                      , p_description     IN            VARCHAR2 DEFAULT NULL
+                      , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_package_state   IN            VARCHAR2 DEFAULT 'VALID'
+                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
     RETURN VARCHAR2
   ;
 

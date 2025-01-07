@@ -224,12 +224,14 @@ AS
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
   * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
   *
   * @return The test result as text.
   */
-  FUNCTION has_table( p_table_name   IN VARCHAR2
-                    , p_schema       IN VARCHAR2 DEFAULT NULL
-                    , p_description  IN VARCHAR2 DEFAULT NULL
+  FUNCTION has_table( p_table_name      IN VARCHAR2
+                    , p_schema          IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN VARCHAR2
   ;
@@ -253,20 +255,45 @@ AS
   * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
   * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
   * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+  * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
   *
   * @return The test result as text.
   */
-  FUNCTION has_column( p_table_name     IN  VARCHAR2
-                     , p_column_name    IN  VARCHAR2
-                     , p_schema         IN  VARCHAR2 DEFAULT NULL
-                     , p_description    IN  VARCHAR2 DEFAULT NULL
-                     , p_data_type      IN  VARCHAR2 DEFAULT NULL
-                     , p_data_length    IN  NUMBER   DEFAULT NULL
-                     , p_data_precision IN  NUMBER   DEFAULT NULL
-                     , p_data_scale     IN  NUMBER   DEFAULT NULL
-                     , p_nullable       IN  VARCHAR2 DEFAULT NULL
-                     , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
+  FUNCTION has_column( p_table_name      IN VARCHAR2
+                     , p_column_name     IN VARCHAR2
+                     , p_schema          IN VARCHAR2 DEFAULT NULL
+                     , p_description     IN VARCHAR2 DEFAULT NULL
+                     , p_data_type       IN VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN NUMBER   DEFAULT NULL
+                     , p_data_precision  IN NUMBER   DEFAULT NULL
+                     , p_data_scale      IN NUMBER   DEFAULT NULL
+                     , p_nullable        IN VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.has_package
+  * Checks if a given package exists. Check if header and body, if available, are valid by default.
+  * If the package exists but is not valid, and package state is not IGNORE the test will fail.
+  *
+  * @param p_package_name The name of the package, take as is. Case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+  * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_package( p_package_name    IN     VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT NULL
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
     RETURN VARCHAR2
   ;
 

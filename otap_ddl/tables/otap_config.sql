@@ -99,6 +99,7 @@ BEGIN
                              , 'REPORT_TOTAL_TEMPLATE'
                              , 'FN_HAS_TABLE_TEMPLATE'
                              , 'FN_HAS_COLUMN_TEMPLATE'
+                             , 'FN_HAS_PACKAGE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -229,6 +230,7 @@ BEGIN
                              , 'REPORT_TOTAL_TEMPLATE'
                              , 'FN_HAS_TABLE_TEMPLATE'
                              , 'FN_HAS_COLUMN_TEMPLATE'
+                             , 'FN_HAS_PACKAGE_TEMPLATE'
                              )
   THEN
     RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
@@ -379,6 +381,7 @@ BEGIN
                          , 'REPORT_TOTAL_TEMPLATE'
                          , 'FN_HAS_TABLE_TEMPLATE'
                          , 'FN_HAS_COLUMN_TEMPLATE'
+                         , 'FN_HAS_PACKAGE_TEMPLATE'
                          )
   THEN
     RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
@@ -625,6 +628,11 @@ INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
   ('FN_HAS_COLUMN_TEMPLATE', 'Column @column@ (@schema@.@tablename@) exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('FN_HAS_PACKAGE_TEMPLATE', 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 
 COMMIT;

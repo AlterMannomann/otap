@@ -157,168 +157,170 @@ SQL> CREATE OR REPLACE PACKAGE otap_constants
  60    OTAP_CFG_REPORT_TOTAL_TEMPLATE	CONSTANT CHAR(21)	:= 'REPORT_TOTAL_TEMPLATE';
  61    OTAP_CFG_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(21)	:= 'FN_HAS_TABLE_TEMPLATE';
  62    OTAP_CFG_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(22)	:= 'FN_HAS_COLUMN_TEMPLATE';
- 63    OTAP_CFG_TEXT_FALSE		CONSTANT CHAR(10)	:= 'TEXT_FALSE';
- 64    OTAP_CFG_TEXT_FALSE_NO		CONSTANT CHAR(13)	:= 'TEXT_FALSE_NO';
- 65    OTAP_CFG_TEXT_REPORT_END 	CONSTANT CHAR(15)	:= 'TEXT_REPORT_END';
- 66    OTAP_CFG_TEXT_REPORT_TOTAL	CONSTANT CHAR(17)	:= 'TEXT_REPORT_TOTAL';
- 67    OTAP_CFG_TEXT_REPORT_START	CONSTANT CHAR(17)	:= 'TEXT_REPORT_START';
- 68    OTAP_CFG_TEXT_RESULT_HEADER	CONSTANT CHAR(18)	:= 'TEXT_RESULT_HEADER';
- 69    OTAP_CFG_TEXT_TEST_COUNT_HEADER	CONSTANT CHAR(22)	:= 'TEXT_TEST_COUNT_HEADER';
- 70    OTAP_CFG_TEXT_TEST_COUNT_NAME	CONSTANT CHAR(20)	:= 'TEXT_TEST_COUNT_NAME';
- 71    OTAP_CFG_TEXT_SUMMARY_ERROR	CONSTANT CHAR(18)	:= 'TEXT_SUMMARY_ERROR';
- 72    OTAP_CFG_TEXT_SUMMARY_SUCCESS	CONSTANT CHAR(20)	:= 'TEXT_SUMMARY_SUCCESS';
- 73    OTAP_CFG_TEXT_TEST_FAILED	CONSTANT CHAR(16)	:= 'TEXT_TEST_FAILED';
- 74    OTAP_CFG_TEXT_TEST_PASSED	CONSTANT CHAR(16)	:= 'TEXT_TEST_PASSED';
- 75    OTAP_CFG_TEXT_TEST_UNDEFINED	CONSTANT CHAR(19)	:= 'TEXT_TEST_UNDEFINED';
- 76    OTAP_CFG_TEXT_TRUE		CONSTANT CHAR(9)	:= 'TEXT_TRUE';
- 77    OTAP_CFG_TEXT_TRUE_YES		CONSTANT CHAR(13)	:= 'TEXT_TRUE_YES';
- 78  
- 79    -- fallback constants for access failure situations, defaults and checks
- 80    OTAP_PRESERVE_DAYS		CONSTANT INTEGER	:= 1;
- 81    OTAP_PRESERVE_DAYS_MIN		CONSTANT INTEGER	:= 1;
- 82    OTAP_PRESERVE_DAYS_MAX		CONSTANT INTEGER	:= 7;
- 83    OTAP_DELETE_DELAY		CONSTANT INTEGER	:= 10;
- 84    OTAP_DELETE_DELAY_MIN		CONSTANT INTEGER	:= 1;
- 85    OTAP_DELETE_DELAY_MAX		CONSTANT INTEGER	:= 600;
- 86    OTAP_DELETE_BATCH_SIZE		CONSTANT INTEGER	:= 1000;
- 87    OTAP_DELETE_BATCH_SIZE_MIN	CONSTANT INTEGER	:= 100;
- 88    OTAP_DELETE_BATCH_SIZE_MAX	CONSTANT INTEGER	:= 10000;
- 89    OTAP_PREFIX_MAX_SIZE		CONSTANT INTEGER	:= 4;
- 90    OTAP_DEBUG_MODE			CONSTANT INTEGER	:= 0;
- 91    OTAP_FORMAT_HEADER_CHAR		CONSTANT CHAR(1)	:= '=';
- 92    OTAP_FORMAT_SET_CHAR		CONSTANT CHAR(1)	:= '*';
- 93    OTAP_FORMAT_GROUP_CHAR		CONSTANT CHAR(1)	:= '+';
- 94    OTAP_FORMAT_NAME_CHAR		CONSTANT CHAR(1)	:= '-';
- 95    OTAP_TEXT_TRUE			CONSTANT CHAR(4)	:= 'true';
- 96    OTAP_TEXT_FALSE			CONSTANT CHAR(5)	:= 'false';
- 97    OTAP_TEXT_TRUE_YES		CONSTANT CHAR(3)	:= 'Yes';
- 98    OTAP_TEXT_FALSE_NO		CONSTANT CHAR(2)	:= 'No';
- 99    OTAP_TEXT_TEST_PASSED		CONSTANT CHAR(6)	:= 'Passed';
-100    OTAP_TEXT_TEST_FAILED		CONSTANT CHAR(6)	:= 'FAILED';
-101    OTAP_TEXT_TEST_UNDEFINED 	CONSTANT CHAR(9)	:= 'UNDEFINED';
-102    OTAP_DEFAULT_PREFIX		CONSTANT CHAR(4)	:= 'TEST';
-103    OTAP_DEFAULT_TEST_SET		CONSTANT CHAR(13)	:= 'OTAP test set';
-104    OTAP_DEFAULT_TEST_GROUP		CONSTANT CHAR(15)	:= 'OTAP test group';
-105    OTAP_DEFAULT_TEST_NAME		CONSTANT CHAR(14)	:= 'OTAP test name';
-106    OTAP_TEXT_REPORT_START		CONSTANT CHAR(24)	:= 'OTAP test summary report';
-107    OTAP_TEXT_REPORT_TOTAL		CONSTANT CHAR(23)	:= 'OTAP test report totals';
-108    OTAP_TEXT_REPORT_END		CONSTANT CHAR(33)	:= 'OTAP test summary report finished';
-109    OTAP_TEXT_RESULT_HEADER		CONSTANT CHAR(44)	:= 'Result    Setup	Runtime 	    Test';
-110    OTAP_FORMAT_RESULT_HEADER	CONSTANT CHAR(80)	:= '--------- --------- ------------------- ----------------------------------------';
-111    OTAP_TEXT_TEST_COUNT_HEADER	CONSTANT CHAR(18)	:= 'Test count summary';
-112    OTAP_TEXT_TEST_COUNT_NAME	CONSTANT CHAR(18)	:= 'Session test count';
-113    OTAP_TEXT_SUMMARY_SUCCESS	CONSTANT CHAR(7)	:= 'SUCCESS';
-114    OTAP_TEXT_SUMMARY_ERROR		CONSTANT CHAR(5)	:= 'ERROR';
-115    OTAP_SUMMARY_TEMPLATE		CONSTANT CHAR(76)	:= '@status@ runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)';
-116    OTAP_ERRORS_TEMPLATE		CONSTANT CHAR(24)	:= '@testname@ error details';
-117    OTAP_ERROR_DETAILS_TEMPLATE	CONSTANT CHAR(24)	:= '@testdesc@: @errorinfo@';
-118    OTAP_NO_DATA_TEMPLATE		CONSTANT CHAR(56)	:= 'NO_DATA - no tests found for test session id @sessionid@';
-119    OTAP_SESSION_ID_TEMPLATE 	CONSTANT CHAR(23)	:= 'Session id: @sessionid@';
-120    OTAP_SET_TEMPLATE		CONSTANT CHAR(19)	:= 'Test set: @testset@';
-121    OTAP_GROUP_TEMPLATE		CONSTANT CHAR(23)	:= 'Test group: @testgroup@';
-122    OTAP_TEST_NAME_TEMPLATE		CONSTANT CHAR(21)	:= 'Test name: @testname@';
-123    OTAP_RESULT_LINE_TEMPLATE	CONSTANT CHAR(45)	:= '@teststate@ @issuestate@ @runtime@ @testdesc@';
-124    OTAP_COUNT_DESC_TEMPLATE 	CONSTANT CHAR(46)	:= '@testsrun@ from @testsexpected@ tests executed';
-125    OTAP_REPORT_TOTAL_TEMPLATE	CONSTANT CHAR(66)	:= 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
-126    OTAP_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(41)	:= 'Table @schema@.@tablename@ exists';
-127    OTAP_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(61)	:= 'Column @column@ (@schema@.@tablename@) exists';
-128    OTAP_LAYOUT_RIGHT		CONSTANT CHAR(1)	:= 'R';
-129    OTAP_LAYOUT_MIDDLE		CONSTANT CHAR(1)	:= 'M';
-130    OTAP_LAYOUT_LEFT 		CONSTANT CHAR(1)	:= 'L';
-131    OTAP_LAYOUT_DEFAULT		CONSTANT CHAR(1)	:= 'M';
-132    OTAP_RESULT_LAYOUT_DEFAULT	CONSTANT CHAR(1)	:= 'L';
-133    OTAP_BORDER_DEFAULT		CONSTANT INTEGER	:= 5;
-134    /*====================================== end package constants used by otap ======================================*/
-135  
-136    /*====================================== start package constant get functions ======================================*/
-137    -- @return otap_constants.OTAP_USER_ROLE
-138    FUNCTION get_otap_user_role
-139  	 RETURN VARCHAR2
-140  	 DETERMINISTIC
-141  	 PARALLEL_ENABLE
-142    ;
-143    -- @return otap_constants.OTAP_SCHEMA
-144    FUNCTION get_otap_schema
-145  	 RETURN VARCHAR2
-146  	 DETERMINISTIC
-147  	 PARALLEL_ENABLE
-148    ;
-149    -- @return otap_constants.OTAP_TABLESPACE
-150    FUNCTION get_otap_tablespace
-151  	 RETURN VARCHAR2
-152  	 DETERMINISTIC
-153  	 PARALLEL_ENABLE
-154    ;
-155    -- @return otap_constants.OTAP_NUM_TRUE
-156    FUNCTION get_otap_num_true
-157  	 RETURN NUMBER
-158  	 DETERMINISTIC
-159  	 PARALLEL_ENABLE
-160    ;
-161    -- @return otap_constants.OTAP_NUM_FALSE
-162    FUNCTION get_otap_num_false
-163  	 RETURN NUMBER
-164  	 DETERMINISTIC
-165  	 PARALLEL_ENABLE
-166    ;
-167    -- @return otap_constants.OTAP_NUM_TEST_PASSED
-168    FUNCTION get_otap_num_test_passed
-169  	 RETURN VARCHAR2
-170  	 DETERMINISTIC
-171  	 PARALLEL_ENABLE
-172    ;
-173    -- @return otap_constants.OTAP_NUM_TEST_FAILED
-174    FUNCTION get_otap_num_test_failed
-175  	 RETURN VARCHAR2
-176  	 DETERMINISTIC
-177  	 PARALLEL_ENABLE
-178    ;
-179    -- @return otap_constants.OTAP_NUM_TEST_UNDEFINED
-180    FUNCTION get_otap_num_test_undefined
-181  	 RETURN VARCHAR2
-182  	 DETERMINISTIC
-183  	 PARALLEL_ENABLE
-184    ;
-185    -- @return otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-186    FUNCTION get_otap_report_min_fill_length
-187  	 RETURN NUMBER
-188  	 DETERMINISTIC
-189  	 PARALLEL_ENABLE
-190    ;
-191    -- @return otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
-192    FUNCTION get_otap_report_max_fill_length
-193  	 RETURN NUMBER
-194  	 DETERMINISTIC
-195  	 PARALLEL_ENABLE
-196    ;
-197    -- @return otap_constants.OTAP_DEFAULT_DELIMITER
-198    FUNCTION get_otap_default_delimiter
-199  	 RETURN VARCHAR2
-200  	 DETERMINISTIC
-201  	 PARALLEL_ENABLE
-202    ;
-203  -- @return otap_constants.OTAP_ERROR_IDENTIFIER
-204    FUNCTION get_otap_error_identifier
-205  	 RETURN VARCHAR2
-206  	 DETERMINISTIC
-207  	 PARALLEL_ENABLE
-208    ;
-209  -- @return otap_constants.OTAP_CHAR_NA
-210    FUNCTION get_otap_char_na
-211  	 RETURN VARCHAR2
-212  	 DETERMINISTIC
-213  	 PARALLEL_ENABLE
-214    ;
-215  -- @return otap_constants.OTAP_VAR_DELIMITER
-216    FUNCTION get_otap_var_delimiter
-217  	 RETURN VARCHAR2
-218  	 DETERMINISTIC
-219  	 PARALLEL_ENABLE
-220    ;
-221  
-222    /*====================================== end package constant utility functions ======================================*/
-223  END;
-224  /
+ 63    OTAP_CFG_FN_HAS_PACKAGE_TEMPLATE CONSTANT CHAR(23)	:= 'FN_HAS_PACKAGE_TEMPLATE';
+ 64    OTAP_CFG_TEXT_FALSE		CONSTANT CHAR(10)	:= 'TEXT_FALSE';
+ 65    OTAP_CFG_TEXT_FALSE_NO		CONSTANT CHAR(13)	:= 'TEXT_FALSE_NO';
+ 66    OTAP_CFG_TEXT_REPORT_END 	CONSTANT CHAR(15)	:= 'TEXT_REPORT_END';
+ 67    OTAP_CFG_TEXT_REPORT_TOTAL	CONSTANT CHAR(17)	:= 'TEXT_REPORT_TOTAL';
+ 68    OTAP_CFG_TEXT_REPORT_START	CONSTANT CHAR(17)	:= 'TEXT_REPORT_START';
+ 69    OTAP_CFG_TEXT_RESULT_HEADER	CONSTANT CHAR(18)	:= 'TEXT_RESULT_HEADER';
+ 70    OTAP_CFG_TEXT_TEST_COUNT_HEADER	CONSTANT CHAR(22)	:= 'TEXT_TEST_COUNT_HEADER';
+ 71    OTAP_CFG_TEXT_TEST_COUNT_NAME	CONSTANT CHAR(20)	:= 'TEXT_TEST_COUNT_NAME';
+ 72    OTAP_CFG_TEXT_SUMMARY_ERROR	CONSTANT CHAR(18)	:= 'TEXT_SUMMARY_ERROR';
+ 73    OTAP_CFG_TEXT_SUMMARY_SUCCESS	CONSTANT CHAR(20)	:= 'TEXT_SUMMARY_SUCCESS';
+ 74    OTAP_CFG_TEXT_TEST_FAILED	CONSTANT CHAR(16)	:= 'TEXT_TEST_FAILED';
+ 75    OTAP_CFG_TEXT_TEST_PASSED	CONSTANT CHAR(16)	:= 'TEXT_TEST_PASSED';
+ 76    OTAP_CFG_TEXT_TEST_UNDEFINED	CONSTANT CHAR(19)	:= 'TEXT_TEST_UNDEFINED';
+ 77    OTAP_CFG_TEXT_TRUE		CONSTANT CHAR(9)	:= 'TEXT_TRUE';
+ 78    OTAP_CFG_TEXT_TRUE_YES		CONSTANT CHAR(13)	:= 'TEXT_TRUE_YES';
+ 79  
+ 80    -- fallback constants for access failure situations, defaults and checks
+ 81    OTAP_PRESERVE_DAYS		CONSTANT INTEGER	:= 1;
+ 82    OTAP_PRESERVE_DAYS_MIN		CONSTANT INTEGER	:= 1;
+ 83    OTAP_PRESERVE_DAYS_MAX		CONSTANT INTEGER	:= 7;
+ 84    OTAP_DELETE_DELAY		CONSTANT INTEGER	:= 10;
+ 85    OTAP_DELETE_DELAY_MIN		CONSTANT INTEGER	:= 1;
+ 86    OTAP_DELETE_DELAY_MAX		CONSTANT INTEGER	:= 600;
+ 87    OTAP_DELETE_BATCH_SIZE		CONSTANT INTEGER	:= 1000;
+ 88    OTAP_DELETE_BATCH_SIZE_MIN	CONSTANT INTEGER	:= 100;
+ 89    OTAP_DELETE_BATCH_SIZE_MAX	CONSTANT INTEGER	:= 10000;
+ 90    OTAP_PREFIX_MAX_SIZE		CONSTANT INTEGER	:= 4;
+ 91    OTAP_DEBUG_MODE			CONSTANT INTEGER	:= 0;
+ 92    OTAP_FORMAT_HEADER_CHAR		CONSTANT CHAR(1)	:= '=';
+ 93    OTAP_FORMAT_SET_CHAR		CONSTANT CHAR(1)	:= '*';
+ 94    OTAP_FORMAT_GROUP_CHAR		CONSTANT CHAR(1)	:= '+';
+ 95    OTAP_FORMAT_NAME_CHAR		CONSTANT CHAR(1)	:= '-';
+ 96    OTAP_TEXT_TRUE			CONSTANT CHAR(4)	:= 'true';
+ 97    OTAP_TEXT_FALSE			CONSTANT CHAR(5)	:= 'false';
+ 98    OTAP_TEXT_TRUE_YES		CONSTANT CHAR(3)	:= 'Yes';
+ 99    OTAP_TEXT_FALSE_NO		CONSTANT CHAR(2)	:= 'No';
+100    OTAP_TEXT_TEST_PASSED		CONSTANT CHAR(6)	:= 'Passed';
+101    OTAP_TEXT_TEST_FAILED		CONSTANT CHAR(6)	:= 'FAILED';
+102    OTAP_TEXT_TEST_UNDEFINED 	CONSTANT CHAR(9)	:= 'UNDEFINED';
+103    OTAP_DEFAULT_PREFIX		CONSTANT CHAR(4)	:= 'TEST';
+104    OTAP_DEFAULT_TEST_SET		CONSTANT CHAR(13)	:= 'OTAP test set';
+105    OTAP_DEFAULT_TEST_GROUP		CONSTANT CHAR(15)	:= 'OTAP test group';
+106    OTAP_DEFAULT_TEST_NAME		CONSTANT CHAR(14)	:= 'OTAP test name';
+107    OTAP_TEXT_REPORT_START		CONSTANT CHAR(24)	:= 'OTAP test summary report';
+108    OTAP_TEXT_REPORT_TOTAL		CONSTANT CHAR(23)	:= 'OTAP test report totals';
+109    OTAP_TEXT_REPORT_END		CONSTANT CHAR(33)	:= 'OTAP test summary report finished';
+110    OTAP_TEXT_RESULT_HEADER		CONSTANT CHAR(44)	:= 'Result    Setup	Runtime 	    Test';
+111    OTAP_FORMAT_RESULT_HEADER	CONSTANT CHAR(80)	:= '--------- --------- ------------------- ----------------------------------------';
+112    OTAP_TEXT_TEST_COUNT_HEADER	CONSTANT CHAR(18)	:= 'Test count summary';
+113    OTAP_TEXT_TEST_COUNT_NAME	CONSTANT CHAR(18)	:= 'Session test count';
+114    OTAP_TEXT_SUMMARY_SUCCESS	CONSTANT CHAR(7)	:= 'SUCCESS';
+115    OTAP_TEXT_SUMMARY_ERROR		CONSTANT CHAR(5)	:= 'ERROR';
+116    OTAP_SUMMARY_TEMPLATE		CONSTANT CHAR(76)	:= '@status@ runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)';
+117    OTAP_ERRORS_TEMPLATE		CONSTANT CHAR(24)	:= '@testname@ error details';
+118    OTAP_ERROR_DETAILS_TEMPLATE	CONSTANT CHAR(24)	:= '@testdesc@: @errorinfo@';
+119    OTAP_NO_DATA_TEMPLATE		CONSTANT CHAR(56)	:= 'NO_DATA - no tests found for test session id @sessionid@';
+120    OTAP_SESSION_ID_TEMPLATE 	CONSTANT CHAR(23)	:= 'Session id: @sessionid@';
+121    OTAP_SET_TEMPLATE		CONSTANT CHAR(19)	:= 'Test set: @testset@';
+122    OTAP_GROUP_TEMPLATE		CONSTANT CHAR(23)	:= 'Test group: @testgroup@';
+123    OTAP_TEST_NAME_TEMPLATE		CONSTANT CHAR(21)	:= 'Test name: @testname@';
+124    OTAP_RESULT_LINE_TEMPLATE	CONSTANT CHAR(45)	:= '@teststate@ @issuestate@ @runtime@ @testdesc@';
+125    OTAP_COUNT_DESC_TEMPLATE 	CONSTANT CHAR(46)	:= '@testsrun@ from @testsexpected@ tests executed';
+126    OTAP_REPORT_TOTAL_TEMPLATE	CONSTANT CHAR(66)	:= 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
+127    OTAP_FN_HAS_TABLE_TEMPLATE	CONSTANT CHAR(41)	:= 'Table @schema@.@tablename@ exists';
+128    OTAP_FN_HAS_COLUMN_TEMPLATE	CONSTANT CHAR(61)	:= 'Column @column@ (@schema@.@tablename@) exists';
+129    OTAP_FN_HAS_PACKAGE_TEMPLATE	CONSTANT CHAR(70)	:= 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)';
+130    OTAP_LAYOUT_RIGHT		CONSTANT CHAR(1)	:= 'R';
+131    OTAP_LAYOUT_MIDDLE		CONSTANT CHAR(1)	:= 'M';
+132    OTAP_LAYOUT_LEFT 		CONSTANT CHAR(1)	:= 'L';
+133    OTAP_LAYOUT_DEFAULT		CONSTANT CHAR(1)	:= 'M';
+134    OTAP_RESULT_LAYOUT_DEFAULT	CONSTANT CHAR(1)	:= 'L';
+135    OTAP_BORDER_DEFAULT		CONSTANT INTEGER	:= 5;
+136    /*====================================== end package constants used by otap ======================================*/
+137  
+138    /*====================================== start package constant get functions ======================================*/
+139    -- @return otap_constants.OTAP_USER_ROLE
+140    FUNCTION get_otap_user_role
+141  	 RETURN VARCHAR2
+142  	 DETERMINISTIC
+143  	 PARALLEL_ENABLE
+144    ;
+145    -- @return otap_constants.OTAP_SCHEMA
+146    FUNCTION get_otap_schema
+147  	 RETURN VARCHAR2
+148  	 DETERMINISTIC
+149  	 PARALLEL_ENABLE
+150    ;
+151    -- @return otap_constants.OTAP_TABLESPACE
+152    FUNCTION get_otap_tablespace
+153  	 RETURN VARCHAR2
+154  	 DETERMINISTIC
+155  	 PARALLEL_ENABLE
+156    ;
+157    -- @return otap_constants.OTAP_NUM_TRUE
+158    FUNCTION get_otap_num_true
+159  	 RETURN NUMBER
+160  	 DETERMINISTIC
+161  	 PARALLEL_ENABLE
+162    ;
+163    -- @return otap_constants.OTAP_NUM_FALSE
+164    FUNCTION get_otap_num_false
+165  	 RETURN NUMBER
+166  	 DETERMINISTIC
+167  	 PARALLEL_ENABLE
+168    ;
+169    -- @return otap_constants.OTAP_NUM_TEST_PASSED
+170    FUNCTION get_otap_num_test_passed
+171  	 RETURN VARCHAR2
+172  	 DETERMINISTIC
+173  	 PARALLEL_ENABLE
+174    ;
+175    -- @return otap_constants.OTAP_NUM_TEST_FAILED
+176    FUNCTION get_otap_num_test_failed
+177  	 RETURN VARCHAR2
+178  	 DETERMINISTIC
+179  	 PARALLEL_ENABLE
+180    ;
+181    -- @return otap_constants.OTAP_NUM_TEST_UNDEFINED
+182    FUNCTION get_otap_num_test_undefined
+183  	 RETURN VARCHAR2
+184  	 DETERMINISTIC
+185  	 PARALLEL_ENABLE
+186    ;
+187    -- @return otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+188    FUNCTION get_otap_report_min_fill_length
+189  	 RETURN NUMBER
+190  	 DETERMINISTIC
+191  	 PARALLEL_ENABLE
+192    ;
+193    -- @return otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+194    FUNCTION get_otap_report_max_fill_length
+195  	 RETURN NUMBER
+196  	 DETERMINISTIC
+197  	 PARALLEL_ENABLE
+198    ;
+199    -- @return otap_constants.OTAP_DEFAULT_DELIMITER
+200    FUNCTION get_otap_default_delimiter
+201  	 RETURN VARCHAR2
+202  	 DETERMINISTIC
+203  	 PARALLEL_ENABLE
+204    ;
+205  -- @return otap_constants.OTAP_ERROR_IDENTIFIER
+206    FUNCTION get_otap_error_identifier
+207  	 RETURN VARCHAR2
+208  	 DETERMINISTIC
+209  	 PARALLEL_ENABLE
+210    ;
+211  -- @return otap_constants.OTAP_CHAR_NA
+212    FUNCTION get_otap_char_na
+213  	 RETURN VARCHAR2
+214  	 DETERMINISTIC
+215  	 PARALLEL_ENABLE
+216    ;
+217  -- @return otap_constants.OTAP_VAR_DELIMITER
+218    FUNCTION get_otap_var_delimiter
+219  	 RETURN VARCHAR2
+220  	 DETERMINISTIC
+221  	 PARALLEL_ENABLE
+222    ;
+223  
+224    /*====================================== end package constant utility functions ======================================*/
+225  END;
+226  /
 old  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256)  := '&OTAP_ROLE';
 new  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256)  := 'OTAP_USER';
 old  16:   OTAP_SCHEMA                      CONSTANT VARCHAR2(256)  := '&OTAP_USER';
@@ -623,85 +625,86 @@ SQL> CREATE OR REPLACE TRIGGER otap_config_ins_trg
  49  				  , 'REPORT_TOTAL_TEMPLATE'
  50  				  , 'FN_HAS_TABLE_TEMPLATE'
  51  				  , 'FN_HAS_COLUMN_TEMPLATE'
- 52  				  )
- 53    THEN
- 54  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
- 55    END IF;
- 56    -- remove any leading and trailing blanks from config_value
- 57    :NEW.config_value   := TRIM(:NEW.config_value);
- 58    -- check empty strings contained only spaces
- 59    IF :NEW.config_value IS NULL OR LENGTH(:NEW.config_value) = 0
- 60    THEN
- 61  	 RAISE_APPLICATION_ERROR(-20002, 'The given config_value is not supported. Empty or only spaces.');
- 62    END IF;
- 63    :NEW.created	   := SYSDATE;
- 64    :NEW.created_by	   := SYS_CONTEXT('USERENV', 'SESSION_USER');
- 65    :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
- 66    -- check max length if defined
- 67    IF :NEW.config_type = 'CHAR'
- 68    THEN
- 69  	 IF :NEW.config_max_length > 0
- 70  	 THEN
- 71  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
- 72  	   THEN
- 73  	     RAISE_APPLICATION_ERROR(-20003, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
- 74  	   END IF;
- 75  	 END IF;
- 76    END IF;
- 77    -- check number type
- 78    IF :NEW.config_type = 'NUMBER'
- 79    THEN
- 80  	 l_ok := TRUE;
- 81  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
- 82  	 BEGIN
- 83  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
- 84  	 EXCEPTION
- 85  	   WHEN OTHERS THEN
- 86  	     l_ok := FALSE;
- 87  	 END;
- 88  	 IF NOT l_ok
- 89  	 THEN
- 90  	   RAISE_APPLICATION_ERROR(-20004, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
- 91  	 END IF;
- 92    END IF;
- 93    -- handle NULLs
- 94    IF :NEW.config_name = 'PRESERVE_DAYS'
- 95    THEN
- 96  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_PRESERVE_DAYS));
- 97    END IF;
- 98    IF :NEW.config_name = 'DELETE_DELAY'
- 99    THEN
-100  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DELETE_DELAY));
-101    END IF;
-102    IF :NEW.config_name = 'DELETE_BATCH_SIZE'
-103    THEN
-104  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DELETE_BATCH_SIZE));
-105    END IF;
-106    IF :NEW.config_name = 'DEBUG_MODE'
-107    THEN
-108  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DEBUG_MODE));
-109    END IF;
-110    -- check layout options
-111    IF     :NEW.config_name = 'DEFAULT_LAYOUT'
-112  	  AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
-113    THEN
-114  	 :NEW.config_value := otap_constants.OTAP_LAYOUT_MIDDLE;
-115    END IF;
-116    IF     :NEW.config_name = 'DEFAULT_RESULT_LAYOUT'
-117  	  AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)
-118    THEN
-119  	 :NEW.config_value := otap_constants.OTAP_LAYOUT_LEFT;
-120    END IF;
-121    -- check border options
-122    IF     :NEW.config_name = 'DEFAULT_BORDER'
-123  	  AND (   TO_NUMBER(:NEW.config_value) < 2
-124  	       OR TO_NUMBER(:NEW.config_value) > 10
-125  	      )
-126    THEN
-127  	 :NEW.config_value := otap_constants.OTAP_BORDER_DEFAULT;
-128    END IF;
-129  END;
-130  /
+ 52  				  , 'FN_HAS_PACKAGE_TEMPLATE'
+ 53  				  )
+ 54    THEN
+ 55  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
+ 56    END IF;
+ 57    -- remove any leading and trailing blanks from config_value
+ 58    :NEW.config_value   := TRIM(:NEW.config_value);
+ 59    -- check empty strings contained only spaces
+ 60    IF :NEW.config_value IS NULL OR LENGTH(:NEW.config_value) = 0
+ 61    THEN
+ 62  	 RAISE_APPLICATION_ERROR(-20002, 'The given config_value is not supported. Empty or only spaces.');
+ 63    END IF;
+ 64    :NEW.created	   := SYSDATE;
+ 65    :NEW.created_by	   := SYS_CONTEXT('USERENV', 'SESSION_USER');
+ 66    :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
+ 67    -- check max length if defined
+ 68    IF :NEW.config_type = 'CHAR'
+ 69    THEN
+ 70  	 IF :NEW.config_max_length > 0
+ 71  	 THEN
+ 72  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
+ 73  	   THEN
+ 74  	     RAISE_APPLICATION_ERROR(-20003, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
+ 75  	   END IF;
+ 76  	 END IF;
+ 77    END IF;
+ 78    -- check number type
+ 79    IF :NEW.config_type = 'NUMBER'
+ 80    THEN
+ 81  	 l_ok := TRUE;
+ 82  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
+ 83  	 BEGIN
+ 84  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
+ 85  	 EXCEPTION
+ 86  	   WHEN OTHERS THEN
+ 87  	     l_ok := FALSE;
+ 88  	 END;
+ 89  	 IF NOT l_ok
+ 90  	 THEN
+ 91  	   RAISE_APPLICATION_ERROR(-20004, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
+ 92  	 END IF;
+ 93    END IF;
+ 94    -- handle NULLs
+ 95    IF :NEW.config_name = 'PRESERVE_DAYS'
+ 96    THEN
+ 97  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_PRESERVE_DAYS));
+ 98    END IF;
+ 99    IF :NEW.config_name = 'DELETE_DELAY'
+100    THEN
+101  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DELETE_DELAY));
+102    END IF;
+103    IF :NEW.config_name = 'DELETE_BATCH_SIZE'
+104    THEN
+105  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DELETE_BATCH_SIZE));
+106    END IF;
+107    IF :NEW.config_name = 'DEBUG_MODE'
+108    THEN
+109  	 :NEW.config_value := NVL(:NEW.config_value, TO_CHAR(otap_constants.OTAP_DEBUG_MODE));
+110    END IF;
+111    -- check layout options
+112    IF     :NEW.config_name = 'DEFAULT_LAYOUT'
+113  	  AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
+114    THEN
+115  	 :NEW.config_value := otap_constants.OTAP_LAYOUT_MIDDLE;
+116    END IF;
+117    IF     :NEW.config_name = 'DEFAULT_RESULT_LAYOUT'
+118  	  AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)
+119    THEN
+120  	 :NEW.config_value := otap_constants.OTAP_LAYOUT_LEFT;
+121    END IF;
+122    -- check border options
+123    IF     :NEW.config_name = 'DEFAULT_BORDER'
+124  	  AND (   TO_NUMBER(:NEW.config_value) < 2
+125  	       OR TO_NUMBER(:NEW.config_value) > 10
+126  	      )
+127    THEN
+128  	 :NEW.config_value := otap_constants.OTAP_BORDER_DEFAULT;
+129    END IF;
+130  END;
+131  /
 
 Trigger created.
 
@@ -756,107 +759,108 @@ SQL> CREATE OR REPLACE TRIGGER otap_config_upd_trg
  49  				  , 'REPORT_TOTAL_TEMPLATE'
  50  				  , 'FN_HAS_TABLE_TEMPLATE'
  51  				  , 'FN_HAS_COLUMN_TEMPLATE'
- 52  				  )
- 53    THEN
- 54  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
- 55    END IF;
- 56    -- remove any leading and trailing blanks from config_value, do not accept NULLS, overwrite with OLD in this case
- 57    :NEW.config_value := NVL(TRIM(:NEW.config_value), :OLD.config_value);
- 58    -- ensure some values are not overwritten
- 59    :NEW.created	   := :OLD.created;
- 60    :NEW.created_by	   := :OLD.created_by;
- 61    :NEW.created_by_os  := :OLD.created_by_os;
- 62    -- check max length if defined
- 63    IF :NEW.config_type = 'CHAR'
- 64    THEN
- 65  	 IF :NEW.config_max_length > 0
- 66  	 THEN
- 67  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
- 68  	   THEN
- 69  	     RAISE_APPLICATION_ERROR(-20003, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
- 70  	   END IF;
- 71  	 END IF;
- 72    END IF;
- 73    -- check number type
- 74    IF :NEW.config_type = 'NUMBER'
- 75    THEN
- 76  	 l_ok := TRUE;
- 77  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
- 78  	 BEGIN
- 79  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
- 80  	 EXCEPTION
- 81  	   WHEN OTHERS THEN
- 82  	     l_ok := FALSE;
- 83  	 END;
- 84  	 IF NOT l_ok
- 85  	 THEN
- 86  	   RAISE_APPLICATION_ERROR(-20004, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
- 87  	 END IF;
- 88    END IF;
- 89    -- check range if value changed
- 90    IF :NEW.config_value != :OLD.config_value
- 91    THEN
- 92  	 IF :NEW.config_name = 'PRESERVE_DAYS'
- 93  	 THEN
- 94  	   IF	 TO_NUMBER(:NEW.config_value) > 7
- 95  	      OR TO_NUMBER(:NEW.config_value) < 1
- 96  	   THEN
- 97  	     :NEW.config_value := '1';
- 98  	   END IF;
- 99  	 END IF;
-100  	 IF :NEW.config_name = 'DELETE_DELAY'
-101  	 THEN
-102  	   IF	 TO_NUMBER(:NEW.config_value) > 600
-103  	      OR TO_NUMBER(:NEW.config_value) < 1
-104  	   THEN
-105  	     :NEW.config_value := '10';
-106  	   END IF;
-107  	 END IF;
-108  	 IF :NEW.config_name = 'DELETE_BATCH_SIZE'
-109  	 THEN
-110  	   IF	 TO_NUMBER(:NEW.config_value) > 10000
-111  	      OR TO_NUMBER(:NEW.config_value) < 100
-112  	   THEN
-113  	     :NEW.config_value := '1000';
-114  	   END IF;
-115  	 END IF;
-116  	 IF :NEW.config_name = 'DEBUG_MODE'
-117  	 THEN
-118  	   IF TO_NUMBER(:NEW.config_value) NOT IN (0, 1)
-119  	   THEN
-120  	     :NEW.config_value := '0';
-121  	   END IF;
-122  	 END IF;
-123  	 IF :NEW.config_name = 'DEFAULT_PREFIX'
-124  	 THEN
-125  	   IF INSTR(:NEW.config_value, '_') > 0
-126  	   THEN
-127  	     -- do not change if prefix contains invalid char
-128  	     :NEW.config_value := :OLD.config_value;
-129  	   END IF;
-130  	 END IF;
-131  	 -- check layout options
-132  	 IF    :NEW.config_name = 'DEFAULT_LAYOUT'
-133  	   AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
-134  	 THEN
-135  	   :NEW.config_value := otap_constants.OTAP_LAYOUT_MIDDLE;
-136  	 END IF;
-137  	 IF	:NEW.config_name = 'DEFAULT_RESULT_LAYOUT'
-138  	    AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)
-139  	 THEN
-140  	   :NEW.config_value := otap_constants.OTAP_LAYOUT_LEFT;
-141  	 END IF;
-142  	 -- check border options
-143  	  IF	 :NEW.config_name = 'DEFAULT_BORDER'
-144  	     AND (   TO_NUMBER(:NEW.config_value) < 2
-145  		  OR TO_NUMBER(:NEW.config_value) > 10
-146  		 )
-147  	 THEN
-148  	   :NEW.config_value := otap_constants.OTAP_BORDER_DEFAULT;
-149  	 END IF;
-150    END IF;
-151  END;
-152  /
+ 52  				  , 'FN_HAS_PACKAGE_TEMPLATE'
+ 53  				  )
+ 54    THEN
+ 55  	 RAISE_APPLICATION_ERROR(-20001, 'The configuration name ' || :NEW.config_name || ' is not supported.');
+ 56    END IF;
+ 57    -- remove any leading and trailing blanks from config_value, do not accept NULLS, overwrite with OLD in this case
+ 58    :NEW.config_value := NVL(TRIM(:NEW.config_value), :OLD.config_value);
+ 59    -- ensure some values are not overwritten
+ 60    :NEW.created	   := :OLD.created;
+ 61    :NEW.created_by	   := :OLD.created_by;
+ 62    :NEW.created_by_os  := :OLD.created_by_os;
+ 63    -- check max length if defined
+ 64    IF :NEW.config_type = 'CHAR'
+ 65    THEN
+ 66  	 IF :NEW.config_max_length > 0
+ 67  	 THEN
+ 68  	   IF LENGTH(:NEW.config_value) > :NEW.config_max_length
+ 69  	   THEN
+ 70  	     RAISE_APPLICATION_ERROR(-20003, 'The config_value exceeds the defined config_max_length. Current length: ' || LENGTH(:NEW.config_value));
+ 71  	   END IF;
+ 72  	 END IF;
+ 73    END IF;
+ 74    -- check number type
+ 75    IF :NEW.config_type = 'NUMBER'
+ 76    THEN
+ 77  	 l_ok := TRUE;
+ 78  	 -- compare TO_NUMBER with implicite conversion, if it fails the config_value cannot be interpreted correctly
+ 79  	 BEGIN
+ 80  	   l_ok := (TO_NUMBER(:NEW.config_value) = :NEW.config_value);
+ 81  	 EXCEPTION
+ 82  	   WHEN OTHERS THEN
+ 83  	     l_ok := FALSE;
+ 84  	 END;
+ 85  	 IF NOT l_ok
+ 86  	 THEN
+ 87  	   RAISE_APPLICATION_ERROR(-20004, 'The given config_value "' || NVL(:NEW.config_value, 'NULL') || '" could not be converted successfully to a number.');
+ 88  	 END IF;
+ 89    END IF;
+ 90    -- check range if value changed
+ 91    IF :NEW.config_value != :OLD.config_value
+ 92    THEN
+ 93  	 IF :NEW.config_name = 'PRESERVE_DAYS'
+ 94  	 THEN
+ 95  	   IF	 TO_NUMBER(:NEW.config_value) > 7
+ 96  	      OR TO_NUMBER(:NEW.config_value) < 1
+ 97  	   THEN
+ 98  	     :NEW.config_value := '1';
+ 99  	   END IF;
+100  	 END IF;
+101  	 IF :NEW.config_name = 'DELETE_DELAY'
+102  	 THEN
+103  	   IF	 TO_NUMBER(:NEW.config_value) > 600
+104  	      OR TO_NUMBER(:NEW.config_value) < 1
+105  	   THEN
+106  	     :NEW.config_value := '10';
+107  	   END IF;
+108  	 END IF;
+109  	 IF :NEW.config_name = 'DELETE_BATCH_SIZE'
+110  	 THEN
+111  	   IF	 TO_NUMBER(:NEW.config_value) > 10000
+112  	      OR TO_NUMBER(:NEW.config_value) < 100
+113  	   THEN
+114  	     :NEW.config_value := '1000';
+115  	   END IF;
+116  	 END IF;
+117  	 IF :NEW.config_name = 'DEBUG_MODE'
+118  	 THEN
+119  	   IF TO_NUMBER(:NEW.config_value) NOT IN (0, 1)
+120  	   THEN
+121  	     :NEW.config_value := '0';
+122  	   END IF;
+123  	 END IF;
+124  	 IF :NEW.config_name = 'DEFAULT_PREFIX'
+125  	 THEN
+126  	   IF INSTR(:NEW.config_value, '_') > 0
+127  	   THEN
+128  	     -- do not change if prefix contains invalid char
+129  	     :NEW.config_value := :OLD.config_value;
+130  	   END IF;
+131  	 END IF;
+132  	 -- check layout options
+133  	 IF    :NEW.config_name = 'DEFAULT_LAYOUT'
+134  	   AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
+135  	 THEN
+136  	   :NEW.config_value := otap_constants.OTAP_LAYOUT_MIDDLE;
+137  	 END IF;
+138  	 IF	:NEW.config_name = 'DEFAULT_RESULT_LAYOUT'
+139  	    AND :NEW.config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)
+140  	 THEN
+141  	   :NEW.config_value := otap_constants.OTAP_LAYOUT_LEFT;
+142  	 END IF;
+143  	 -- check border options
+144  	  IF	 :NEW.config_name = 'DEFAULT_BORDER'
+145  	     AND (   TO_NUMBER(:NEW.config_value) < 2
+146  		  OR TO_NUMBER(:NEW.config_value) > 10
+147  		 )
+148  	 THEN
+149  	   :NEW.config_value := otap_constants.OTAP_BORDER_DEFAULT;
+150  	 END IF;
+151    END IF;
+152  END;
+153  /
 
 Trigger created.
 
@@ -909,12 +913,13 @@ SQL> CREATE OR REPLACE TRIGGER otap_config_del_trg
  47  			      , 'REPORT_TOTAL_TEMPLATE'
  48  			      , 'FN_HAS_TABLE_TEMPLATE'
  49  			      , 'FN_HAS_COLUMN_TEMPLATE'
- 50  			      )
- 51    THEN
- 52  	 RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
- 53    END IF;
- 54  END;
- 55  /
+ 50  			      , 'FN_HAS_PACKAGE_TEMPLATE'
+ 51  			      )
+ 52    THEN
+ 53  	 RAISE_APPLICATION_ERROR(-20005, 'The configuration name ' || :OLD.config_name || ' cannot be deleted.');
+ 54    END IF;
+ 55  END;
+ 56  /
 
 Trigger created.
 
@@ -1287,6 +1292,14 @@ SQL> INSERT INTO otap_config
   2    (config_name, config_value, config_type, config_max_length, config_description)
   3    VALUES
   4    ('FN_HAS_COLUMN_TEMPLATE', 'Column @column@ (@schema@.@tablename@) exists', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  5  ;
+
+1 row created.
+
+SQL> INSERT INTO otap_config
+  2    (config_name, config_value, config_type, config_max_length, config_description)
+  3    VALUES
+  4    ('FN_HAS_PACKAGE_TEMPLATE', 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)', 'CHAR', 256, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
   5  ;
 
 1 row created.
@@ -2728,113 +2741,120 @@ SQL> CREATE OR REPLACE PACKAGE otap_config_util
 384  	 RETURN VARCHAR2
 385    ;
 386  
-387    /** FUNCTION otap_config_util.get_text_false
-388    *  @return The setting of TEXT_FALSE in OTAP_CONFIG.
+387    /** FUNCTION otap_config_util.get_fn_has_package_template
+388    *  @return The setting of FN_HAS_PACKAGE_TEMPLATE in OTAP_CONFIG.
 389    */
-390    FUNCTION get_text_false
+390    FUNCTION get_fn_has_package_template
 391  	 RETURN VARCHAR2
 392    ;
 393  
-394    /** FUNCTION otap_config_util.get_text_false_no
-395    *  @return The setting of TEXT_FALSE_NO in OTAP_CONFIG.
+394    /** FUNCTION otap_config_util.get_text_false
+395    *  @return The setting of TEXT_FALSE in OTAP_CONFIG.
 396    */
-397    FUNCTION get_text_false_no
+397    FUNCTION get_text_false
 398  	 RETURN VARCHAR2
 399    ;
 400  
-401    /** FUNCTION otap_config_util.get_text_report_end
-402    *  @return The setting of TEXT_REPORT_END in OTAP_CONFIG.
+401    /** FUNCTION otap_config_util.get_text_false_no
+402    *  @return The setting of TEXT_FALSE_NO in OTAP_CONFIG.
 403    */
-404    FUNCTION get_text_report_end
+404    FUNCTION get_text_false_no
 405  	 RETURN VARCHAR2
 406    ;
 407  
-408    /** FUNCTION otap_config_util.get_text_report_total
-409    *  @return The setting of OTAP_TEXT_REPORT_TOTAL in OTAP_CONFIG.
+408    /** FUNCTION otap_config_util.get_text_report_end
+409    *  @return The setting of TEXT_REPORT_END in OTAP_CONFIG.
 410    */
-411    FUNCTION get_text_report_total
+411    FUNCTION get_text_report_end
 412  	 RETURN VARCHAR2
 413    ;
 414  
-415    /** FUNCTION otap_config_util.get_text_report_start
-416    *  @return The setting of TEXT_REPORT_START in OTAP_CONFIG.
+415    /** FUNCTION otap_config_util.get_text_report_total
+416    *  @return The setting of OTAP_TEXT_REPORT_TOTAL in OTAP_CONFIG.
 417    */
-418    FUNCTION get_text_report_start
+418    FUNCTION get_text_report_total
 419  	 RETURN VARCHAR2
 420    ;
 421  
-422    /** FUNCTION otap_config_util.get_text_result_header
-423    *  @return The setting of TEXT_RESULT_HEADER in OTAP_CONFIG.
+422    /** FUNCTION otap_config_util.get_text_report_start
+423    *  @return The setting of TEXT_REPORT_START in OTAP_CONFIG.
 424    */
-425    FUNCTION get_text_result_header
+425    FUNCTION get_text_report_start
 426  	 RETURN VARCHAR2
 427    ;
 428  
-429    /** FUNCTION otap_config_util.get_text_test_count_header
-430    *  @return The setting of TEXT_TEST_COUNT_HEADER in OTAP_CONFIG.
+429    /** FUNCTION otap_config_util.get_text_result_header
+430    *  @return The setting of TEXT_RESULT_HEADER in OTAP_CONFIG.
 431    */
-432    FUNCTION get_text_test_count_header
+432    FUNCTION get_text_result_header
 433  	 RETURN VARCHAR2
 434    ;
 435  
-436    /** FUNCTION otap_config_util.get_text_test_count_name
-437    *  @return The setting of TEXT_TEST_COUNT_NAME in OTAP_CONFIG.
+436    /** FUNCTION otap_config_util.get_text_test_count_header
+437    *  @return The setting of TEXT_TEST_COUNT_HEADER in OTAP_CONFIG.
 438    */
-439    FUNCTION get_text_test_count_name
+439    FUNCTION get_text_test_count_header
 440  	 RETURN VARCHAR2
 441    ;
 442  
-443    /** FUNCTION otap_config_util.get_text_summary_error
-444    *  @return The setting of TEXT_SUMMARY_ERROR in OTAP_CONFIG.
+443    /** FUNCTION otap_config_util.get_text_test_count_name
+444    *  @return The setting of TEXT_TEST_COUNT_NAME in OTAP_CONFIG.
 445    */
-446    FUNCTION get_text_summary_error
+446    FUNCTION get_text_test_count_name
 447  	 RETURN VARCHAR2
 448    ;
 449  
-450    /** FUNCTION otap_config_util.get_text_summary_success
-451    *  @return The setting of TEXT_SUMMARY_SUCCESS in OTAP_CONFIG.
+450    /** FUNCTION otap_config_util.get_text_summary_error
+451    *  @return The setting of TEXT_SUMMARY_ERROR in OTAP_CONFIG.
 452    */
-453    FUNCTION get_text_summary_success
+453    FUNCTION get_text_summary_error
 454  	 RETURN VARCHAR2
 455    ;
 456  
-457    /** FUNCTION otap_config_util.get_text_test_failed
-458    *  @return The setting of TEXT_TEST_FAILED in OTAP_CONFIG.
+457    /** FUNCTION otap_config_util.get_text_summary_success
+458    *  @return The setting of TEXT_SUMMARY_SUCCESS in OTAP_CONFIG.
 459    */
-460    FUNCTION get_text_test_failed
+460    FUNCTION get_text_summary_success
 461  	 RETURN VARCHAR2
 462    ;
 463  
-464    /** FUNCTION otap_config_util.get_text_test_passed
-465    *  @return The setting of TEXT_TEST_PASSED in OTAP_CONFIG.
+464    /** FUNCTION otap_config_util.get_text_test_failed
+465    *  @return The setting of TEXT_TEST_FAILED in OTAP_CONFIG.
 466    */
-467    FUNCTION get_text_test_passed
+467    FUNCTION get_text_test_failed
 468  	 RETURN VARCHAR2
 469    ;
 470  
-471    /** FUNCTION otap_config_util.get_text_test_undefined
-472    *  @return The setting of TEXT_TEST_UNDEFINED in OTAP_CONFIG.
+471    /** FUNCTION otap_config_util.get_text_test_passed
+472    *  @return The setting of TEXT_TEST_PASSED in OTAP_CONFIG.
 473    */
-474    FUNCTION get_text_test_undefined
+474    FUNCTION get_text_test_passed
 475  	 RETURN VARCHAR2
 476    ;
 477  
-478    /** FUNCTION otap_config_util.get_text_true
-479    *  @return The setting of TEXT_TRUE in OTAP_CONFIG.
+478    /** FUNCTION otap_config_util.get_text_test_undefined
+479    *  @return The setting of TEXT_TEST_UNDEFINED in OTAP_CONFIG.
 480    */
-481    FUNCTION get_text_true
+481    FUNCTION get_text_test_undefined
 482  	 RETURN VARCHAR2
 483    ;
 484  
-485    /** FUNCTION otap_config_util.get_text_true_yes
-486    *  @return The setting of TEXT_TRUE_YES in OTAP_CONFIG.
+485    /** FUNCTION otap_config_util.get_text_true
+486    *  @return The setting of TEXT_TRUE in OTAP_CONFIG.
 487    */
-488    FUNCTION get_text_true_yes
+488    FUNCTION get_text_true
 489  	 RETURN VARCHAR2
 490    ;
 491  
-492  END;
-493  /
+492    /** FUNCTION otap_config_util.get_text_true_yes
+493    *  @return The setting of TEXT_TRUE_YES in OTAP_CONFIG.
+494    */
+495    FUNCTION get_text_true_yes
+496  	 RETURN VARCHAR2
+497    ;
+498  
+499  END;
+500  /
 
 Package created.
 
@@ -3328,113 +3348,120 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_config_util
 484  	 RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_COLUMN_TEMPLATE);
 485    END get_fn_has_column_template;
 486  
-487    FUNCTION get_text_false
+487    FUNCTION get_fn_has_package_template
 488  	 RETURN VARCHAR2
 489    IS
 490    BEGIN
-491  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE);
-492    END get_text_false;
+491  	 RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_PACKAGE_TEMPLATE);
+492    END get_fn_has_package_template;
 493  
-494    FUNCTION get_text_false_no
+494    FUNCTION get_text_false
 495  	 RETURN VARCHAR2
 496    IS
 497    BEGIN
-498  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE_NO);
-499    END get_text_false_no;
+498  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE);
+499    END get_text_false;
 500  
-501    FUNCTION get_text_report_end
+501    FUNCTION get_text_false_no
 502  	 RETURN VARCHAR2
 503    IS
 504    BEGIN
-505  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_END);
-506    END get_text_report_end;
+505  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE_NO);
+506    END get_text_false_no;
 507  
-508    FUNCTION get_text_report_total
+508    FUNCTION get_text_report_end
 509  	 RETURN VARCHAR2
 510    IS
 511    BEGIN
-512  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL);
-513    END get_text_report_total;
+512  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_END);
+513    END get_text_report_end;
 514  
-515    FUNCTION get_text_report_start
+515    FUNCTION get_text_report_total
 516  	 RETURN VARCHAR2
 517    IS
 518    BEGIN
-519  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_START);
-520    END get_text_report_start;
+519  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL);
+520    END get_text_report_total;
 521  
-522    FUNCTION get_text_result_header
+522    FUNCTION get_text_report_start
 523  	 RETURN VARCHAR2
 524    IS
 525    BEGIN
-526  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_RESULT_HEADER);
-527    END get_text_result_header;
+526  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_START);
+527    END get_text_report_start;
 528  
-529    FUNCTION get_text_test_count_header
+529    FUNCTION get_text_result_header
 530  	 RETURN VARCHAR2
 531    IS
 532    BEGIN
-533  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_HEADER);
-534    END get_text_test_count_header;
+533  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_RESULT_HEADER);
+534    END get_text_result_header;
 535  
-536    FUNCTION get_text_test_count_name
+536    FUNCTION get_text_test_count_header
 537  	 RETURN VARCHAR2
 538    IS
 539    BEGIN
-540  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_NAME);
-541    END get_text_test_count_name;
+540  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_HEADER);
+541    END get_text_test_count_header;
 542  
-543    FUNCTION get_text_summary_error
+543    FUNCTION get_text_test_count_name
 544  	 RETURN VARCHAR2
 545    IS
 546    BEGIN
-547  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_ERROR);
-548    END get_text_summary_error;
+547  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_NAME);
+548    END get_text_test_count_name;
 549  
-550    FUNCTION get_text_summary_success
+550    FUNCTION get_text_summary_error
 551  	 RETURN VARCHAR2
 552    IS
 553    BEGIN
-554  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_SUCCESS);
-555    END get_text_summary_success;
+554  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_ERROR);
+555    END get_text_summary_error;
 556  
-557    FUNCTION get_text_test_failed
+557    FUNCTION get_text_summary_success
 558  	 RETURN VARCHAR2
 559    IS
 560    BEGIN
-561  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_FAILED);
-562    END get_text_test_failed;
+561  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_SUCCESS);
+562    END get_text_summary_success;
 563  
-564    FUNCTION get_text_test_passed
+564    FUNCTION get_text_test_failed
 565  	 RETURN VARCHAR2
 566    IS
 567    BEGIN
-568  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_PASSED);
-569    END get_text_test_passed;
+568  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_FAILED);
+569    END get_text_test_failed;
 570  
-571    FUNCTION get_text_test_undefined
+571    FUNCTION get_text_test_passed
 572  	 RETURN VARCHAR2
 573    IS
 574    BEGIN
-575  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_UNDEFINED);
-576    END get_text_test_undefined;
+575  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_PASSED);
+576    END get_text_test_passed;
 577  
-578    FUNCTION get_text_true
+578    FUNCTION get_text_test_undefined
 579  	 RETURN VARCHAR2
 580    IS
 581    BEGIN
-582  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE);
-583    END get_text_true;
+582  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_UNDEFINED);
+583    END get_text_test_undefined;
 584  
-585    FUNCTION get_text_true_yes
+585    FUNCTION get_text_true
 586  	 RETURN VARCHAR2
 587    IS
 588    BEGIN
-589  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE_YES);
-590    END get_text_true_yes;
+589  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE);
+590    END get_text_true;
 591  
-592  END;
-593  /
+592    FUNCTION get_text_true_yes
+593  	 RETURN VARCHAR2
+594    IS
+595    BEGIN
+596  	 RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE_YES);
+597    END get_text_true_yes;
+598  
+599  END;
+600  /
 
 Package body created.
 
@@ -3996,15 +4023,15 @@ SQL> CREATE OR REPLACE PACKAGE otap_report
 316  	 RETURN VARCHAR2
 317    ;
 318  
-319    /** FUNCTION otap_report.get_has_table_msg
-320    * Builds a user message for the has_table test function based on given values from template. Will always
+319    /** FUNCTION otap_report.get_has_column_msg
+320    * Builds a user message for the has_column test function based on given values from template. Will always
 321    * reduce the string. No report formatting options only template handling.
 322    *
 323    * @param p_table_name The table name that was tested.
 324    * @param p_column_name The column name that was tested.
 325    * @param p_schema_name The schema of the table tested.
 326    *
-327    * @return The formatted and reduced has table test message. Restricted to 4000 chars.
+327    * @return The formatted and reduced has column test message. Restricted to 4000 chars.
 328    */
 329    FUNCTION get_has_column_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
 330  				  , p_column_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
@@ -4013,8 +4040,27 @@ SQL> CREATE OR REPLACE PACKAGE otap_report
 333  	 RETURN VARCHAR2
 334    ;
 335  
-336  END;
-337  /
+336    /** FUNCTION otap_report.get_has_column_msg
+337    * Builds a user message for the has_column test function based on given values from template. Will always
+338    * reduce the string. No report formatting options only template handling.
+339    *
+340    * @param p_package_name The package name that was tested.
+341    * @param p_schema_name The schema of the package tested.
+342    * @param p_package_type The package type of the package that was tested.
+343    * @param p_package_state The package state of the package that was tested.
+344    *
+345    * @return The formatted and reduced has column test message. Restricted to 4000 chars.
+346    */
+347    FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+348  				   , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+349  				   , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+350  				   , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+351  				   )
+352  	 RETURN VARCHAR2
+353    ;
+354  
+355  END;
+356  /
 
 Package created.
 
@@ -4551,8 +4597,30 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 527  	   RAISE;
 528    END get_has_column_msg;
 529  
-530  END;
-531  /
+530    FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+531  				   , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+532  				   , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+533  				   , p_package_state IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+534  				   )
+535  	 RETURN VARCHAR2
+536    IS
+537  	 l_template_text VARCHAR2(32767);
+538    BEGIN
+539  	 l_template_text := otap_config_util.get_fn_has_package_template;
+540  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
+541  	 l_template_text := REPLACE(l_template_text, '@package@', NVL(p_package_name, otap_constants.OTAP_CHAR_NA));
+542  	 l_template_text := REPLACE(l_template_text, '@packagetype@', NVL(p_package_type, otap_constants.OTAP_CHAR_NA));
+543  	 l_template_text := REPLACE(l_template_text, '@packagestate@', NVL(p_package_state, otap_constants.OTAP_CHAR_NA));
+544  	 l_template_text := otap_string.reduce(l_template_text, 4000);
+545  	 RETURN l_template_text;
+546    EXCEPTION
+547  	 WHEN OTHERS THEN
+548  	   otap_log.log(SQLERRM, 'otap_report.get_has_package_msg', 'Build has_package result message');
+549  	   RAISE;
+550    END get_has_package_msg;
+551  
+552  END;
+553  /
 
 Package body created.
 
@@ -5722,211 +5790,454 @@ SQL> CREATE OR REPLACE PACKAGE otap_schema
  18    * @param p_table_name The name of the table, taken as is. Case sensitive.
  19    * @param o_error Error information, if any, on the test executed.
  20    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
- 21    *
- 22    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
- 23    */
- 24    FUNCTION has_table( p_table_name   IN	 VARCHAR2
- 25  			 , o_errors	     OUT VARCHAR2
- 26  			 , p_schema	  IN	 VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 27  			 )
- 28  	 RETURN INTEGER
- 29    ;
- 30  
- 31    /** FUNCTION otap_schema.has_column
- 32    * Tests basically if a table column exists. Additional tests on the column can be added by using the additional
- 33    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
- 34    * column and schema.
- 35    *
- 36    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
- 37    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
- 38    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
- 39    *
- 40    * @param p_table_name The name of the table, taken as is. Case sensitive.
- 41    * @param p_column_name The column name of the table, taken as is. Case sensitive.
- 42    * @param o_error Error information, if any, on the test executed.
- 43    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
- 44    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
- 45    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
- 46    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
- 47    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
- 48    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
- 49    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
- 50    *
- 51    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
- 52    */
- 53    FUNCTION has_column( p_table_name     IN     VARCHAR2
- 54  			  , p_column_name    IN     VARCHAR2
- 55  			  , o_errors		OUT VARCHAR2
- 56  			  , p_schema	     IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 57  			  , p_data_type      IN     VARCHAR2 DEFAULT NULL
- 58  			  , p_data_length    IN     NUMBER   DEFAULT NULL
- 59  			  , p_data_precision IN     NUMBER   DEFAULT NULL
- 60  			  , p_data_scale     IN     NUMBER   DEFAULT NULL
- 61  			  , p_nullable	     IN     VARCHAR2 DEFAULT NULL
- 62  			  , p_data_default   IN     VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
- 63  			  )
- 64  	 RETURN INTEGER
- 65    ;
- 66  
- 67  END;
- 68  /
+ 21    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+ 22    *
+ 23    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+ 24    */
+ 25    FUNCTION has_table( p_table_name      IN     VARCHAR2
+ 26  			 , o_errors		OUT VARCHAR2
+ 27  			 , p_schema	     IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 28  			 , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 29  			 )
+ 30  	 RETURN INTEGER
+ 31    ;
+ 32  
+ 33    /** FUNCTION otap_schema.has_column
+ 34    * Tests basically if a table column exists. Additional tests on the column can be added by using the additional
+ 35    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
+ 36    * column and schema.
+ 37    *
+ 38    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
+ 39    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
+ 40    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
+ 41    *
+ 42    * @param p_table_name The name of the table, taken as is. Case sensitive.
+ 43    * @param p_column_name The column name of the table, taken as is. Case sensitive.
+ 44    * @param o_error Error information, if any, on the test executed.
+ 45    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+ 46    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
+ 47    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
+ 48    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
+ 49    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
+ 50    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
+ 51    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+ 52    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+ 53    *
+ 54    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+ 55    */
+ 56    FUNCTION has_column( p_table_name      IN     VARCHAR2
+ 57  			  , p_column_name     IN     VARCHAR2
+ 58  			  , o_errors		 OUT VARCHAR2
+ 59  			  , p_schema	      IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 60  			  , p_data_type       IN     VARCHAR2 DEFAULT NULL
+ 61  			  , p_data_length     IN     NUMBER   DEFAULT NULL
+ 62  			  , p_data_precision  IN     NUMBER   DEFAULT NULL
+ 63  			  , p_data_scale      IN     NUMBER   DEFAULT NULL
+ 64  			  , p_nullable	      IN     VARCHAR2 DEFAULT NULL
+ 65  			  , p_data_default    IN     VARCHAR2 DEFAULT NULL
+ 66  			  , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 67  			  )
+ 68  	 RETURN INTEGER
+ 69    ;
+ 70  
+ 71    /** FUNCTION otap_schema.has_package
+ 72    * Checks if a given package exists. Check if header and body, if available, are valid by default.
+ 73    * If the package exists but is not valid, and package state is not IGNORE the test will fail.
+ 74    *
+ 75    * @param p_package_name The name of the package, take as is. Case sensitive.
+ 76    * @param o_error Error information, if any, on the test executed.
+ 77    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+ 78    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+ 79    * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
+ 80    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+ 81    *
+ 82    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+ 83    */
+ 84    FUNCTION has_package( p_package_name    IN     VARCHAR2
+ 85  			   , o_errors		  OUT VARCHAR2
+ 86  			   , p_schema	       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 87  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+ 88  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+ 89  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 90  			   )
+ 91  	 RETURN INTEGER
+ 92    ;
+ 93  
+ 94  END;
+ 95  /
 
 Package created.
 
+SQL> 
+SQL> /* SQLs for schema objects
+SQL> -- package functions and procedures - only package joins with object_id, not package body, no result
+SQL> SELECT dbo.owner
+SQL> 	  , dbo.object_name
+SQL> 	  , dbo.object_type
+SQL> 	  , dbo.status
+SQL> 	  , dbp.procedure_name
+SQL> 	  , CASE
+SQL> 	      WHEN dbr.position       = 0
+SQL> 	       AND dbr.argument_name IS NULL
+SQL> 	      THEN 'FUNCTION'
+SQL> 	      ELSE 'PROCEDURE'
+SQL> 	    END AS procedure_type
+SQL> 	  , CASE
+SQL> 	      WHEN dbr.position       = 0
+SQL> 	       AND dbr.argument_name IS NULL
+SQL> 	      THEN dbr.data_type
+SQL> 	      ELSE NULL
+SQL> 	    END AS return_type
+SQL>   FROM dba_objects dbo
+SQL>   LEFT OUTER JOIN dba_procedures dbp
+SQL> 	 ON dbo.object_id    = dbp.object_id
+SQL>   LEFT OUTER JOIN dba_arguments dbr
+SQL> 	 ON dbp.object_id     = dbr.object_id
+SQL> 	AND dbp.subprogram_id = dbr.subprogram_id
+SQL> 	AND dbr.sequence      = 1
+SQL>  WHERE dbo.owner	     = 'OTAP'
+SQL> 	AND dbo.object_type  = 'PACKAGE'
+SQL> 	AND dbo.object_name  = 'OTAP_RESULTS_UTIL'
+SQL> ;
+SQL> 
+SQL> -- package function and procedure parameter
+SQL> SELECT dbo.owner
+SQL> 	  , dbo.object_name
+SQL> 	  , dbo.object_type
+SQL> 	  , dbo.status
+SQL> 	  , dbp.procedure_name
+SQL> 	  , dbr.argument_name
+SQL> 	  , dbr.data_type
+SQL> 	  , dbr.position
+SQL>   FROM dba_objects dbo
+SQL>   LEFT OUTER JOIN dba_procedures dbp
+SQL> 	 ON dbo.object_id    = dbp.object_id
+SQL>   LEFT OUTER JOIN dba_arguments dbr
+SQL> 	 ON dbp.object_id      = dbr.object_id
+SQL> 	AND dbp.subprogram_id  = dbr.subprogram_id
+SQL> 	AND dbr.argument_name IS NOT NULL
+SQL>  WHERE dbo.owner		 = 'OTAP'
+SQL> 	AND dbo.object_type	 = 'PACKAGE'
+SQL> 	AND dbo.object_name	 = 'OTAP_RESULTS_UTIL'
+SQL> 	AND dbp.procedure_name	 = 'WRITE_TEST_RESULT'
+SQL> --   AND dbp.procedure_name   = 'MAX_TEXT_SIZE'
+SQL> ;
+SQL> 
+SQL> -- functions, procedures and trigger
+SQL> SELECT dbo.owner
+SQL> 	  , dbo.object_name
+SQL> 	  , dbo.object_type
+SQL> 	  , dbo.status
+SQL> 	  , dbp.procedure_name
+SQL> 	  , CASE
+SQL> 	      WHEN dbr.position       = 0
+SQL> 	       AND dbr.argument_name IS NULL
+SQL> 	      THEN 'FUNCTION'
+SQL> 	      ELSE 'PROCEDURE'
+SQL> 	    END AS procedure_type
+SQL> 	  , CASE
+SQL> 	      WHEN dbr.position       = 0
+SQL> 	       AND dbr.argument_name IS NULL
+SQL> 	      THEN dbr.data_type
+SQL> 	      ELSE NULL
+SQL> 	    END AS return_type
+SQL>   FROM dba_objects dbo
+SQL>   LEFT OUTER JOIN dba_procedures dbp
+SQL> 	 ON dbo.object_id    = dbp.object_id
+SQL>   LEFT OUTER JOIN dba_arguments dbr
+SQL> 	 ON dbp.object_id     = dbr.object_id
+SQL> 	AND dbp.subprogram_id = dbr.subprogram_id
+SQL> 	AND dbr.sequence      = 1
+SQL>  WHERE dbo.owner	     = 'OTAP'
+SQL> 	AND dbo.object_type IN ('FUNCTION', 'PROCEDURE', 'TRIGGER')
+SQL> --   AND dbo.object_name  = 'DUMMY_PROCEDURE'
+SQL> ;
+SQL> 
+SQL> -- parameters functions and procedures
+SQL> SELECT dbo.owner
+SQL> 	  , dbo.object_name
+SQL> 	  , dbo.object_type
+SQL> 	  , dbo.status
+SQL> 	  , dbp.procedure_name
+SQL> 	  , dbr.argument_name
+SQL> 	  , dbr.data_type
+SQL> 	  , dbr.position
+SQL>   FROM dba_objects dbo
+SQL>   LEFT OUTER JOIN dba_procedures dbp
+SQL> 	 ON dbo.object_id    = dbp.object_id
+SQL>   LEFT OUTER JOIN dba_arguments dbr
+SQL> 	 ON dbp.object_id     = dbr.object_id
+SQL> 	AND dbp.subprogram_id = dbr.subprogram_id
+SQL> 	AND dbr.argument_name IS NOT NULL
+SQL>  WHERE dbo.owner		 = 'OTAP'
+SQL> 	AND dbo.object_type	IN ('FUNCTION', 'PROCEDURE')
+SQL> 	AND dbo.object_name	 = 'DUMMY_FUNCTION'
+SQL> ;
+SQL> 
+SQL> */
 SQL> @@../otap_ddl/packages/otap_schema.pkb
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
 SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
   2  AS
-  3    -- for description see header file
-  4    FUNCTION has_table( p_table_name   IN	 VARCHAR2
-  5  			 , o_errors	     OUT VARCHAR2
-  6  			 , p_schema	  IN	 VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+  3  
+  4    FUNCTION count_chk( p_count   IN      INTEGER
+  5  			 , o_errors  IN OUT  VARCHAR2
+  6  			 , p_caller  IN      VARCHAR2
   7  			 )
   8  	 RETURN INTEGER
   9    IS
- 10  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_table';
- 11  	 l_has_table	 INTEGER;
- 12  	 l_test_passed	 INTEGER;
- 13  	 l_schema_to_use VARCHAR2(128);
- 14  	 l_table_name	 VARCHAR2(128);
- 15  	 l_errors	 VARCHAR2(32767);
- 16    BEGIN
- 17  	 l_errors     := NULL;
- 18  	 l_table_name := otap_string.reduce(p_table_name, 128);
- 19  	 IF	l_table_name	    IS NOT NULL
- 20  	    AND LENGTH(l_table_name) > 0
- 21  	 THEN
- 22  	   -- check description
- 23  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
- 24  	   SELECT COUNT(*)
- 25  	     INTO l_has_table
- 26  	     FROM dba_tables
- 27  	    WHERE table_name = l_table_name
- 28  	      AND owner      = l_schema_to_use
- 29  	   ;
- 30  	   -- we should find one or zero entries
- 31  	   l_test_passed := CASE l_has_table
- 32  			      WHEN 0
- 33  			      THEN otap_constants.OTAP_NUM_TEST_FAILED
- 34  			      WHEN 1
- 35  			      THEN otap_constants.OTAP_NUM_TEST_PASSED
- 36  			      ELSE otap_constants.OTAP_NUM_TEST_UNDEFINED
- 37  			    END
- 38  	   ;
- 39  	   -- report abnormal results and store them in errors
- 40  	   IF l_has_table NOT IN (0, 1)
- 41  	   THEN
- 42  	     l_errors := otap_string.reduce('Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_table, 4000);
- 43  	     otap_log.log(l_errors, l_script, 'Table name or search condition not unique');
- 44  	   END IF;
- 45  	 ELSE
- 46  	   -- invalid table name
- 47  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
- 48  	   l_errors	       := 'Missing: p_table_name(NULL)';
- 49  	   otap_log.log(l_errors, l_script, 'NULL test on table name');
- 50  	 END IF;
- 51  	 o_errors := otap_string.reduce(l_errors, 4000);
- 52  	 RETURN l_test_passed;
- 53    EXCEPTION
- 54  	 WHEN OTHERS THEN
- 55  	   IF SQLCODE != -20099
- 56  	   THEN
- 57  	     -- log unhandled exceptions
- 58  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
- 59  	   END IF;
- 60  	   RAISE;
- 61    END has_table;
- 62  
- 63    FUNCTION has_column( p_table_name     IN     VARCHAR2
- 64  			  , p_column_name    IN     VARCHAR2
- 65  			  , o_errors		OUT VARCHAR2
- 66  			  , p_schema	     IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 67  			  , p_data_type      IN     VARCHAR2 DEFAULT NULL
- 68  			  , p_data_length    IN     NUMBER   DEFAULT NULL
- 69  			  , p_data_precision IN     NUMBER   DEFAULT NULL
- 70  			  , p_data_scale     IN     NUMBER   DEFAULT NULL
- 71  			  , p_nullable	     IN     VARCHAR2 DEFAULT NULL
- 72  			  , p_data_default   IN     VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
- 73  			  )
- 74  	 RETURN INTEGER
- 75    IS
- 76  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_column';
- 77  	 l_has_column	 INTEGER;
- 78  	 l_test_passed	 INTEGER;
- 79  	 l_schema_to_use VARCHAR2(128);
- 80  	 l_table_name	 VARCHAR2(128);
- 81  	 l_column_name	 VARCHAR2(128);
- 82  	 l_errors	 VARCHAR2(32767);
- 83    BEGIN
- 84  	 l_errors      := NULL;
- 85  	 l_table_name  := otap_string.reduce(p_table_name, 128);
- 86  	 l_column_name := otap_string.reduce(p_column_name, 128);
- 87  	 IF	l_table_name	     IS NOT NULL
- 88  	    AND LENGTH(l_table_name)  > 0
- 89  	    AND l_column_name	     IS NOT NULL
- 90  	    AND LENGTH(l_column_name) > 0
- 91  	 THEN
- 92  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
- 93  	   -- test column exists
- 94  	   SELECT COUNT(*)
- 95  	     INTO l_has_column
- 96  	     FROM dba_tab_columns
- 97  	    WHERE owner 			     = l_schema_to_use
- 98  	      AND table_name			     = l_table_name
- 99  	      AND column_name			     = l_column_name
-100  	      AND data_type			     = UPPER(NVL(p_data_type, data_type))
-101  	      AND data_length			     = NVL(p_data_length, data_length)
-102  	      AND nullable			     = UPPER(NVL(p_nullable, nullable))
-103  	      AND NVL(data_precision, -1)	     = NVL(p_data_precision, NVL(data_precision, -1))
-104  	      AND NVL(data_scale, -1)		     = NVL(p_data_scale, NVL(data_scale, -1))
-105  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, NVL(data_default_vc, 'n/a')))
-106  	   ;
-107  	   -- we should find one or zero entries
-108  	   l_test_passed := CASE l_has_column
-109  			      WHEN 0
-110  			      THEN otap_constants.OTAP_NUM_TEST_FAILED
-111  			      WHEN 1
-112  			      THEN otap_constants.OTAP_NUM_TEST_PASSED
-113  			      ELSE otap_constants.OTAP_NUM_TEST_UNDEFINED
-114  			    END
-115  	   ;
-116  	   -- report abnormal results and store them in errors
-117  	   IF l_has_column NOT IN (0, 1)
-118  	   THEN
-119  	     l_errors := otap_string.reduce('Check table ' || l_table_name || ' with schema ' || l_schema_to_use || ' results in count ' || l_has_column, 4000);
-120  	     otap_log.log(l_errors, l_script, 'Column name or search condition not unique');
-121  	   END IF;
-122  	 ELSE
-123  	   -- invalid table name
-124  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-125  	   l_errors	       := 'Missing: ' ||
-126  				  CASE
-127  				    WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
-128  				    THEN 'p_table_name(NULL) '
-129  				  END ||
-130  				  CASE
-131  				    WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
-132  				    THEN 'p_column_name(NULL) '
-133  				  END
+ 10  	 l_return INTEGER;
+ 11    BEGIN
+ 12  	   l_return := CASE p_count
+ 13  			 WHEN 0
+ 14  			 THEN otap_constants.OTAP_NUM_TEST_FAILED
+ 15  			 WHEN 1
+ 16  			 THEN otap_constants.OTAP_NUM_TEST_PASSED
+ 17  			 ELSE otap_constants.OTAP_NUM_TEST_UNDEFINED
+ 18  		       END
+ 19  	   ;
+ 20  	   IF p_count NOT IN (0, 1)
+ 21  	   THEN
+ 22  	     o_errors := otap_string.reduce('Abnormal count result from ' || p_caller || ' count: ' || p_count, 4000);
+ 23  	     otap_log.log(o_errors, p_caller, 'Abnormal count result. Expected 0 or 1');
+ 24  	   END IF;
+ 25  	   RETURN l_return;
+ 26    END count_chk;
+ 27    -- for description see header file
+ 28    FUNCTION has_table( p_table_name      IN     VARCHAR2
+ 29  			 , o_errors		OUT VARCHAR2
+ 30  			 , p_schema	     IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 31  			 , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 32  			 )
+ 33  	 RETURN INTEGER
+ 34    IS
+ 35  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_table';
+ 36  	 l_has_table	 INTEGER;
+ 37  	 l_test_passed	 INTEGER;
+ 38  	 l_expected	 INTEGER;
+ 39  	 l_schema_to_use VARCHAR2(128);
+ 40  	 l_table_name	 VARCHAR2(128);
+ 41  	 l_errors	 VARCHAR2(32767);
+ 42    BEGIN
+ 43  	 l_errors      := NULL;
+ 44  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+ 45  	 l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+ 46  	 l_table_name  := otap_string.reduce(p_table_name, 128);
+ 47  	 IF	l_table_name	    IS NOT NULL
+ 48  	    AND LENGTH(l_table_name) > 0
+ 49  	 THEN
+ 50  	   -- check description
+ 51  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+ 52  	   SELECT COUNT(*)
+ 53  	     INTO l_has_table
+ 54  	     FROM dba_tables
+ 55  	    WHERE table_name = l_table_name
+ 56  	      AND owner      = l_schema_to_use
+ 57  	   ;
+ 58  	   -- we should find one or zero entries
+ 59  	   l_test_passed := count_chk(l_has_table, l_errors, l_script);
+ 60  	 ELSE
+ 61  	   -- invalid table name
+ 62  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+ 63  	   l_errors	       := 'Missing: p_table_name(NULL)';
+ 64  	   otap_log.log(l_errors, l_script, 'NULL test on table name');
+ 65  	 END IF;
+ 66  	 -- now decide on the expected result the final state and if errors are returned
+ 67  	 IF l_test_passed != l_expected
+ 68  	 THEN
+ 69  	   o_errors := otap_string.reduce(l_errors, 4000);
+ 70  	 ELSE
+ 71  	   -- overwrite states from before, as we fulfill expected
+ 72  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+ 73  	   -- overwrite errors expected
+ 74  	   o_errors := NULL;
+ 75  	 END IF;
+ 76  	 RETURN l_test_passed;
+ 77    EXCEPTION
+ 78  	 WHEN OTHERS THEN
+ 79  	   IF SQLCODE != -20099
+ 80  	   THEN
+ 81  	     -- log unhandled exceptions
+ 82  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+ 83  	   END IF;
+ 84  	   RAISE;
+ 85    END has_table;
+ 86  
+ 87    FUNCTION has_column( p_table_name      IN     VARCHAR2
+ 88  			  , p_column_name     IN     VARCHAR2
+ 89  			  , o_errors		 OUT VARCHAR2
+ 90  			  , p_schema	      IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 91  			  , p_data_type       IN     VARCHAR2 DEFAULT NULL
+ 92  			  , p_data_length     IN     NUMBER   DEFAULT NULL
+ 93  			  , p_data_precision  IN     NUMBER   DEFAULT NULL
+ 94  			  , p_data_scale      IN     NUMBER   DEFAULT NULL
+ 95  			  , p_nullable	      IN     VARCHAR2 DEFAULT NULL
+ 96  			  , p_data_default    IN     VARCHAR2 DEFAULT NULL
+ 97  			  , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+ 98  			  )
+ 99  	 RETURN INTEGER
+100    IS
+101  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_column';
+102  	 l_has_column	 INTEGER;
+103  	 l_test_passed	 INTEGER;
+104  	 l_expected	 INTEGER;
+105  	 l_schema_to_use VARCHAR2(128);
+106  	 l_table_name	 VARCHAR2(128);
+107  	 l_column_name	 VARCHAR2(128);
+108  	 l_errors	 VARCHAR2(32767);
+109    BEGIN
+110  	 l_errors      := NULL;
+111  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+112  	 l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+113  	 l_table_name  := otap_string.reduce(p_table_name, 128);
+114  	 l_column_name := otap_string.reduce(p_column_name, 128);
+115  	 IF	l_table_name	     IS NOT NULL
+116  	    AND LENGTH(l_table_name)  > 0
+117  	    AND l_column_name	     IS NOT NULL
+118  	    AND LENGTH(l_column_name) > 0
+119  	 THEN
+120  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+121  	   -- test column exists
+122  	   SELECT COUNT(*)
+123  	     INTO l_has_column
+124  	     FROM dba_tab_columns
+125  	    WHERE owner 			     = l_schema_to_use
+126  	      AND table_name			     = l_table_name
+127  	      AND column_name			     = l_column_name
+128  	      AND data_type			     = UPPER(NVL(p_data_type, data_type))
+129  	      AND data_length			     = NVL(p_data_length, data_length)
+130  	      AND nullable			     = UPPER(NVL(p_nullable, nullable))
+131  	      AND NVL(data_precision, -1)	     = NVL(p_data_precision, NVL(data_precision, -1))
+132  	      AND NVL(data_scale, -1)		     = NVL(p_data_scale, NVL(data_scale, -1))
+133  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, NVL(data_default_vc, 'n/a')))
 134  	   ;
-135  	   otap_log.log(l_errors, l_script, 'NULL test on table or column name');
-136  	 END IF;
-137  	 o_errors := otap_string.reduce(l_errors, 4000);
-138  	 RETURN l_test_passed;
-139    EXCEPTION
-140  	 WHEN OTHERS THEN
-141  	   IF SQLCODE != -20099
-142  	   THEN
-143  	     -- log unhandled exceptions
-144  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-145  	   END IF;
-146  	   RAISE;
-147    END has_column;
-148  
-149  END;
-150  /
+135  	   -- we should find one or zero entries
+136  	   l_test_passed := count_chk(l_has_column, l_errors, l_script);
+137  	 ELSE
+138  	   -- invalid table name
+139  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+140  	   l_errors	       := 'Missing: ' ||
+141  				  CASE
+142  				    WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
+143  				    THEN 'p_table_name(NULL) '
+144  				  END ||
+145  				  CASE
+146  				    WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
+147  				    THEN 'p_column_name(NULL) '
+148  				  END
+149  	   ;
+150  	   otap_log.log(l_errors, l_script, 'NULL test on table or column name');
+151  	 END IF;
+152  	 -- now decide on the expected result the final state and if errors are returned
+153  	 IF l_test_passed != l_expected
+154  	 THEN
+155  	   o_errors := otap_string.reduce(l_errors, 4000);
+156  	 ELSE
+157  	   -- overwrite states from before, as we fulfill expected
+158  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+159  	   -- overwrite errors expected
+160  	   o_errors := NULL;
+161  	 END IF;
+162  	 RETURN l_test_passed;
+163    EXCEPTION
+164  	 WHEN OTHERS THEN
+165  	   IF SQLCODE != -20099
+166  	   THEN
+167  	     -- log unhandled exceptions
+168  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+169  	   END IF;
+170  	   RAISE;
+171    END has_column;
+172  
+173    FUNCTION has_package( p_package_name    IN     VARCHAR2
+174  			   , o_errors		  OUT VARCHAR2
+175  			   , p_schema	       IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+176  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+177  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+178  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+179  			   )
+180  	 RETURN INTEGER
+181    IS
+182  	 l_script	 VARCHAR2(1024)    := 'otap_schema.has_package';
+183  	 l_ignore	 VARCHAR2(6)	   := 'IGNORE';
+184  	 l_valid	 VARCHAR2(5)	   := 'VALID';
+185  	 l_invalid	 VARCHAR2(7)	   := 'INVALID';
+186  	 l_header	 VARCHAR2(7)	   := 'PACKAGE';
+187  	 l_body 	 VARCHAR2(12)	   := 'PACKAGE BODY';
+188  	 l_has_package	 INTEGER;
+189  	 l_test_passed	 INTEGER;
+190  	 l_expected	 INTEGER;
+191  	 l_schema_to_use VARCHAR2(128);
+192  	 l_package_name  VARCHAR2(128);
+193  	 l_package_type  VARCHAR2(12);
+194  	 l_object_state  VARCHAR2(7);
+195  	 l_errors	 VARCHAR2(32767);
+196    BEGIN
+197  	 l_errors	 := NULL;
+198  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+199  	 l_expected	 := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+200  	 l_package_name  := otap_string.reduce(p_package_name, 128);
+201  	 l_object_state  := otap_string.reduce(UPPER(p_package_state), 7);
+202  	 l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
+203  	 IF	l_package_name	       IS NOT NULL
+204  	    AND LENGTH(l_package_name)	> 0
+205  	    AND l_object_state	       IN (l_ignore, l_valid, l_invalid)
+206  	    AND l_package_type	       IN (l_header, l_body)
+207  	 THEN
+208  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+209  	   SELECT COUNT(*)
+210  	     INTO l_has_package
+211  	     FROM dba_objects
+212  	    WHERE owner       = l_schema_to_use
+213  	      AND object_name = l_package_name
+214  	      AND object_type = l_package_type
+215  	      AND status      = CASE WHEN l_object_state = l_ignore THEN status ELSE l_object_state END
+216  	   ;
+217  	   -- we should find one or zero entries
+218  	   l_test_passed := count_chk(l_has_package, l_errors, l_script);
+219  	 ELSE
+220  	   -- invalid package name, type or state
+221  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+222  	   l_errors	       := 'Not allowed: ' || CASE
+223  						       WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
+224  						       THEN 'p_package_name(NULL) '
+225  						     END ||
+226  						     CASE
+227  						       WHEN l_object_state NOT IN (l_ignore, l_valid, l_invalid)
+228  						       THEN 'p_package_state(' || l_object_state || ') '
+229  						     END ||
+230  						     CASE
+231  						       WHEN l_package_type NOT IN (l_header, l_body)
+232  						       THEN 'p_package_type(' || l_package_type || ') '
+233  						     END
+234  	   ;
+235  	   otap_log.log(l_errors, l_script, 'Package name NULL or type and state invalid');
+236  	 END IF;
+237  	 -- now decide on the expected result the final state and if errors are returned
+238  	 IF l_test_passed != l_expected
+239  	 THEN
+240  	   o_errors := otap_string.reduce(l_errors, 4000);
+241  	 ELSE
+242  	   -- overwrite states from before, as we fulfill expected
+243  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+244  	   -- overwrite errors expected
+245  	   o_errors := NULL;
+246  	 END IF;
+247  	 RETURN l_test_passed;
+248    EXCEPTION
+249  	 WHEN OTHERS THEN
+250  	   IF SQLCODE != -20099
+251  	   THEN
+252  	     -- log unhandled exceptions
+253  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+254  	   END IF;
+255  	   RAISE;
+256    END has_package;
+257  
+258  END;
+259  /
 
 Package body created.
 
@@ -6217,34 +6528,50 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
 279    /** FUNCTION otap_api.has_table
 280    * @see otap_schema.has_table and otap_test.has_column
 281    */
-282    FUNCTION has_table( p_table_name   IN		VARCHAR2
-283  			 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-284  			 , p_schema	  IN		VARCHAR2     DEFAULT NULL
-285  			 , p_description  IN		VARCHAR2     DEFAULT NULL
-286  			 )
-287  	 RETURN VARCHAR2
-288    ;
-289  
-290    /** FUNCTION otap_api.has_column
-291    * @see otap_schema.has_column and otap_test.has_column
-292    */
-293    FUNCTION has_column( p_table_name     IN 	   VARCHAR2
-294  			  , p_column_name    IN 	   VARCHAR2
-295  			  , o_otap_session   IN OUT NOCOPY OTAP_SESSION
-296  			  , p_schema	     IN 	   VARCHAR2 DEFAULT NULL
-297  			  , p_description    IN 	   VARCHAR2 DEFAULT NULL
-298  			  , p_data_type      IN 	   VARCHAR2 DEFAULT NULL
-299  			  , p_data_length    IN 	   NUMBER   DEFAULT NULL
-300  			  , p_data_precision IN 	   NUMBER   DEFAULT NULL
-301  			  , p_data_scale     IN 	   NUMBER   DEFAULT NULL
-302  			  , p_nullable	     IN 	   VARCHAR2 DEFAULT NULL
-303  			  , p_data_default   IN 	   VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
-304  			  )
-305  	 RETURN VARCHAR2
-306    ;
-307  
-308  END;
-309  /
+282    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
+283  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+284  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
+285  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+286  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+287  			 )
+288  	 RETURN VARCHAR2
+289    ;
+290  
+291    /** FUNCTION otap_api.has_column
+292    * @see otap_schema.has_column and otap_test.has_column
+293    */
+294    FUNCTION has_column( p_table_name      IN	    VARCHAR2
+295  			  , p_column_name     IN	    VARCHAR2
+296  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+297  			  , p_schema	      IN	    VARCHAR2 DEFAULT NULL
+298  			  , p_description     IN	    VARCHAR2 DEFAULT NULL
+299  			  , p_data_type       IN	    VARCHAR2 DEFAULT NULL
+300  			  , p_data_length     IN	    NUMBER   DEFAULT NULL
+301  			  , p_data_precision  IN	    NUMBER   DEFAULT NULL
+302  			  , p_data_scale      IN	    NUMBER   DEFAULT NULL
+303  			  , p_nullable	      IN	    VARCHAR2 DEFAULT NULL
+304  			  , p_data_default    IN	    VARCHAR2 DEFAULT NULL
+305  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+306  			  )
+307  	 RETURN VARCHAR2
+308    ;
+309  
+310    /** FUNCTION otap_api.has_package
+311    * @see otap_schema.has_package and otap_test.has_package
+312    */
+313    FUNCTION has_package( p_package_name    IN	     VARCHAR2
+314  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+315  			   , p_schema	       IN	     VARCHAR2 DEFAULT NULL
+316  			   , p_description     IN	     VARCHAR2 DEFAULT NULL
+317  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
+318  			   , p_package_state   IN	     VARCHAR2 DEFAULT 'VALID'
+319  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+320  			   )
+321  	 RETURN VARCHAR2
+322    ;
+323  
+324  END;
+325  /
 
 Package created.
 
@@ -6900,152 +7227,227 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 646  	 RETURN l_message;
 647    END get_report_total_details;
 648  
-649    FUNCTION has_table( p_table_name   IN		VARCHAR2
-650  			 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-651  			 , p_schema	  IN		VARCHAR2     DEFAULT NULL
-652  			 , p_description  IN		VARCHAR2     DEFAULT NULL
-653  			 )
-654  	 RETURN VARCHAR2
-655    IS
-656  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_table';
-657  	 l_start	    TIMESTAMP;
-658  	 l_end		    TIMESTAMP;
-659  	 l_result	    INTEGER;
-660  	 l_return	    VARCHAR2(4000);
-661  	 l_errors	    otap_results.test_errors%TYPE;
-662  	 l_schema	    otap_results.db_schema%TYPE;
-663  	 l_desc 	    otap_results.test_desc%TYPE;
-664  	 l_tmp_otap_session OTAP_SESSION;
-665    BEGIN
-666  	 l_start  := SYSTIMESTAMP;
-667  	 -- default return
-668  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
-669  	 -- own begin-end for the transaction after the function
-670  	 BEGIN
-671  	   -- own begin-end block for the function itself and prepare
-672  	   BEGIN
-673  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-674  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
-675  	     -- call function
-676  	     l_result := otap_schema.has_table( p_table_name
-677  					      , l_errors
-678  					      , l_schema
-679  					      )
-680  	     ;
-681  	   EXCEPTION
-682  	     WHEN OTHERS THEN
-683  	     -- consume error
-684  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-685  	     l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
-686  	     otap_log.log(SQLERRM, l_script, 'Execute has_table function');
-687  	   END;
-688  	   l_end := SYSTIMESTAMP;
-689  	   -- set session variable according current value, a part where otap could fail
-690  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
-691  	   l_tmp_otap_session.db_schema  := l_schema;
-692  	   -- try to write the test record
-693  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-694  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
-695  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-696  	 EXCEPTION
-697  	   WHEN OTHERS THEN
-698  	     -- consume error
-699  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-700  	     l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
-701  	     otap_log.log(SQLERRM, l_script, 'Execute has_table function');
-702  	     -- try again to write a record with the new informations, which may again raise an exception
-703  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
-704  	     l_tmp_otap_session.db_schema  := l_schema;
-705  	     l_end := SYSTIMESTAMP;
-706  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-707  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
-708  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-709  	 END;
-710  	 -- return result or let exception happen
-711  	 RETURN l_return;
-712    END has_table;
-713  
-714    FUNCTION has_column( p_table_name     IN 	   VARCHAR2
-715  			  , p_column_name    IN 	   VARCHAR2
-716  			  , o_otap_session   IN OUT NOCOPY OTAP_SESSION
-717  			  , p_schema	     IN 	   VARCHAR2 DEFAULT NULL
-718  			  , p_description    IN 	   VARCHAR2 DEFAULT NULL
-719  			  , p_data_type      IN 	   VARCHAR2 DEFAULT NULL
-720  			  , p_data_length    IN 	   NUMBER   DEFAULT NULL
-721  			  , p_data_precision IN 	   NUMBER   DEFAULT NULL
-722  			  , p_data_scale     IN 	   NUMBER   DEFAULT NULL
-723  			  , p_nullable	     IN 	   VARCHAR2 DEFAULT NULL
-724  			  , p_data_default   IN 	   VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
-725  			  )
-726  	 RETURN VARCHAR2
-727    IS
-728  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_column';
-729  	 l_start	    TIMESTAMP;
-730  	 l_end		    TIMESTAMP;
-731  	 l_result	    INTEGER;
-732  	 l_return	    VARCHAR2(4000);
-733  	 l_errors	    otap_results.test_errors%TYPE;
-734  	 l_schema	    otap_results.db_schema%TYPE;
-735  	 l_desc 	    otap_results.test_desc%TYPE;
-736  	 l_tmp_otap_session OTAP_SESSION;
-737    BEGIN
-738  	 l_start  := SYSTIMESTAMP;
-739  	 -- default return
-740  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
-741  	 -- own begin-end for the transaction after the function
-742  	 BEGIN
-743  	   -- own begin-end block for the function itself and prepare
-744  	   BEGIN
-745  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-746  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
-747  	     -- call function
-748  	     l_result := otap_schema.has_column( p_table_name
-749  					       , p_column_name
-750  					       , l_errors
-751  					       , l_schema
-752  					       , p_data_type
-753  					       , p_data_length
-754  					       , p_data_precision
-755  					       , p_data_scale
-756  					       , p_nullable
-757  					       , p_data_default
-758  					       )
-759  	     ;
-760  	   EXCEPTION
-761  	     WHEN OTHERS THEN
-762  	     -- consume error
-763  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-764  	     l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
-765  	     otap_log.log(SQLERRM, l_script, 'Execute has_column function');
-766  	   END;
-767  	   l_end := SYSTIMESTAMP;
-768  	   -- set session variable according current value, a part where otap could fail
-769  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
-770  	   l_tmp_otap_session.db_schema  := l_schema;
-771  	   -- try to write the test record
-772  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-773  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
-774  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-775  	 EXCEPTION
-776  	   WHEN OTHERS THEN
-777  	     -- consume error
-778  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-779  	     l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
-780  	     otap_log.log(SQLERRM, l_script, 'Execute has_column function');
-781  	     -- try again to write a record with the new informations, which may again raise an exception
-782  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
-783  	     l_tmp_otap_session.db_schema  := l_schema;
-784  	     l_end := SYSTIMESTAMP;
-785  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-786  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
-787  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
-788  	 END;
-789  	 -- return result or let exception happen
-790  	 RETURN l_return;
-791    END has_column;
-792  
-793  END;
-794  /
+649    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
+650  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+651  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
+652  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+653  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+654  			 )
+655  	 RETURN VARCHAR2
+656    IS
+657  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_table';
+658  	 l_start	    TIMESTAMP;
+659  	 l_end		    TIMESTAMP;
+660  	 l_result	    INTEGER;
+661  	 l_return	    VARCHAR2(4000);
+662  	 l_errors	    otap_results.test_errors%TYPE;
+663  	 l_schema	    otap_results.db_schema%TYPE;
+664  	 l_desc 	    otap_results.test_desc%TYPE;
+665  	 l_tmp_otap_session OTAP_SESSION;
+666    BEGIN
+667  	 l_start  := SYSTIMESTAMP;
+668  	 -- default return
+669  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+670  	 -- own begin-end for the transaction after the function
+671  	 BEGIN
+672  	   -- own begin-end block for the function itself and prepare
+673  	   BEGIN
+674  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+675  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
+676  	     -- call function
+677  	     l_result := otap_schema.has_table( p_table_name
+678  					      , l_errors
+679  					      , l_schema
+680  					      , p_expected_result
+681  					      )
+682  	     ;
+683  	   EXCEPTION
+684  	     WHEN OTHERS THEN
+685  	     -- consume error
+686  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+687  	     l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
+688  	     otap_log.log(SQLERRM, l_script, 'Execute has_table function');
+689  	   END;
+690  	   l_end := SYSTIMESTAMP;
+691  	   -- set session variable according current value, a part where otap could fail
+692  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
+693  	   l_tmp_otap_session.db_schema  := l_schema;
+694  	   -- try to write the test record
+695  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+696  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
+697  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+698  	 EXCEPTION
+699  	   WHEN OTHERS THEN
+700  	     -- consume error
+701  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+702  	     l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
+703  	     otap_log.log(SQLERRM, l_script, 'Execute has_table function');
+704  	     -- try again to write a record with the new informations, which may again raise an exception
+705  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
+706  	     l_tmp_otap_session.db_schema  := l_schema;
+707  	     l_end := SYSTIMESTAMP;
+708  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+709  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
+710  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+711  	 END;
+712  	 -- return result or let exception happen
+713  	 RETURN l_return;
+714    END has_table;
+715  
+716    FUNCTION has_column( p_table_name      IN	    VARCHAR2
+717  			  , p_column_name     IN	    VARCHAR2
+718  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+719  			  , p_schema	      IN	    VARCHAR2 DEFAULT NULL
+720  			  , p_description     IN	    VARCHAR2 DEFAULT NULL
+721  			  , p_data_type       IN	    VARCHAR2 DEFAULT NULL
+722  			  , p_data_length     IN	    NUMBER   DEFAULT NULL
+723  			  , p_data_precision  IN	    NUMBER   DEFAULT NULL
+724  			  , p_data_scale      IN	    NUMBER   DEFAULT NULL
+725  			  , p_nullable	      IN	    VARCHAR2 DEFAULT NULL
+726  			  , p_data_default    IN	    VARCHAR2 DEFAULT NULL
+727  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+728  			  )
+729  	 RETURN VARCHAR2
+730    IS
+731  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_column';
+732  	 l_start	    TIMESTAMP;
+733  	 l_end		    TIMESTAMP;
+734  	 l_result	    INTEGER;
+735  	 l_return	    VARCHAR2(4000);
+736  	 l_errors	    otap_results.test_errors%TYPE;
+737  	 l_schema	    otap_results.db_schema%TYPE;
+738  	 l_desc 	    otap_results.test_desc%TYPE;
+739  	 l_tmp_otap_session OTAP_SESSION;
+740    BEGIN
+741  	 l_start  := SYSTIMESTAMP;
+742  	 -- default return
+743  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+744  	 -- own begin-end for the transaction after the function
+745  	 BEGIN
+746  	   -- own begin-end block for the function itself and prepare
+747  	   BEGIN
+748  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+749  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
+750  	     -- call function
+751  	     l_result := otap_schema.has_column( p_table_name
+752  					       , p_column_name
+753  					       , l_errors
+754  					       , l_schema
+755  					       , p_data_type
+756  					       , p_data_length
+757  					       , p_data_precision
+758  					       , p_data_scale
+759  					       , p_nullable
+760  					       , p_data_default
+761  					       , p_expected_result
+762  					       )
+763  	     ;
+764  	   EXCEPTION
+765  	     WHEN OTHERS THEN
+766  	     -- consume error
+767  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+768  	     l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
+769  	     otap_log.log(SQLERRM, l_script, 'Execute has_column function');
+770  	   END;
+771  	   l_end := SYSTIMESTAMP;
+772  	   -- set session variable according current value, a part where otap could fail
+773  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
+774  	   l_tmp_otap_session.db_schema  := l_schema;
+775  	   -- try to write the test record
+776  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+777  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
+778  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+779  	 EXCEPTION
+780  	   WHEN OTHERS THEN
+781  	     -- consume error
+782  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+783  	     l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
+784  	     otap_log.log(SQLERRM, l_script, 'Execute has_column function');
+785  	     -- try again to write a record with the new informations, which may again raise an exception
+786  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
+787  	     l_tmp_otap_session.db_schema  := l_schema;
+788  	     l_end := SYSTIMESTAMP;
+789  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+790  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
+791  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+792  	 END;
+793  	 -- return result or let exception happen
+794  	 RETURN l_return;
+795    END has_column;
+796  
+797    FUNCTION has_package( p_package_name    IN	     VARCHAR2
+798  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+799  			   , p_schema	       IN	     VARCHAR2 DEFAULT NULL
+800  			   , p_description     IN	     VARCHAR2 DEFAULT NULL
+801  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
+802  			   , p_package_state   IN	     VARCHAR2 DEFAULT 'VALID'
+803  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+804  			   )
+805  	 RETURN VARCHAR2
+806    IS
+807  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_package';
+808  	 l_start	    TIMESTAMP;
+809  	 l_end		    TIMESTAMP;
+810  	 l_result	    INTEGER;
+811  	 l_return	    VARCHAR2(4000);
+812  	 l_errors	    otap_results.test_errors%TYPE;
+813  	 l_schema	    otap_results.db_schema%TYPE;
+814  	 l_desc 	    otap_results.test_desc%TYPE;
+815  	 l_tmp_otap_session OTAP_SESSION;
+816    BEGIN
+817  	 l_start  := SYSTIMESTAMP;
+818  	 -- default return
+819  	 l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_CHAR_NA;
+820  	 -- own begin-end for the transaction after the function
+821  	 BEGIN
+822  	   -- own begin-end block for the function itself and prepare
+823  	   BEGIN
+824  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+825  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+826  	     -- call function
+827  	     l_result := otap_schema.has_package( p_package_name
+828  						, l_errors
+829  						, l_schema
+830  						, p_package_type
+831  						, p_package_state
+832  						, p_expected_result
+833  						)
+834  	     ;
+835  	   EXCEPTION
+836  	     WHEN OTHERS THEN
+837  	     -- consume error
+838  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+839  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+840  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+841  	   END;
+842  	   l_end := SYSTIMESTAMP;
+843  	   -- set session variable according current value, a part where otap could fail
+844  	   l_tmp_otap_session		 := otap_objects.otap_session_copy(o_otap_session);
+845  	   l_tmp_otap_session.db_schema  := l_schema;
+846  	   -- try to write the test record
+847  	   otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+848  	   otap_objects.otap_session_add_test(l_result, o_otap_session);
+849  	   l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+850  	 EXCEPTION
+851  	   WHEN OTHERS THEN
+852  	     -- consume error
+853  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+854  	     l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
+855  	     otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+856  	     -- try again to write a record with the new informations, which may again raise an exception
+857  	     l_tmp_otap_session 	   := otap_objects.otap_session_copy(o_otap_session);
+858  	     l_tmp_otap_session.db_schema  := l_schema;
+859  	     l_end := SYSTIMESTAMP;
+860  	     otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
+861  	     l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+862  	     l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+863  	 END;
+864  	 -- return result or let exception happen
+865  	 RETURN l_return;
+866    END has_package;
+867  
+868  END;
+869  /
 
 Package body created.
 
@@ -7284,59 +7686,86 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 217    * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
 218    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
 219    * @param p_description The test description if any. If not given, a description is generated, see FN template.
-220    *
-221    * @return The test result as text.
-222    */
-223    FUNCTION has_table( p_table_name   IN VARCHAR2
-224  			 , p_schema	  IN VARCHAR2 DEFAULT NULL
-225  			 , p_description  IN VARCHAR2 DEFAULT NULL
-226  			 )
-227  	 RETURN VARCHAR2
-228    ;
-229  
-230    /** FUNCTION otap_test.has_column
-231    * Tests if a table column exists. Additional tests on the column can be added by using the additional
-232    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
-233    * column and schema.
-234    *
-235    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
-236    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
-237    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
-238    *
-239    * @param p_table_name The name of the table, taken as is. Case sensitive.
-240    * @param p_column_name The column name of the table, taken as is. Case sensitive.
-241    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
-242    * @param p_description The test description if any. If not given, a description is generated, see FN template.
-243    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
-244    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
-245    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
-246    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
-247    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
-248    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
-249    *
-250    * @return The test result as text.
-251    */
-252    FUNCTION has_column( p_table_name     IN  VARCHAR2
-253  			  , p_column_name    IN  VARCHAR2
-254  			  , p_schema	     IN  VARCHAR2 DEFAULT NULL
-255  			  , p_description    IN  VARCHAR2 DEFAULT NULL
-256  			  , p_data_type      IN  VARCHAR2 DEFAULT NULL
-257  			  , p_data_length    IN  NUMBER   DEFAULT NULL
-258  			  , p_data_precision IN  NUMBER   DEFAULT NULL
-259  			  , p_data_scale     IN  NUMBER   DEFAULT NULL
-260  			  , p_nullable	     IN  VARCHAR2 DEFAULT NULL
-261  			  , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
-262  			  )
-263  	 RETURN VARCHAR2
-264    ;
-265  
-266    -- debug function
-267    FUNCTION get_session_var
-268  	 RETURN OTAP_SESSION
-269    ;
-270  
-271  END;
-272  /
+220    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
+221    *
+222    * @return The test result as text.
+223    */
+224    FUNCTION has_table( p_table_name      IN VARCHAR2
+225  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
+226  			 , p_description     IN VARCHAR2 DEFAULT NULL
+227  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+228  			 )
+229  	 RETURN VARCHAR2
+230    ;
+231  
+232    /** FUNCTION otap_test.has_column
+233    * Tests if a table column exists. Additional tests on the column can be added by using the additional
+234    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
+235    * column and schema.
+236    *
+237    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
+238    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
+239    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
+240    *
+241    * @param p_table_name The name of the table, taken as is. Case sensitive.
+242    * @param p_column_name The column name of the table, taken as is. Case sensitive.
+243    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+244    * @param p_description The test description if any. If not given, a description is generated, see FN template.
+245    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
+246    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
+247    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
+248    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
+249    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
+250    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+251    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
+252    *
+253    * @return The test result as text.
+254    */
+255    FUNCTION has_column( p_table_name      IN VARCHAR2
+256  			  , p_column_name     IN VARCHAR2
+257  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
+258  			  , p_description     IN VARCHAR2 DEFAULT NULL
+259  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
+260  			  , p_data_length     IN NUMBER   DEFAULT NULL
+261  			  , p_data_precision  IN NUMBER   DEFAULT NULL
+262  			  , p_data_scale      IN NUMBER   DEFAULT NULL
+263  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
+264  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
+265  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+266  			  )
+267  	 RETURN VARCHAR2
+268    ;
+269  
+270    /** FUNCTION otap_test.has_package
+271    * Checks if a given package exists. Check if header and body, if available, are valid by default.
+272    * If the package exists but is not valid, and package state is not IGNORE the test will fail.
+273    *
+274    * @param p_package_name The name of the package, take as is. Case sensitive.
+275    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. If not case sensitive you must provide the schema name in UPPERCASE.
+276    * @param p_description The test description if any. If not given, a description is generated, see FN template.
+277    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values translate to PACKAGE.
+278    * @param p_package_state The object state to verify. Default is VALID. Not case sensitive. Other options: INVALID, IGNORE. Not supported options lead to default.
+279    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+280    *
+281    * @return The test result as text.
+282    */
+283    FUNCTION has_package( p_package_name    IN     VARCHAR2
+284  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+285  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+286  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+287  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+288  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+289  			   )
+290  	 RETURN VARCHAR2
+291    ;
+292  
+293    -- debug function
+294    FUNCTION get_session_var
+295  	 RETURN OTAP_SESSION
+296    ;
+297  
+298  END;
+299  /
 
 Package created.
 
@@ -7818,73 +8247,99 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 466  	   RAISE;
 467    END get_report_id;
 468  
-469    FUNCTION has_table( p_table_name   IN VARCHAR2
-470  			 , p_schema	  IN VARCHAR2 DEFAULT NULL
-471  			 , p_description  IN VARCHAR2 DEFAULT NULL
-472  			 )
-473  	 RETURN VARCHAR2
-474    IS
-475  	 l_message VARCHAR2(4000);
-476    BEGIN
-477  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description);
-478  	 RETURN l_message;
-479    EXCEPTION
-480  	 WHEN OTHERS THEN
-481  	   IF SQLCODE != -20099
-482  	   THEN
-483  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
-484  	   END IF;
-485  	   RAISE;
-486    END has_table;
-487  
-488    FUNCTION has_column( p_table_name     IN  VARCHAR2
-489  			  , p_column_name    IN  VARCHAR2
-490  			  , p_schema	     IN  VARCHAR2 DEFAULT NULL
-491  			  , p_description    IN  VARCHAR2 DEFAULT NULL
-492  			  , p_data_type      IN  VARCHAR2 DEFAULT NULL
-493  			  , p_data_length    IN  NUMBER   DEFAULT NULL
-494  			  , p_data_precision IN  NUMBER   DEFAULT NULL
-495  			  , p_data_scale     IN  NUMBER   DEFAULT NULL
-496  			  , p_nullable	     IN  VARCHAR2 DEFAULT NULL
-497  			  , p_data_default   IN  VARCHAR2 DEFAULT NULL -- maps to DATA_DEFAULT_VC limited to 4000, LONG is a pain in the ass
-498  			  )
-499  	 RETURN VARCHAR2
-500    IS
-501  	 l_message VARCHAR2(4000);
-502    BEGIN
-503  	 l_message := otap_api.has_column( p_table_name
-504  					 , p_column_name
-505  					 , session_record
-506  					 , p_schema
-507  					 , p_description
-508  					 , p_data_type
-509  					 , p_data_length
-510  					 , p_data_precision
-511  					 , p_data_scale
-512  					 , p_nullable
-513  					 , p_data_default
-514  					 )
-515  	 ;
-516  	 RETURN l_message;
-517    EXCEPTION
-518  	 WHEN OTHERS THEN
-519  	   IF SQLCODE != -20099
-520  	   THEN
-521  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
-522  	   END IF;
-523  	   RAISE;
-524    END has_column;
-525  
-526    -- debug function
-527    FUNCTION get_session_var
-528  	 RETURN OTAP_SESSION
-529    IS
-530    BEGIN
-531  	 RETURN session_record;
-532    END get_session_var;
-533  
-534  END;
-535  /
+469    FUNCTION has_table( p_table_name      IN VARCHAR2
+470  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
+471  			 , p_description     IN VARCHAR2 DEFAULT NULL
+472  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+473  			 )
+474  	 RETURN VARCHAR2
+475    IS
+476  	 l_message VARCHAR2(4000);
+477    BEGIN
+478  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
+479  	 RETURN l_message;
+480    EXCEPTION
+481  	 WHEN OTHERS THEN
+482  	   IF SQLCODE != -20099
+483  	   THEN
+484  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
+485  	   END IF;
+486  	   RAISE;
+487    END has_table;
+488  
+489    FUNCTION has_column( p_table_name      IN VARCHAR2
+490  			  , p_column_name     IN VARCHAR2
+491  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
+492  			  , p_description     IN VARCHAR2 DEFAULT NULL
+493  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
+494  			  , p_data_length     IN NUMBER   DEFAULT NULL
+495  			  , p_data_precision  IN NUMBER   DEFAULT NULL
+496  			  , p_data_scale      IN NUMBER   DEFAULT NULL
+497  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
+498  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
+499  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+500  			  )
+501  	 RETURN VARCHAR2
+502    IS
+503  	 l_message VARCHAR2(4000);
+504    BEGIN
+505  	 l_message := otap_api.has_column( p_table_name
+506  					 , p_column_name
+507  					 , session_record
+508  					 , p_schema
+509  					 , p_description
+510  					 , p_data_type
+511  					 , p_data_length
+512  					 , p_data_precision
+513  					 , p_data_scale
+514  					 , p_nullable
+515  					 , p_data_default
+516  					 , p_expected_result
+517  					 )
+518  	 ;
+519  	 RETURN l_message;
+520    EXCEPTION
+521  	 WHEN OTHERS THEN
+522  	   IF SQLCODE != -20099
+523  	   THEN
+524  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
+525  	   END IF;
+526  	   RAISE;
+527    END has_column;
+528  
+529    FUNCTION has_package( p_package_name    IN     VARCHAR2
+530  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+531  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+532  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+533  			   , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
+534  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+535  			   )
+536  	 RETURN VARCHAR2
+537    IS
+538  	 l_message VARCHAR2(4000);
+539    BEGIN
+540  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
+541  	 RETURN l_message;
+542    EXCEPTION
+543  	 WHEN OTHERS THEN
+544  	   IF SQLCODE != -20099
+545  	   THEN
+546  	     otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
+547  	   END IF;
+548  	   RAISE;
+549    END has_package;
+550  
+551  
+552    -- debug function
+553    FUNCTION get_session_var
+554  	 RETURN OTAP_SESSION
+555    IS
+556    BEGIN
+557  	 RETURN session_record;
+558    END get_session_var;
+559  
+560  END;
+561  /
 
 Package body created.
 

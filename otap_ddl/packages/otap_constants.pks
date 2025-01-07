@@ -69,6 +69,7 @@ AS
   OTAP_CFG_REPORT_TOTAL_TEMPLATE   CONSTANT CHAR(21)       := 'REPORT_TOTAL_TEMPLATE';
   OTAP_CFG_FN_HAS_TABLE_TEMPLATE   CONSTANT CHAR(21)       := 'FN_HAS_TABLE_TEMPLATE';
   OTAP_CFG_FN_HAS_COLUMN_TEMPLATE  CONSTANT CHAR(22)       := 'FN_HAS_COLUMN_TEMPLATE';
+  OTAP_CFG_FN_HAS_PACKAGE_TEMPLATE CONSTANT CHAR(23)       := 'FN_HAS_PACKAGE_TEMPLATE';
   OTAP_CFG_TEXT_FALSE              CONSTANT CHAR(10)       := 'TEXT_FALSE';
   OTAP_CFG_TEXT_FALSE_NO           CONSTANT CHAR(13)       := 'TEXT_FALSE_NO';
   OTAP_CFG_TEXT_REPORT_END         CONSTANT CHAR(15)       := 'TEXT_REPORT_END';
@@ -134,6 +135,7 @@ AS
   OTAP_REPORT_TOTAL_TEMPLATE       CONSTANT CHAR(66)       := 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
   OTAP_FN_HAS_TABLE_TEMPLATE       CONSTANT CHAR(41)       := 'Table @schema@.@tablename@ exists';
   OTAP_FN_HAS_COLUMN_TEMPLATE      CONSTANT CHAR(61)       := 'Column @column@ (@schema@.@tablename@) exists';
+  OTAP_FN_HAS_PACKAGE_TEMPLATE     CONSTANT CHAR(70)       := 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)';
   OTAP_LAYOUT_RIGHT                CONSTANT CHAR(1)        := 'R';
   OTAP_LAYOUT_MIDDLE               CONSTANT CHAR(1)        := 'M';
   OTAP_LAYOUT_LEFT                 CONSTANT CHAR(1)        := 'L';
