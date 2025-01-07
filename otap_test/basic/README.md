@@ -1,4 +1,4 @@
-# otap - DDL
+# otap - Basic tests
 This folder contains some simple test scripts for otap.
 
 - [Back to main](../README.md)
