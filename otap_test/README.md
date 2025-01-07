@@ -1,5 +1,7 @@
-# otap - DDL
-This folder contains the internal test procedures and scripts for otap.
+# otap - Tests
+This folder contains internal test procedures and scripts for otap. Testing otap with otap.
+
+[master script](otap_test_master.sql) runs all otap tests and logs run and test result.
 
 - [Back to main](../README.md)
 
