@@ -6,7 +6,7 @@ SQL> SELECT otap_test.init_test( p_test_count => 0
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 32
+Test session id: 8
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -19,8 +19,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 32
-Test start: 2025-01-07 01:25:03
+Current view id: 8
+Test start: 2025-01-07 02:47:21
 
 
 1 row selected.
@@ -207,7 +207,7 @@ Passed Datatype wrong
 SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
   2  				, p_column_name => 'IDENTIFIER'
   3  				, p_description => 'Data length correct'
-  4  				, p_data_length => 256
+  4  				, p_data_length => 1024
   5  				)
   6    FROM dual;
 Passed Data length correct
@@ -810,13 +810,142 @@ Passed Column TEST_ERRORS (OTAP.OTAP_RESULTS) exists
 
 1 row selected.
 
+SQL> @@table_sperrorlog.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- check data length for CHAR semantics
+SQL> 
+SQL> SELECT otap_test.set_test_name('Table SPERRORLOG') FROM dual;
+Current test: Table SPERRORLOG
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_table('SPERRORLOG') FROM dual;
+Passed Table OTAP.SPERRORLOG exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'USERNAME'
+  3  				, p_data_type => 'VARCHAR2'
+  4  				, p_data_length => 1024
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column USERNAME (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'TIMESTAMP'
+  3  				, p_data_type => 'TIMESTAMP(6)'
+  4  				, p_data_length => 11
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column TIMESTAMP (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'SCRIPT'
+  3  				, p_data_type => 'CLOB'
+  4  				, p_data_length => 4000
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column SCRIPT (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'IDENTIFIER'
+  3  				, p_data_type => 'VARCHAR2'
+  4  				, p_data_length => 1024
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column IDENTIFIER (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'MESSAGE'
+  3  				, p_data_type => 'CLOB'
+  4  				, p_data_length => 4000
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column MESSAGE (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'STATEMENT'
+  3  				, p_data_type => 'CLOB'
+  4  				, p_data_length => 4000
+  5  				, p_nullable => 'Y'
+  6  				)
+  7    FROM dual;
+Passed Column STATEMENT (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> @@schema/packages/otap_package_master.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- contains only basic tests on the test functions used for schema tests
+SQL> -- to guarantee the needed functionality (as we are testing ourselves there is no good solution what first)
+SQL> 
+SQL> SELECT otap_test.set_test_group('OTAP packages') FROM dual;
+Current test group: OTAP packages
+
+1 row selected.
+
+SQL> @@pkg_otap_constants.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- ignore package states currently, extra function to validate objects to be created
+SQL> 
+SQL> SELECT otap_test.set_test_name('Package OTAP_CONSTANTS') FROM dual;
+Current test: Package OTAP_CONSTANTS
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
+  2  				 , p_package_state => 'IGNORE'
+  3  				 )
+  4    FROM dual;
+Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE state IGNORE)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
+  2  				 , p_package_type => 'PACKAGE BODY'
+  3  				 , p_package_state => 'IGNORE'
+  4  				 )
+  5    FROM dual;
+Passed Package OTAP.OTAP_CONSTANTS exists (PACKAGE BODY state IGNORE)
+
+1 row selected.
+
 SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 32 tests: 65 errors: 0 run time: +000000000 00:00:01.000000000 started: 2025-01-07 01:25:03
+Summary id: 8 tests: 74 errors: 0 run time: +000000000 00:00:02.000000000 started: 2025-01-07 02:47:21
 Current test settings
-Test session id: 33
+Test session id: 9
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -829,8 +958,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 32
-Test start: 2025-01-07 01:25:04
+Current view id: 8
+Test start: 2025-01-07 02:47:23
 
 
 1 row selected.

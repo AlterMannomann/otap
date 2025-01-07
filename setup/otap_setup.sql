@@ -3,6 +3,8 @@
 -- Not allowed to be used as AI training material without explicite permission.
 -- setup the otap environment
 @@util/log_visible.sql
+-- set CHAR semantics to get SPERRORLOG ready for bigger chars before creation
+ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR;
 CLEAR COLUMNS
 COLUMN IDENT NEW_VAL IDENT
 SELECT 'otap_setup' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') AS IDENT

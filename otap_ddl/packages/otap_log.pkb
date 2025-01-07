@@ -13,7 +13,7 @@ AS
   FUNCTION debug_active
     RETURN BOOLEAN
   IS
-    l_debug_mode  VARCHAR2(1);
+    l_debug_mode  VARCHAR2(1 CHAR);
     l_return      BOOLEAN;
   BEGIN
     l_return := FALSE;

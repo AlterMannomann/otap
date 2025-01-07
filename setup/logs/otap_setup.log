@@ -109,9 +109,9 @@ SQL> CREATE OR REPLACE PACKAGE otap_constants
  12    -- (until Oracle 23i) are limited to 128 chars, if not using special UTF chars.
  13  
  14    -- the following constants have get functions that can be used in SQL selects
- 15    OTAP_USER_ROLE			CONSTANT VARCHAR2(256)	:= '&OTAP_ROLE';
- 16    OTAP_SCHEMA			CONSTANT VARCHAR2(256)	:= '&OTAP_USER';
- 17    OTAP_TABLESPACE			CONSTANT VARCHAR2(256)	:= '&OTAP_TABLESPACE';
+ 15    OTAP_USER_ROLE			CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_ROLE';
+ 16    OTAP_SCHEMA			CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_USER';
+ 17    OTAP_TABLESPACE			CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_TABLESPACE';
  18    OTAP_NUM_TRUE			CONSTANT INTEGER	:= 1;
  19    OTAP_NUM_FALSE			CONSTANT INTEGER	:= 0;
  20    OTAP_NUM_TEST_PASSED		CONSTANT INTEGER	:= 1;
@@ -321,12 +321,12 @@ SQL> CREATE OR REPLACE PACKAGE otap_constants
 224    /*====================================== end package constant utility functions ======================================*/
 225  END;
 226  /
-old  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256)  := '&OTAP_ROLE';
-new  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256)  := 'OTAP_USER';
-old  16:   OTAP_SCHEMA                      CONSTANT VARCHAR2(256)  := '&OTAP_USER';
-new  16:   OTAP_SCHEMA                      CONSTANT VARCHAR2(256)  := 'OTAP';
-old  17:   OTAP_TABLESPACE                  CONSTANT VARCHAR2(256)  := '&OTAP_TABLESPACE';
-new  17:   OTAP_TABLESPACE                  CONSTANT VARCHAR2(256)  := 'OTAP_TABLESPACE';
+old  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_ROLE';
+new  15:   OTAP_USER_ROLE                   CONSTANT VARCHAR2(256 CHAR)  := 'OTAP_USER';
+old  16:   OTAP_SCHEMA                      CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_USER';
+new  16:   OTAP_SCHEMA                      CONSTANT VARCHAR2(256 CHAR)  := 'OTAP';
+old  17:   OTAP_TABLESPACE                  CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_TABLESPACE';
+new  17:   OTAP_TABLESPACE                  CONSTANT VARCHAR2(256 CHAR)  := 'OTAP_TABLESPACE';
 
 Package created.
 
@@ -1595,7 +1595,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_log
  10    FUNCTION debug_active
  11  	 RETURN BOOLEAN
  12    IS
- 13  	 l_debug_mode  VARCHAR2(1);
+ 13  	 l_debug_mode  VARCHAR2(1 CHAR);
  14  	 l_return      BOOLEAN;
  15    BEGIN
  16  	 l_return := FALSE;
@@ -1943,8 +1943,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
   6  		      )
   7  	 RETURN VARCHAR2
   8    IS
-  9  	 l_script VARCHAR2(256) := 'otap_string.reduce';
- 10  	 l_string VARCHAR2(32767);
+  9  	 l_script VARCHAR2(256 CHAR) := 'otap_string.reduce';
+ 10  	 l_string VARCHAR2(32767 CHAR);
  11    BEGIN
  12  	 l_string := CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
  13  	 RETURN l_string;
@@ -1959,8 +1959,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
  22  		   )
  23  	 RETURN VARCHAR2
  24    IS
- 25  	 l_script VARCHAR2(256) := 'otap_string.cut';
- 26  	 l_string VARCHAR2(32767);
+ 25  	 l_script VARCHAR2(256 CHAR) := 'otap_string.cut';
+ 26  	 l_string VARCHAR2(32767 CHAR);
  27    BEGIN
  28  	 l_string := CASE WHEN LENGTH(p_string) > p_size THEN SUBSTR(p_string, 1, p_size) ELSE p_string END;
  29  	 RETURN l_string;
@@ -1975,8 +1975,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
  38  		       )
  39  	 RETURN VARCHAR2
  40    IS
- 41  	 l_script VARCHAR2(256) := 'otap_string.flatten';
- 42  	 l_string VARCHAR2(32767);
+ 41  	 l_script VARCHAR2(256 CHAR) := 'otap_string.flatten';
+ 42  	 l_string VARCHAR2(32767 CHAR);
  43    BEGIN
  44  	 l_string := REGEXP_REPLACE(p_string, '\s{2,}', ' ');
  45  	 l_string := CASE WHEN LENGTH(l_string) > p_size THEN SUBSTR(l_string, 1, p_size) ELSE l_string END;
@@ -1990,7 +1990,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
  53    FUNCTION check_border(p_border IN INTEGER DEFAULT otap_constants.OTAP_BORDER_DEFAULT)
  54  	 RETURN NUMBER
  55    IS
- 56  	 l_script VARCHAR2(256) := 'otap_string.check_border';
+ 56  	 l_script VARCHAR2(256 CHAR) := 'otap_string.check_border';
  57  	 l_border INTEGER;
  58    BEGIN
  59  	 IF NVL(p_border, otap_constants.OTAP_BORDER_DEFAULT) NOT BETWEEN 2 AND 10
@@ -2009,7 +2009,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
  72    FUNCTION check_line_size(p_line_size IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
  73  	 RETURN NUMBER
  74    IS
- 75  	 l_script    VARCHAR2(256) := 'otap_string.check_line_size';
+ 75  	 l_script    VARCHAR2(256 CHAR) := 'otap_string.check_line_size';
  76  	 l_line_size INTEGER;
  77    BEGIN
  78  	 IF NVL(p_line_size, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH) NOT BETWEEN otap_constants.OTAP_REPORT_MIN_FILL_LENGTH AND otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
@@ -2035,7 +2035,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
  98  				)
  99  	 RETURN NUMBER
 100    IS
-101  	 l_script     VARCHAR2(256) := 'otap_string.check_title_size';
+101  	 l_script     VARCHAR2(256 CHAR) := 'otap_string.check_title_size';
 102  	 l_title_size INTEGER;
 103  	 l_border     INTEGER;
 104    BEGIN
@@ -2056,7 +2056,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 119    FUNCTION check_string_size(p_string_length IN INTEGER DEFAULT 0)
 120  	 RETURN NUMBER
 121    IS
-122  	 l_script      VARCHAR2(256) := 'otap_string.check_string_size';
+122  	 l_script      VARCHAR2(256 CHAR) := 'otap_string.check_string_size';
 123  	 l_string_size INTEGER;
 124    BEGIN
 125  	 IF NVL(p_string_length, 0) > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
@@ -2078,8 +2078,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 141    FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
 142  	 RETURN VARCHAR2
 143    IS
-144  	 l_script VARCHAR2(256) := 'otap_string.check_layout';
-145  	 l_layout VARCHAR2(1);
+144  	 l_script VARCHAR2(256 CHAR) := 'otap_string.check_layout';
+145  	 l_layout VARCHAR2(1 CHAR);
 146    BEGIN
 147  	 l_layout := CASE
 148  		       WHEN p_layout IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
@@ -2097,8 +2097,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 160    FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR)
 161  	 RETURN VARCHAR2
 162    IS
-163  	 l_script     VARCHAR2(256) := 'otap_string.check_decoration';
-164  	 l_decoration VARCHAR2(1);
+163  	 l_script     VARCHAR2(256 CHAR) := 'otap_string.check_decoration';
+164  	 l_decoration VARCHAR2(1 CHAR);
 165    BEGIN
 166  	 l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1);
 167  	 RETURN l_decoration;
@@ -2114,7 +2114,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 177  			 )
 178  	 RETURN INTEGER
 179    IS
-180  	 l_script     VARCHAR2(256) := 'otap_string.line_size';
+180  	 l_script     VARCHAR2(256 CHAR) := 'otap_string.line_size';
 181  	 l_length     INTEGER;
 182  	 l_border     INTEGER;
 183  	 l_line_size  INTEGER;
@@ -2146,7 +2146,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 209  			)
 210  	 RETURN INTEGER
 211    IS
-212  	 l_script VARCHAR2(256) := 'otap_string.max_size';
+212  	 l_script VARCHAR2(256 CHAR) := 'otap_string.max_size';
 213  	 l_title_length INTEGER;
 214  	 l_line_size	INTEGER;
 215  	 l_border	INTEGER;
@@ -2181,15 +2181,15 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 244  			 )
 245  	 RETURN VARCHAR2
 246    IS
-247  	 l_script	 VARCHAR2(256) := 'otap_string.left_deco';
-248  	 l_deco 	 VARCHAR2(1);
-249  	 l_layout	 VARCHAR2(1);
+247  	 l_script	 VARCHAR2(256 CHAR) := 'otap_string.left_deco';
+248  	 l_deco 	 VARCHAR2(1 CHAR);
+249  	 l_layout	 VARCHAR2(1 CHAR);
 250  	 l_border	 INTEGER;
 251  	 l_pad_size	 INTEGER;
 252  	 l_min_fill	 INTEGER;
 253  	 l_line_size	 INTEGER;
 254  	 l_title_length  INTEGER;
-255  	 l_left_pad	 VARCHAR2(32767);
+255  	 l_left_pad	 VARCHAR2(32767 CHAR);
 256    BEGIN
 257  	 l_min_fill	 := otap_string.check_line_size(p_min_fill);
 258  	 l_deco 	 := otap_string.check_decoration(p_decoration);
@@ -2227,15 +2227,15 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 290  			  )
 291  	 RETURN VARCHAR2
 292    IS
-293  	 l_script	 VARCHAR2(256) := 'otap_string.right_deco';
-294  	 l_deco 	 VARCHAR2(1);
-295  	 l_layout	 VARCHAR2(1);
+293  	 l_script	 VARCHAR2(256 CHAR) := 'otap_string.right_deco';
+294  	 l_deco 	 VARCHAR2(1 CHAR);
+295  	 l_layout	 VARCHAR2(1 CHAR);
 296  	 l_border	 INTEGER;
 297  	 l_pad_size	 INTEGER;
 298  	 l_min_fill	 INTEGER;
 299  	 l_line_size	 INTEGER;
 300  	 l_title_length  INTEGER;
-301  	 l_right_pad	 VARCHAR2(32767);
+301  	 l_right_pad	 VARCHAR2(32767 CHAR);
 302    BEGIN
 303  	 l_min_fill	 := otap_string.check_line_size(p_min_fill);
 304  	 l_deco 	 := otap_string.check_decoration(p_decoration);
@@ -2272,7 +2272,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 335  			)
 336  	 RETURN VARCHAR2
 337    IS
-338  	 l_script	 VARCHAR2(256) := 'otap_string.decorate';
+338  	 l_script	 VARCHAR2(256 CHAR) := 'otap_string.decorate';
 339  	 l_deco_length	 INTEGER;
 340  	 l_pad_length	 INTEGER;
 341  	 l_title_length  INTEGER;
@@ -2281,10 +2281,10 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 344  	 l_add		 INTEGER;
 345  	 l_padding	 INTEGER;
 346  	 l_border	 INTEGER;
-347  	 l_deco 	 VARCHAR2(1);
-348  	 l_layout	 VARCHAR2(1);
-349  	 l_deco_string	 VARCHAR2(32767);
-350  	 l_title	 VARCHAR2(32767);
+347  	 l_deco 	 VARCHAR2(1 CHAR);
+348  	 l_layout	 VARCHAR2(1 CHAR);
+349  	 l_deco_string	 VARCHAR2(32767 CHAR);
+350  	 l_title	 VARCHAR2(32767 CHAR);
 351    BEGIN
 352  	 otap_log.log('Parameter p_title: ' || p_title || ' p_decoration: ' || p_decoration || ' p_min_length: ' || p_min_length || ' p_layout: ' || p_layout || ' p_border: ' || p_border, l_script, 'Call', 'OTAP_DEBUG');
 353  	 -- check params, assign defaults
@@ -2316,11 +2316,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 379  			  )
 380  	 RETURN VARCHAR2
 381    IS
-382  	 l_script      VARCHAR2(256) := 'otap_string.borderless';
-383  	 l_layout      VARCHAR2(1);
+382  	 l_script      VARCHAR2(256 CHAR) := 'otap_string.borderless';
+383  	 l_layout      VARCHAR2(1 CHAR);
 384  	 l_min_length  INTEGER;
 385  	 l_line_size   INTEGER;
-386  	 l_string      VARCHAR2(32767);
+386  	 l_string      VARCHAR2(32767 CHAR);
 387    BEGIN
 388  	 l_min_length := otap_string.check_line_size(p_min_length);
 389  	 l_layout     := otap_string.check_layout(p_layout);
@@ -3564,7 +3564,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_results_util
  18  				  )
  19    IS
  20  	 PRAGMA AUTONOMOUS_TRANSACTION;
- 21  	 l_script      VARCHAR2(256) := 'otap_results_util.write_test_result';
+ 21  	 l_script      VARCHAR2(256 CHAR) := 'otap_results_util.write_test_result';
  22  	 l_to_delete   NUMBER;
  23  	 l_test_passed NUMBER;
  24    BEGIN
@@ -3619,14 +3619,14 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_results_util
  73    PROCEDURE result_cleanup
  74    IS
  75  	 PRAGMA AUTONOMOUS_TRANSACTION;
- 76  	 l_script	     VARCHAR2(256) := 'otap_results_util.result_cleanup';
+ 76  	 l_script	     VARCHAR2(256 CHAR) := 'otap_results_util.result_cleanup';
  77  	 l_delete_before     DATE;
  78  	 l_delete_start      DATE;
  79  	 l_delete_batch_size NUMBER;
  80  	 l_delete_delay      NUMBER;
  81  	 l_row_counter	     NUMBER;
  82  	 l_processed	     NUMBER;
- 83  	 l_delete_msg	     VARCHAR2(32767);
+ 83  	 l_delete_msg	     VARCHAR2(32767 CHAR);
  84  	 CURSOR cur_delete_tests(cp_delete_before IN DATE)
  85  	 IS
  86  	   SELECT *
@@ -4079,14 +4079,14 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
   9  	 RETURN VARCHAR2
  10    IS
  11  	 l_border	    INTEGER;
- 12  	 l_layout	    VARCHAR2(1);
- 13  	 l_decoration	    VARCHAR2(1);
+ 12  	 l_layout	    VARCHAR2(1 CHAR);
+ 13  	 l_decoration	    VARCHAR2(1 CHAR);
  14  	 l_string_size	    INTEGER;
  15  	 l_max_title_length INTEGER;
  16  	 l_min_fill	    INTEGER;
  17  	 l_min_length	    INTEGER;
- 18  	 l_string	    VARCHAR2(32767);
- 19  	 l_return_text	    VARCHAR2(32767);
+ 18  	 l_string	    VARCHAR2(32767 CHAR);
+ 19  	 l_return_text	    VARCHAR2(32767 CHAR);
  20    BEGIN
  21  	 l_border	    := otap_config_util.get_default_border;
  22  	 l_layout	    := otap_string.check_layout(otap_config_util.get_default_layout);
@@ -4110,12 +4110,12 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
  40  	 RETURN VARCHAR2
  41    IS
  42  	 l_border      INTEGER;
- 43  	 l_layout      VARCHAR2(1);
+ 43  	 l_layout      VARCHAR2(1 CHAR);
  44  	 l_string_size INTEGER;
  45  	 l_min_fill    INTEGER;
  46  	 l_min_length  INTEGER;
- 47  	 l_string      VARCHAR2(32767);
- 48  	 l_return_text VARCHAR2(32767);
+ 47  	 l_string      VARCHAR2(32767 CHAR);
+ 48  	 l_return_text VARCHAR2(32767 CHAR);
  49    BEGIN
  50  	 l_border      := otap_config_util.get_default_border;
  51  	 l_layout      := otap_string.check_layout(otap_config_util.get_default_layout);
@@ -4134,7 +4134,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
  64    FUNCTION get_report_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
  65  	 RETURN VARCHAR2
  66    IS
- 67  	 l_return_text VARCHAR2(32767);
+ 67  	 l_return_text VARCHAR2(32767 CHAR);
  68    BEGIN
  69  	 l_return_text := otap_report.decorate( otap_config_util.get_text_report_start
  70  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -4151,7 +4151,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
  81    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
  82  	 RETURN VARCHAR2
  83    IS
- 84  	 l_return_text VARCHAR2(32767);
+ 84  	 l_return_text VARCHAR2(32767 CHAR);
  85    BEGIN
  86  	 l_return_text := otap_report.decorate( otap_config_util.get_text_report_total
  87  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -4173,8 +4173,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 103  					)
 104  	 RETURN VARCHAR2
 105    IS
-106  	 l_return_text	 VARCHAR2(32767);
-107  	 l_template_text VARCHAR2(32767);
+106  	 l_return_text	 VARCHAR2(32767 CHAR);
+107  	 l_template_text VARCHAR2(32767 CHAR);
 108    BEGIN
 109  	 -- fetch template: 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@'
 110  	 l_template_text := otap_config_util.get_report_total_template;
@@ -4198,7 +4198,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 128    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 129  	 RETURN VARCHAR2
 130    IS
-131  	 l_return_text VARCHAR2(32767);
+131  	 l_return_text VARCHAR2(32767 CHAR);
 132    BEGIN
 133  	 l_return_text := otap_report.decorate( otap_config_util.get_text_report_end
 134  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -4215,7 +4215,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 145    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 146  	 RETURN VARCHAR2
 147    IS
-148  	 l_return_text VARCHAR2(32767);
+148  	 l_return_text VARCHAR2(32767 CHAR);
 149    BEGIN
 150  	 l_return_text := otap_report.borderless( otap_config_util.get_text_result_header
 151  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_result_headers)
@@ -4231,7 +4231,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 161    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 162  	 RETURN VARCHAR2
 163    IS
-164  	 l_return_text VARCHAR2(32767);
+164  	 l_return_text VARCHAR2(32767 CHAR);
 165    BEGIN
 166  	 l_return_text := otap_report.borderless( otap_config_util.get_format_result_header
 167  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_result_headers)
@@ -4247,7 +4247,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 177    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 178  	 RETURN VARCHAR2
 179    IS
-180  	 l_return_text VARCHAR2(32767);
+180  	 l_return_text VARCHAR2(32767 CHAR);
 181    BEGIN
 182  	 l_return_text := otap_report.decorate( otap_config_util.get_text_test_count_header
 183  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -4270,8 +4270,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 200  			   )
 201  	 RETURN VARCHAR2
 202    IS
-203  	 l_return_text	 VARCHAR2(32767);
-204  	 l_template_text VARCHAR2(32767);
+203  	 l_return_text	 VARCHAR2(32767 CHAR);
+204  	 l_template_text VARCHAR2(32767 CHAR);
 205    BEGIN
 206  	 -- fetch template
 207  	 l_template_text := otap_config_util.get_summary_template;
@@ -4298,8 +4298,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 228  				       )
 229  	 RETURN VARCHAR2
 230    IS
-231  	 l_return_text	 VARCHAR2(32767);
-232  	 l_template_text VARCHAR2(32767);
+231  	 l_return_text	 VARCHAR2(32767 CHAR);
+232  	 l_template_text VARCHAR2(32767 CHAR);
 233    BEGIN
 234  	 -- get and fill template
 235  	 l_template_text := otap_config_util.get_errors_template;
@@ -4323,8 +4323,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 253  				 )
 254  	 RETURN VARCHAR2
 255    IS
-256  	 l_return_text	 VARCHAR2(32767);
-257  	 l_template_text VARCHAR2(32767);
+256  	 l_return_text	 VARCHAR2(32767 CHAR);
+257  	 l_template_text VARCHAR2(32767 CHAR);
 258    BEGIN
 259  	 -- get and fill template
 260  	 l_template_text := otap_config_util.get_error_details_template;
@@ -4347,8 +4347,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 277  				)
 278  	 RETURN VARCHAR2
 279    IS
-280  	 l_return_text	 VARCHAR2(32767);
-281  	 l_template_text VARCHAR2(32767);
+280  	 l_return_text	 VARCHAR2(32767 CHAR);
+281  	 l_template_text VARCHAR2(32767 CHAR);
 282    BEGIN
 283  	 -- get and fill template
 284  	 l_template_text    := otap_config_util.get_no_data_template;
@@ -4370,8 +4370,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 300  				   )
 301  	 RETURN VARCHAR2
 302    IS
-303  	 l_return_text	 VARCHAR2(32767);
-304  	 l_template_text VARCHAR2(32767);
+303  	 l_return_text	 VARCHAR2(32767 CHAR);
+304  	 l_template_text VARCHAR2(32767 CHAR);
 305    BEGIN
 306  	 -- get and fill template
 307  	 l_template_text    := otap_config_util.get_session_id_template;
@@ -4393,8 +4393,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 323  			    )
 324  	 RETURN VARCHAR2
 325    IS
-326  	 l_return_text	 VARCHAR2(32767);
-327  	 l_template_text VARCHAR2(32767);
+326  	 l_return_text	 VARCHAR2(32767 CHAR);
+327  	 l_template_text VARCHAR2(32767 CHAR);
 328    BEGIN
 329  	 -- get and fill template
 330  	 l_template_text := otap_config_util.get_set_template;
@@ -4417,8 +4417,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 347  			      )
 348  	 RETURN VARCHAR2
 349    IS
-350  	 l_return_text	 VARCHAR2(32767);
-351  	 l_template_text VARCHAR2(32767);
+350  	 l_return_text	 VARCHAR2(32767 CHAR);
+351  	 l_template_text VARCHAR2(32767 CHAR);
 352    BEGIN
 353  	 -- get and fill template
 354  	 l_template_text := otap_config_util.get_group_template;
@@ -4441,8 +4441,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 371  				  )
 372  	 RETURN VARCHAR2
 373    IS
-374  	 l_return_text	 VARCHAR2(32767);
-375  	 l_template_text VARCHAR2(32767);
+374  	 l_return_text	 VARCHAR2(32767 CHAR);
+375  	 l_template_text VARCHAR2(32767 CHAR);
 376    BEGIN
 377  	 -- get and fill template
 378  	 l_template_text := otap_config_util.get_test_name_template;
@@ -4468,12 +4468,12 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 398  			       )
 399  	 RETURN VARCHAR2
 400    IS
-401  	 l_return_text	 VARCHAR2(32767);
-402  	 l_template_text VARCHAR2(32767);
-403  	 l_test_state	 VARCHAR2(32767);
-404  	 l_issue_state	 VARCHAR2(32767);
-405  	 l_runtime	 VARCHAR2(32767);
-406  	 l_desc 	 VARCHAR2(32767);
+401  	 l_return_text	 VARCHAR2(32767 CHAR);
+402  	 l_template_text VARCHAR2(32767 CHAR);
+403  	 l_test_state	 VARCHAR2(32767 CHAR);
+404  	 l_issue_state	 VARCHAR2(32767 CHAR);
+405  	 l_runtime	 VARCHAR2(32767 CHAR);
+406  	 l_desc 	 VARCHAR2(32767 CHAR);
 407  	 l_runtime_len	 INTEGER;
 408  	 l_desc_len	 INTEGER;
 409    BEGIN
@@ -4524,7 +4524,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 454  			      )
 455  	 RETURN VARCHAR2
 456    IS
-457  	 l_return_text	 VARCHAR2(32767);
+457  	 l_return_text	 VARCHAR2(32767 CHAR);
 458    BEGIN
 459  	 -- get and fill template
 460  	 l_return_text := otap_config_util.get_count_desc_template;
@@ -4542,8 +4542,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 472  				  )
 473  	 RETURN VARCHAR2
 474    IS
-475  	 l_char        VARCHAR2(1);
-476  	 l_return_text VARCHAR2(32767);
+475  	 l_char        VARCHAR2(1 CHAR);
+476  	 l_return_text VARCHAR2(32767 CHAR);
 477  	 l_line 	    otap_config.config_value%TYPE;
 478    BEGIN
 479  	 l_char := otap_string.check_decoration(p_char);
@@ -4564,7 +4564,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 494  				 )
 495  	 RETURN VARCHAR2
 496    IS
-497  	 l_template_text VARCHAR2(32767);
+497  	 l_template_text VARCHAR2(32767 CHAR);
 498    BEGIN
 499  	 l_template_text := otap_config_util.get_fn_has_table_template;
 500  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
@@ -4583,7 +4583,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 513  				  )
 514  	 RETURN VARCHAR2
 515    IS
-516  	 l_template_text VARCHAR2(32767);
+516  	 l_template_text VARCHAR2(32767 CHAR);
 517    BEGIN
 518  	 l_template_text := otap_config_util.get_fn_has_column_template;
 519  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
@@ -4604,7 +4604,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 534  				   )
 535  	 RETURN VARCHAR2
 536    IS
-537  	 l_template_text VARCHAR2(32767);
+537  	 l_template_text VARCHAR2(32767 CHAR);
 538    BEGIN
 539  	 l_template_text := otap_config_util.get_fn_has_package_template;
 540  	 l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
@@ -4851,10 +4851,10 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
   3    -- for description see header file
   4    PROCEDURE otap_session_verify(p_otap_session IN OTAP_SESSION)
   5    IS
-  6  	 l_script    VARCHAR2(1024) := 'otap_objects.otap_session_verify';
-  7  	 l_statement VARCHAR2(32767);
-  8  	 l_message   VARCHAR2(32767);
-  9  	 l_delimiter VARCHAR2(1);
+  6  	 l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_verify';
+  7  	 l_statement VARCHAR2(32767 CHAR);
+  8  	 l_message   VARCHAR2(32767 CHAR);
+  9  	 l_delimiter VARCHAR2(1 CHAR);
  10    BEGIN
  11  	 -- we expect all fields to be NOT NULL including empty strings
  12  	 IF    p_otap_session				  IS NULL
@@ -5012,8 +5012,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 164    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
 165  	 RETURN VARCHAR2
 166    IS
-167  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_show';
-168  	 l_message VARCHAR2(4000);
+167  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_show';
+168  	 l_message VARCHAR2(4000 CHAR);
 169    BEGIN
 170  	 -- verify the current object
 171  	 otap_objects.otap_session_verify(p_otap_session);
@@ -5062,9 +5062,9 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 214  				)
 215  	 RETURN VARCHAR2
 216    IS
-217  	 l_script    VARCHAR2(1024) := 'otap_objects.otap_session_set';
-218  	 l_message   VARCHAR2(32767);
-219  	 l_delimiter VARCHAR2(1);
+217  	 l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set';
+218  	 l_message   VARCHAR2(32767 CHAR);
+219  	 l_delimiter VARCHAR2(1 CHAR);
 220    BEGIN
 221  	 -- verify the current object
 222  	 otap_objects.otap_session_verify(o_otap_session);
@@ -5154,7 +5154,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 306    FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
 307  	 RETURN OTAP_SESSION
 308    IS
-309  	 l_script	 VARCHAR2(1024) := 'otap_objects.otap_session_copy';
+309  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_copy';
 310  	 l_otap_session  OTAP_SESSION;
 311    BEGIN
 312  	 -- verify the current object
@@ -5193,8 +5193,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 345  					 )
 346  	 RETURN VARCHAR2
 347    IS
-348  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_set';
-349  	 l_message VARCHAR2(4000);
+348  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_set';
+349  	 l_message VARCHAR2(4000 CHAR);
 350    BEGIN
 351  	 otap_objects.otap_session_verify(o_otap_session);
 352  	 IF LENGTH(p_test_set) > 256
@@ -5221,8 +5221,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 373  					   )
 374  	 RETURN VARCHAR2
 375    IS
-376  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_group';
-377  	 l_message VARCHAR2(4000);
+376  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+377  	 l_message VARCHAR2(4000 CHAR);
 378    BEGIN
 379  	 otap_objects.otap_session_verify(o_otap_session);
 380  	 IF LENGTH(p_test_group) > 256
@@ -5249,8 +5249,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 401  					  )
 402  	 RETURN VARCHAR2
 403    IS
-404  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_name';
-405  	 l_message VARCHAR2(4000);
+404  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_name';
+405  	 l_message VARCHAR2(4000 CHAR);
 406    BEGIN
 407  	 otap_objects.otap_session_verify(o_otap_session);
 408  	 IF LENGTH(p_test_name) > 256
@@ -5275,7 +5275,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 427    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
 428  	 RETURN NUMBER
 429    IS
-430  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_get_test_id';
+430  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
 431    BEGIN
 432  	 otap_objects.otap_session_verify(p_otap_session);
 433  	 RETURN p_otap_session.session_id;
@@ -5292,7 +5292,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 444    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
 445  	 RETURN NUMBER
 446    IS
-447  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_get_report_id';
+447  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_report_id';
 448  	 l_view_id NUMBER;
 449    BEGIN
 450  	 otap_objects.otap_session_verify(p_otap_session);
@@ -5312,7 +5312,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 464  				      , o_otap_session IN OUT NOCOPY OTAP_SESSION
 465  				      )
 466    IS
-467  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_add_test';
+467  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_add_test';
 468    BEGIN
 469  	 otap_objects.otap_session_verify(o_otap_session);
 470  	 o_otap_session.test_count := o_otap_session.test_count + 1;
@@ -5333,8 +5333,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 485    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
 486  	 RETURN VARCHAR2
 487    IS
-488  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_summary';
-489  	 l_message VARCHAR2(4000);
+488  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_summary';
+489  	 l_message VARCHAR2(4000 CHAR);
 490    BEGIN
 491  	 otap_objects.otap_session_verify(p_otap_session);
 492  	 l_message := otap_string.reduce( 'Summary id: ' || TRIM(TO_CHAR(p_otap_session.session_id)) ||
@@ -5360,8 +5360,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 512    FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
 513  	 RETURN VARCHAR2
 514    IS
-515  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_finish';
-516  	 l_message VARCHAR2(4000);
+515  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_finish';
+516  	 l_message VARCHAR2(4000 CHAR);
 517    BEGIN
 518  	 -- object gets verified by summary for old session
 519  	 l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_LF;
@@ -5549,10 +5549,10 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
  10  				  )
  11    IS
  12  	 PRAGMA AUTONOMOUS_TRANSACTION;
- 13  	 l_script	     VARCHAR2(1024) := 'otap_plan.write_test_result';
+ 13  	 l_script	     VARCHAR2(1024 CHAR) := 'otap_plan.write_test_result';
  14  	 l_test_passed	     INTEGER;
- 15  	 l_test_description  VARCHAR2(256);
- 16  	 l_errors	     VARCHAR2(4000);
+ 15  	 l_test_description  VARCHAR2(256 CHAR);
+ 16  	 l_errors	     VARCHAR2(4000 CHAR);
  17  	 l_to_delete	     INTEGER;
  18    BEGIN
  19  	 otap_objects.otap_session_verify(p_otap_session);
@@ -5613,10 +5613,10 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
  74  
  75    PROCEDURE write_count_result(p_otap_session IN OTAP_SESSION)
  76    IS
- 77  	 l_script	     VARCHAR2(1024) := 'otap_plan.write_count_result';
+ 77  	 l_script	     VARCHAR2(1024 CHAR) := 'otap_plan.write_count_result';
  78  	 l_test_passed	     INTEGER;
- 79  	 l_test_description  VARCHAR2(256);
- 80  	 l_errors	     VARCHAR2(4000);
+ 79  	 l_test_description  VARCHAR2(256 CHAR);
+ 80  	 l_errors	     VARCHAR2(4000 CHAR);
  81  	 l_start	     TIMESTAMP;
  82  	 l_end		     TIMESTAMP;
  83  	 l_tmp_otap_session  OTAP_SESSION;
@@ -5658,8 +5658,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
 119  			 )
 120  	 RETURN VARCHAR2
 121    IS
-122  	 l_script  VARCHAR2(1024) := 'otap_plan.init_test';
-123  	 l_message VARCHAR2(4000);
+122  	 l_script  VARCHAR2(1024 CHAR) := 'otap_plan.init_test';
+123  	 l_message VARCHAR2(4000 CHAR);
 124    BEGIN
 125  	 -- if test count is not 0 this is a reset, write a test count record, if intended count is set
 126  	 IF	o_otap_session.test_count      > 0
@@ -5703,11 +5703,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
 164  			 )
 165  	 RETURN VARCHAR2
 166    IS
-167  	 l_script  VARCHAR2(1024) := 'otap_plan.run_tests';
-168  	 l_message VARCHAR2(4000);
-169  	 l_schema  VARCHAR2(128);
-170  	 l_like    VARCHAR2(256);
-171  	 l_test    VARCHAR2(257);
+167  	 l_script  VARCHAR2(1024 CHAR) := 'otap_plan.run_tests';
+168  	 l_message VARCHAR2(4000 CHAR);
+169  	 l_schema  VARCHAR2(128 CHAR);
+170  	 l_like    VARCHAR2(256 CHAR);
+171  	 l_test    VARCHAR2(257 CHAR);
 172  	 CURSOR cur_tests_to_run( cp_schema IN VARCHAR2
 173  				, cp_like   IN VARCHAR2
 174  				)
@@ -5742,8 +5742,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
 203  			   )
 204  	 RETURN VARCHAR2
 205    IS
-206  	 l_script  VARCHAR2(1024) := 'otap_plan.finish_test';
-207  	 l_message VARCHAR2(4000);
+206  	 l_script  VARCHAR2(1024 CHAR) := 'otap_plan.finish_test';
+207  	 l_message VARCHAR2(4000 CHAR);
 208    BEGIN
 209  	 IF p_write_count_rec = otap_constants.OTAP_NUM_TRUE
 210  	 THEN
@@ -6013,13 +6013,13 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
  32  			 )
  33  	 RETURN INTEGER
  34    IS
- 35  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_table';
+ 35  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_schema.has_table';
  36  	 l_has_table	 INTEGER;
  37  	 l_test_passed	 INTEGER;
  38  	 l_expected	 INTEGER;
- 39  	 l_schema_to_use VARCHAR2(128);
- 40  	 l_table_name	 VARCHAR2(128);
- 41  	 l_errors	 VARCHAR2(32767);
+ 39  	 l_schema_to_use VARCHAR2(128 CHAR);
+ 40  	 l_table_name	 VARCHAR2(128 CHAR);
+ 41  	 l_errors	 VARCHAR2(32767 CHAR);
  42    BEGIN
  43  	 l_errors      := NULL;
  44  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -6079,14 +6079,14 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
  98  			  )
  99  	 RETURN INTEGER
 100    IS
-101  	 l_script	 VARCHAR2(1024) := 'otap_schema.has_column';
+101  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_schema.has_column';
 102  	 l_has_column	 INTEGER;
 103  	 l_test_passed	 INTEGER;
 104  	 l_expected	 INTEGER;
-105  	 l_schema_to_use VARCHAR2(128);
-106  	 l_table_name	 VARCHAR2(128);
-107  	 l_column_name	 VARCHAR2(128);
-108  	 l_errors	 VARCHAR2(32767);
+105  	 l_schema_to_use VARCHAR2(128 CHAR);
+106  	 l_table_name	 VARCHAR2(128 CHAR);
+107  	 l_column_name	 VARCHAR2(128 CHAR);
+108  	 l_errors	 VARCHAR2(32767 CHAR);
 109    BEGIN
 110  	 l_errors      := NULL;
 111  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -6160,20 +6160,20 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 179  			   )
 180  	 RETURN INTEGER
 181    IS
-182  	 l_script	 VARCHAR2(1024)    := 'otap_schema.has_package';
-183  	 l_ignore	 VARCHAR2(6)	   := 'IGNORE';
-184  	 l_valid	 VARCHAR2(5)	   := 'VALID';
-185  	 l_invalid	 VARCHAR2(7)	   := 'INVALID';
-186  	 l_header	 VARCHAR2(7)	   := 'PACKAGE';
-187  	 l_body 	 VARCHAR2(12)	   := 'PACKAGE BODY';
+182  	 l_script	 VARCHAR2(1024 CHAR)	:= 'otap_schema.has_package';
+183  	 l_ignore	 VARCHAR2(6 CHAR)	:= 'IGNORE';
+184  	 l_valid	 VARCHAR2(5 CHAR)	:= 'VALID';
+185  	 l_invalid	 VARCHAR2(7 CHAR)	:= 'INVALID';
+186  	 l_header	 VARCHAR2(7 CHAR)	:= 'PACKAGE';
+187  	 l_body 	 VARCHAR2(12 CHAR)	:= 'PACKAGE BODY';
 188  	 l_has_package	 INTEGER;
 189  	 l_test_passed	 INTEGER;
 190  	 l_expected	 INTEGER;
-191  	 l_schema_to_use VARCHAR2(128);
-192  	 l_package_name  VARCHAR2(128);
-193  	 l_package_type  VARCHAR2(12);
-194  	 l_object_state  VARCHAR2(7);
-195  	 l_errors	 VARCHAR2(32767);
+191  	 l_schema_to_use VARCHAR2(128 CHAR);
+192  	 l_package_name  VARCHAR2(128 CHAR);
+193  	 l_package_type  VARCHAR2(12 CHAR);
+194  	 l_object_state  VARCHAR2(7 CHAR);
+195  	 l_errors	 VARCHAR2(32767 CHAR);
 196    BEGIN
 197  	 l_errors	 := NULL;
 198  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -6597,8 +6597,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
  16  			 )
  17  	 RETURN VARCHAR2
  18    IS
- 19  	 l_script  VARCHAR2(1024) := 'otap_api.init_test';
- 20  	 l_message VARCHAR2(4000);
+ 19  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.init_test';
+ 20  	 l_message VARCHAR2(4000 CHAR);
  21    BEGIN
  22  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
  23  	 -- execute the wrapped function in an extra block
@@ -6619,8 +6619,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
  38  			   )
  39  	 RETURN VARCHAR2
  40    IS
- 41  	 l_script  VARCHAR2(1024) := 'otap_api.finish_test';
- 42  	 l_message VARCHAR2(4000);
+ 41  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.finish_test';
+ 42  	 l_message VARCHAR2(4000 CHAR);
  43    BEGIN
  44  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
  45  	 -- execute the wrapped function in an extra block
@@ -6639,8 +6639,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
  58    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
  59  	 RETURN VARCHAR2
  60    IS
- 61  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_show';
- 62  	 l_message VARCHAR2(4000);
+ 61  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_show';
+ 62  	 l_message VARCHAR2(4000 CHAR);
  63    BEGIN
  64  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
  65  	 -- execute the wrapped function in an extra block
@@ -6659,8 +6659,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
  78    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
  79  	 RETURN VARCHAR2
  80    IS
- 81  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_summary';
- 82  	 l_message VARCHAR2(4000);
+ 81  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_summary';
+ 82  	 l_message VARCHAR2(4000 CHAR);
  83    BEGIN
  84  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
  85  	 -- execute the wrapped function in an extra block
@@ -6681,8 +6681,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 100  					  )
 101  	 RETURN VARCHAR2
 102    IS
-103  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_set_test_name';
-104  	 l_message VARCHAR2(4000);
+103  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_name';
+104  	 l_message VARCHAR2(4000 CHAR);
 105    BEGIN
 106  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 107  	 -- execute the wrapped function in an extra block
@@ -6703,8 +6703,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 122  					   )
 123  	 RETURN VARCHAR2
 124    IS
-125  	 l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_group';
-126  	 l_message VARCHAR2(4000);
+125  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+126  	 l_message VARCHAR2(4000 CHAR);
 127    BEGIN
 128  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 129  	 -- execute the wrapped function in an extra block
@@ -6725,8 +6725,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 144  					 )
 145  	 RETURN VARCHAR2
 146    IS
-147  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_set_test_set';
-148  	 l_message VARCHAR2(4000);
+147  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_set';
+148  	 l_message VARCHAR2(4000 CHAR);
 149    BEGIN
 150  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 151  	 -- execute the wrapped function in an extra block
@@ -6745,7 +6745,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 164    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
 165  	 RETURN NUMBER
 166    IS
-167  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_get_test_id';
+167  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
 168  	 l_return  NUMBER;
 169    BEGIN
 170  	 l_return := -1;
@@ -6765,7 +6765,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 184    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
 185  	 RETURN NUMBER
 186    IS
-187  	 l_script  VARCHAR2(1024) := 'otap_api.otap_session_get_report_id';
+187  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_report_id';
 188  	 l_return  NUMBER;
 189    BEGIN
 190  	 l_return := -1;
@@ -6785,7 +6785,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 204    FUNCTION max_text_size(p_session_id IN NUMBER)
 205  	 RETURN NUMBER
 206    IS
-207  	 l_script    VARCHAR2(1024) := 'otap_api.otap_session_get_test_id';
+207  	 l_script    VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
 208  	 l_return    NUMBER;
 209  	 l_interval  NUMBER;
 210    BEGIN
@@ -6809,8 +6809,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 228    FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 229  	 RETURN VARCHAR2
 230    IS
-231  	 l_script  VARCHAR2(1024) := 'otap_api.get_report_header';
-232  	 l_message VARCHAR2(4000);
+231  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_header';
+232  	 l_message VARCHAR2(4000 CHAR);
 233    BEGIN
 234  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 235  	 -- execute the wrapped function in an extra block
@@ -6831,8 +6831,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 250  				   )
 251  	 RETURN VARCHAR2
 252    IS
-253  	 l_script  VARCHAR2(1024) := 'otap_api.get_session_id_text';
-254  	 l_message VARCHAR2(4000);
+253  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_session_id_text';
+254  	 l_message VARCHAR2(4000 CHAR);
 255    BEGIN
 256  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 257  	 -- execute the wrapped function in an extra block
@@ -6853,8 +6853,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 272  			    )
 273  	 RETURN VARCHAR2
 274    IS
-275  	 l_script  VARCHAR2(1024) := 'otap_api.get_set_text';
-276  	 l_message VARCHAR2(4000);
+275  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_set_text';
+276  	 l_message VARCHAR2(4000 CHAR);
 277    BEGIN
 278  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 279  	 -- execute the wrapped function in an extra block
@@ -6878,9 +6878,9 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 297  			   )
 298  	 RETURN VARCHAR2
 299    IS
-300  	 l_script  VARCHAR2(1024) := 'otap_api.get_summary';
-301  	 l_message VARCHAR2(4000);
-302  	 l_status  VARCHAR2(4000);
+300  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_summary';
+301  	 l_message VARCHAR2(4000 CHAR);
+302  	 l_status  VARCHAR2(4000 CHAR);
 303    BEGIN
 304  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 305  	 -- execute the wrapped function in an extra block
@@ -6909,8 +6909,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 328  			      )
 329  	 RETURN VARCHAR2
 330    IS
-331  	 l_script  VARCHAR2(1024) := 'otap_api.get_group_text';
-332  	 l_message VARCHAR2(4000);
+331  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_group_text';
+332  	 l_message VARCHAR2(4000 CHAR);
 333    BEGIN
 334  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 335  	 -- execute the wrapped function in an extra block
@@ -6931,8 +6931,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 350  				  )
 351  	 RETURN VARCHAR2
 352    IS
-353  	 l_script  VARCHAR2(1024) := 'otap_api.get_test_name_text';
-354  	 l_message VARCHAR2(4000);
+353  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_name_text';
+354  	 l_message VARCHAR2(4000 CHAR);
 355    BEGIN
 356  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 357  	 -- execute the wrapped function in an extra block
@@ -6951,8 +6951,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 370    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 371  	 RETURN VARCHAR2
 372    IS
-373  	 l_script  VARCHAR2(1024) := 'otap_api.get_result_header';
-374  	 l_message VARCHAR2(4000);
+373  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_header';
+374  	 l_message VARCHAR2(4000 CHAR);
 375    BEGIN
 376  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 377  	 -- execute the wrapped function in an extra block
@@ -6971,8 +6971,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 390    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 391  	 RETURN VARCHAR2
 392    IS
-393  	 l_script  VARCHAR2(1024) := 'otap_api.get_result_underline';
-394  	 l_message VARCHAR2(4000);
+393  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_underline';
+394  	 l_message VARCHAR2(4000 CHAR);
 395    BEGIN
 396  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 397  	 -- execute the wrapped function in an extra block
@@ -6996,8 +6996,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 415  			       )
 416  	 RETURN VARCHAR2
 417    IS
-418  	 l_script  VARCHAR2(1024) := 'otap_api.get_result_line';
-419  	 l_message VARCHAR2(4000);
+418  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_line';
+419  	 l_message VARCHAR2(4000 CHAR);
 420    BEGIN
 421  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 422  	 -- execute the wrapped function in an extra block
@@ -7016,8 +7016,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 435    FUNCTION test_result_to_text(p_test_passed IN NUMBER)
 436  	 RETURN VARCHAR
 437    IS
-438  	 l_script  VARCHAR2(1024) := 'otap_api.test_result_to_text';
-439  	 l_message VARCHAR2(4000);
+438  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.test_result_to_text';
+439  	 l_message VARCHAR2(4000 CHAR);
 440    BEGIN
 441  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 442  	 -- execute the wrapped function in an extra block
@@ -7038,8 +7038,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 457  				       )
 458  	 RETURN VARCHAR2
 459    IS
-460  	 l_script  VARCHAR2(1024) := 'otap_api.get_error_result_header';
-461  	 l_message VARCHAR2(4000);
+460  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_result_header';
+461  	 l_message VARCHAR2(4000 CHAR);
 462    BEGIN
 463  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 464  	 -- execute the wrapped function in an extra block
@@ -7061,8 +7061,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 480  				 )
 481  	 RETURN VARCHAR2
 482    IS
-483  	 l_script  VARCHAR2(1024) := 'otap_api.get_error_details';
-484  	 l_message VARCHAR2(4000);
+483  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_details';
+484  	 l_message VARCHAR2(4000 CHAR);
 485    BEGIN
 486  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 487  	 -- execute the wrapped function in an extra block
@@ -7083,8 +7083,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 502  				)
 503  	 RETURN VARCHAR2
 504    IS
-505  	 l_script  VARCHAR2(1024) := 'otap_api.get_no_data_text';
-506  	 l_message VARCHAR2(4000);
+505  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_no_data_text';
+506  	 l_message VARCHAR2(4000 CHAR);
 507    BEGIN
 508  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 509  	 -- execute the wrapped function in an extra block
@@ -7103,8 +7103,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 522    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 523  	 RETURN VARCHAR2
 524    IS
-525  	 l_script  VARCHAR2(1024) := 'otap_api.get_report_footer';
-526  	 l_message VARCHAR2(4000);
+525  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_footer';
+526  	 l_message VARCHAR2(4000 CHAR);
 527    BEGIN
 528  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 529  	 -- execute the wrapped function in an extra block
@@ -7125,8 +7125,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 544  		       )
 545  	 RETURN VARCHAR2
 546    IS
-547  	 l_script  VARCHAR2(1024) := 'otap_api.flatten';
-548  	 l_message VARCHAR2(4000);
+547  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.flatten';
+548  	 l_message VARCHAR2(4000 CHAR);
 549    BEGIN
 550  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 551  	 -- execute the wrapped function in an extra block
@@ -7145,8 +7145,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 564    FUNCTION get_text_test_count_name
 565  	 RETURN VARCHAR2
 566    IS
-567  	 l_script  VARCHAR2(1024) := 'otap_api.get_text_test_count_name';
-568  	 l_message VARCHAR2(4000);
+567  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_text_test_count_name';
+568  	 l_message VARCHAR2(4000 CHAR);
 569    BEGIN
 570  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 571  	 -- execute the wrapped function in an extra block
@@ -7165,8 +7165,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 584    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 585  	 RETURN VARCHAR2
 586    IS
-587  	 l_script  VARCHAR2(1024) := 'otap_api.get_test_count_header';
-588  	 l_message VARCHAR2(4000);
+587  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_count_header';
+588  	 l_message VARCHAR2(4000 CHAR);
 589    BEGIN
 590  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 591  	 -- execute the wrapped function in an extra block
@@ -7185,8 +7185,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 604    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
 605  	 RETURN VARCHAR2
 606    IS
-607  	 l_script  VARCHAR2(1024) := 'otap_api.get_report_total';
-608  	 l_message VARCHAR2(4000);
+607  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total';
+608  	 l_message VARCHAR2(4000 CHAR);
 609    BEGIN
 610  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 611  	 -- execute the wrapped function in an extra block
@@ -7210,8 +7210,8 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 629  					)
 630  	 RETURN VARCHAR2
 631    IS
-632  	 l_script  VARCHAR2(1024) := 'otap_api.get_report_total_details';
-633  	 l_message VARCHAR2(4000);
+632  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total_details';
+633  	 l_message VARCHAR2(4000 CHAR);
 634    BEGIN
 635  	 l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
 636  	 -- execute the wrapped function in an extra block
@@ -7235,11 +7235,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 654  			 )
 655  	 RETURN VARCHAR2
 656    IS
-657  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_table';
+657  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_table';
 658  	 l_start	    TIMESTAMP;
 659  	 l_end		    TIMESTAMP;
 660  	 l_result	    INTEGER;
-661  	 l_return	    VARCHAR2(4000);
+661  	 l_return	    VARCHAR2(4000 CHAR);
 662  	 l_errors	    otap_results.test_errors%TYPE;
 663  	 l_schema	    otap_results.db_schema%TYPE;
 664  	 l_desc 	    otap_results.test_desc%TYPE;
@@ -7309,11 +7309,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 728  			  )
 729  	 RETURN VARCHAR2
 730    IS
-731  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_column';
+731  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_column';
 732  	 l_start	    TIMESTAMP;
 733  	 l_end		    TIMESTAMP;
 734  	 l_result	    INTEGER;
-735  	 l_return	    VARCHAR2(4000);
+735  	 l_return	    VARCHAR2(4000 CHAR);
 736  	 l_errors	    otap_results.test_errors%TYPE;
 737  	 l_schema	    otap_results.db_schema%TYPE;
 738  	 l_desc 	    otap_results.test_desc%TYPE;
@@ -7385,11 +7385,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 804  			   )
 805  	 RETURN VARCHAR2
 806    IS
-807  	 l_script	    VARCHAR2(1024)		    := 'otap_api.has_package';
+807  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_package';
 808  	 l_start	    TIMESTAMP;
 809  	 l_end		    TIMESTAMP;
 810  	 l_result	    INTEGER;
-811  	 l_return	    VARCHAR2(4000);
+811  	 l_return	    VARCHAR2(4000 CHAR);
 812  	 l_errors	    otap_results.test_errors%TYPE;
 813  	 l_schema	    otap_results.db_schema%TYPE;
 814  	 l_desc 	    otap_results.test_desc%TYPE;
@@ -7822,7 +7822,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
  41  			 )
  42  	 RETURN VARCHAR2
  43    IS
- 44  	 l_message VARCHAR2(4000);
+ 44  	 l_message VARCHAR2(4000 CHAR);
  45    BEGIN
  46  	 l_message := otap_api.init_test( NVL(p_test_count, 0)
  47  					, NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET)
@@ -7851,7 +7851,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
  70    FUNCTION finish_test(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
  71  	 RETURN VARCHAR2
  72    IS
- 73  	 l_message VARCHAR2(4000);
+ 73  	 l_message VARCHAR2(4000 CHAR);
  74    BEGIN
  75  	 l_message := otap_api.finish_test(p_write_count_rec, session_record);
  76  	 RETURN l_message;
@@ -7867,9 +7867,9 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
  86    FUNCTION result_view(p_session_id IN NUMBER)
  87  	 RETURN otap_view_result_tbl PIPELINED
  88    IS
- 89  	 l_delim_updown VARCHAR2(1) := '=';
- 90  	 l_delim_tests	VARCHAR2(1) := '-';
- 91  	 l_text_column	VARCHAR2(4000);
+ 89  	 l_delim_updown VARCHAR2(1 CHAR) := '=';
+ 90  	 l_delim_tests	VARCHAR2(1 CHAR) := '-';
+ 91  	 l_text_column	VARCHAR2(4000 CHAR);
  92  	 l_has_errors	INTEGER;
  93  	 l_has_records	INTEGER;
  94  	 l_report_size	INTEGER;
@@ -8138,7 +8138,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 357    FUNCTION current_settings
 358  	 RETURN VARCHAR2
 359    IS
-360  	 l_message VARCHAR2(4000);
+360  	 l_message VARCHAR2(4000 CHAR);
 361    BEGIN
 362  	 l_message := otap_api.otap_session_show(session_record);
 363  	 RETURN l_message;
@@ -8154,7 +8154,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 373    FUNCTION current_summary
 374  	 RETURN VARCHAR2
 375    IS
-376  	 l_message VARCHAR2(4000);
+376  	 l_message VARCHAR2(4000 CHAR);
 377    BEGIN
 378  	 l_message := otap_api.otap_session_summary(session_record);
 379  	 RETURN l_message;
@@ -8170,7 +8170,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 389    FUNCTION set_test_name(p_test_name IN VARCHAR2)
 390  	 RETURN VARCHAR2
 391    IS
-392  	 l_message VARCHAR2(4000);
+392  	 l_message VARCHAR2(4000 CHAR);
 393    BEGIN
 394  	 l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
 395  	 RETURN l_message;
@@ -8186,7 +8186,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 405    FUNCTION set_test_group(p_test_group IN VARCHAR2)
 406  	 RETURN VARCHAR2
 407    IS
-408  	 l_message VARCHAR2(4000);
+408  	 l_message VARCHAR2(4000 CHAR);
 409    BEGIN
 410  	 l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
 411  	 RETURN l_message;
@@ -8202,7 +8202,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 421    FUNCTION set_test_set(p_test_set IN VARCHAR2)
 422  	 RETURN VARCHAR2
 423    IS
-424  	 l_message VARCHAR2(4000);
+424  	 l_message VARCHAR2(4000 CHAR);
 425    BEGIN
 426  	 l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
 427  	 RETURN l_message;
@@ -8254,7 +8254,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 473  			 )
 474  	 RETURN VARCHAR2
 475    IS
-476  	 l_message VARCHAR2(4000);
+476  	 l_message VARCHAR2(4000 CHAR);
 477    BEGIN
 478  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
 479  	 RETURN l_message;
@@ -8281,7 +8281,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 500  			  )
 501  	 RETURN VARCHAR2
 502    IS
-503  	 l_message VARCHAR2(4000);
+503  	 l_message VARCHAR2(4000 CHAR);
 504    BEGIN
 505  	 l_message := otap_api.has_column( p_table_name
 506  					 , p_column_name
@@ -8316,7 +8316,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 535  			   )
 536  	 RETURN VARCHAR2
 537    IS
-538  	 l_message VARCHAR2(4000);
+538  	 l_message VARCHAR2(4000 CHAR);
 539    BEGIN
 540  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
 541  	 RETURN l_message;

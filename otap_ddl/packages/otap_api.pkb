@@ -19,8 +19,8 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.init_test';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.init_test';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -41,8 +41,8 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.finish_test';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.finish_test';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -61,8 +61,8 @@ AS
   FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_show';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_show';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -81,8 +81,8 @@ AS
   FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_summary';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_summary';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -103,8 +103,8 @@ AS
                                      )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_set_test_name';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_name';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -125,8 +125,8 @@ AS
                                       )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_group';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -147,8 +147,8 @@ AS
                                     )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_set_test_set';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_set';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -167,7 +167,7 @@ AS
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_get_test_id';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
     l_return  NUMBER;
   BEGIN
     l_return := -1;
@@ -187,7 +187,7 @@ AS
   FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.otap_session_get_report_id';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_report_id';
     l_return  NUMBER;
   BEGIN
     l_return := -1;
@@ -207,7 +207,7 @@ AS
   FUNCTION max_text_size(p_session_id IN NUMBER)
     RETURN NUMBER
   IS
-    l_script    VARCHAR2(1024) := 'otap_api.otap_session_get_test_id';
+    l_script    VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
     l_return    NUMBER;
     l_interval  NUMBER;
   BEGIN
@@ -231,8 +231,8 @@ AS
   FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_report_header';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_header';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -253,8 +253,8 @@ AS
                               )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_session_id_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_session_id_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -275,8 +275,8 @@ AS
                        )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_set_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_set_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -300,9 +300,9 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_summary';
-    l_message VARCHAR2(4000);
-    l_status  VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_summary';
+    l_message VARCHAR2(4000 CHAR);
+    l_status  VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -331,8 +331,8 @@ AS
                          )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_group_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_group_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -353,8 +353,8 @@ AS
                              )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_test_name_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_name_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -373,8 +373,8 @@ AS
   FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_result_header';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_header';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -393,8 +393,8 @@ AS
   FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_result_underline';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_underline';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -418,8 +418,8 @@ AS
                           )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_result_line';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_line';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -438,8 +438,8 @@ AS
   FUNCTION test_result_to_text(p_test_passed IN NUMBER)
     RETURN VARCHAR
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.test_result_to_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.test_result_to_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -460,8 +460,8 @@ AS
                                   )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_error_result_header';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_result_header';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -483,8 +483,8 @@ AS
                             )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_error_details';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_details';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -505,8 +505,8 @@ AS
                            )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_no_data_text';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_no_data_text';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -525,8 +525,8 @@ AS
   FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_report_footer';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_footer';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -547,8 +547,8 @@ AS
                   )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.flatten';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.flatten';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -567,8 +567,8 @@ AS
   FUNCTION get_text_test_count_name
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_text_test_count_name';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_text_test_count_name';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -587,8 +587,8 @@ AS
   FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_test_count_header';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_count_header';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -607,8 +607,8 @@ AS
   FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_report_total';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -632,8 +632,8 @@ AS
                                    )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_api.get_report_total_details';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total_details';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_constants.OTAP_ERROR_IDENTIFIER;
     -- execute the wrapped function in an extra block
@@ -657,11 +657,11 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_script           VARCHAR2(1024)                  := 'otap_api.has_table';
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_table';
     l_start            TIMESTAMP;
     l_end              TIMESTAMP;
     l_result           INTEGER;
-    l_return           VARCHAR2(4000);
+    l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
     l_schema           otap_results.db_schema%TYPE;
     l_desc             otap_results.test_desc%TYPE;
@@ -731,11 +731,11 @@ AS
                      )
     RETURN VARCHAR2
   IS
-    l_script           VARCHAR2(1024)                  := 'otap_api.has_column';
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_column';
     l_start            TIMESTAMP;
     l_end              TIMESTAMP;
     l_result           INTEGER;
-    l_return           VARCHAR2(4000);
+    l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
     l_schema           otap_results.db_schema%TYPE;
     l_desc             otap_results.test_desc%TYPE;
@@ -807,11 +807,11 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_script           VARCHAR2(1024)                  := 'otap_api.has_package';
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_package';
     l_start            TIMESTAMP;
     l_end              TIMESTAMP;
     l_result           INTEGER;
-    l_return           VARCHAR2(4000);
+    l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
     l_schema           otap_results.db_schema%TYPE;
     l_desc             otap_results.test_desc%TYPE;

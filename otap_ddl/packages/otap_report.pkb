@@ -12,14 +12,14 @@ AS
     RETURN VARCHAR2
   IS
     l_border           INTEGER;
-    l_layout           VARCHAR2(1);
-    l_decoration       VARCHAR2(1);
+    l_layout           VARCHAR2(1 CHAR);
+    l_decoration       VARCHAR2(1 CHAR);
     l_string_size      INTEGER;
     l_max_title_length INTEGER;
     l_min_fill         INTEGER;
     l_min_length       INTEGER;
-    l_string           VARCHAR2(32767);
-    l_return_text      VARCHAR2(32767);
+    l_string           VARCHAR2(32767 CHAR);
+    l_return_text      VARCHAR2(32767 CHAR);
   BEGIN
     l_border           := otap_config_util.get_default_border;
     l_layout           := otap_string.check_layout(otap_config_util.get_default_layout);
@@ -43,12 +43,12 @@ AS
     RETURN VARCHAR2
   IS
     l_border      INTEGER;
-    l_layout      VARCHAR2(1);
+    l_layout      VARCHAR2(1 CHAR);
     l_string_size INTEGER;
     l_min_fill    INTEGER;
     l_min_length  INTEGER;
-    l_string      VARCHAR2(32767);
-    l_return_text VARCHAR2(32767);
+    l_string      VARCHAR2(32767 CHAR);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_border      := otap_config_util.get_default_border;
     l_layout      := otap_string.check_layout(otap_config_util.get_default_layout);
@@ -67,7 +67,7 @@ AS
   FUNCTION get_report_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.decorate( otap_config_util.get_text_report_start
                                          , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -84,7 +84,7 @@ AS
   FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.decorate( otap_config_util.get_text_report_total
                                          , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -106,8 +106,8 @@ AS
                                    )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- fetch template: 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@'
     l_template_text := otap_config_util.get_report_total_template;
@@ -131,7 +131,7 @@ AS
   FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.decorate( otap_config_util.get_text_report_end
                                          , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -148,7 +148,7 @@ AS
   FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.borderless( otap_config_util.get_text_result_header
                                            , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_result_headers)
@@ -164,7 +164,7 @@ AS
   FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.borderless( otap_config_util.get_format_result_header
                                            , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_result_headers)
@@ -180,7 +180,7 @@ AS
   FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   IS
-    l_return_text VARCHAR2(32767);
+    l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_return_text := otap_report.decorate( otap_config_util.get_text_test_count_header
                                          , GREATEST(NVL(p_min_fill, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH), otap_config_util.get_length_headers)
@@ -203,8 +203,8 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- fetch template
     l_template_text := otap_config_util.get_summary_template;
@@ -231,8 +231,8 @@ AS
                                   )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text := otap_config_util.get_errors_template;
@@ -256,8 +256,8 @@ AS
                             )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text := otap_config_util.get_error_details_template;
@@ -280,8 +280,8 @@ AS
                            )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text    := otap_config_util.get_no_data_template;
@@ -303,8 +303,8 @@ AS
                               )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text    := otap_config_util.get_session_id_template;
@@ -326,8 +326,8 @@ AS
                        )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text := otap_config_util.get_set_template;
@@ -350,8 +350,8 @@ AS
                          )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text := otap_config_util.get_group_template;
@@ -374,8 +374,8 @@ AS
                              )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_template_text := otap_config_util.get_test_name_template;
@@ -401,12 +401,12 @@ AS
                           )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
-    l_template_text VARCHAR2(32767);
-    l_test_state    VARCHAR2(32767);
-    l_issue_state   VARCHAR2(32767);
-    l_runtime       VARCHAR2(32767);
-    l_desc          VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
+    l_template_text VARCHAR2(32767 CHAR);
+    l_test_state    VARCHAR2(32767 CHAR);
+    l_issue_state   VARCHAR2(32767 CHAR);
+    l_runtime       VARCHAR2(32767 CHAR);
+    l_desc          VARCHAR2(32767 CHAR);
     l_runtime_len   INTEGER;
     l_desc_len      INTEGER;
   BEGIN
@@ -457,7 +457,7 @@ AS
                          )
     RETURN VARCHAR2
   IS
-    l_return_text   VARCHAR2(32767);
+    l_return_text   VARCHAR2(32767 CHAR);
   BEGIN
     -- get and fill template
     l_return_text := otap_config_util.get_count_desc_template;
@@ -475,8 +475,8 @@ AS
                              )
     RETURN VARCHAR2
   IS
-    l_char        VARCHAR2(1);
-    l_return_text VARCHAR2(32767);
+    l_char        VARCHAR2(1 CHAR);
+    l_return_text VARCHAR2(32767 CHAR);
     l_line             otap_config.config_value%TYPE;
   BEGIN
     l_char := otap_string.check_decoration(p_char);
@@ -497,7 +497,7 @@ AS
                             )
     RETURN VARCHAR2
   IS
-    l_template_text VARCHAR2(32767);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     l_template_text := otap_config_util.get_fn_has_table_template;
     l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
@@ -516,7 +516,7 @@ AS
                              )
     RETURN VARCHAR2
   IS
-    l_template_text VARCHAR2(32767);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     l_template_text := otap_config_util.get_fn_has_column_template;
     l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
@@ -537,7 +537,7 @@ AS
                               )
     RETURN VARCHAR2
   IS
-    l_template_text VARCHAR2(32767);
+    l_template_text VARCHAR2(32767 CHAR);
   BEGIN
     l_template_text := otap_config_util.get_fn_has_package_template;
     l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));

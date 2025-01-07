@@ -6,10 +6,10 @@ AS
   -- for description see header file
   PROCEDURE otap_session_verify(p_otap_session IN OTAP_SESSION)
   IS
-    l_script    VARCHAR2(1024) := 'otap_objects.otap_session_verify';
-    l_statement VARCHAR2(32767);
-    l_message   VARCHAR2(32767);
-    l_delimiter VARCHAR2(1);
+    l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_verify';
+    l_statement VARCHAR2(32767 CHAR);
+    l_message   VARCHAR2(32767 CHAR);
+    l_delimiter VARCHAR2(1 CHAR);
   BEGIN
     -- we expect all fields to be NOT NULL including empty strings
     IF    p_otap_session                             IS NULL
@@ -167,8 +167,8 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_show';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_show';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     -- verify the current object
     otap_objects.otap_session_verify(p_otap_session);
@@ -217,9 +217,9 @@ OR p_otap_session.session_view_id             IS NULL]'
                            )
     RETURN VARCHAR2
   IS
-    l_script    VARCHAR2(1024) := 'otap_objects.otap_session_set';
-    l_message   VARCHAR2(32767);
-    l_delimiter VARCHAR2(1);
+    l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set';
+    l_message   VARCHAR2(32767 CHAR);
+    l_delimiter VARCHAR2(1 CHAR);
   BEGIN
     -- verify the current object
     otap_objects.otap_session_verify(o_otap_session);
@@ -309,7 +309,7 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
     RETURN OTAP_SESSION
   IS
-    l_script        VARCHAR2(1024) := 'otap_objects.otap_session_copy';
+    l_script        VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_copy';
     l_otap_session  OTAP_SESSION;
   BEGIN
     -- verify the current object
@@ -348,8 +348,8 @@ OR p_otap_session.session_view_id             IS NULL]'
                                     )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_set';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_set';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     otap_objects.otap_session_verify(o_otap_session);
     IF LENGTH(p_test_set) > 256
@@ -376,8 +376,8 @@ OR p_otap_session.session_view_id             IS NULL]'
                                       )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_group';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     otap_objects.otap_session_verify(o_otap_session);
     IF LENGTH(p_test_group) > 256
@@ -404,8 +404,8 @@ OR p_otap_session.session_view_id             IS NULL]'
                                      )
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_set_test_name';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_name';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     otap_objects.otap_session_verify(o_otap_session);
     IF LENGTH(p_test_name) > 256
@@ -430,7 +430,7 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_get_test_id';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
   BEGIN
     otap_objects.otap_session_verify(p_otap_session);
     RETURN p_otap_session.session_id;
@@ -447,7 +447,7 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_get_report_id';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_report_id';
     l_view_id NUMBER;
   BEGIN
     otap_objects.otap_session_verify(p_otap_session);
@@ -467,7 +467,7 @@ OR p_otap_session.session_view_id             IS NULL]'
                                  , o_otap_session IN OUT NOCOPY OTAP_SESSION
                                  )
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_add_test';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_add_test';
   BEGIN
     otap_objects.otap_session_verify(o_otap_session);
     o_otap_session.test_count := o_otap_session.test_count + 1;
@@ -488,8 +488,8 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_summary';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_summary';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     otap_objects.otap_session_verify(p_otap_session);
     l_message := otap_string.reduce( 'Summary id: ' || TRIM(TO_CHAR(p_otap_session.session_id)) ||
@@ -515,8 +515,8 @@ OR p_otap_session.session_view_id             IS NULL]'
   FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024) := 'otap_objects.otap_session_finish';
-    l_message VARCHAR2(4000);
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_finish';
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     -- object gets verified by summary for old session
     l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_LF;

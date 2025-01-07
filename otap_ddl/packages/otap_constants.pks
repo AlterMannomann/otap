@@ -21,9 +21,9 @@ AS
   -- (until Oracle 23i) are limited to 128 chars, if not using special UTF chars.
 
   -- the following constants have get functions that can be used in SQL selects
-  OTAP_USER_ROLE                   CONSTANT VARCHAR2(256)  := '&OTAP_ROLE';
-  OTAP_SCHEMA                      CONSTANT VARCHAR2(256)  := '&OTAP_USER';
-  OTAP_TABLESPACE                  CONSTANT VARCHAR2(256)  := '&OTAP_TABLESPACE';
+  OTAP_USER_ROLE                   CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_ROLE';
+  OTAP_SCHEMA                      CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_USER';
+  OTAP_TABLESPACE                  CONSTANT VARCHAR2(256 CHAR)  := '&OTAP_TABLESPACE';
   OTAP_NUM_TRUE                    CONSTANT INTEGER        := 1;
   OTAP_NUM_FALSE                   CONSTANT INTEGER        := 0;
   OTAP_NUM_TEST_PASSED             CONSTANT INTEGER        := 1;

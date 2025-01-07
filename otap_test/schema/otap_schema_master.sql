@@ -7,3 +7,4 @@
 
 SELECT otap_test.set_test_set('OTAP objects') FROM dual;
 @@schema/tables/otap_tables_master.sql
+@@schema/packages/otap_package_master.sql

@@ -44,7 +44,7 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.init_test( NVL(p_test_count, 0)
                                    , NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET)
@@ -73,7 +73,7 @@ AS
   FUNCTION finish_test(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.finish_test(p_write_count_rec, session_record);
     RETURN l_message;
@@ -89,9 +89,9 @@ AS
   FUNCTION result_view(p_session_id IN NUMBER)
     RETURN otap_view_result_tbl PIPELINED
   IS
-    l_delim_updown VARCHAR2(1) := '=';
-    l_delim_tests  VARCHAR2(1) := '-';
-    l_text_column  VARCHAR2(4000);
+    l_delim_updown VARCHAR2(1 CHAR) := '=';
+    l_delim_tests  VARCHAR2(1 CHAR) := '-';
+    l_text_column  VARCHAR2(4000 CHAR);
     l_has_errors   INTEGER;
     l_has_records  INTEGER;
     l_report_size  INTEGER;
@@ -360,7 +360,7 @@ AS
   FUNCTION current_settings
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.otap_session_show(session_record);
     RETURN l_message;
@@ -376,7 +376,7 @@ AS
   FUNCTION current_summary
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.otap_session_summary(session_record);
     RETURN l_message;
@@ -392,7 +392,7 @@ AS
   FUNCTION set_test_name(p_test_name IN VARCHAR2)
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
     RETURN l_message;
@@ -408,7 +408,7 @@ AS
   FUNCTION set_test_group(p_test_group IN VARCHAR2)
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
     RETURN l_message;
@@ -424,7 +424,7 @@ AS
   FUNCTION set_test_set(p_test_set IN VARCHAR2)
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
     RETURN l_message;
@@ -476,7 +476,7 @@ AS
                     )
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
     RETURN l_message;
@@ -503,7 +503,7 @@ AS
                      )
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.has_column( p_table_name
                                     , p_column_name
@@ -538,7 +538,7 @@ AS
                       )
     RETURN VARCHAR2
   IS
-    l_message VARCHAR2(4000);
+    l_message VARCHAR2(4000 CHAR);
   BEGIN
     l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
     RETURN l_message;
