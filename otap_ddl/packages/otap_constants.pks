@@ -135,7 +135,7 @@ AS
   OTAP_REPORT_TOTAL_TEMPLATE       CONSTANT CHAR(66)       := 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@';
   OTAP_FN_HAS_TABLE_TEMPLATE       CONSTANT CHAR(41)       := 'Table @schema@.@tablename@ exists';
   OTAP_FN_HAS_COLUMN_TEMPLATE      CONSTANT CHAR(61)       := 'Column @column@ (@schema@.@tablename@) exists';
-  OTAP_FN_HAS_PACKAGE_TEMPLATE     CONSTANT CHAR(70)       := 'Package @schema@.@package@ exists (@packagetype@ state @packagestate@)';
+  OTAP_FN_HAS_PACKAGE_TEMPLATE     CONSTANT CHAR(49)       := 'Package @schema@.@package@ exists (@packagetype@)';
   OTAP_LAYOUT_RIGHT                CONSTANT CHAR(1)        := 'R';
   OTAP_LAYOUT_MIDDLE               CONSTANT CHAR(1)        := 'M';
   OTAP_LAYOUT_LEFT                 CONSTANT CHAR(1)        := 'L';

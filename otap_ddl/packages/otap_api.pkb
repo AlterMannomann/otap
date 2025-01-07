@@ -802,7 +802,6 @@ AS
                       , p_schema          IN            VARCHAR2 DEFAULT NULL
                       , p_description     IN            VARCHAR2 DEFAULT NULL
                       , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_package_state   IN            VARCHAR2 DEFAULT 'VALID'
                       , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
@@ -825,13 +824,12 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
         -- call function
         l_result := otap_schema.has_package( p_package_name
                                            , l_errors
                                            , l_schema
                                            , p_package_type
-                                           , p_package_state
                                            , p_expected_result
                                            )
         ;
@@ -861,7 +859,7 @@ AS
         l_tmp_otap_session.db_schema  := l_schema;
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type, p_package_state)), 256);
+        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
         l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen

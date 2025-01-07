@@ -533,14 +533,13 @@ AS
                       , p_schema          IN     VARCHAR2 DEFAULT NULL
                       , p_description     IN     VARCHAR2 DEFAULT NULL
                       , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
                       , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
-    l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_package_state, p_expected_result);
+    l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_expected_result);
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN

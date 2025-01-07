@@ -7,3 +7,14 @@
 
 SELECT otap_test.set_test_group('OTAP packages') FROM dual;
 @@pkg_otap_constants.sql
+@@pkg_otap_log.sql
+@@pkg_otap_string.sql
+@@pkg_otap_config_util.sql
+@@pkg_otap_results_util.sql
+@@pkg_otap_report.sql
+@@pkg_otap_objects.sql
+@@pkg_otap_plan.sql
+@@pkg_otap_schema.sql
+@@pkg_otap_api.sql
+@@pkg_otap_test.sql
+

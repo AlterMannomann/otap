@@ -177,15 +177,12 @@ AS
                       , o_errors             OUT VARCHAR2
                       , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                       , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_package_state   IN     VARCHAR2 DEFAULT 'VALID'
                       , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN INTEGER
   IS
     l_script        VARCHAR2(1024 CHAR)    := 'otap_schema.has_package';
     l_ignore        VARCHAR2(6 CHAR)       := 'IGNORE';
-    l_valid         VARCHAR2(5 CHAR)       := 'VALID';
-    l_invalid       VARCHAR2(7 CHAR)       := 'INVALID';
     l_header        VARCHAR2(7 CHAR)       := 'PACKAGE';
     l_body          VARCHAR2(12 CHAR)      := 'PACKAGE BODY';
     l_has_package   INTEGER;
@@ -194,18 +191,15 @@ AS
     l_schema_to_use VARCHAR2(128 CHAR);
     l_package_name  VARCHAR2(128 CHAR);
     l_package_type  VARCHAR2(12 CHAR);
-    l_object_state  VARCHAR2(7 CHAR);
     l_errors        VARCHAR2(32767 CHAR);
   BEGIN
     l_errors        := NULL;
     l_test_passed   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
     l_expected      := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
     l_package_name  := otap_string.reduce(p_package_name, 128);
-    l_object_state  := otap_string.reduce(UPPER(p_package_state), 7);
     l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
     IF     l_package_name         IS NOT NULL
        AND LENGTH(l_package_name)  > 0
-       AND l_object_state         IN (l_ignore, l_valid, l_invalid)
        AND l_package_type         IN (l_header, l_body)
     THEN
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -215,7 +209,6 @@ AS
        WHERE owner       = l_schema_to_use
          AND object_name = l_package_name
          AND object_type = l_package_type
-         AND status      = CASE WHEN l_object_state = l_ignore THEN status ELSE l_object_state END
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_package, l_errors, l_script);
@@ -227,15 +220,11 @@ AS
                                                   THEN 'p_package_name(NULL) '
                                                 END ||
                                                 CASE
-                                                  WHEN l_object_state NOT IN (l_ignore, l_valid, l_invalid)
-                                                  THEN 'p_package_state(' || l_object_state || ') '
-                                                END ||
-                                                CASE
                                                   WHEN l_package_type NOT IN (l_header, l_body)
                                                   THEN 'p_package_type(' || l_package_type || ') '
                                                 END
       ;
-      otap_log.log(l_errors, l_script, 'Package name NULL or type and state invalid');
+      otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
     END IF;
     -- now decide on the expected result the final state and if errors are returned
     IF l_test_passed != l_expected
