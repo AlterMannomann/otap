@@ -50,7 +50,7 @@ AS
   END get_otap_num_false;
 
   FUNCTION get_otap_num_test_passed
-    RETURN VARCHAR2
+    RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
@@ -59,7 +59,7 @@ AS
   END get_otap_num_test_passed;
 
   FUNCTION get_otap_num_test_failed
-    RETURN VARCHAR2
+    RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
@@ -68,7 +68,7 @@ AS
   END get_otap_num_test_failed;
 
   FUNCTION get_otap_num_test_undefined
-    RETURN VARCHAR2
+    RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS

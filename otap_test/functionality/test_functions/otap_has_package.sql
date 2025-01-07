@@ -26,6 +26,19 @@ SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
                             , p_expected_result => otap_constants.get_otap_num_test_undefined
                             )
   FROM dual;
+SELECT otap_test.has_package( p_package_name => NULL
+                            , p_schema => 'SYS'
+                            , p_description => 'NULL package name'
+                            , p_expected_result => otap_constants.get_otap_num_test_undefined
+                            )
+  FROM dual;
+SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'
+                            , p_schema => 'SYS'
+                            , p_description => 'NULL package type'
+                            , p_package_type => NULL
+                            , p_expected_result => otap_constants.get_otap_num_test_undefined
+                            )
+  FROM dual;
 -- test default description
 SELECT otap_test.has_package('DBMS_OUTPUT', 'SYS') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'DBMS_OUTPUT'

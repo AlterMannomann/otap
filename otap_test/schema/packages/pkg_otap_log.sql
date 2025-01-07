@@ -12,3 +12,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
                             , p_package_type => 'PACKAGE BODY'
                             )
   FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'LOG'
+                              , p_procedure_type => 'PROCEDURE'
+                              , p_package_name => 'OTAP_LOG'
+                              )
+  FROM dual;

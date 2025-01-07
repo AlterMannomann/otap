@@ -337,20 +337,39 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_report.get_has_column_msg
-  * Builds a user message for the has_column test function based on given values from template. Will always
+  /** FUNCTION otap_report.get_has_package_msg
+  * Builds a user message for the has_package test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.
   *
   * @param p_package_name The package name that was tested.
   * @param p_schema_name The schema of the package tested.
   * @param p_package_type The package type of the package that was tested.
   *
-  * @return The formatted and reduced has column test message. Restricted to 4000 chars.
+  * @return The formatted and reduced has package test message. Restricted to 4000 chars.
   */
   FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
                               )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_report.get_has_procedure_msg
+  * Builds a user message for the has_procedure test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_procedure_name The name of the procedure or function tested.
+  * @param p_schema_name The schema of the procedure/function tested.
+  * @param p_procedure_type The procedure type FUNCTION/PROCEDURE of the procedure that was tested.
+  * @param p_package_name Optional package name, if function or procedure are part of a package.
+  *
+  * @return The formatted and reduced has procedure test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_has_procedure_msg( p_procedure_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_procedure_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_package_name    IN VARCHAR2 DEFAULT NULL
+                                )
     RETURN VARCHAR2
   ;
 

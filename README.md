@@ -1,5 +1,5 @@
 # UNDER CONSTRUCTION
-Current state: Pre-alpha with has_table, has_column, has_package test and result view. To do: Extend test functions, fix minor formatting issued, test otap with otap.
+Current state: Pre-alpha with has_table, has_column, has_package, has_procedure test and result view. To do: Extend test functions, fix minor formatting issued, continue test otap with otap.
 
 See [simple_test_setup.sql](./otap_test/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 

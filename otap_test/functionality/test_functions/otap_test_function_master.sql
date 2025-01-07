@@ -8,3 +8,4 @@ SELECT otap_test.set_test_group('OTAP test functions') FROM dual;
 @@otap_has_table.sql
 @@otap_has_column.sql
 @@otap_has_package.sql
+@@otap_has_procedure.sql

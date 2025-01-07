@@ -325,5 +325,21 @@ AS
     RETURN VARCHAR2
   ;
 
+
+  /** FUNCTION otap_api.has_procedure
+  * @see otap_schema.has_procedure and otap_test.has_procedure
+  */
+  FUNCTION has_procedure( p_procedure_name  IN            VARCHAR2
+                        , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                        , p_schema          IN            VARCHAR2 DEFAULT NULL
+                        , p_description     IN            VARCHAR2 DEFAULT NULL
+                        , p_procedure_type  IN            VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN            VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN            VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
+    RETURN VARCHAR2
+  ;
+
 END;
 /

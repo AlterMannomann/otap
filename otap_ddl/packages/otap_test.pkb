@@ -550,6 +550,38 @@ AS
       RAISE;
   END has_package;
 
+  FUNCTION has_procedure( p_procedure_name  IN     VARCHAR2
+                        , p_schema          IN     VARCHAR2 DEFAULT NULL
+                        , p_description     IN     VARCHAR2 DEFAULT NULL
+                        , p_procedure_type  IN     VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN     VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN     VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    l_message := otap_api.has_procedure( p_procedure_name
+                                       , session_record
+                                       , p_schema
+                                       , p_description
+                                       , p_procedure_type
+                                       , p_package_name
+                                       , p_return_type
+                                       , p_expected_result
+                                       )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_procedure', 'l_message := otap_api.has_procedure(p_procedure_name, session_record, ...');
+      END IF;
+      RAISE;
+  END has_procedure;
+
 
   -- debug function
   FUNCTION get_session_var

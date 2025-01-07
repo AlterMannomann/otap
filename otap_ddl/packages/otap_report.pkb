@@ -550,5 +550,34 @@ AS
       RAISE;
   END get_has_package_msg;
 
+  FUNCTION get_has_procedure_msg( p_procedure_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_procedure_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                                , p_package_name    IN VARCHAR2 DEFAULT NULL
+                                )
+    RETURN VARCHAR2
+  IS
+    l_template_text  VARCHAR2(32767 CHAR);
+    l_procedure      VARCHAR2(1024 CHAR);
+  BEGIN
+    -- prepare
+    l_procedure := NVL(p_procedure_name, otap_constants.OTAP_CHAR_NA);
+    IF p_package_name IS NOT NULL
+    THEN
+      l_procedure := TRIM(p_package_name) || '.' || l_procedure;
+    END IF;
+    -- replace
+    l_template_text := otap_config_util.get_fn_has_procedure_template;
+    l_template_text := REPLACE(l_template_text, '@proctype@', NVL(INITCAP(p_procedure_type), otap_constants.OTAP_CHAR_NA));
+    l_template_text := REPLACE(l_template_text, '@proc@', NVL(l_procedure, otap_constants.OTAP_CHAR_NA));
+    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_CHAR_NA));
+    l_template_text := otap_string.reduce(l_template_text, 4000);
+    RETURN l_template_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_has_procedure_msg', 'Build has_procedure result message');
+      RAISE;
+  END get_has_procedure_msg;
+
 END;
 /
