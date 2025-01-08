@@ -5,7 +5,6 @@
 -- contains only basic tests on the test functions used for schema tests
 -- to guarantee the needed functionality (as we are testing ourselves there is no good solution what first)
 
-SELECT otap_test.set_test_set('OTAP objects') FROM dual;
-@@schema/tables/otap_tables_master.sql
-@@schema/triggers/otap_trigger_master.sql
-@@schema/packages/otap_package_master.sql
+--SELECT otap_test.set_test_group('OTAP trigger') FROM dual;
+@@trigger_otap_config.sql
+@@trigger_otap_results.sql

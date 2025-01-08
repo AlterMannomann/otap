@@ -1,11 +1,11 @@
 Running under WINDOWS
 OTAP DB user name to drop (default is OTAP if no value is given): 
 OTAP table space name to drop (default is OTAP_TABLESPACE if no value is given): 
-Drop the tablespace OTAP_TABLESPACE: Y (yes) or N (no) (default is N): n
+Drop the tablespace OTAP_TABLESPACE: Y (yes) or N (no) (default is N): 
 Drop the otap roles: Y (yes) or N (no) (default is N): 
 ==== otap DBA cleanup ====
 Drop user/schema OTAP? 
-  Set tablespace drop to n for OTAP_TABLESPACE.
+  Set tablespace drop to N for OTAP_TABLESPACE.
   Set role drop to N.
   Roles checked: OTAP_USER
 Not allowed to be used as AI training material without explicite permission.
@@ -15,7 +15,7 @@ Started ...
 DROP USER OTAP CASCADE;
 === otap DBA uninstall result ===
 User OTAP dropped
-Keep tablespace OTAP_TABLESPACE drop option n
+Keep tablespace OTAP_TABLESPACE drop option N
 Keep roles, drop option N
 SUCCESS no errors
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1

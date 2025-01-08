@@ -6,7 +6,7 @@ SQL> SELECT otap_test.init_test( p_test_count => 301
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 11
+Test session id: 5
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -19,8 +19,8 @@ Expected tests: 301
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 11
-Test start: 2025-01-07 20:08:49
+Current view id: 5
+Test start: 2025-01-08 03:12:02
 
 
 1 row selected.
@@ -636,6 +636,59 @@ SQL> DROP PROCEDURE DUMMY_PROCEDURE;
 
 Procedure dropped.
 
+SQL> @@otap_has_trigger.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> 
+SQL> SELECT otap_test.set_test_name('Verify otap_test.has_trigger') FROM dual;
+Current test: Verify otap_test.has_trigger
+
+1 row selected.
+
+SQL> -- no default trigger available, use one from otap
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_INS_TRG'
+  2  				 , p_description => 'Trigger exists minimal test'
+  3  				 ) FROM dual;
+Passed Trigger exists minimal test
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_INS_TRG'
+  2  				 , p_description => 'Trigger exists full test'
+  3  				 , p_trigger_type => 'BEFORE EACH ROW'
+  4  				 , p_trigger_event => 'INSERT'
+  5  				 , p_table_owner => otap_constants.get_otap_schema
+  6  				 , p_table_name => 'OTAP_CONFIG'
+  7  				 ) FROM dual;
+Passed Trigger exists full test
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => NULL
+  2  				 , p_description => 'NULL trigger test'
+  3  				 , p_expected_result => otap_constants.get_otap_num_test_undefined
+  4  				 ) FROM dual;
+Passed NULL trigger test
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'NO VALID NAME'
+  2  				 , p_description => 'Invalid trigger name'
+  3  				 , p_expected_result => otap_constants.get_otap_num_test_failed
+  4  				 ) FROM dual;
+Passed Invalid trigger name
+
+1 row selected.
+
+SQL> -- test default description
+SQL> SELECT otap_test.has_trigger('OTAP_CONFIG_INS_TRG') FROM dual;
+Passed Trigger OTAP_CONFIG_INS_TRG exists (OTAP)
+
+1 row selected.
+
 SQL> @@schema/otap_schema_master.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
@@ -1116,6 +1169,101 @@ SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
   6  				)
   7    FROM dual;
 Passed Column STATEMENT (OTAP.SPERRORLOG) exists
+
+1 row selected.
+
+SQL> @@schema/triggers/otap_trigger_master.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- contains only basic tests on the test functions used for schema tests
+SQL> -- to guarantee the needed functionality (as we are testing ourselves there is no good solution what first)
+SQL> 
+SQL> --SELECT otap_test.set_test_group('OTAP trigger') FROM dual;
+SQL> @@trigger_otap_config.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> 
+SQL> SELECT otap_test.set_test_name('Trigger OTAP_CONFIG') FROM dual;
+Current test: Trigger OTAP_CONFIG
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_INS_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'INSERT'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_CONFIG'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_CONFIG_INS_TRG exists (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_UPD_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'UPDATE'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_CONFIG'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_CONFIG_UPD_TRG exists (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_DEL_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'DELETE'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_CONFIG'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_CONFIG_DEL_TRG exists (OTAP)
+
+1 row selected.
+
+SQL> @@trigger_otap_results.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> 
+SQL> SELECT otap_test.set_test_name('Trigger OTAP_RESULTS') FROM dual;
+Current test: Trigger OTAP_RESULTS
+
+1 row selected.
+
+SQL> 
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_RESULTS_INS_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'INSERT'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_RESULTS'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_RESULTS_INS_TRG exists (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_RESULTS_UPD_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'UPDATE'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_RESULTS'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_RESULTS_UPD_TRG exists (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_RESULTS_DEL_TRG'
+  2  				 , p_trigger_type => 'BEFORE EACH ROW'
+  3  				 , p_trigger_event => 'DELETE'
+  4  				 , p_table_owner => otap_constants.get_otap_schema
+  5  				 , p_table_name => 'OTAP_RESULTS'
+  6  				 ) FROM dual;
+Passed Trigger OTAP_RESULTS_DEL_TRG exists (OTAP)
 
 1 row selected.
 
@@ -3307,9 +3455,9 @@ SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 11 tests: 301 from 301 errors: 0 run time: +000000000 00:00:12.000000000 started: 2025-01-07 20:08:49
+Summary id: 5 tests: 312 from 301 errors: 0 run time: +000000000 00:00:13.000000000 started: 2025-01-08 03:12:02
 Current test settings
-Test session id: 12
+Test session id: 6
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -3322,8 +3470,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 11
-Test start: 2025-01-07 20:09:01
+Current view id: 5
+Test start: 2025-01-08 03:12:15
 
 
 1 row selected.

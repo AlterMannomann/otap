@@ -341,5 +341,21 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_schema.has_trigger
+  * @see otap_schema.has_trigger and otap_test.has_trigger
+  */
+  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      , p_schema          IN     VARCHAR2 DEFAULT NULL
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  ;
+
 END;
 /

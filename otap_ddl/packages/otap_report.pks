@@ -373,5 +373,20 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_report.get_has_trigger_msg
+  * Builds a user message for the has_trigger test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_trigger_name The name of the trigger tested.
+  * @param p_schema_name The schema of the procedure/function tested.
+  *
+  * @return The formatted and reduced has procedure test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_has_trigger_msg( p_trigger_name    IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+                              )
+    RETURN VARCHAR2
+  ;
+
 END;
 /

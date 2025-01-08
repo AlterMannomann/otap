@@ -319,6 +319,32 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.has_trigger
+  * Checks if a given trigger exists.
+  *
+  * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
+  * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
+  * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.
+  * @param p_table_name The table name as in USER_TRIGGERS. Optional. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT NULL
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  ;
+
   -- debug function
   FUNCTION get_session_var
     RETURN OTAP_SESSION
