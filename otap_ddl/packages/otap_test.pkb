@@ -582,6 +582,39 @@ AS
       RAISE;
   END has_procedure;
 
+  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT NULL
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    l_message := otap_api.has_trigger( p_trigger_name
+                                     , session_record
+                                     , p_schema
+                                     , p_description
+                                     , p_trigger_type
+                                     , p_trigger_event
+                                     , p_table_owner
+                                     , p_table_name
+                                     , p_expected_result
+                                     )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_trigger', 'l_message := otap_api.has_trigger( p_trigger_name, session_record, ...');
+      END IF;
+      RAISE;
+  END has_trigger;
 
   -- debug function
   FUNCTION get_session_var

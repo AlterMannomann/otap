@@ -388,5 +388,82 @@ AS
       RAISE;
   END has_procedure;
 
+  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+                      , o_errors             OUT VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN INTEGER
+  IS
+    l_script         VARCHAR2(1024 CHAR)    := 'otap_schema.has_trigger';
+    l_test_passed    INTEGER;
+    l_expected       INTEGER;
+    l_has_trigger    INTEGER;
+    l_trigger_name   VARCHAR2(128 CHAR);
+    l_trigger_type   VARCHAR2(16 CHAR);
+    l_trigger_event  VARCHAR2(246 CHAR);
+    l_table_owner    VARCHAR2(128 CHAR);
+    l_table_name     VARCHAR2(128 CHAR);
+    l_schema_to_use  VARCHAR2(128 CHAR);
+    l_errors         VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_trigger_name    := otap_string.reduce(p_trigger_name, 128);
+    l_trigger_type    := otap_string.reduce(UPPER(p_trigger_type), 16);
+    l_trigger_event   := otap_string.reduce(UPPER(p_trigger_event), 246);
+    l_table_owner     := otap_string.reduce(p_table_owner, 128);
+    l_table_name      := otap_string.reduce(p_table_name, 128);
+    IF     l_trigger_name        IS NOT NULL
+       AND LENGTH(l_trigger_name) > 0
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_trigger
+        FROM dba_triggers
+       WHERE owner                  = l_schema_to_use
+         AND trigger_name           = l_trigger_name
+         AND trigger_type           = NVL(l_trigger_type, trigger_type)
+         AND triggering_event       = NVL(l_trigger_event, triggering_event)
+         AND table_owner            = NVL(l_table_owner, table_owner)
+         AND NVL(table_name, 'n/a') = NVL(l_table_name, NVL(table_name, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
+
+    ELSE
+      -- invalid package name, type or state
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_trigger_name(NULL)';
+      otap_log.log(l_errors, l_script, 'Trigger name NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_trigger;
+
 END;
 /

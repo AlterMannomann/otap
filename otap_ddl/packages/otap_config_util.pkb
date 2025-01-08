@@ -501,6 +501,13 @@ AS
     RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_PROCEDURE_TEMPLATE);
   END get_fn_has_procedure_template;
 
+  FUNCTION get_fn_has_trigger_template
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_TRIGGER_TEMPLATE);
+  END get_fn_has_trigger_template;
+
   FUNCTION get_text_false
     RETURN VARCHAR2
   IS

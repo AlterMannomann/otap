@@ -117,13 +117,50 @@ AS
     RETURN INTEGER
   ;
 
+  /** FUNCTION otap_schema.has_trigger
+  * Checks if a given trigger exists.
+  *
+  * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
+  * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
+  * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.
+  * @param p_table_name The table name as in USER_TRIGGERS. Optional. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+                      , o_errors             OUT VARCHAR2
+                      , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN INTEGER
+  ;
+
 END;
 /
 
 /* SQLs for schema objects
 
-FUNCTION has_procedure(procedure_name, procedure_type, package NULL, return_type NULL)
-FUNCTION has_pkg_procedure, has_def_procedure - by package (NOT) NULL
+FUNCTION has_trigger
+FUNCTION has_object
+
+-- triggers
+SELECT *
+  FROM dba_triggers
+ WHERE owner = 'OTAP'
+   AND trigger_name = 'OTAP_CONFIG_INS_TRG'
+   AND trigger_type = 'BEFORE EACH ROW'
+   AND triggering_event = 'INSERT'
+   AND table_owner = 'OTAP'
+   AND table_name = 'OTAP_CONFIG' -- can be NULL
+;
 
 -- package functions and procedures - only package joins with object_id, not package body, no result
 SELECT dbo.owner

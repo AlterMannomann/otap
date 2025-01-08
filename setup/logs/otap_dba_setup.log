@@ -26,6 +26,9 @@ GRANT CREATE JOB TO OTAP;
 GRANT SELECT ON dba_objects TO OTAP;
 GRANT SELECT ON dba_tables TO OTAP;
 GRANT SELECT ON dba_tab_columns TO OTAP;
+GRANT SELECT ON dba_procedures TO OTAP;
+GRANT SELECT ON dba_arguments TO OTAP;
+GRANT SELECT ON dba_triggers TO OTAP;
 === otap DBA install result ===
 Tablespace OTAP_TABLESPACE already exists
 Role OTAP_USER already exists
@@ -33,6 +36,7 @@ User OTAP created, unlocked, tablespace OTAP_TABLESPACE quota unlimited
 Granted CONNECT, RESOURCE, CREATE VIEW, CREATE JOB to OTAP
 Grant SELECT to OTAP on:
   DBA_OBJECTS, DBA_TABLES, DBA_TAB_COLUMNS
+  DBA_PROCEDURES, DBA_ARGUMENTS, DBA_TRIGGERS
 SUCCESS no errors
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 Not allowed to be used as AI training material without explicite permission.

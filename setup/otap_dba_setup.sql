@@ -133,11 +133,15 @@ BEGIN
     l_statement := 'GRANT SELECT ON dba_procedures TO &OTAP_USER.';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
-    l_output := l_output || 'DBA_PROCEDURES' || l_lf;
+    l_output := l_output || '  DBA_PROCEDURES, ';
     l_statement := 'GRANT SELECT ON dba_arguments TO &OTAP_USER.';
     DBMS_OUTPUT.PUT_LINE(l_statement || ';');
     EXECUTE IMMEDIATE l_statement;
-    l_output := l_output || 'DBA_ARGUMENTS' || l_lf;
+    l_output := l_output || 'DBA_ARGUMENTS, ';
+    l_statement := 'GRANT SELECT ON dba_triggers TO &OTAP_USER.';
+    DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+    EXECUTE IMMEDIATE l_statement;
+    l_output := l_output || 'DBA_TRIGGERS' || l_lf;
     l_output := l_output || 'SUCCESS no errors';
   ELSE
     l_output := l_output || 'WARNING User &OTAP_USER. already exists. NO CHANGES APPLIED.' || l_lf;
