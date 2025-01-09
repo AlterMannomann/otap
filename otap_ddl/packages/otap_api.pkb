@@ -214,14 +214,14 @@ AS
     l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
     -- execute the wrapped function in an extra block
     BEGIN
-      l_return := otap_results_util.max_text_size(p_session_id);
+      l_return := otap_util.max_text_size(p_session_id);
       -- now add the extra columns on the result line
       SELECT LENGTH(((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_interval FROM dual;
-      l_return := l_return + l_interval + (2 * otap_config_util.get_length_test_state) + 3;
+      l_return := l_return + l_interval + (2 * otap_util.get_length_test_state) + 3;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
-        otap_log.log(SQLERRM, l_script, 'Calling otap_results_util.max_text_size');
+        otap_log.log(SQLERRM, l_script, 'Calling otap_util.max_text_size');
         l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
     END;
     -- return or let exception happen
@@ -444,11 +444,11 @@ AS
     l_message := otap_constants.OTAP_INTERNAL_ERROR;
     -- execute the wrapped function in an extra block
     BEGIN
-      l_message := otap_config_util.test_result_to_text(p_test_passed);
+      l_message := otap_util.test_result_to_text(p_test_passed);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
-        otap_log.log(SQLERRM, l_script, 'Calling  otap_config_util.test_result_to_text');
+        otap_log.log(SQLERRM, l_script, 'Calling  otap_util.test_result_to_text');
         l_message := otap_string.reduce('Internal otap error translate test result to text: ' || SQLERRM, 4000);
     END;
     -- return or let exception happen
@@ -573,11 +573,11 @@ AS
     l_message := otap_constants.OTAP_INTERNAL_ERROR;
     -- execute the wrapped function in an extra block
     BEGIN
-      l_message := otap_config_util.get_text_test_count_name;
+      l_message := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
-        otap_log.log(SQLERRM, l_script, 'Calling otap_config_util.get_text_test_count_name');
+        otap_log.log(SQLERRM, l_script, 'Calling otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)');
         l_message := otap_string.reduce('Internal otap error get test count name: ' || SQLERRM, 4000);
     END;
     -- return or let exception happen
@@ -669,7 +669,7 @@ AS
   BEGIN
     l_start  := SYSTIMESTAMP;
     -- default return
-    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -697,7 +697,7 @@ AS
       -- try to write the test record
       otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
       otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -710,7 +710,7 @@ AS
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
         l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
-        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -743,7 +743,7 @@ AS
   BEGIN
     l_start  := SYSTIMESTAMP;
     -- default return
-    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -778,7 +778,7 @@ AS
       -- try to write the test record
       otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
       otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -791,7 +791,7 @@ AS
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
         l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
-        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -818,7 +818,7 @@ AS
   BEGIN
     l_start  := SYSTIMESTAMP;
     -- default return
-    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -847,7 +847,7 @@ AS
       -- try to write the test record
       otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
       otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -860,7 +860,7 @@ AS
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
         l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
-        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -889,7 +889,7 @@ AS
   BEGIN
     l_start  := SYSTIMESTAMP;
     -- default return
-    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -920,7 +920,7 @@ AS
       -- try to write the test record
       otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
       otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -933,7 +933,7 @@ AS
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
         l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_procedure_msg(p_procedure_name, l_schema, p_procedure_type, p_package_name)), 256);
-        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -963,7 +963,7 @@ AS
   BEGIN
     l_start  := SYSTIMESTAMP;
     -- default return
-    l_return := otap_config_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -995,7 +995,7 @@ AS
       -- try to write the test record
       otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
       otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -1008,7 +1008,7 @@ AS
         l_end := SYSTIMESTAMP;
         otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
         l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_trigger_msg(p_trigger_name, l_schema)), 256);
-        l_return := otap_config_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
     END;
     -- return result or let exception happen
     RETURN l_return;

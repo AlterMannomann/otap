@@ -32,10 +32,6 @@ SPOOL logs/otap_cleanup.log
 @@../otap_ddl/packages/drop/drop_otap_objects_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_report_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_report_pks.sql
-@@../otap_ddl/packages/drop/drop_otap_results_util_pkb.sql
-@@../otap_ddl/packages/drop/drop_otap_results_util_pks.sql
-@@../otap_ddl/packages/drop/drop_otap_config_util_pkb.sql
-@@../otap_ddl/packages/drop/drop_otap_config_util_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_util_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_util_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_string_pkb.sql

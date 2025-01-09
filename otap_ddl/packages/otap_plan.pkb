@@ -50,7 +50,7 @@ AS
     -- set delete flag as stored
     l_to_delete := CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_NUM_FALSE ELSE otap_constants.OTAP_NUM_TRUE END;
     -- ready to insert
-    otap_results_util.write_test_result( l_to_delete
+    otap_util.write_test_result( l_to_delete
                                        , l_test_passed
                                        , p_otap_session.session_id
                                        , p_otap_session.test_executor
@@ -94,7 +94,7 @@ AS
       l_errors           := NULL;
       l_end              := SYSTIMESTAMP;
       l_tmp_otap_session := otap_objects.otap_session_copy(p_otap_session);
-      l_tmp_otap_session.test_name := otap_config_util.get_text_test_count_name;
+      l_tmp_otap_session.test_name := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
       otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
     END IF;
   EXCEPTION

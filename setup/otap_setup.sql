@@ -37,10 +37,6 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_string.pkb
 @@../otap_ddl/packages/otap_util.pks
 @@../otap_ddl/packages/otap_util.pkb
-@@../otap_ddl/packages/otap_config_util.pks
-@@../otap_ddl/packages/otap_config_util.pkb
-@@../otap_ddl/packages/otap_results_util.pks
-@@../otap_ddl/packages/otap_results_util.pkb
 @@../otap_ddl/packages/otap_report.pks
 @@../otap_ddl/packages/otap_report.pkb
 @@../otap_ddl/packages/otap_objects.pks

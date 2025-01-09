@@ -109,7 +109,7 @@ AS
   ;
 
   /** FUNCTION otap_api.max_text_size
-  * @see otap_results_util.max_text_size
+  * @see otap_util.max_text_size
   */
   FUNCTION max_text_size(p_session_id IN NUMBER)
     RETURN NUMBER
@@ -198,7 +198,7 @@ AS
   ;
 
   /** FUNCTION otap_api.test_result_to_text
-  * @see otap_config_util.test_result_to_text
+  * @see otap_util.test_result_to_text
   */
   FUNCTION test_result_to_text(p_test_passed IN NUMBER)
     RETURN VARCHAR
@@ -249,7 +249,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_text_test_count_name
-  *  @see otap_config_util.get_text_test_count_name
+  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)
   */
   FUNCTION get_text_test_count_name
     RETURN VARCHAR2

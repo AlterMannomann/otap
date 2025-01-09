@@ -6,7 +6,7 @@ CREATE OR REPLACE PACKAGE otap_log
 AS
   /**
   * Provides logging functionality. Dependency on OTAP_CONFIG table for DEBUG_MODE. Other
-  * functionality of OTAP_CONFIG table is provided in otap_config_util. Provided as internal
+  * functionality of OTAP_CONFIG table is provided in otap_util. Provided as internal
   * function not exposed to package header. Fail save implementation. Will do nothing apart
   * from DBMS_OUTPUT on exceptions and errors. Logging is not critical for otap.
   *

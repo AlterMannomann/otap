@@ -248,5 +248,320 @@ AS
     RETURN l_config_value;
   END validate_config_value;
 
+  FUNCTION get_config_value(p_config_name IN VARCHAR2)
+    RETURN VARCHAR2
+  IS
+    l_script      VARCHAR2(1024 CHAR)            := 'otap_util.get_config_value';
+    l_return      otap_config.config_value%TYPE;
+    l_has_config  INTEGER;
+  BEGIN
+    l_return := otap_constants.OTAP_INTERNAL_ERROR;
+    SELECT COUNT(*)
+      INTO l_has_config
+      FROM otap_config
+     WHERE config_name = UPPER(p_config_name)
+    ;
+    IF l_has_config = 1
+    THEN
+      SELECT config_value
+        INTO l_return
+        FROM otap_config
+      WHERE config_name = UPPER(p_config_name)
+      ;
+    ELSE
+      l_return := otap_constants.OTAP_INTERNAL_ERROR;
+      otap_log.log('Invalid config_name: ' || UPPER(p_config_name) || ' return error identifier. Count result: ' || l_has_config, l_script, 'SELECT COUNT(*) INTO l_has_config FROM otap_config WHERE config_name = UPPER(p_config_name)');
+    END IF;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'SELECT config_value INTO l_return FROM otap_config WHERE config_name = UPPER(p_config_name)');
+      RAISE;
+  END get_config_value;
+
+  FUNCTION get_config_number(p_config_name IN VARCHAR2)
+    RETURN NUMBER
+  IS
+    l_script      VARCHAR2(1024 CHAR)             := 'otap_util.get_config_number';
+    l_varchar     otap_config.config_value%TYPE;
+    l_return      INTEGER; -- only integer in configuration
+    l_has_config  INTEGER;
+  BEGIN
+    l_return := NULL;
+    SELECT COUNT(*)
+      INTO l_has_config
+      FROM otap_config
+     WHERE config_name = UPPER(p_config_name)
+       AND config_type = 'NUMBER'
+    ;
+    IF l_has_config = 1
+    THEN
+      l_varchar := otap_util.get_config_value(p_config_name);
+      IF otap_util.is_integer(l_varchar)
+      THEN
+        l_return := TO_NUMBER(l_varchar);
+      ELSE
+        l_return := NULL;
+        otap_log.log('Invalid numeric value for config_name: ' || UPPER(p_config_name) || ' return NULL. Value: ' || l_varchar, l_script, 'otap_util.is_integer(l_varchar)');
+      END IF;
+    ELSE
+      l_return := NULL;
+      otap_log.log('Invalid numeric config_name: ' || UPPER(p_config_name) || ' return NULL. Count result: ' || l_has_config, l_script, 'SELECT COUNT(*) INTO l_has_config FROM otap_config WHERE config_name = UPPER(p_config_name) AND config_type = ''NUMBER''');
+    END IF;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script);
+      RAISE;
+  END get_config_number;
+
+  FUNCTION get_length_test_state
+    RETURN NUMBER
+  IS
+    l_return INTEGER;
+  BEGIN
+    SELECT MAX(LENGTH(config_value))
+      INTO l_return
+      FROM otap_config
+     WHERE config_name IN ( otap_util.CFG_TEXT_TEST_FAILED
+                          , otap_util.CFG_TEXT_TEST_PASSED
+                          , otap_util.CFG_TEXT_TEST_UNDEFINED
+                          )
+    ;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.get_length_test_state', 'Get MAX length for config values');
+      RAISE;
+  END get_length_test_state;
+
+  FUNCTION get_length_summary_state
+    RETURN NUMBER
+  IS
+    l_return INTEGER;
+  BEGIN
+    SELECT MAX(LENGTH(config_value))
+      INTO l_return
+      FROM otap_config
+     WHERE config_name IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
+                          , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                          )
+    ;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.get_length_summary_state', 'Get MAX length for config values');
+      RAISE;
+  END get_length_summary_state;
+
+  FUNCTION get_length_headers
+    RETURN NUMBER
+  IS
+    l_return INTEGER;
+  BEGIN
+    SELECT MAX(LENGTH(config_value))
+      INTO l_return
+      FROM otap_config
+     WHERE config_name IN ( otap_util.CFG_TEXT_REPORT_START
+                          , otap_util.CFG_TEXT_REPORT_END
+                          , otap_util.CFG_TEXT_REPORT_TOTAL
+                          )
+    ;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.get_length_headers', 'Get MAX length for config values');
+      RAISE;
+  END get_length_headers;
+
+  FUNCTION get_length_result_headers
+    RETURN NUMBER
+  IS
+    l_return INTEGER;
+  BEGIN
+    SELECT MAX(LENGTH(config_value))
+      INTO l_return
+      FROM otap_config
+     WHERE config_name IN ( otap_util.CFG_TEXT_RESULT_HEADER
+                          , otap_util.CFG_TEXT_RESULT_LINE
+                          )
+    ;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.get_length_result_headers', 'Get MAX length for config values');
+      RAISE;
+  END get_length_result_headers;
+
+
+  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+    RETURN VARCHAR
+  IS
+    l_translation otap_config.config_value%TYPE;
+  BEGIN
+    l_translation := CASE p_test_passed
+                       WHEN otap_constants.OTAP_NUM_TEST_PASSED
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED)
+                       WHEN otap_constants.OTAP_NUM_TEST_FAILED
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED)
+                       WHEN otap_constants.OTAP_NUM_TEST_UNDEFINED
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED)
+                       ELSE otap_constants.OTAP_INTERNAL_ERROR
+                     END
+    ;
+    RETURN l_translation;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.test_result_to_text', 'Translate test state to text');
+      RAISE;
+  END test_result_to_text;
+
+  PROCEDURE write_test_result( p_to_delete         IN NUMBER
+                             , p_test_passed       IN NUMBER
+                             , p_test_session_id   IN NUMBER
+                             , p_test_executor     IN VARCHAR2
+                             , p_test_set          IN VARCHAR2
+                             , p_db_user           IN VARCHAR2
+                             , p_db_schema         IN VARCHAR2
+                             , p_test_group        IN VARCHAR2
+                             , p_test_start        IN TIMESTAMP
+                             , p_test_end          IN TIMESTAMP
+                             , p_test_name         IN VARCHAR2
+                             , p_test_desc         IN VARCHAR2
+                             , p_test_errors       IN VARCHAR2 DEFAULT NULL
+                             )
+  IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    l_script      VARCHAR2(256 CHAR) := 'otap_util.write_test_result';
+    l_to_delete   NUMBER;
+    l_test_passed NUMBER;
+  BEGIN
+    l_to_delete   := CASE
+                       WHEN p_to_delete IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
+                       THEN p_to_delete
+                       ELSE otap_constants.OTAP_NUM_TRUE
+                     END
+    ;
+    l_test_passed := CASE
+                       WHEN p_test_passed IN (otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_UNDEFINED)
+                       THEN p_test_passed
+                       ELSE otap_constants.OTAP_NUM_TEST_UNDEFINED
+                     END
+    ;
+    INSERT INTO otap_results
+      ( to_delete
+      , test_passed
+      , test_session_id
+      , test_executor
+      , test_set
+      , db_user
+      , db_schema
+      , test_group
+      , test_start
+      , test_end
+      , test_name
+      , test_desc
+      , test_errors
+      ) VALUES ( l_to_delete
+               , l_test_passed
+               , p_test_session_id
+               , p_test_executor
+               , p_test_set
+               , p_db_user
+               , p_db_schema
+               , p_test_group
+               , p_test_start
+               , p_test_end
+               , p_test_name
+               , p_test_desc
+               , p_test_errors
+               )
+    ;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'INSERT into otap_results');
+      RAISE;
+  END write_test_result;
+
+  PROCEDURE result_cleanup
+  IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    l_script            VARCHAR2(256 CHAR) := 'otap_util.result_cleanup';
+    l_delete_before     DATE;
+    l_delete_start      DATE;
+    l_delete_batch_size NUMBER;
+    l_delete_delay      NUMBER;
+    l_row_counter       NUMBER;
+    l_processed         NUMBER;
+    l_delete_msg        VARCHAR2(32767 CHAR);
+    CURSOR cur_delete_tests(cp_delete_before IN DATE)
+    IS
+      SELECT *
+        FROM otap_results
+       WHERE test_run_date < cp_delete_before
+         AND to_delete     = otap_constants.OTAP_NUM_TRUE
+    ;
+  BEGIN
+    -- read config values before starting, values will not change until finished
+    l_delete_start      := SYSDATE;
+    l_delete_before     := TRUNC(SYSDATE - otap_util.get_config_number(otap_util.CFG_PRESERVE_DAYS));
+    l_delete_batch_size := otap_util.get_config_number(otap_util.CFG_DELETE_BATCH_SIZE);
+    l_delete_delay      := otap_util.get_config_number(otap_util.CFG_DELETE_DELAY);
+    l_row_counter       := 0;
+    l_processed         := 0;
+    l_delete_msg        := 'Start delete with batch size ' || l_delete_batch_size || ', delay ' || l_delete_delay || ' seconds. Delete all marked records older than ' || TO_CHAR(l_delete_before, 'YYYY-MM-DD HH24:MI:SS') || '.';
+    otap_log.log(l_delete_msg, l_script, 'Procedure start', 'OTAP_DEBUG');
+    FOR rec IN cur_delete_tests(l_delete_before)
+    LOOP
+      IF l_row_counter >= l_delete_batch_size
+      THEN
+        l_delete_msg := 'Batch size reached, commit and wait. Processed records ' || l_processed || '.';
+        otap_log.log(l_delete_msg, l_script, 'Batch size reached and wait', 'OTAP_DEBUG');
+        -- commit the batch
+        COMMIT;
+        -- reset counter
+        l_row_counter := 0;
+        -- wait defined time
+        DBMS_SESSION.SLEEP(l_delete_delay);
+      END IF;
+      DELETE FROM otap_results WHERE test_run_id = rec.test_run_id AND test_run_date = rec.test_run_date;
+      l_row_counter := l_row_counter + 1;
+      l_processed   := l_processed + 1;
+    END LOOP;
+    l_delete_msg := 'Processed ' || l_processed || ' records for delete. Started at ' || TO_CHAR(l_delete_start, 'YYYY-MM-DD HH24:MI:SS') || ' finished at ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS');
+    otap_log.log(l_delete_msg, l_script, 'Procedure end', 'OTAP_DEBUG');
+    DBMS_OUTPUT.PUT_LINE(l_delete_msg);
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'DELETE FROM otap_results');
+  END result_cleanup;
+
+  FUNCTION max_text_size(p_session_id IN NUMBER)
+    RETURN NUMBER
+  IS
+    l_result NUMBER;
+  BEGIN
+    -- use UNION not GREATEST to get a result in any case
+    SELECT MAX(str_length) AS max_length
+      INTO l_result
+      FROM (SELECT otap_constants.get_otap_num_min_fill_length AS str_length FROM dual
+             UNION ALL
+            SELECT MAX(LENGTH(test_set)) FROM otap_results WHERE test_session_id = p_session_id
+             UNION ALL
+            SELECT MAX(LENGTH(test_group)) FROM otap_results WHERE test_session_id = p_session_id
+             UNION ALL
+            SELECT MAX(LENGTH(test_name)) FROM otap_results WHERE test_session_id = p_session_id
+             UNION ALL
+            SELECT MAX(LENGTH(test_desc)) FROM otap_results WHERE test_session_id = p_session_id
+           )
+    ;
+    RETURN l_result;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.max_text_size', 'Get max text size for a given session id');
+      RAISE;
+  END max_text_size;
+
 END;
 /

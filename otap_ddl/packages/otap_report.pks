@@ -291,8 +291,7 @@ AS
 
   /** FUNCTION otap_report.get_separator_line
   * Builds a separator line from the given char. Only the first not space char is considered.
-  * otap_config_util provides get_format_set_char, get_format_group_char and get_format_name_char
-  * for current configuration access.
+  * otap_util provides functions for current configuration access.
   *
   * @param p_char The char to build a line from. Default is the default char "-" for format test name.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.

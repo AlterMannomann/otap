@@ -15,13 +15,14 @@ Package otap_api is the fail save layer for otap. Test functions should work, te
 
     - otap_constants (otap constants including fallback values) no exception handling, no logging
       - otap_log (logging functionality) fail save, only DBMS_OUTPUT of exceptions, no raise, logging is not critical for otap
-        - otap_config_util (functionality of OTAP_CONFIG table) no exception handling apart from logging
-        - otap_results_util (functionality of OTAP_RESULTS table) no exception handling apart from logging
+        - otap_string (fuctionality for string handling related to report)
+        - otap_util (functionality of OTAP_CONFIG, OTAP_RESULTS table) no exception handling apart from logging
         - otap_report (formatting functionality for result reports) no exception handling apart from logging
+        - otap_objects (OTAP_SESSION object handling)
+        - otap_plan ... test management packages, no exception handling apart from logging
           - otap_schema ... test function packages, no exception handling apart from logging
-          - otap_plan ... test management packages, no exception handling apart from logging
             - otap_api (internal interface package) receive session var and handle all types of exceptions, fail save
-              - otap_test (the user interface package) pipe row functions must be at this level, uses only otap_api, provides session var
+              - otap_test (the user interface package) uses only otap_api, provides session var
 
 
 Notes Oracle behavior NULL - PLSQL, '' strings are interpreted NULL, "" not allowed in most functions like LENGTH or NVL. Only for identifiers, causes exceptions even if compared ('""' = '""') in PLSQL. May work on SQL e.g. SELECT otap_constants.add_str('""', '', 10) FROM dual, but not in PLSQL code.

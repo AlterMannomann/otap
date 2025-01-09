@@ -122,6 +122,142 @@ AS
                                 )
     RETURN VARCHAR2
   ;
-  -- get / set is next
+
+  /** FUNCTION otap_util.get_config_value
+  * Returns a config value for a given configuration as is. Return value is always VARCHAR2.
+  * On errors return otap error identifier or raise exception.
+  *
+  * @param p_config_name A valid configuration name.
+  *
+  * @return The config value for the given config name as string or the otap error identifier.
+  */
+  FUNCTION get_config_value(p_config_name IN VARCHAR2)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_util.get_config_value
+  * Returns a config value for a given configuration as NUMBER. Return value is always NUMBER.
+  * On errors return NULL or raise exception.
+  *
+  * @param p_config_name A valid configuration name that has configured NUMBER as type.
+  *
+  * @return The config value for the given config name as number or NULL.
+  */
+  FUNCTION get_config_number(p_config_name IN VARCHAR2)
+    RETURN NUMBER
+  ;
+
+
+  /** FUNCTION otap_util.get_length_test_state
+  * Checks the defined text representations of passed, failed and undefined to
+  * determine the maximum length a string needs. Used during formatting reports.
+  *
+  * @return The maximum length of test states defined in OTAP_CONFIG.
+  */
+  FUNCTION get_length_test_state
+    RETURN NUMBER
+  ;
+
+
+  /** FUNCTION otap_util.get_length_summary_state
+  * Checks the defined text representations of summary state SUCCESS and ERROR to
+  * determine the maximum length a string needs. Used during formatting reports.
+  *
+  * @return The maximum length of summary states defined in OTAP_CONFIG.
+  */
+  FUNCTION get_length_summary_state
+    RETURN NUMBER
+  ;
+
+  /** FUNCTION otap_util.get_length_headers
+  * Checks the defined text representations of report headers to
+  * determine the maximum length a string needs. Used during formatting reports.
+  *
+  * @return The maximum length of report headers defined in OTAP_CONFIG.
+  */
+  FUNCTION get_length_headers
+    RETURN NUMBER
+  ;
+
+  /** FUNCTION otap_util.get_length_result_headers
+  * Checks the defined text representations of result headers to
+  * determine the maximum length a string needs. Used during formatting reports.
+  *
+  * @return The maximum length of result headers defined in OTAP_CONFIG.
+  */
+  FUNCTION get_length_result_headers
+    RETURN NUMBER
+  ;
+
+
+  /** FUNCTION otap_util.test_result_to_text
+  * Translate the numeric test state to the defined text representation. If test state
+  * is not valid, will return the otap error indicator OTAP_ERROR.
+  *
+  * @param p_test_passed The numeric test state indicator.
+  *
+  * @return The text representation as defined in OTAP_CONFIG for the given test state or OTAP_ERROR.
+  */
+  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+    RETURN VARCHAR
+  ;
+
+  /** PROCEDURE otap_util.write_test_result
+  * Just persist the given values. Minimal handling of input. Invalid TO_DELETE
+  * and TEST_PASSED will be set to the default. NULL values neither checked nor allowed
+  * for parameters without default. May throw exceptions.
+  *
+  * @param p_to_delete A valid to delete value, either 0 or 1.
+  * @param p_test_passed A valid test passed, either 0, -1 or 1.
+  * @param p_test_session_id A valid current test session id.
+  * @param p_test_executor A valid executor / session user name.
+  * @param p_test_set The test set defined for the current test.
+  * @param p_db_user The database user for this test.
+  * @param p_db_schema The schema used for this test.
+  * @param p_test_group The test group defined for the current test.
+  * @param p_test_start The start of the test.
+  * @param p_test_end The end of the test.
+  * @param p_test_name The test name defined for the current test.
+  * @param p_test_desc The test description of the current test.
+  * @param p_test_errors Any errors during test execution, if any.
+  */
+  PROCEDURE write_test_result( p_to_delete         IN NUMBER
+                             , p_test_passed       IN NUMBER
+                             , p_test_session_id   IN NUMBER
+                             , p_test_executor     IN VARCHAR2
+                             , p_test_set          IN VARCHAR2
+                             , p_db_user           IN VARCHAR2
+                             , p_db_schema         IN VARCHAR2
+                             , p_test_group        IN VARCHAR2
+                             , p_test_start        IN TIMESTAMP
+                             , p_test_end          IN TIMESTAMP
+                             , p_test_name         IN VARCHAR2
+                             , p_test_desc         IN VARCHAR2
+                             , p_test_errors       IN VARCHAR2 DEFAULT NULL
+                             )
+  ;
+
+  /** PROCEDURE otap_util.result_cleanup
+  * Used for cleanup of the test results. Will run under scheduler job OTAP_MAINTENANCE every
+  * day. Will use the current otap configuration in OTAP_CONFIG, where PRESERVE_DAYS defines
+  * the days to keep test results, the DELETE_BATCH_SIZE defines the amount of rows to delete
+  * before committing them and DELETE_DELAY the seconds to wait after a commit before deleting
+  * more rows. Records must be marked for deletion. Provides debug logging if debug mode is
+  * activated in OTAP_CONFIG.
+  */
+  PROCEDURE result_cleanup;
+
+  /** FUNCTION otap_util.max_text_size
+  * Determines the maximum size for a session id the text label test_set, test_group, test_name and test_description.
+  * Used for report formatting. Error text is not considered as this might get huge.
+  *
+  * @param p_session_id A valid session id to get the maximum text size for.
+  *
+  * @return The maximum text size for the given session id or otap_constants.OTAP_NUM_MIN_FILL_LENGTH on errors.
+  */
+  FUNCTION max_text_size(p_session_id IN NUMBER)
+    RETURN NUMBER
+  ;
+
 END;
 /
