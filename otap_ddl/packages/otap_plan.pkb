@@ -31,18 +31,18 @@ AS
       l_test_passed := p_test_passed;
     ELSE
       l_test_passed := otap_constants.OTAP_NUM_TEST_FAILED;
-      l_errors      := SUBSTR('Invalid test passed value: ' || p_test_passed || otap_constants.OTAP_LF || l_errors, 1, 4000);
+      l_errors      := SUBSTR('Invalid test passed value: ' || p_test_passed || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
       otap_log.log('ERROR The given value for test passed ' || p_test_passed || ' for test description ' || p_test_description || ' is not valid.', l_script, 'p_test_passed IN (otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_UNDEFINED)');
     END IF;
     IF p_test_description IS NULL
     THEN
       l_test_description := 'Unspecified test ' || TIMESTAMP_TO_SCN(SYSTIMESTAMP);
-      l_errors           := SUBSTR('Missing test description' || otap_constants.OTAP_LF || l_errors, 1, 4000);
+      l_errors           := SUBSTR('Missing test description' || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
     ELSE
       IF LENGTH(p_test_description) > 256
       THEN
         l_test_description := SUBSTR(TRIM(p_test_description), 1, 256);
-        l_errors           := SUBSTR('Test description too long, cutted' || otap_constants.OTAP_LF || l_errors, 1, 4000);
+        l_errors           := SUBSTR('Test description too long, cutted' || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
       ELSE
         l_test_description := TRIM(p_test_description);
       END IF;
@@ -133,8 +133,8 @@ AS
     THEN
       -- write record with current values
       otap_plan.write_count_result(o_otap_session);
-      l_message := 'Closed test session summary' || otap_constants.OTAP_LF;
-      l_message := l_message || otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_LF;
+      l_message := 'Closed test session summary' || otap_constants.OTAP_INTERNAL_LF;
+      l_message := l_message || otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_INTERNAL_LF;
     END IF;
     -- now start setting the new values
     l_message := l_message || otap_objects.otap_session_set( p_test_count
@@ -185,7 +185,7 @@ AS
     ;
   BEGIN
     l_schema := NVL(p_schema_overwrite, p_otap_session.db_schema);
-    l_like   := p_otap_session.test_prefix || '\' || otap_constants.OTAP_DEFAULT_DELIMITER || NVL(p_like_expression, '%');
+    l_like   := p_otap_session.test_prefix || '\' || otap_constants.OTAP_INTERNAL_DELIMITER || NVL(p_like_expression, '%');
     -- loop over records found
     FOR rec IN cur_tests_to_run(l_schema, l_like)
     LOOP

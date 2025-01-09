@@ -118,7 +118,7 @@ AS
   /** FUNCTION otap_api.get_report_header
   * @see otap_report.get_report_header
   */
-  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -126,7 +126,7 @@ AS
   * @see otap_report.get_session_id_text
   */
   FUNCTION get_session_id_text( p_session_id IN NUMBER
-                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                               )
     RETURN VARCHAR2
   ;
@@ -135,7 +135,7 @@ AS
   * @see otap_report.get_set_text
   */
   FUNCTION get_set_text( p_test_set IN VARCHAR2
-                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                        )
     RETURN VARCHAR2
   ;
@@ -144,11 +144,11 @@ AS
   * @see otap_report.get_summary
   * Calculates status needed by errors and issues.
   */
-  FUNCTION get_summary( p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+  FUNCTION get_summary( p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs     IN NUMBER   DEFAULT 0
                       , p_errors   IN NUMBER   DEFAULT 0
                       , p_issues   IN NUMBER   DEFAULT 0
-                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                       )
     RETURN VARCHAR2
   ;
@@ -157,7 +157,7 @@ AS
   * @see otap_report.get_group_text
   */
   FUNCTION get_group_text( p_test_group IN VARCHAR2
-                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                          )
     RETURN VARCHAR2
   ;
@@ -166,7 +166,7 @@ AS
   * @see otap_report.get_test_name_text
   */
   FUNCTION get_test_name_text( p_test_name IN VARCHAR2
-                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                              )
     RETURN VARCHAR2
   ;
@@ -174,14 +174,14 @@ AS
   /** FUNCTION otap_api.get_result_header
   * @see otap_report.get_result_header
   */
-  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_result_underline
   * @see otap_report.get_result_underline
   */
-  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -190,9 +190,9 @@ AS
   */
   FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
                           , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                          , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                          , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                          , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                           )
     RETURN VARCHAR2
   ;
@@ -208,7 +208,7 @@ AS
   * @see otap_report.get_error_result_header
   */
   FUNCTION get_error_result_header( p_test_name IN VARCHAR2
-                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                   )
     RETURN VARCHAR2
   ;
@@ -216,9 +216,9 @@ AS
   /** FUNCTION otap_api.get_error_details
   * @see otap_report.get_error_details
   */
-  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                             )
     RETURN VARCHAR2
   ;
@@ -227,7 +227,7 @@ AS
   * @see otap_report.get_no_data_text
   */
   FUNCTION get_no_data_text( p_session_id IN NUMBER
-                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                            )
     RETURN VARCHAR2
   ;
@@ -235,7 +235,7 @@ AS
   /** FUNCTION otap_api.get_report_footer
   * @see otap_report.get_report_footer
   */
-  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -258,14 +258,14 @@ AS
   /** FUNCTION otap_api.get_test_count_header
   * @see otap_report.get_test_count_header
   */
-  FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_report_total
   * @see otap_report.get_report_total
   */
-  FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -276,7 +276,7 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
-                                   , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                                   , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    )
     RETURN VARCHAR2
   ;

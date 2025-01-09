@@ -69,7 +69,7 @@ AS
   *
   * @param p_preserve_days The amount of days to preserve test results.
   */
-  PROCEDURE set_preserve_days(p_preserve_days IN NUMBER DEFAULT otap_constants.OTAP_PRESERVE_DAYS);
+  PROCEDURE set_preserve_days(p_preserve_days IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_PRESERVE_DAYS);
 
   /** FUNCTION otap_config_util.delete_delay
   * @return The setting of DELETE_DELAY in OTAP_CONFIG.
@@ -84,7 +84,7 @@ AS
   *
   * @param p_delete_delay The amount of seconds to wait between batch size deletes.
   */
-  PROCEDURE set_delete_delay(p_delete_delay IN NUMBER DEFAULT otap_constants.OTAP_DELETE_DELAY);
+  PROCEDURE set_delete_delay(p_delete_delay IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_DELETE_DELAY);
 
   /** FUNCTION otap_config_util.delete_batch_size
   * @return The setting of DELETE_BATCH_SIZE in OTAP_CONFIG.
@@ -100,7 +100,7 @@ AS
   *
   * @param p_delete_batch_size The amount of rows to delete as batch before commit.
   */
-  PROCEDURE set_delete_batch_size(p_delete_batch_size IN NUMBER DEFAULT otap_constants.OTAP_DELETE_BATCH_SIZE);
+  PROCEDURE set_delete_batch_size(p_delete_batch_size IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE);
 
   /** FUNCTION otap_config_util.get_default_prefix
   * @return The setting of DEFAULT_PREFIX in OTAP_CONFIG.
@@ -145,7 +145,7 @@ AS
   *
   * @param p_default_layout A valid layout value for right or left as defined in OTAP_CONSTANTS.
   */
-  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_RESULT_LAYOUT_DEFAULT);
+  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_RESULT_DEFAULT);
 
   /** FUNCTION otap_config_util.get_default_border
   * @return The setting of DEFAULT_BORDER in OTAP_CONFIG.
@@ -163,7 +163,7 @@ AS
   *
   * @param p_default_border A valid decoration border value, minimum 2.
   */
-  PROCEDURE set_default_border(p_default_border IN NUMBER DEFAULT otap_constants.OTAP_BORDER_DEFAULT);
+  PROCEDURE set_default_border(p_default_border IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_BORDER);
 
   /** FUNCTION otap_config_util.get_default_test_group
   *  @return The setting of DEFAULT_TEST_GROUP in OTAP_CONFIG.
@@ -262,17 +262,17 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_errors_template
-  *  @return The setting of ERRORS_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_errors
+  *  @return The setting of TEMPLATE_ERRORS in OTAP_CONFIG.
   */
-  FUNCTION get_errors_template
+  FUNCTION get_template_errors
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_error_details_template
-  *  @return The setting of ERROR_DETAILS_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_error_details
+  *  @return The setting of TEMPLATE_ERROR_DETAILS in OTAP_CONFIG.
   */
-  FUNCTION get_error_details_template
+  FUNCTION get_template_error_details
     RETURN VARCHAR2
   ;
 
@@ -297,10 +297,10 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_format_result_header
-  *  @return The setting of FORMAT_RESULT_HEADER in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_text_result_line
+  *  @return The setting of TEXT_RESULT_LINE in OTAP_CONFIG.
   */
-  FUNCTION get_format_result_header
+  FUNCTION get_text_result_line
     RETURN VARCHAR2
   ;
 
@@ -311,101 +311,115 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_group_template
-  *  @return The setting of GROUP_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_group
+  *  @return The setting of TEMPLATE_GROUP in OTAP_CONFIG.
   */
-  FUNCTION get_group_template
+  FUNCTION get_template_group
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_no_data_template
-  *  @return The setting of NO_DATA_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_no_data
+  *  @return The setting of TEMPLATE_NO_DATA in OTAP_CONFIG.
   */
-  FUNCTION get_no_data_template
+  FUNCTION get_template_no_data
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_session_id_template
-  *  @return The setting of SESSION_ID_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_session_id
+  *  @return The setting of TEMPLATE_SESSION_ID in OTAP_CONFIG.
   */
-  FUNCTION get_session_id_template
+  FUNCTION get_template_session_id
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_set_template
-  *  @return The setting of SET_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_set
+  *  @return The setting of TEMPLATE_SET in OTAP_CONFIG.
   */
-  FUNCTION get_set_template
+  FUNCTION get_template_set
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_summary_template
-  *  @return The setting of SUMMARY_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_summary
+  *  @return The setting of TEMPLATE_SUMMARY in OTAP_CONFIG.
   */
-  FUNCTION get_summary_template
+  FUNCTION get_template_summary
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_test_name_template
-  *  @return The setting of TEST_NAME_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_test_name
+  *  @return The setting of TEMPLATE_TEST_NAME in OTAP_CONFIG.
   */
-  FUNCTION get_test_name_template
+  FUNCTION get_template_test_name
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_result_line_template
-  *  @return The setting of RESULT_LINE_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_result_line
+  *  @return The setting of TEMPLATE_RESULT_LINE in OTAP_CONFIG.
   */
-  FUNCTION get_result_line_template
+  FUNCTION get_template_result_line
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_count_desc_template
-  *  @return The setting of COUNT_DESC_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_count_desc
+  *  @return The setting of TEMPLATE_COUNT_DESC in OTAP_CONFIG.
   */
-  FUNCTION get_count_desc_template
+  FUNCTION get_template_count_desc
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_report_total_template
-  *  @return The setting of REPORT_TOTAL_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_report_total
+  *  @return The setting of TEMPLATE_REPORT_TOTAL in OTAP_CONFIG.
   */
-  FUNCTION get_report_total_template
+  FUNCTION get_template_report_total
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_fn_has_table_template
-  *  @return The setting of FN_HAS_TABLE_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_fn_has_table
+  *  @return The setting of TEMPLATE_FN_HAS_TABLE in OTAP_CONFIG.
   */
-  FUNCTION get_fn_has_table_template
+  FUNCTION get_template_fn_has_table
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_fn_has_column_template
-  *  @return The setting of FN_HAS_COLUMN_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_fn_has_column
+  *  @return The setting of TEMPLATE_FN_HAS_COLUMN in OTAP_CONFIG.
   */
-  FUNCTION get_fn_has_column_template
+  FUNCTION get_template_fn_has_column
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_fn_has_package_template
-  *  @return The setting of FN_HAS_PACKAGE_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_fn_has_package
+  *  @return The setting of TEMPLATE_FN_HAS_PACKAGE in OTAP_CONFIG.
   */
-  FUNCTION get_fn_has_package_template
+  FUNCTION get_template_fn_has_package
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_fn_has_procedure_template
-  *  @return The setting of FN_HAS_PROCEDURE_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_fn_has_procedure
+  *  @return The setting of TEMPLATE_FN_HAS_PROCEDURE in OTAP_CONFIG.
   */
-  FUNCTION get_fn_has_procedure_template
+  FUNCTION get_template_fn_has_procedure
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_config_util.get_fn_has_trigger_template
-  *  @return The setting of FN_HAS_TRIGGER_TEMPLATE in OTAP_CONFIG.
+  /** FUNCTION otap_config_util.get_template_fn_has_trigger
+  *  @return The setting of TEMPLATE_FN_HAS_TRIGGER in OTAP_CONFIG.
   */
-  FUNCTION get_fn_has_trigger_template
+  FUNCTION get_template_fn_has_trigger
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_template_exists
+  *  @return The setting of TEMPLATE_EXISTS in OTAP_CONFIG.
+  */
+  FUNCTION get_template_exists
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_config_util.get_template_xexists
+  *  @return The setting of TEMPLATE_XEXISTS in OTAP_CONFIG.
+  */
+  FUNCTION get_template_xexists
     RETURN VARCHAR2
   ;
 

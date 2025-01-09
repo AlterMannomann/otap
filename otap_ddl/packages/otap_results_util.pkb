@@ -134,7 +134,7 @@ AS
     -- use UNION not GREATEST to get a result in any case
     SELECT MAX(str_length) AS max_length
       INTO l_result
-      FROM (SELECT otap_constants.get_otap_report_min_fill_length AS str_length FROM dual
+      FROM (SELECT otap_constants.get_otap_num_min_fill_length AS str_length FROM dual
              UNION ALL
             SELECT MAX(LENGTH(test_set)) FROM otap_results WHERE test_session_id = 1
              UNION ALL

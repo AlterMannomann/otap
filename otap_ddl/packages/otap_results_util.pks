@@ -61,7 +61,7 @@ AS
   *
   * @param p_session_id A valid session id to get the maximum text size for.
   *
-  * @return The maximum text size for the given session id or otap_constants.OTAP_REPORT_MIN_FILL_LENGTH on errors.
+  * @return The maximum text size for the given session id or otap_constants.OTAP_NUM_MIN_FILL_LENGTH on errors.
   */
   FUNCTION max_text_size(p_session_id IN NUMBER)
     RETURN NUMBER

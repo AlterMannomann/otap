@@ -4,13 +4,26 @@
 CREATE OR REPLACE PACKAGE BODY otap_constants
 AS
   -- for description see header file
+  FUNCTION get_version
+    RETURN VARCHAR2
+    DETERMINISTIC
+    PARALLEL_ENABLE
+  IS
+  BEGIN
+    RETURN LPAD(otap_constants.OTAP_INTERNAL_NAME, 59, ' ') || otap_constants.OTAP_INTERNAL_LF ||
+           LPAD(otap_constants.OTAP_INTERNAL_VERSION_NR, 47, ' ') || otap_constants.OTAP_INTERNAL_LF ||
+           otap_constants.OTAP_INTERNAL_COPYRIGHT1 || otap_constants.OTAP_INTERNAL_LF ||
+           otap_constants.OTAP_INTERNAL_COPYRIGHT2
+    ;
+  END get_version;
+
   FUNCTION get_otap_user_role
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_USER_ROLE;
+    RETURN otap_constants.OTAP_INTERNAL_USER_ROLE;
   END get_otap_user_role;
 
   FUNCTION get_otap_schema
@@ -19,7 +32,7 @@ AS
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_SCHEMA;
+    RETURN otap_constants.OTAP_INTERNAL_SCHEMA;
   END get_otap_schema;
 
   FUNCTION get_otap_tablespace
@@ -28,7 +41,7 @@ AS
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_TABLESPACE;
+    RETURN otap_constants.OTAP_INTERNAL_TABLESPACE;
   END get_otap_tablespace;
 
   FUNCTION get_otap_num_true
@@ -76,59 +89,59 @@ AS
     RETURN otap_constants.OTAP_NUM_TEST_UNDEFINED;
   END get_otap_num_test_undefined;
 
-  FUNCTION get_otap_report_min_fill_length
+  FUNCTION get_otap_num_min_fill_length
     RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_REPORT_MIN_FILL_LENGTH;
-  END get_otap_report_min_fill_length;
+    RETURN otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+  END get_otap_num_min_fill_length;
 
-  FUNCTION get_otap_report_max_fill_length
+  FUNCTION get_otap_num_max_fill_length
     RETURN NUMBER
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_REPORT_MAX_FILL_LENGTH;
-  END get_otap_report_max_fill_length;
+    RETURN otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
+  END get_otap_num_max_fill_length;
 
-  FUNCTION get_otap_default_delimiter
+  FUNCTION get_otap_internal_delimiter
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_DEFAULT_DELIMITER;
-  END get_otap_default_delimiter;
+    RETURN otap_constants.OTAP_INTERNAL_DELIMITER;
+  END get_otap_internal_delimiter;
 
-  FUNCTION get_otap_error_identifier
+  FUNCTION get_otap_internal_error
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_ERROR_IDENTIFIER;
-  END get_otap_error_identifier;
+    RETURN otap_constants.OTAP_INTERNAL_ERROR;
+  END get_otap_internal_error;
 
-  FUNCTION get_otap_char_na
+  FUNCTION get_otap_internal_na
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_CHAR_NA;
-  END get_otap_char_na;
+    RETURN otap_constants.OTAP_INTERNAL_NA;
+  END get_otap_internal_na;
 
-  FUNCTION get_otap_var_delimiter
+  FUNCTION get_otap_internal_var
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE
   IS
   BEGIN
-    RETURN otap_constants.OTAP_VAR_DELIMITER;
-  END get_otap_var_delimiter;
+    RETURN otap_constants.OTAP_INTERNAL_VAR;
+  END get_otap_internal_var;
 
 END;
 /

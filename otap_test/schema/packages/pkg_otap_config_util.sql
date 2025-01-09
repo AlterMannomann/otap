@@ -171,13 +171,13 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_DEFAULT_TEST_SET'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_ERRORS_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_ERRORS'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_ERROR_DETAILS_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_ERROR_DETAILS'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
@@ -201,7 +201,7 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_FORMAT_NAME_CHAR'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_FORMAT_RESULT_HEADER'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEXT_RESULT_LINE'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
@@ -213,79 +213,79 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_FORMAT_SET_CHAR'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_GROUP_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_GROUP'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_NO_DATA_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_NO_DATA'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_SESSION_ID_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_SESSION_ID'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_SET_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_SET'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_SUMMARY_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_SUMMARY'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_NAME_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_TEST_NAME'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_RESULT_LINE_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_RESULT_LINE'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_COUNT_DESC_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_COUNT_DESC'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_REPORT_TOTAL_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_REPORT_TOTAL'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_FN_HAS_TABLE_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_FN_HAS_TABLE'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_FN_HAS_COLUMN_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_FN_HAS_COLUMN'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_FN_HAS_PACKAGE_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_FN_HAS_PACKAGE'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'
                               )
   FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_FN_HAS_PROCEDURE_TEMPLATE'
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEMPLATE_FN_HAS_PROCEDURE'
                               , p_procedure_type => 'FUNCTION'
                               , p_return_type => 'VARCHAR2'
                               , p_package_name => 'OTAP_CONFIG_UTIL'

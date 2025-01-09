@@ -437,7 +437,6 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
-
     ELSE
       -- invalid package name, type or state
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -464,6 +463,80 @@ AS
       END IF;
       RAISE;
   END has_trigger;
+
+  FUNCTION has_object( p_object_name     IN     VARCHAR2
+                     , p_object_type     IN     VARCHAR2
+                     , o_errors             OUT VARCHAR2
+                     , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN INTEGER
+  IS
+    l_script         VARCHAR2(1024 CHAR)    := 'otap_schema.has_object';
+    l_test_passed    INTEGER;
+    l_expected       INTEGER;
+    l_has_object     INTEGER;
+    l_object_name    VARCHAR2(128 CHAR);
+    l_object_type    VARCHAR2(23 CHAR);
+    l_schema_to_use  VARCHAR2(128 CHAR);
+    l_errors         VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_object_name     := otap_string.reduce(p_object_name, 128);
+    l_object_type     := otap_string.reduce(UPPER(p_object_type), 23);
+    IF     l_object_name        IS NOT NULL
+       AND LENGTH(l_object_name) > 0
+       AND l_object_type        IS NOT NULL
+       AND LENGTH(l_object_type) > 0
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_object
+        FROM dba_objects
+       WHERE owner       = l_schema_to_use
+         AND object_name = l_object_name
+         AND object_type = l_object_type
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_object, l_errors, l_script);
+    ELSE
+      -- invalid package name, type or state
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: ' || CASE
+                                                  WHEN l_object_name IS NULL OR LENGTH(l_object_name) = 0
+                                                  THEN 'p_object_name(NULL) '
+                                                END ||
+                                                CASE
+                                                  WHEN l_object_type IS NULL OR LENGTH(l_object_type) = 0
+                                                  THEN 'p_object_type(NULL)'
+                                                END
+      ;
+      otap_log.log(l_errors, l_script, 'Object name NULL or type NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_object;
 
 END;
 /
