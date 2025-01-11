@@ -30,16 +30,16 @@ AS
 
   -- for description see header file
   PROCEDURE log( p_log_message  IN VARCHAR2
-               , p_script       IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-               , p_statement    IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-               , p_identifier   IN VARCHAR2 DEFAULT otap_constants.OTAP_ERROR_IDENTIFIER
+               , p_script       IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+               , p_statement    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+               , p_identifier   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_ERROR
                )
   IS
     PRAGMA AUTONOMOUS_TRANSACTION;
     l_has_sperrorlog  NUMBER;
   BEGIN
     -- check which type of log
-    IF    p_identifier = otap_constants.OTAP_ERROR_IDENTIFIER
+    IF    p_identifier = otap_constants.OTAP_INTERNAL_ERROR
        OR otap_log.debug_active
     THEN
       -- check if table exists
@@ -54,7 +54,7 @@ AS
           , message
           , statement
           )
-          VALUES ( otap_constants.OTAP_SCHEMA
+          VALUES ( otap_constants.OTAP_INTERNAL_SCHEMA
                  , SYSTIMESTAMP
                  , p_script
                  , TRIM(SUBSTR(TRIM(p_identifier), 1, 256))

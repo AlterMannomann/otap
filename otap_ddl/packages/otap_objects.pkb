@@ -173,21 +173,21 @@ OR p_otap_session.session_view_id             IS NULL]'
     -- verify the current object
     otap_objects.otap_session_verify(p_otap_session);
     -- build the message
-    l_message := 'Current test settings' || otap_constants.OTAP_LF ||
-                 'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_LF ||
-                 'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_LF ||
-                 'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_LF ||
-                 'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_LF ||
-                 'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_LF ||
-                 'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_LF ||
-                 'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_LF ||
-                 'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_LF ||
-                 'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_LF ||
-                 'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_LF ||
-                 'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                 'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                 'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_TEXT_TRUE_YES ELSE otap_constants.OTAP_TEXT_FALSE_NO END || otap_constants.OTAP_LF ||
-                 'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE TO_CHAR(p_otap_session.session_view_id) END || otap_constants.OTAP_LF ||
+    l_message := 'Current test settings' || otap_constants.OTAP_INTERNAL_LF ||
+                 'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_INTERNAL_LF ||
+                 'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_INTERNAL_LF ||
+                 'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_INTERNAL_LF ||
+                 'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_INTERNAL_LF ||
+                 'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_INTERNAL_LF ||
+                 'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_INTERNAL_LF ||
+                 'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_INTERNAL_LF ||
+                 'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_INTERNAL_LF ||
+                 'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_INTERNAL_LF ||
+                 'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_INTERNAL_LF ||
+                 'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+                 'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+                 'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+                 'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE TO_CHAR(p_otap_session.session_view_id) END || otap_constants.OTAP_INTERNAL_LF ||
                  'Test start: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
     ;
     l_message := otap_string.reduce(l_message, 4000);
@@ -257,12 +257,12 @@ OR p_otap_session.session_view_id             IS NULL]'
       THEN
         o_otap_session.test_prefix := UPPER(TRIM(p_prefix));
       ELSE
-        o_otap_session.test_prefix := otap_constants.OTAP_DEFAULT_PREFIX;
+        o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
         otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' delimiters _, $, # not allowed', l_script, 'REGEXP_INSTR(p_prefix, ''[_|$|#]'') = 0');
       END IF;
     ELSE
       -- leave prefix as defined, log error
-      o_otap_session.test_prefix := otap_constants.OTAP_DEFAULT_PREFIX;
+      o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
       otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' length, only length 1-4 allowed', l_script, 'LENGTH(p_prefix) <= 4 OR LENGTH(p_prefix) > 0');
     END IF;
     -- check bool values
@@ -357,7 +357,7 @@ OR p_otap_session.session_view_id             IS NULL]'
       o_otap_session.test_set := SUBSTR(p_test_set, 1, 256);
       otap_log.log('ERROR test set name length exceed 256 chars. Test set ' || p_test_set || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_set) > 256');
     ELSE
-      o_otap_session.test_set := NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET);
+      o_otap_session.test_set := NVL(p_test_set, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET);
     END IF;
     l_message := otap_string.reduce('Current test set: ' || o_otap_session.test_set, 4000);
     RETURN l_message;
@@ -385,7 +385,7 @@ OR p_otap_session.session_view_id             IS NULL]'
       o_otap_session.test_group := SUBSTR(p_test_group, 1, 256);
       otap_log.log('ERROR test group name length exceed 256 chars. Test group ' || p_test_group || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_group) > 256');
     ELSE
-      o_otap_session.test_group := NVL(p_test_group, otap_constants.OTAP_DEFAULT_TEST_GROUP);
+      o_otap_session.test_group := NVL(p_test_group, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP);
     END IF;
     l_message := otap_string.reduce('Current test group: ' || o_otap_session.test_group, 4000);
     RETURN l_message;
@@ -413,7 +413,7 @@ OR p_otap_session.session_view_id             IS NULL]'
       o_otap_session.test_name := SUBSTR(p_test_name, 1, 256);
       otap_log.log('ERROR test name length exceed 256 chars. Test name ' || p_test_name || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_name) > 256');
     ELSE
-      o_otap_session.test_name := NVL(p_test_name, otap_constants.OTAP_DEFAULT_TEST_NAME);
+      o_otap_session.test_name := NVL(p_test_name, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME);
     END IF;
     l_message := otap_string.reduce('Current test: ' || o_otap_session.test_name, 4000);
     RETURN l_message;
@@ -519,14 +519,14 @@ OR p_otap_session.session_view_id             IS NULL]'
     l_message VARCHAR2(4000 CHAR);
   BEGIN
     -- object gets verified by summary for old session
-    l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_LF;
+    l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_INTERNAL_LF;
     -- reset values
     o_otap_session.test_count     := 0;
     o_otap_session.error_count    := 0;
     o_otap_session.intended_count := 0;
-    o_otap_session.test_set       := otap_constants.OTAP_DEFAULT_TEST_SET;
-    o_otap_session.test_group     := otap_constants.OTAP_DEFAULT_TEST_GROUP;
-    o_otap_session.test_name      := otap_constants.OTAP_DEFAULT_TEST_NAME;
+    o_otap_session.test_set       := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET;
+    o_otap_session.test_group     := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP;
+    o_otap_session.test_name      := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME;
     o_otap_session.session_start  := SYSDATE;
     o_otap_session.session_id     := otap_test_session_seq.NEXTVAL;
     -- do not update the session_view_id so it will keep the old or any set value

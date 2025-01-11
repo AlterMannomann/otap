@@ -88,7 +88,7 @@ AS
 
   /** FUNCTION otap_objects.otap_session_set_test_set
   * Sets the current active test set. If test set name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_SET
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
   * is used.
   *
   * @param p_test_set The test set name to use for the next tests.
@@ -106,7 +106,7 @@ AS
 
   /** FUNCTION otap_objects.otap_session_set_test_group
   * Sets the current active test group. If test group name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_GROUP
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
   * is used.
   *
   * @param p_test_group The test group name to use for the next tests.
@@ -124,7 +124,7 @@ AS
 
   /** FUNCTION otap_objects.otap_session_set_test_name
   * Sets the current active test. If test name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_NAME
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
   * is used.
   *
   * @param p_test_name The test name to use for the next tests.

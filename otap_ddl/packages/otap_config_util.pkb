@@ -5,23 +5,6 @@ CREATE OR REPLACE PACKAGE BODY otap_config_util
 AS
   -- for description see header file
 
-  FUNCTION get_config_value(p_config_name IN VARCHAR2)
-    RETURN VARCHAR2
-  IS
-    l_return otap_config.config_value%TYPE;
-  BEGIN
-    SELECT config_value
-      INTO l_return
-      FROM otap_config
-     WHERE config_name = UPPER(p_config_name)
-    ;
-    RETURN l_return;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_config_util.get_config_value', 'SELECT config_value INTO l_return FROM otap_config WHERE config_name = UPPER(p_config_name)');
-      RAISE;
-  END get_config_value;
-
   PROCEDURE set_config_value( p_config_name  IN VARCHAR2
                             , p_config_value IN VARCHAR2
                             )
@@ -43,7 +26,7 @@ AS
     RETURN NUMBER
   IS
   BEGIN
-    RETURN TO_NUMBER(get_config_value(otap_constants.OTAP_CFG_DEBUG_MODE));
+    RETURN TO_NUMBER(otap_util.get_config_value(otap_constants.OTAP_CFG_DEBUG_MODE));
   END get_debug;
 
   PROCEDURE set_debug(p_active IN NUMBER DEFAULT otap_constants.OTAP_NUM_FALSE)
@@ -63,94 +46,94 @@ AS
     RETURN NUMBER
   IS
   BEGIN
-    RETURN TO_NUMBER(get_config_value(otap_constants.OTAP_CFG_PRESERVE_DAYS));
+    RETURN TO_NUMBER(otap_util.get_config_value(otap_util.CFG_PRESERVE_DAYS));
   END preserve_days;
 
-  PROCEDURE set_preserve_days(p_preserve_days IN NUMBER DEFAULT otap_constants.OTAP_PRESERVE_DAYS)
+  PROCEDURE set_preserve_days(p_preserve_days IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)
   IS
     l_preserve otap_config.config_value%TYPE;
   BEGIN
     l_preserve := CASE
-                    WHEN p_preserve_days BETWEEN otap_constants.OTAP_PRESERVE_DAYS_MIN
-                                             AND otap_constants.OTAP_PRESERVE_DAYS_MAX
+                    WHEN p_preserve_days BETWEEN otap_constants.OTAP_FALLBACK_PRESERVE_DAYS_MIN
+                                             AND otap_constants.OTAP_FALLBACK_PRESERVE_DAYS_MAX
                     THEN TRIM(TO_CHAR(p_preserve_days))
-                    ELSE TRIM(TO_CHAR(otap_constants.OTAP_PRESERVE_DAYS))
+                    ELSE TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS))
                   END
     ;
-    set_config_value(otap_constants.OTAP_CFG_PRESERVE_DAYS, l_preserve);
+    set_config_value(otap_util.CFG_PRESERVE_DAYS, l_preserve);
   END set_preserve_days;
 
   FUNCTION delete_delay
     RETURN NUMBER
   IS
   BEGIN
-    RETURN TO_NUMBER(get_config_value(otap_constants.OTAP_CFG_DELETE_DELAY));
+    RETURN TO_NUMBER(otap_util.get_config_value(otap_util.CFG_DELETE_DELAY));
   END delete_delay;
 
-  PROCEDURE set_delete_delay(p_delete_delay IN NUMBER DEFAULT otap_constants.OTAP_DELETE_DELAY)
+  PROCEDURE set_delete_delay(p_delete_delay IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_DELETE_DELAY)
   IS
     l_delay otap_config.config_value%TYPE;
   BEGIN
     l_delay := CASE
-                 WHEN p_delete_delay BETWEEN otap_constants.OTAP_DELETE_DELAY_MIN
-                                         AND otap_constants.OTAP_DELETE_DELAY_MAX
+                 WHEN p_delete_delay BETWEEN otap_constants.OTAP_FALLBACK_DELETE_DELAY_MIN
+                                         AND otap_constants.OTAP_FALLBACK_DELETE_DELAY_MAX
                  THEN TRIM(TO_CHAR(p_delete_delay))
-                 ELSE TRIM(TO_CHAR(otap_constants.OTAP_DELETE_DELAY))
+                 ELSE TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY))
                END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DELETE_DELAY, l_delay);
+    set_config_value(otap_util.CFG_DELETE_DELAY, l_delay);
   END set_delete_delay;
 
   FUNCTION delete_batch_size
     RETURN NUMBER
   IS
   BEGIN
-    RETURN TO_NUMBER(get_config_value(otap_constants.OTAP_CFG_DELETE_BATCH_SIZE));
+    RETURN TO_NUMBER(otap_util.get_config_value(otap_util.CFG_DELETE_BATCH_SIZE));
   END delete_batch_size;
 
-  PROCEDURE set_delete_batch_size(p_delete_batch_size IN NUMBER DEFAULT otap_constants.OTAP_DELETE_BATCH_SIZE)
+  PROCEDURE set_delete_batch_size(p_delete_batch_size IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)
   IS
     l_batch otap_config.config_value%TYPE;
   BEGIN
     l_batch := CASE
-                 WHEN p_delete_batch_size BETWEEN otap_constants.OTAP_DELETE_BATCH_SIZE_MIN
-                                              AND otap_constants.OTAP_DELETE_BATCH_SIZE_MAX
+                 WHEN p_delete_batch_size BETWEEN otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE_MIN
+                                              AND otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE_MAX
                  THEN TRIM(TO_CHAR(p_delete_batch_size))
-                 ELSE TRIM(TO_CHAR(otap_constants.OTAP_DELETE_BATCH_SIZE))
+                 ELSE TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE))
                END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DELETE_BATCH_SIZE, l_batch);
+    set_config_value(otap_util.CFG_DELETE_BATCH_SIZE, l_batch);
   END set_delete_batch_size;
 
   FUNCTION get_default_prefix
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_PREFIX);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_PREFIX);
   END get_default_prefix;
 
-  PROCEDURE set_default_prefix(p_default_prefix IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_PREFIX)
+  PROCEDURE set_default_prefix(p_default_prefix IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX)
   IS
     l_prefix otap_config.config_value%TYPE;
   BEGIN
     l_prefix := CASE
-                  WHEN LENGTH(p_default_prefix) > otap_constants.OTAP_PREFIX_MAX_SIZE
+                  WHEN LENGTH(p_default_prefix) > otap_constants.OTAP_NUM_PREFIX_MAX_SIZE
                     OR INSTR(p_default_prefix, '_') > 0
-                  THEN otap_constants.OTAP_DEFAULT_PREFIX
+                  THEN otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                   ELSE p_default_prefix
                 END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DEFAULT_PREFIX, l_prefix);
+    set_config_value(otap_util.CFG_DEFAULT_PREFIX, l_prefix);
   END set_default_prefix;
 
   FUNCTION get_default_layout
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_LAYOUT);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT);
   END get_default_layout;
 
-  PROCEDURE set_default_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
+  PROCEDURE set_default_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT)
   IS
     l_layout otap_config.config_value%TYPE;
   BEGIN
@@ -160,17 +143,17 @@ AS
                   ELSE p_default_layout
                 END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DEFAULT_LAYOUT, l_layout);
+    set_config_value(otap_util.CFG_DEFAULT_LAYOUT, l_layout);
   END set_default_layout;
 
   FUNCTION get_default_result_layout
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_RESULT_LAYOUT);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT);
   END get_default_result_layout;
 
-  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_RESULT_LAYOUT_DEFAULT)
+  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT)
   IS
     l_layout otap_config.config_value%TYPE;
   BEGIN
@@ -180,27 +163,27 @@ AS
                   ELSE p_default_layout
                 END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DEFAULT_RESULT_LAYOUT, l_layout);
+    set_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, l_layout);
   END set_default_result_layout;
 
   FUNCTION get_default_border
     RETURN NUMBER
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_BORDER);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_BORDER);
   END get_default_border;
 
-  PROCEDURE set_default_border(p_default_border IN NUMBER DEFAULT otap_constants.OTAP_BORDER_DEFAULT)
+  PROCEDURE set_default_border(p_default_border IN NUMBER DEFAULT otap_constants.OTAP_FALLBACK_BORDER)
   IS
     l_border otap_config.config_value%TYPE;
   BEGIN
     l_border := CASE
                   WHEN p_default_border < 2
-                  THEN TO_CHAR(otap_constants.OTAP_BORDER_DEFAULT)
+                  THEN TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)
                   ELSE TO_CHAR(p_default_border)
                 END
     ;
-    set_config_value(otap_constants.OTAP_CFG_DEFAULT_BORDER, l_border);
+    set_config_value(otap_util.CFG_DEFAULT_BORDER, l_border);
   END set_default_border;
 
   FUNCTION get_length_test_state
@@ -211,15 +194,15 @@ AS
     SELECT MAX(LENGTH(config_value))
       INTO l_return
       FROM otap_config
-     WHERE config_name IN ( otap_constants.OTAP_CFG_TEXT_TEST_FAILED
-                          , otap_constants.OTAP_CFG_TEXT_TEST_PASSED
-                          , otap_constants.OTAP_CFG_TEXT_TEST_UNDEFINED
+     WHERE config_name IN ( otap_util.CFG_TEXT_TEST_FAILED
+                          , otap_util.CFG_TEXT_TEST_PASSED
+                          , otap_util.CFG_TEXT_TEST_UNDEFINED
                           )
     ;
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_config_util.get_length_test_state', 'Get MAX length for config values');
+      otap_log.log(SQLERRM, 'otap_util.get_length_test_state', 'Get MAX length for config values');
       RAISE;
   END get_length_test_state;
 
@@ -231,14 +214,14 @@ AS
     SELECT MAX(LENGTH(config_value))
       INTO l_return
       FROM otap_config
-     WHERE config_name IN ( otap_constants.OTAP_CFG_TEXT_SUMMARY_ERROR
-                          , otap_constants.OTAP_CFG_TEXT_SUMMARY_SUCCESS
+     WHERE config_name IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
+                          , otap_util.CFG_TEXT_SUMMARY_SUCCESS
                           )
     ;
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_config_util.get_length_summary_state', 'Get MAX length for config values');
+      otap_log.log(SQLERRM, 'otap_util.get_length_summary_state', 'Get MAX length for config values');
       RAISE;
   END get_length_summary_state;
 
@@ -250,15 +233,15 @@ AS
     SELECT MAX(LENGTH(config_value))
       INTO l_return
       FROM otap_config
-     WHERE config_name IN ( otap_constants.OTAP_CFG_TEXT_REPORT_START
-                          , otap_constants.OTAP_CFG_TEXT_REPORT_END
-                          , otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL
+     WHERE config_name IN ( otap_util.CFG_TEXT_REPORT_START
+                          , otap_util.CFG_TEXT_REPORT_END
+                          , otap_util.CFG_TEXT_REPORT_TOTAL
                           )
     ;
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_config_util.get_length_headers', 'Get MAX length for config values');
+      otap_log.log(SQLERRM, 'otap_util.get_length_headers', 'Get MAX length for config values');
       RAISE;
   END get_length_headers;
 
@@ -270,14 +253,14 @@ AS
     SELECT MAX(LENGTH(config_value))
       INTO l_return
       FROM otap_config
-     WHERE config_name IN ( otap_constants.OTAP_CFG_TEXT_RESULT_HEADER
-                          , otap_constants.OTAP_CFG_FORMAT_RESULT_HEADER
+     WHERE config_name IN ( otap_util.CFG_TEXT_RESULT_HEADER
+                          , otap_util.CFG_TEXT_RESULT_LINE
                           )
     ;
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_config_util.get_length_result_headers', 'Get MAX length for config values');
+      otap_log.log(SQLERRM, 'otap_util.get_length_result_headers', 'Get MAX length for config values');
       RAISE;
   END get_length_result_headers;
 
@@ -288,12 +271,12 @@ AS
   BEGIN
     l_translation := CASE p_test_passed
                        WHEN otap_constants.OTAP_NUM_TEST_PASSED
-                       THEN otap_config_util.get_text_test_passed
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED)
                        WHEN otap_constants.OTAP_NUM_TEST_FAILED
-                       THEN otap_config_util.get_text_test_failed
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED)
                        WHEN otap_constants.OTAP_NUM_TEST_UNDEFINED
-                       THEN otap_config_util.get_text_test_undefined
-                       ELSE otap_constants.OTAP_ERROR_IDENTIFIER
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED)
+                       ELSE otap_constants.OTAP_INTERNAL_ERROR
                      END
     ;
     RETURN l_translation;
@@ -310,8 +293,8 @@ AS
   BEGIN
     l_translation := CASE
                        WHEN p_bool
-                       THEN otap_config_util.get_text_true
-                       ELSE otap_config_util.get_text_false
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TRUE)
+                       ELSE otap_util.get_config_value(otap_util.CFG_TEXT_FALSE)
                      END
     ;
     RETURN l_translation;
@@ -328,8 +311,8 @@ AS
   BEGIN
     l_translation := CASE
                        WHEN p_bool
-                       THEN otap_config_util.get_text_true_yes
-                       ELSE otap_config_util.get_text_false_no
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TRUE_YES)
+                       ELSE otap_util.get_config_value(otap_util.CFG_TEXT_FALSE_NO)
                      END
     ;
     RETURN l_translation;
@@ -344,273 +327,287 @@ AS
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_TEST_GROUP);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_TEST_GROUP);
   END get_default_test_group;
 
   FUNCTION get_default_test_name
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_TEST_NAME);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_TEST_NAME);
   END get_default_test_name;
 
   FUNCTION get_default_test_set
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_DEFAULT_TEST_SET);
+    RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_TEST_SET);
   END get_default_test_set;
 
-  FUNCTION get_errors_template
+  FUNCTION get_template_errors
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_ERRORS_TEMPLATE);
-  END get_errors_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERRORS);
+  END get_template_errors;
 
-  FUNCTION get_error_details_template
+  FUNCTION get_template_error_details
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_ERROR_DETAILS_TEMPLATE);
-  END get_error_details_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERROR_DETAILS);
+  END get_template_error_details;
 
   FUNCTION get_format_group_char
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FORMAT_GROUP_CHAR);
+    RETURN otap_util.get_config_value(otap_util.CFG_FORMAT_GROUP_CHAR);
   END get_format_group_char;
 
   FUNCTION get_format_header_char
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FORMAT_HEADER_CHAR);
+    RETURN otap_util.get_config_value(otap_util.CFG_FORMAT_HEADER_CHAR);
   END get_format_header_char;
 
   FUNCTION get_format_name_char
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FORMAT_NAME_CHAR);
+    RETURN otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR);
   END get_format_name_char;
 
-  FUNCTION get_format_result_header
+  FUNCTION get_text_result_line
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FORMAT_RESULT_HEADER);
-  END get_format_result_header;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_RESULT_LINE);
+  END get_text_result_line;
 
   FUNCTION get_format_set_char
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FORMAT_SET_CHAR);
+    RETURN otap_util.get_config_value(otap_util.CFG_FORMAT_SET_CHAR);
   END get_format_set_char;
 
-  FUNCTION get_group_template
+  FUNCTION get_template_group
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_GROUP_TEMPLATE);
-  END get_group_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_GROUP);
+  END get_template_group;
 
-  FUNCTION get_no_data_template
+  FUNCTION get_template_no_data
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_NO_DATA_TEMPLATE);
-  END get_no_data_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_NO_DATA);
+  END get_template_no_data;
 
-  FUNCTION get_session_id_template
+  FUNCTION get_template_session_id
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_SESSION_ID_TEMPLATE);
-  END get_session_id_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_SESSION_ID);
+  END get_template_session_id;
 
-  FUNCTION get_set_template
+  FUNCTION get_template_set
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_SET_TEMPLATE);
-  END get_set_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_SET);
+  END get_template_set;
 
-  FUNCTION get_summary_template
+  FUNCTION get_template_summary
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_SUMMARY_TEMPLATE);
-  END get_summary_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY);
+  END get_template_summary;
 
-  FUNCTION get_test_name_template
+  FUNCTION get_template_test_name
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEST_NAME_TEMPLATE);
-  END get_test_name_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_TEST_NAME);
+  END get_template_test_name;
 
-  FUNCTION get_result_line_template
+  FUNCTION get_template_result_line
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_RESULT_LINE_TEMPLATE);
-  END get_result_line_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_RESULT_LINE);
+  END get_template_result_line;
 
-  FUNCTION get_count_desc_template
+  FUNCTION get_template_count_desc
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_COUNT_DESC_TEMPLATE);
-  END get_count_desc_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_COUNT_DESC);
+  END get_template_count_desc;
 
-  FUNCTION get_report_total_template
+  FUNCTION get_template_report_total
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_REPORT_TOTAL_TEMPLATE);
-  END get_report_total_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_REPORT_TOTAL);
+  END get_template_report_total;
 
-  FUNCTION get_fn_has_table_template
+  FUNCTION get_template_fn_has_table
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_TABLE_TEMPLATE);
-  END get_fn_has_table_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_TABLE);
+  END get_template_fn_has_table;
 
-  FUNCTION get_fn_has_column_template
+  FUNCTION get_template_fn_has_column
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_COLUMN_TEMPLATE);
-  END get_fn_has_column_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_COLUMN);
+  END get_template_fn_has_column;
 
-  FUNCTION get_fn_has_package_template
+  FUNCTION get_template_fn_has_package
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_PACKAGE_TEMPLATE);
-  END get_fn_has_package_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_PACKAGE);
+  END get_template_fn_has_package;
 
-  FUNCTION get_fn_has_procedure_template
+  FUNCTION get_template_fn_has_procedure
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_PROCEDURE_TEMPLATE);
-  END get_fn_has_procedure_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_PROCEDURE);
+  END get_template_fn_has_procedure;
 
-  FUNCTION get_fn_has_trigger_template
+  FUNCTION get_template_fn_has_trigger
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_FN_HAS_TRIGGER_TEMPLATE);
-  END get_fn_has_trigger_template;
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_TRIGGER);
+  END get_template_fn_has_trigger;
+
+  FUNCTION get_template_exists
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS);
+  END get_template_exists;
+
+  FUNCTION get_template_xexists
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_XEXISTS);
+  END get_template_xexists;
 
   FUNCTION get_text_false
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_FALSE);
   END get_text_false;
 
   FUNCTION get_text_false_no
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_FALSE_NO);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_FALSE_NO);
   END get_text_false_no;
 
   FUNCTION get_text_report_end
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_END);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_REPORT_END);
   END get_text_report_end;
 
   FUNCTION get_text_report_total
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_TOTAL);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_REPORT_TOTAL);
   END get_text_report_total;
 
   FUNCTION get_text_report_start
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_REPORT_START);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_REPORT_START);
   END get_text_report_start;
 
   FUNCTION get_text_result_header
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_RESULT_HEADER);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_RESULT_HEADER);
   END get_text_result_header;
 
   FUNCTION get_text_test_count_header
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_HEADER);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_HEADER);
   END get_text_test_count_header;
 
   FUNCTION get_text_test_count_name
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_COUNT_NAME);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
   END get_text_test_count_name;
 
   FUNCTION get_text_summary_error
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_ERROR);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_SUMMARY_ERROR);
   END get_text_summary_error;
 
   FUNCTION get_text_summary_success
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_SUMMARY_SUCCESS);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_SUMMARY_SUCCESS);
   END get_text_summary_success;
 
   FUNCTION get_text_test_failed
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_FAILED);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED);
   END get_text_test_failed;
 
   FUNCTION get_text_test_passed
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_PASSED);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED);
   END get_text_test_passed;
 
   FUNCTION get_text_test_undefined
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TEST_UNDEFINED);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED);
   END get_text_test_undefined;
 
   FUNCTION get_text_true
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TRUE);
   END get_text_true;
 
   FUNCTION get_text_true_yes
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN get_config_value(otap_constants.OTAP_CFG_TEXT_TRUE_YES);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEXT_TRUE_YES);
   END get_text_true_yes;
 
 END;

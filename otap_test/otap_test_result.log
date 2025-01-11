@@ -1,419 +1,415 @@
 ================================ OTAP test summary report ================================
 Session id: 5
 ****************************** Test set: OTAP functionality ******************************
-Passed runtime: +00 00:00:04.706754 (runs: 58 errors: 0 issues: 0)
+Passed runtime: +00 00:00:05.188836 (runs: 58 errors: 0 issues: 0)
 ++++++++++++++++++++++++++++ Test group: OTAP test functions +++++++++++++++++++++++++++++
-Passed runtime: +00 00:00:04.706754 (runs: 58 errors: 0 issues: 0)
+Passed runtime: +00 00:00:05.188836 (runs: 58 errors: 0 issues: 0)
 ------------------------- Test name: Verify otap_test.has_table --------------------------
-Passed runtime: +00 00:00:00.151229 (runs: 6 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.331635 (runs: 6 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.004226 DUAL table
-Passed    Passed    +00 00:00:00.000989 Invalid table name
-Passed    Passed    +00 00:00:00.003363 NULL table name
-Passed    Passed    +00 00:00:00.001240 Default schema
-Passed    Passed    +00 00:00:00.001083 Fallback schema
-Passed    Passed    +00 00:00:00.001876 Table SYS.DUAL exists
+Passed    Passed    +00 00:00:00.003527 DUAL table
+Passed    Passed    +00 00:00:00.001200 Invalid table name
+Passed    Passed    +00 00:00:00.020488 NULL table name
+Passed    Passed    +00 00:00:00.001407 Default schema
+Passed    Passed    +00 00:00:00.008790 Fallback schema
+Passed    Passed    +00 00:00:00.005089 table DUAL exists check (SYS)
 ------------------------- Test name: Verify otap_test.has_column -------------------------
-Passed runtime: +00 00:00:00.474499 (runs: 21 errors: 0 issues: 0)
+Passed runtime: +00 00:00:01.128426 (runs: 21 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.002387 DUAL table column DUMMY
-Passed    Passed    +00 00:00:00.000670 Invalid table name
-Passed    Passed    +00 00:00:00.000645 Invalid column name
-Passed    Passed    +00 00:00:00.004172 NULL table name
-Passed    Passed    +00 00:00:00.004672 NULL column name
-Passed    Passed    +00 00:00:00.001539 NULL table and column name
-Passed    Passed    +00 00:00:00.003794 Default schema
-Passed    Passed    +00 00:00:00.001413 Fallback schema
-Passed    Passed    +00 00:00:00.000918 Datatype correct
-Passed    Passed    +00 00:00:00.000892 Datatype wrong
-Passed    Passed    +00 00:00:00.001669 Data length correct
-Passed    Passed    +00 00:00:00.001312 Data length wrong
-Passed    Passed    +00 00:00:00.001051 Nullable correct
-Passed    Passed    +00 00:00:00.000696 Nullable wrong
-Passed    Passed    +00 00:00:00.001367 Data scale correct
-Passed    Passed    +00 00:00:00.000502 Data scale wrong
-Passed    Passed    +00 00:00:00.001262 Data precision correct
-Passed    Passed    +00 00:00:00.001075 Data precision wrong
-Passed    Passed    +00 00:00:00.001179 Data default correct
-Passed    Passed    +00 00:00:00.001013 Data default wrong
-Passed    Passed    +00 00:00:00.000918 Column DUMMY (SYS.DUAL) exists
+Passed    Passed    +00 00:00:00.002753 DUAL table column DUMMY
+Passed    Passed    +00 00:00:00.000832 Invalid table name
+Passed    Passed    +00 00:00:00.000839 Invalid column name
+Passed    Passed    +00 00:00:00.003539 NULL table name
+Passed    Passed    +00 00:00:00.002061 NULL column name
+Passed    Passed    +00 00:00:00.002025 NULL table and column name
+Passed    Passed    +00 00:00:00.001614 Default schema
+Passed    Passed    +00 00:00:00.001545 Fallback schema
+Passed    Passed    +00 00:00:00.001620 Datatype correct
+Passed    Passed    +00 00:00:00.001596 Datatype wrong
+Passed    Passed    +00 00:00:00.001577 Data length correct
+Passed    Passed    +00 00:00:00.001166 Data length wrong
+Passed    Passed    +00 00:00:00.001460 Nullable correct
+Passed    Passed    +00 00:00:00.000960 Nullable wrong
+Passed    Passed    +00 00:00:00.001625 Data scale correct
+Passed    Passed    +00 00:00:00.000775 Data scale wrong
+Passed    Passed    +00 00:00:00.001636 Data precision correct
+Passed    Passed    +00 00:00:00.002183 Data precision wrong
+Passed    Passed    +00 00:00:00.002604 Data default correct
+Passed    Passed    +00 00:00:00.001141 Data default wrong
+Passed    Passed    +00 00:00:00.003472 column DUAL.DUMMY exists check (SYS)
 ------------------------ Test name: Verify otap_test.has_package -------------------------
-Passed runtime: +00 00:00:00.178688 (runs: 8 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.299034 (runs: 8 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000983 DBMS_OUTPUT package
-Passed    Passed    +00 00:00:00.000355 Invalid package
-Passed    Passed    +00 00:00:00.000406 Correct package type
-Passed    Passed    +00 00:00:00.002130 Wrong package type
-Passed    Passed    +00 00:00:00.001880 NULL package name
-Passed    Passed    +00 00:00:00.004046 NULL package type
-Passed    Passed    +00 00:00:00.000505 Package SYS.DBMS_OUTPUT exists (PACKAGE)
-Passed    Passed    +00 00:00:00.006634 Package SYS.DBMS_OUTPUT exists (PACKAGE BODY)
+Passed    Passed    +00 00:00:00.001719 DBMS_OUTPUT package
+Passed    Passed    +00 00:00:00.000850 Invalid package
+Passed    Passed    +00 00:00:00.000906 Correct package type
+Passed    Passed    +00 00:00:00.003261 Wrong package type
+Passed    Passed    +00 00:00:00.002235 NULL package name
+Passed    Passed    +00 00:00:00.006207 NULL package type
+Passed    Passed    +00 00:00:00.001337 package DBMS_OUTPUT exists check (SYS)
+Passed    Passed    +00 00:00:00.012100 package body DBMS_OUTPUT exists check (SYS)
 ----------------------- Test name: Verify otap_test.has_procedure ------------------------
-Passed runtime: +00 00:00:02.623418 (runs: 18 errors: 0 issues: 0)
+Passed runtime: +00 00:00:02.864203 (runs: 18 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.286018 Dummy function minimal test
-Passed    Passed    +00 00:00:00.220766 Dummy procedure minimal test
-Passed    Passed    +00 00:00:00.002395 NULL procedure name
-Passed    Passed    +00 00:00:00.001324 NULL procedure type
-Passed    Passed    +00 00:00:00.366749 Dummy function return type
-Passed    Passed    +00 00:00:00.373328 Dummy function wrong return type
-Passed    Passed    +00 00:00:00.003465 Dummy function wrong procedure type
-Passed    Passed    +00 00:00:00.001926 Dummy procedure wrong procedure type
-Passed    Passed    +00 00:00:00.034877 Package procedure test minimal
-Passed    Passed    +00 00:00:00.048336 Package function test minimal
-Passed    Passed    +00 00:00:00.001859 Package function test return type
-Passed    Passed    +00 00:00:00.000907 Package procedure wrong schema
-Passed    Passed    +00 00:00:00.001500 Package procedure wrong procedure type
-Passed    Passed    +00 00:00:00.001353 Package function wrong return type
-Passed    Passed    +00 00:00:00.178138 Function DUMMY_FUNCTION exists (OTAP)
-Passed    Passed    +00 00:00:00.391368 Procedure DUMMY_PROCEDURE exists (OTAP)
-Passed    Passed    +00 00:00:00.001911 Function DBMS_SESSION.IS_ROLE_ENABLED exists (SYS)
-Passed    Passed    +00 00:00:00.002029 Procedure DBMS_OUTPUT.PUT_LINE exists (SYS)
+Passed    Passed    +00 00:00:00.206321 Dummy function minimal test
+Passed    Passed    +00 00:00:00.200675 Dummy procedure minimal test
+Passed    Passed    +00 00:00:00.002282 NULL procedure name
+Passed    Passed    +00 00:00:00.009351 NULL procedure type
+Passed    Passed    +00 00:00:00.252686 Dummy function return type
+Passed    Passed    +00 00:00:00.367079 Dummy function wrong return type
+Passed    Passed    +00 00:00:00.001838 Dummy function wrong procedure type
+Passed    Passed    +00 00:00:00.001953 Dummy procedure wrong procedure type
+Passed    Passed    +00 00:00:00.079517 Package procedure test minimal
+Passed    Passed    +00 00:00:00.051803 Package function test minimal
+Passed    Passed    +00 00:00:00.003074 Package function test return type
+Passed    Passed    +00 00:00:00.002986 Package procedure wrong schema
+Passed    Passed    +00 00:00:00.002522 Package procedure wrong procedure type
+Passed    Passed    +00 00:00:00.002355 Package function wrong return type
+Passed    Passed    +00 00:00:00.364547 function DUMMY_FUNCTION exists check (OTAP)
+Passed    Passed    +00 00:00:00.310548 procedure DUMMY_PROCEDURE exists check (OTAP)
+Passed    Passed    +00 00:00:00.018845 function DBMS_SESSION.IS_ROLE_ENABLED exists check (SYS)
+Passed    Passed    +00 00:00:00.002861 procedure DBMS_OUTPUT.PUT_LINE exists check (SYS)
 ------------------------ Test name: Verify otap_test.has_trigger -------------------------
-Passed runtime: +00 00:00:00.814919 (runs: 5 errors: 0 issues: 0)
+Passed runtime: +00 00:00:00.194265 (runs: 5 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.530571 Trigger exists minimal test
-Passed    Passed    +00 00:00:00.002096 Trigger exists full test
-Passed    Passed    +00 00:00:00.007941 NULL trigger test
-Passed    Passed    +00 00:00:00.000719 Invalid trigger name
-Passed    Passed    +00 00:00:00.000866 Trigger OTAP_CONFIG_INS_TRG exists (OTAP)
-********************************* Test set: OTAP objects *********************************
-Passed runtime: +00 00:00:08.538662 (runs: 254 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.002000 Trigger exists minimal test
+Passed    Passed    +00 00:00:00.014597 Trigger exists full test
+Passed    Passed    +00 00:00:00.002062 NULL trigger name
+Passed    Passed    +00 00:00:00.000593 Invalid trigger name
+Passed    Passed    +00 00:00:00.001410 trigger OTAP_CONFIG_INS_TRG exists check (OTAP)
+********************************* Test set: OTAP schema **********************************
+Passed runtime: +00 00:00:13.452420 (runs: 236 errors: 0 issues: 0)
 ++++++++++++++++++++++++++++++++ Test group: OTAP tables +++++++++++++++++++++++++++++++++
-Passed runtime: +00 00:00:01.045662 (runs: 43 errors: 0 issues: 0)
------------------------------- Test name: Table OTAP_CONFIG ------------------------------
-Passed runtime: +00 00:00:00.319450 (runs: 12 errors: 0 issues: 0)
+Passed runtime: +00 00:00:02.669155 (runs: 55 errors: 0 issues: 0)
+---------------------------- Test name: OTAP table SPERRORLOG ----------------------------
+Passed runtime: +00 00:00:00.271785 (runs: 7 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.003045 Table OTAP.OTAP_CONFIG exists
-Passed    Passed    +00 00:00:00.001309 Column CONFIG_NAME (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001231 Column CONFIG_VALUE (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001167 Column CONFIG_MAX_LENGTH (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.000887 Column CONFIG_TYPE (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.000862 Column CREATED (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.003107 Column UPDATED (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001173 Column CREATED_BY (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001165 Column CREATED_BY_OS (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.002920 Column UPDATED_BY (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.000855 Column UPDATED_BY_OS (OTAP.OTAP_CONFIG) exists
-Passed    Passed    +00 00:00:00.001203 Column CONFIG_DESCRIPTION (OTAP.OTAP_CONFIG) exists
------------------------------ Test name: Table OTAP_RESULTS ------------------------------
-Passed runtime: +00 00:00:00.351720 (runs: 18 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001735 table SPERRORLOG exists check (OTAP)
+Passed    Passed    +00 00:00:00.001427 column SPERRORLOG.USERNAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.001195 column SPERRORLOG.TIMESTAMP exists check (OTAP)
+Passed    Passed    +00 00:00:00.001848 column SPERRORLOG.SCRIPT exists check (OTAP)
+Passed    Passed    +00 00:00:00.003158 column SPERRORLOG.IDENTIFIER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002735 column SPERRORLOG.MESSAGE exists check (OTAP)
+Passed    Passed    +00 00:00:00.002010 column SPERRORLOG.STATEMENT exists check (OTAP)
+--------------------------- Test name: OTAP table OTAP_CONFIG ----------------------------
+Passed runtime: +00 00:00:00.487161 (runs: 13 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001213 Table OTAP.OTAP_RESULTS exists
-Passed    Passed    +00 00:00:00.000983 Column TO_DELETE (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000924 Column TEST_RUN_ID (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000893 Column TEST_RUN_DATE (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001212 Column TEST_PASSED (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000905 Column TEST_SESSION_ID (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001206 Column TEST_EXECUTOR (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000893 Column TEST_SET (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000862 Column DB_USER (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001511 Column DB_SCHEMA (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001179 Column TEST_GROUP (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.002720 Column TEST_START (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000944 Column TEST_END (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001189 Column TEST_NAME (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.001329 Column TEST_DESC (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000651 Column DELETED (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.003398 Column DELETED_BY (OTAP.OTAP_RESULTS) exists
-Passed    Passed    +00 00:00:00.000884 Column TEST_ERRORS (OTAP.OTAP_RESULTS) exists
------------------------------- Test name: Table SPERRORLOG -------------------------------
-Passed runtime: +00 00:00:00.124016 (runs: 7 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001666 table OTAP_CONFIG exists check (OTAP)
+Passed    Passed    +00 00:00:00.003796 column OTAP_CONFIG.CONFIG_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.003834 column OTAP_CONFIG.CONFIG_VALUE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003159 column OTAP_CONFIG.CONFIG_MAX_LENGTH exists check (OTAP)
+Passed    Passed    +00 00:00:00.001353 column OTAP_CONFIG.CONFIG_TYPE exists check (OTAP)
+Passed    Passed    +00 00:00:00.001409 column OTAP_CONFIG.TRANSLATABLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.002081 column OTAP_CONFIG.CREATED exists check (OTAP)
+Passed    Passed    +00 00:00:00.001839 column OTAP_CONFIG.UPDATED exists check (OTAP)
+Passed    Passed    +00 00:00:00.001946 column OTAP_CONFIG.CREATED_BY exists check (OTAP)
+Passed    Passed    +00 00:00:00.001511 column OTAP_CONFIG.CREATED_BY_OS exists check (OTAP)
+Passed    Passed    +00 00:00:00.001715 column OTAP_CONFIG.UPDATED_BY exists check (OTAP)
+Passed    Passed    +00 00:00:00.002006 column OTAP_CONFIG.UPDATED_BY_OS exists check (OTAP)
+Passed    Passed    +00 00:00:00.008138 column OTAP_CONFIG.CONFIG_DESCRIPTION exists check (OTAP)
+--------------------------- Test name: OTAP table OTAP_RESULTS ---------------------------
+Passed runtime: +00 00:00:00.924407 (runs: 18 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001196 Table OTAP.SPERRORLOG exists
-Passed    Passed    +00 00:00:00.001213 Column USERNAME (OTAP.SPERRORLOG) exists
-Passed    Passed    +00 00:00:00.001202 Column TIMESTAMP (OTAP.SPERRORLOG) exists
-Passed    Passed    +00 00:00:00.001349 Column SCRIPT (OTAP.SPERRORLOG) exists
-Passed    Passed    +00 00:00:00.002046 Column IDENTIFIER (OTAP.SPERRORLOG) exists
-Passed    Passed    +00 00:00:00.012362 Column MESSAGE (OTAP.SPERRORLOG) exists
-Passed    Passed    +00 00:00:00.001173 Column STATEMENT (OTAP.SPERRORLOG) exists
------------------------------ Test name: Trigger OTAP_CONFIG -----------------------------
-Passed runtime: +00 00:00:00.053798 (runs: 3 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001893 table OTAP_RESULTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.001724 column OTAP_RESULTS.TO_DELETE exists check (OTAP)
+Passed    Passed    +00 00:00:00.004921 column OTAP_RESULTS.TEST_RUN_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.004900 column OTAP_RESULTS.TEST_RUN_DATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003885 column OTAP_RESULTS.TEST_PASSED exists check (OTAP)
+Passed    Passed    +00 00:00:00.018181 column OTAP_RESULTS.TEST_SESSION_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.001833 column OTAP_RESULTS.TEST_EXECUTOR exists check (OTAP)
+Passed    Passed    +00 00:00:00.009546 column OTAP_RESULTS.TEST_SET exists check (OTAP)
+Passed    Passed    +00 00:00:00.003217 column OTAP_RESULTS.DB_USER exists check (OTAP)
+Passed    Passed    +00 00:00:00.000805 column OTAP_RESULTS.DB_SCHEMA exists check (OTAP)
+Passed    Passed    +00 00:00:00.000838 column OTAP_RESULTS.TEST_GROUP exists check (OTAP)
+Passed    Passed    +00 00:00:00.001820 column OTAP_RESULTS.TEST_START exists check (OTAP)
+Passed    Passed    +00 00:00:00.003664 column OTAP_RESULTS.TEST_END exists check (OTAP)
+Passed    Passed    +00 00:00:00.002305 column OTAP_RESULTS.TEST_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.002023 column OTAP_RESULTS.TEST_DESC exists check (OTAP)
+Passed    Passed    +00 00:00:00.003584 column OTAP_RESULTS.DELETED exists check (OTAP)
+Passed    Passed    +00 00:00:00.002681 column OTAP_RESULTS.DELETED_BY exists check (OTAP)
+Passed    Passed    +00 00:00:00.004513 column OTAP_RESULTS.TEST_ERRORS exists check (OTAP)
+-------------------------- Test name: OTAP table OTAP_TRANSLATE --------------------------
+Passed runtime: +00 00:00:00.467596 (runs: 10 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001701 Trigger OTAP_CONFIG_INS_TRG exists (OTAP)
-Passed    Passed    +00 00:00:00.001894 Trigger OTAP_CONFIG_UPD_TRG exists (OTAP)
-Passed    Passed    +00 00:00:00.001409 Trigger OTAP_CONFIG_DEL_TRG exists (OTAP)
----------------------------- Test name: Trigger OTAP_RESULTS -----------------------------
-Passed runtime: +00 00:00:00.081672 (runs: 3 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.006485 table OTAP_TRANSLATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.001836 column OTAP_TRANSLATE.OTAP_IDENTIFIER exists check (OTAP)
+Passed    Passed    +00 00:00:00.007555 column OTAP_TRANSLATE.LABEL_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.000800 column OTAP_TRANSLATE.LANGUAGE_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.003918 column OTAP_TRANSLATE.CREATED exists check (OTAP)
+Passed    Passed    +00 00:00:00.002018 column OTAP_TRANSLATE.UPDATED exists check (OTAP)
+Passed    Passed    +00 00:00:00.003203 column OTAP_TRANSLATE.CREATED_BY exists check (OTAP)
+Passed    Passed    +00 00:00:00.001745 column OTAP_TRANSLATE.CREATED_BY_OS exists check (OTAP)
+Passed    Passed    +00 00:00:00.001849 column OTAP_TRANSLATE.UPDATED_BY exists check (OTAP)
+Passed    Passed    +00 00:00:00.002457 column OTAP_TRANSLATE.UPDATED_BY_OS exists check (OTAP)
+-------------------------- Test name: OTAP table OTAP_LABELS_MV --------------------------
+Passed runtime: +00 00:00:00.278328 (runs: 7 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.005147 Trigger OTAP_RESULTS_INS_TRG exists (OTAP)
-Passed    Passed    +00 00:00:00.001383 Trigger OTAP_RESULTS_UPD_TRG exists (OTAP)
-Passed    Passed    +00 00:00:00.001037 Trigger OTAP_RESULTS_DEL_TRG exists (OTAP)
+Passed    Passed    +00 00:00:00.001771 table OTAP_LABELS_MV exists check (OTAP)
+Passed    Passed    +00 00:00:00.001742 column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
+Passed    Passed    +00 00:00:00.001749 column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
+Passed    Passed    +00 00:00:00.013052 column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002095 column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
+Passed    Passed    +00 00:00:00.001801 column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002371 column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
+++++++++++++++++++++++++++++++++ Test group: OTAP trigger ++++++++++++++++++++++++++++++++
+Passed runtime: +00 00:00:00.368803 (runs: 8 errors: 0 issues: 0)
+----------------------- Test name: OTAP OTAP_CONFIG table trigger ------------------------
+Passed runtime: +00 00:00:00.140988 (runs: 3 errors: 0 issues: 0)
+Result    Setup     Runtime             Test
+--------- --------- ------------------- ----------------------------------------
+Passed    Passed    +00 00:00:00.001910 trigger OTAP_CONFIG_DEL_TRG exists check (OTAP)
+Passed    Passed    +00 00:00:00.003571 trigger OTAP_CONFIG_INS_TRG exists check (OTAP)
+Passed    Passed    +00 00:00:00.002142 trigger OTAP_CONFIG_UPD_TRG exists check (OTAP)
+----------------------- Test name: OTAP OTAP_RESULTS table trigger -----------------------
+Passed runtime: +00 00:00:00.094769 (runs: 3 errors: 0 issues: 0)
+Result    Setup     Runtime             Test
+--------- --------- ------------------- ----------------------------------------
+Passed    Passed    +00 00:00:00.002466 trigger OTAP_RESULTS_DEL_TRG exists check (OTAP)
+Passed    Passed    +00 00:00:00.002137 trigger OTAP_RESULTS_INS_TRG exists check (OTAP)
+Passed    Passed    +00 00:00:00.001898 trigger OTAP_RESULTS_UPD_TRG exists check (OTAP)
+---------------------- Test name: OTAP OTAP_TRANSLATE table trigger ----------------------
+Passed runtime: +00 00:00:00.040472 (runs: 2 errors: 0 issues: 0)
+Result    Setup     Runtime             Test
+--------- --------- ------------------- ----------------------------------------
+Passed    Passed    +00 00:00:00.001812 trigger OTAP_TRANSLATE_INS_TRG exists check (OTAP)
+Passed    Passed    +00 00:00:00.002380 trigger OTAP_TRANSLATE_UPD_TRG exists check (OTAP)
 +++++++++++++++++++++++++++++++ Test group: OTAP packages ++++++++++++++++++++++++++++++++
-Passed runtime: +00 00:00:07.452562 (runs: 211 errors: 0 issues: 0)
---------------------------- Test name: Package OTAP_CONSTANTS ----------------------------
-Passed runtime: +00 00:00:00.589466 (runs: 16 errors: 0 issues: 0)
+Passed runtime: +00 00:00:10.241130 (runs: 173 errors: 0 issues: 0)
+-------------------------- Test name: OTAP package OTAP_STRING ---------------------------
+Passed runtime: +00 00:00:01.115558 (runs: 17 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000719 Package OTAP.OTAP_CONSTANTS exists (PACKAGE)
-Passed    Passed    +00 00:00:00.001321 Package OTAP.OTAP_CONSTANTS exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.013214 Function OTAP_CONSTANTS.GET_OTAP_VAR_DELIMITER exists (OTAP)
-Passed    Passed    +00 00:00:00.008264 Function OTAP_CONSTANTS.GET_OTAP_CHAR_NA exists (OTAP)
-Passed    Passed    +00 00:00:00.027262 Function OTAP_CONSTANTS.GET_OTAP_ERROR_IDENTIFIER exists (OTAP)
-Passed    Passed    +00 00:00:00.015708 Function OTAP_CONSTANTS.GET_OTAP_DEFAULT_DELIMITER exists (OTAP)
-Passed    Passed    +00 00:00:00.014566 Function OTAP_CONSTANTS.GET_OTAP_REPORT_MAX_FILL_LENGTH exists (OTAP)
-Passed    Passed    +00 00:00:00.008024 Function OTAP_CONSTANTS.GET_OTAP_REPORT_MIN_FILL_LENGTH exists (OTAP)
-Passed    Passed    +00 00:00:00.009910 Function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_UNDEFINED exists (OTAP)
-Passed    Passed    +00 00:00:00.010197 Function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_FAILED exists (OTAP)
-Passed    Passed    +00 00:00:00.007378 Function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_PASSED exists (OTAP)
-Passed    Passed    +00 00:00:00.009229 Function OTAP_CONSTANTS.GET_OTAP_NUM_FALSE exists (OTAP)
-Passed    Passed    +00 00:00:00.006821 Function OTAP_CONSTANTS.GET_OTAP_NUM_TRUE exists (OTAP)
-Passed    Passed    +00 00:00:00.008226 Function OTAP_CONSTANTS.GET_OTAP_TABLESPACE exists (OTAP)
-Passed    Passed    +00 00:00:00.014575 Function OTAP_CONSTANTS.GET_OTAP_SCHEMA exists (OTAP)
-Passed    Passed    +00 00:00:00.016171 Function OTAP_CONSTANTS.GET_OTAP_USER_ROLE exists (OTAP)
------------------------------- Test name: Package OTAP_LOG -------------------------------
-Passed runtime: +00 00:00:00.080486 (runs: 3 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001570 package OTAP_STRING exists check (OTAP)
+Passed    Passed    +00 00:00:00.001148 package body OTAP_STRING exists check (OTAP)
+Passed    Passed    +00 00:00:00.034120 function OTAP_STRING.REDUCE exists check (OTAP)
+Passed    Passed    +00 00:00:00.008831 function OTAP_STRING.CUT exists check (OTAP)
+Passed    Passed    +00 00:00:00.009599 function OTAP_STRING.FLATTEN exists check (OTAP)
+Passed    Passed    +00 00:00:00.008777 function OTAP_STRING.CHECK_BORDER exists check (OTAP)
+Passed    Passed    +00 00:00:00.020296 function OTAP_STRING.CHECK_LINE_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.023656 function OTAP_STRING.CHECK_TITLE_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.038612 function OTAP_STRING.CHECK_STRING_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.011659 function OTAP_STRING.CHECK_LAYOUT exists check (OTAP)
+Passed    Passed    +00 00:00:00.009007 function OTAP_STRING.CHECK_DECORATION exists check (OTAP)
+Passed    Passed    +00 00:00:00.024825 function OTAP_STRING.LINE_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.010325 function OTAP_STRING.MAX_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.013425 function OTAP_STRING.LEFT_DECO exists check (OTAP)
+Passed    Passed    +00 00:00:00.012327 function OTAP_STRING.RIGHT_DECO exists check (OTAP)
+Passed    Passed    +00 00:00:00.024106 function OTAP_STRING.DECORATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.017725 function OTAP_STRING.BORDERLESS exists check (OTAP)
+-------------------------- Test name: OTAP package OTAP_REPORT ---------------------------
+Passed runtime: +00 00:00:01.228760 (runs: 23 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000596 Package OTAP.OTAP_LOG exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000513 Package OTAP.OTAP_LOG exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.019076 Procedure OTAP_LOG.LOG exists (OTAP)
------------------------------ Test name: Package OTAP_STRING -----------------------------
-Passed runtime: +00 00:00:00.512086 (runs: 17 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.002720 package OTAP_REPORT exists check (OTAP)
+Passed    Passed    +00 00:00:00.002071 package body OTAP_REPORT exists check (OTAP)
+Passed    Passed    +00 00:00:00.002178 function OTAP_REPORT.DECORATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.002987 function OTAP_REPORT.BORDERLESS exists check (OTAP)
+Passed    Passed    +00 00:00:00.008823 function OTAP_REPORT.GET_REPORT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.008933 function OTAP_REPORT.GET_REPORT_TOTAL exists check (OTAP)
+Passed    Passed    +00 00:00:00.014695 function OTAP_REPORT.GET_REPORT_TOTAL_DETAILS exists check (OTAP)
+Passed    Passed    +00 00:00:00.016050 function OTAP_REPORT.GET_REPORT_FOOTER exists check (OTAP)
+Passed    Passed    +00 00:00:00.009355 function OTAP_REPORT.GET_RESULT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.006947 function OTAP_REPORT.GET_RESULT_UNDERLINE exists check (OTAP)
+Passed    Passed    +00 00:00:00.009088 function OTAP_REPORT.GET_TEST_COUNT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.006836 function OTAP_REPORT.GET_SUMMARY exists check (OTAP)
+Passed    Passed    +00 00:00:00.008260 function OTAP_REPORT.GET_ERROR_RESULT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.009292 function OTAP_REPORT.GET_ERROR_DETAILS exists check (OTAP)
+Passed    Passed    +00 00:00:00.004312 function OTAP_REPORT.GET_NO_DATA_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.010479 function OTAP_REPORT.GET_SESSION_ID_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.025577 function OTAP_REPORT.GET_SET_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.010352 function OTAP_REPORT.GET_GROUP_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.013682 function OTAP_REPORT.GET_TEST_NAME_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.006666 function OTAP_REPORT.GET_RESULT_LINE exists check (OTAP)
+Passed    Passed    +00 00:00:00.004717 function OTAP_REPORT.GET_COUNT_DESC exists check (OTAP)
+Passed    Passed    +00 00:00:00.015306 function OTAP_REPORT.GET_SEPARATOR_LINE exists check (OTAP)
+Passed    Passed    +00 00:00:00.018383 function OTAP_REPORT.GET_EXISTS_MSG exists check (OTAP)
+-------------------------- Test name: OTAP package OTAP_OBJECTS --------------------------
+Passed runtime: +00 00:00:00.643158 (runs: 14 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000403 Package OTAP.OTAP_STRING exists (PACKAGE)
-Passed    Passed    +00 00:00:00.001058 Package OTAP.OTAP_STRING exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.008786 Function OTAP_STRING.REDUCE exists (OTAP)
-Passed    Passed    +00 00:00:00.007898 Function OTAP_STRING.CUT exists (OTAP)
-Passed    Passed    +00 00:00:00.008141 Function OTAP_STRING.FLATTEN exists (OTAP)
-Passed    Passed    +00 00:00:00.007598 Function OTAP_STRING.CHECK_BORDER exists (OTAP)
-Passed    Passed    +00 00:00:00.006317 Function OTAP_STRING.CHECK_LINE_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.010949 Function OTAP_STRING.CHECK_TITLE_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.007964 Function OTAP_STRING.CHECK_STRING_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.009388 Function OTAP_STRING.CHECK_LAYOUT exists (OTAP)
-Passed    Passed    +00 00:00:00.011507 Function OTAP_STRING.CHECK_DECORATION exists (OTAP)
-Passed    Passed    +00 00:00:00.007925 Function OTAP_STRING.LINE_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.008066 Function OTAP_STRING.MAX_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.009417 Function OTAP_STRING.LEFT_DECO exists (OTAP)
-Passed    Passed    +00 00:00:00.011868 Function OTAP_STRING.RIGHT_DECO exists (OTAP)
-Passed    Passed    +00 00:00:00.011402 Function OTAP_STRING.DECORATE exists (OTAP)
-Passed    Passed    +00 00:00:00.009785 Function OTAP_STRING.BORDERLESS exists (OTAP)
--------------------------- Test name: Package OTAP_CONFIG_UTIL ---------------------------
-Passed runtime: +00 00:00:02.418418 (runs: 65 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.010769 package OTAP_OBJECTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.001413 package body OTAP_OBJECTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.010038 procedure OTAP_OBJECTS.OTAP_SESSION_VERIFY exists check (OTAP)
+Passed    Passed    +00 00:00:00.011075 function OTAP_OBJECTS.OTAP_SESSION_SHOW exists check (OTAP)
+Passed    Passed    +00 00:00:00.008951 function OTAP_OBJECTS.OTAP_SESSION_SET exists check (OTAP)
+Passed    Passed    +00 00:00:00.013284 function OTAP_OBJECTS.OTAP_SESSION_COPY exists check (OTAP)
+Passed    Passed    +00 00:00:00.008997 function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_SET exists check (OTAP)
+Passed    Passed    +00 00:00:00.012406 function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
+Passed    Passed    +00 00:00:00.008127 function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.007529 function OTAP_OBJECTS.OTAP_SESSION_GET_TEST_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.010261 function OTAP_OBJECTS.OTAP_SESSION_GET_REPORT_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.011950 procedure OTAP_OBJECTS.OTAP_SESSION_ADD_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.015875 function OTAP_OBJECTS.OTAP_SESSION_SUMMARY exists check (OTAP)
+Passed    Passed    +00 00:00:00.009295 function OTAP_OBJECTS.OTAP_SESSION_FINISH exists check (OTAP)
+--------------------------- Test name: OTAP package OTAP_PLAN ----------------------------
+Passed runtime: +00 00:00:00.536492 (runs: 7 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000684 Package OTAP.OTAP_CONFIG_UTIL exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000388 Package OTAP.OTAP_CONFIG_UTIL exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.009384 Function OTAP_CONFIG_UTIL.GET_CONFIG_VALUE exists (OTAP)
-Passed    Passed    +00 00:00:00.008218 Procedure OTAP_CONFIG_UTIL.SET_CONFIG_VALUE exists (OTAP)
-Passed    Passed    +00 00:00:00.008706 Function OTAP_CONFIG_UTIL.GET_DEBUG exists (OTAP)
-Passed    Passed    +00 00:00:00.012635 Procedure OTAP_CONFIG_UTIL.SET_DEBUG exists (OTAP)
-Passed    Passed    +00 00:00:00.021551 Function OTAP_CONFIG_UTIL.PRESERVE_DAYS exists (OTAP)
-Passed    Passed    +00 00:00:00.014106 Procedure OTAP_CONFIG_UTIL.SET_PRESERVE_DAYS exists (OTAP)
-Passed    Passed    +00 00:00:00.012127 Function OTAP_CONFIG_UTIL.DELETE_DELAY exists (OTAP)
-Passed    Passed    +00 00:00:00.013113 Procedure OTAP_CONFIG_UTIL.SET_DELETE_DELAY exists (OTAP)
-Passed    Passed    +00 00:00:00.011680 Function OTAP_CONFIG_UTIL.DELETE_BATCH_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.006868 Procedure OTAP_CONFIG_UTIL.SET_DELETE_BATCH_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.012081 Function OTAP_CONFIG_UTIL.GET_DEFAULT_PREFIX exists (OTAP)
-Passed    Passed    +00 00:00:00.007760 Procedure OTAP_CONFIG_UTIL.SET_DEFAULT_PREFIX exists (OTAP)
-Passed    Passed    +00 00:00:00.009244 Function OTAP_CONFIG_UTIL.GET_DEFAULT_LAYOUT exists (OTAP)
-Passed    Passed    +00 00:00:00.007947 Procedure OTAP_CONFIG_UTIL.SET_DEFAULT_LAYOUT exists (OTAP)
-Passed    Passed    +00 00:00:00.012500 Function OTAP_CONFIG_UTIL.GET_DEFAULT_RESULT_LAYOUT exists (OTAP)
-Passed    Passed    +00 00:00:00.012211 Procedure OTAP_CONFIG_UTIL.SET_DEFAULT_RESULT_LAYOUT exists (OTAP)
-Passed    Passed    +00 00:00:00.009140 Function OTAP_CONFIG_UTIL.GET_DEFAULT_BORDER exists (OTAP)
-Passed    Passed    +00 00:00:00.014898 Procedure OTAP_CONFIG_UTIL.SET_DEFAULT_BORDER exists (OTAP)
-Passed    Passed    +00 00:00:00.011881 Function OTAP_CONFIG_UTIL.GET_DEFAULT_TEST_GROUP exists (OTAP)
-Passed    Passed    +00 00:00:00.012954 Function OTAP_CONFIG_UTIL.GET_LENGTH_TEST_STATE exists (OTAP)
-Passed    Passed    +00 00:00:00.015870 Function OTAP_CONFIG_UTIL.GET_LENGTH_SUMMARY_STATE exists (OTAP)
-Passed    Passed    +00 00:00:00.007977 Function OTAP_CONFIG_UTIL.GET_LENGTH_HEADERS exists (OTAP)
-Passed    Passed    +00 00:00:00.012598 Function OTAP_CONFIG_UTIL.GET_LENGTH_RESULT_HEADERS exists (OTAP)
-Passed    Passed    +00 00:00:00.008793 Function OTAP_CONFIG_UTIL.TEST_RESULT_TO_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.010410 Function OTAP_CONFIG_UTIL.BOOL_TO_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.008925 Function OTAP_CONFIG_UTIL.BOOL_TO_YES_NO_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.019967 Function OTAP_CONFIG_UTIL.GET_DEFAULT_TEST_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.012268 Function OTAP_CONFIG_UTIL.GET_DEFAULT_TEST_SET exists (OTAP)
-Passed    Passed    +00 00:00:00.008083 Function OTAP_CONFIG_UTIL.GET_ERRORS_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.008710 Function OTAP_CONFIG_UTIL.GET_ERROR_DETAILS_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.006695 Function OTAP_CONFIG_UTIL.GET_FORMAT_GROUP_CHAR exists (OTAP)
-Passed    Passed    +00 00:00:00.008362 Function OTAP_CONFIG_UTIL.GET_FORMAT_HEADER_CHAR exists (OTAP)
-Passed    Passed    +00 00:00:00.022015 Function OTAP_CONFIG_UTIL.GET_FORMAT_NAME_CHAR exists (OTAP)
-Passed    Passed    +00 00:00:00.007963 Function OTAP_CONFIG_UTIL.GET_FORMAT_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.007517 Function OTAP_CONFIG_UTIL.GET_FORMAT_SET_CHAR exists (OTAP)
-Passed    Passed    +00 00:00:00.008566 Function OTAP_CONFIG_UTIL.GET_GROUP_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.010214 Function OTAP_CONFIG_UTIL.GET_NO_DATA_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.008694 Function OTAP_CONFIG_UTIL.GET_SESSION_ID_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.009956 Function OTAP_CONFIG_UTIL.GET_SET_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.011884 Function OTAP_CONFIG_UTIL.GET_SUMMARY_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.010726 Function OTAP_CONFIG_UTIL.GET_TEST_NAME_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.014945 Function OTAP_CONFIG_UTIL.GET_RESULT_LINE_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.014074 Function OTAP_CONFIG_UTIL.GET_COUNT_DESC_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.014170 Function OTAP_CONFIG_UTIL.GET_REPORT_TOTAL_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.019657 Function OTAP_CONFIG_UTIL.GET_FN_HAS_TABLE_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.010954 Function OTAP_CONFIG_UTIL.GET_FN_HAS_COLUMN_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.018675 Function OTAP_CONFIG_UTIL.GET_FN_HAS_PACKAGE_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.007836 Function OTAP_CONFIG_UTIL.GET_FN_HAS_PROCEDURE_TEMPLATE exists (OTAP)
-Passed    Passed    +00 00:00:00.011188 Function OTAP_CONFIG_UTIL.GET_TEXT_FALSE exists (OTAP)
-Passed    Passed    +00 00:00:00.010908 Function OTAP_CONFIG_UTIL.GET_TEXT_FALSE_NO exists (OTAP)
-Passed    Passed    +00 00:00:00.009970 Function OTAP_CONFIG_UTIL.GET_TEXT_REPORT_END exists (OTAP)
-Passed    Passed    +00 00:00:00.008863 Function OTAP_CONFIG_UTIL.GET_TEXT_REPORT_TOTAL exists (OTAP)
-Passed    Passed    +00 00:00:00.009078 Function OTAP_CONFIG_UTIL.GET_TEXT_REPORT_START exists (OTAP)
-Passed    Passed    +00 00:00:00.007816 Function OTAP_CONFIG_UTIL.GET_TEXT_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.009448 Function OTAP_CONFIG_UTIL.GET_TEXT_TEST_COUNT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.008532 Function OTAP_CONFIG_UTIL.GET_TEXT_TEST_COUNT_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.008882 Function OTAP_CONFIG_UTIL.GET_TEXT_SUMMARY_ERROR exists (OTAP)
-Passed    Passed    +00 00:00:00.009010 Function OTAP_CONFIG_UTIL.GET_TEXT_SUMMARY_SUCCESS exists (OTAP)
-Passed    Passed    +00 00:00:00.008479 Function OTAP_CONFIG_UTIL.GET_TEXT_TEST_FAILED exists (OTAP)
-Passed    Passed    +00 00:00:00.006498 Function OTAP_CONFIG_UTIL.GET_TEXT_TEST_PASSED exists (OTAP)
-Passed    Passed    +00 00:00:00.007615 Function OTAP_CONFIG_UTIL.GET_TEXT_TEST_UNDEFINED exists (OTAP)
-Passed    Passed    +00 00:00:00.006763 Function OTAP_CONFIG_UTIL.GET_TEXT_TRUE exists (OTAP)
-Passed    Passed    +00 00:00:00.007754 Function OTAP_CONFIG_UTIL.GET_TEXT_TRUE_YES exists (OTAP)
--------------------------- Test name: Package OTAP_RESULTS_UTIL --------------------------
-Passed runtime: +00 00:00:00.099819 (runs: 5 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001435 package OTAP_PLAN exists check (OTAP)
+Passed    Passed    +00 00:00:00.010583 package body OTAP_PLAN exists check (OTAP)
+Passed    Passed    +00 00:00:00.039667 function OTAP_PLAN.WRITE_TEST_RESULT exists check (OTAP)
+Passed    Passed    +00 00:00:00.033050 procedure OTAP_PLAN.WRITE_COUNT_RESULT exists check (OTAP)
+Passed    Passed    +00 00:00:00.026964 function OTAP_PLAN.INIT_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.009259 function OTAP_PLAN.RUN_TESTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.012074 function OTAP_PLAN.FINISH_TEST exists check (OTAP)
+-------------------------- Test name: OTAP package OTAP_SCHEMA ---------------------------
+Passed runtime: +00 00:00:00.414484 (runs: 8 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001202 Package OTAP.OTAP_RESULTS_UTIL exists (PACKAGE)
-Passed    Passed    +00 00:00:00.001338 Package OTAP.OTAP_RESULTS_UTIL exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.008541 Procedure OTAP_RESULTS_UTIL.WRITE_TEST_RESULT exists (OTAP)
-Passed    Passed    +00 00:00:00.009385 Function OTAP_RESULTS_UTIL.MAX_TEXT_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.009632 Procedure OTAP_RESULTS_UTIL.RESULT_CLEANUP exists (OTAP)
------------------------------ Test name: Package OTAP_REPORT -----------------------------
-Passed runtime: +00 00:00:01.105992 (runs: 26 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.002178 package OTAP_SCHEMA exists check (OTAP)
+Passed    Passed    +00 00:00:00.001390 package body OTAP_SCHEMA exists check (OTAP)
+Passed    Passed    +00 00:00:00.014639 function OTAP_SCHEMA.HAS_TABLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.027217 function OTAP_SCHEMA.HAS_COLUMN exists check (OTAP)
+Passed    Passed    +00 00:00:00.017567 function OTAP_SCHEMA.HAS_PACKAGE exists check (OTAP)
+Passed    Passed    +00 00:00:00.010436 function OTAP_SCHEMA.HAS_PROCEDURE exists check (OTAP)
+Passed    Passed    +00 00:00:00.014261 function OTAP_SCHEMA.HAS_TRIGGER exists check (OTAP)
+Passed    Passed    +00 00:00:00.011019 function OTAP_SCHEMA.HAS_OBJECT exists check (OTAP)
+---------------------------- Test name: OTAP package OTAP_API ----------------------------
+Passed runtime: +00 00:00:02.005213 (runs: 37 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000564 Package OTAP.OTAP_REPORT exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000514 Package OTAP.OTAP_REPORT exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.001952 Function OTAP_REPORT.DECORATE exists (OTAP)
-Passed    Passed    +00 00:00:00.003950 Function OTAP_REPORT.BORDERLESS exists (OTAP)
-Passed    Passed    +00 00:00:00.007966 Function OTAP_REPORT.GET_REPORT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.017156 Function OTAP_REPORT.GET_REPORT_TOTAL exists (OTAP)
-Passed    Passed    +00 00:00:00.011080 Function OTAP_REPORT.GET_REPORT_TOTAL_DETAILS exists (OTAP)
-Passed    Passed    +00 00:00:00.008840 Function OTAP_REPORT.GET_REPORT_FOOTER exists (OTAP)
-Passed    Passed    +00 00:00:00.021739 Function OTAP_REPORT.GET_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.016832 Function OTAP_REPORT.GET_RESULT_UNDERLINE exists (OTAP)
-Passed    Passed    +00 00:00:00.030873 Function OTAP_REPORT.GET_TEST_COUNT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.011824 Function OTAP_REPORT.GET_SUMMARY exists (OTAP)
-Passed    Passed    +00 00:00:00.035544 Function OTAP_REPORT.GET_ERROR_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.043138 Function OTAP_REPORT.GET_ERROR_DETAILS exists (OTAP)
-Passed    Passed    +00 00:00:00.022380 Function OTAP_REPORT.GET_NO_DATA_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.012304 Function OTAP_REPORT.GET_SESSION_ID_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.013790 Function OTAP_REPORT.GET_SET_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.010048 Function OTAP_REPORT.GET_GROUP_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.008078 Function OTAP_REPORT.GET_TEST_NAME_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.010292 Function OTAP_REPORT.GET_RESULT_LINE exists (OTAP)
-Passed    Passed    +00 00:00:00.043689 Function OTAP_REPORT.GET_COUNT_DESC exists (OTAP)
-Passed    Passed    +00 00:00:00.015474 Function OTAP_REPORT.GET_SEPARATOR_LINE exists (OTAP)
-Passed    Passed    +00 00:00:00.010201 Function OTAP_REPORT.GET_HAS_TABLE_MSG exists (OTAP)
-Passed    Passed    +00 00:00:00.007871 Function OTAP_REPORT.GET_HAS_COLUMN_MSG exists (OTAP)
-Passed    Passed    +00 00:00:00.008930 Function OTAP_REPORT.GET_HAS_PACKAGE_MSG exists (OTAP)
-Passed    Passed    +00 00:00:00.008979 Function OTAP_REPORT.GET_HAS_PROCEDURE_MSG exists (OTAP)
----------------------------- Test name: Package OTAP_OBJECTS -----------------------------
-Passed runtime: +00 00:00:00.392580 (runs: 14 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.000837 package OTAP_API exists check (OTAP)
+Passed    Passed    +00 00:00:00.001437 package body OTAP_API exists check (OTAP)
+Passed    Passed    +00 00:00:00.002783 function OTAP_API.INIT_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.003988 function OTAP_API.FINISH_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.002426 function OTAP_API.OTAP_SESSION_SHOW exists check (OTAP)
+Passed    Passed    +00 00:00:00.008806 function OTAP_API.OTAP_SESSION_SUMMARY exists check (OTAP)
+Passed    Passed    +00 00:00:00.008365 function OTAP_API.OTAP_SESSION_SET_TEST_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.003648 function OTAP_API.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
+Passed    Passed    +00 00:00:00.002966 function OTAP_API.OTAP_SESSION_SET_TEST_SET exists check (OTAP)
+Passed    Passed    +00 00:00:00.014001 function OTAP_API.OTAP_SESSION_GET_TEST_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.003020 function OTAP_API.OTAP_SESSION_GET_REPORT_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.038190 function OTAP_API.MAX_TEXT_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003166 function OTAP_API.GET_REPORT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.003160 function OTAP_API.GET_SESSION_ID_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.003967 function OTAP_API.GET_SET_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.003151 function OTAP_API.GET_SUMMARY exists check (OTAP)
+Passed    Passed    +00 00:00:00.008365 function OTAP_API.GET_GROUP_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.003072 function OTAP_API.GET_TEST_NAME_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.002868 function OTAP_API.GET_RESULT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002927 function OTAP_API.GET_RESULT_UNDERLINE exists check (OTAP)
+Passed    Passed    +00 00:00:00.006383 function OTAP_API.GET_RESULT_LINE exists check (OTAP)
+Passed    Passed    +00 00:00:00.013189 function OTAP_API.TEST_RESULT_TO_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.002793 function OTAP_API.GET_ERROR_RESULT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002716 function OTAP_API.GET_ERROR_DETAILS exists check (OTAP)
+Passed    Passed    +00 00:00:00.002934 function OTAP_API.GET_NO_DATA_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.002735 function OTAP_API.GET_REPORT_FOOTER exists check (OTAP)
+Passed    Passed    +00 00:00:00.003066 function OTAP_API.FLATTEN exists check (OTAP)
+Passed    Passed    +00 00:00:00.009271 function OTAP_API.GET_TEXT_TEST_COUNT_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.007224 function OTAP_API.GET_TEST_COUNT_HEADER exists check (OTAP)
+Passed    Passed    +00 00:00:00.002898 function OTAP_API.GET_REPORT_TOTAL exists check (OTAP)
+Passed    Passed    +00 00:00:00.002795 function OTAP_API.GET_REPORT_TOTAL_DETAILS exists check (OTAP)
+Passed    Passed    +00 00:00:00.003031 function OTAP_API.HAS_TABLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003257 function OTAP_API.HAS_COLUMN exists check (OTAP)
+Passed    Passed    +00 00:00:00.003103 function OTAP_API.HAS_PACKAGE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003373 function OTAP_API.HAS_PROCEDURE exists check (OTAP)
+Passed    Passed    +00 00:00:00.004349 function OTAP_API.HAS_TRIGGER exists check (OTAP)
+Passed    Passed    +00 00:00:00.011429 procedure OTAP_API.VALIDATE_OTAP exists check (OTAP)
+--------------------------- Test name: OTAP package OTAP_TEST ----------------------------
+Passed runtime: +00 00:00:01.001145 (runs: 18 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000617 Package OTAP.OTAP_OBJECTS exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000524 Package OTAP.OTAP_OBJECTS exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.008645 Procedure OTAP_OBJECTS.OTAP_SESSION_VERIFY exists (OTAP)
-Passed    Passed    +00 00:00:00.009211 Function OTAP_OBJECTS.OTAP_SESSION_SHOW exists (OTAP)
-Passed    Passed    +00 00:00:00.008118 Function OTAP_OBJECTS.OTAP_SESSION_SET exists (OTAP)
-Passed    Passed    +00 00:00:00.008349 Function OTAP_OBJECTS.OTAP_SESSION_COPY exists (OTAP)
-Passed    Passed    +00 00:00:00.008739 Function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_SET exists (OTAP)
-Passed    Passed    +00 00:00:00.008463 Function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists (OTAP)
-Passed    Passed    +00 00:00:00.025637 Function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.010198 Function OTAP_OBJECTS.OTAP_SESSION_GET_TEST_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.011947 Function OTAP_OBJECTS.OTAP_SESSION_GET_REPORT_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.014916 Procedure OTAP_OBJECTS.OTAP_SESSION_ADD_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.006837 Function OTAP_OBJECTS.OTAP_SESSION_SUMMARY exists (OTAP)
-Passed    Passed    +00 00:00:00.008476 Function OTAP_OBJECTS.OTAP_SESSION_FINISH exists (OTAP)
------------------------------- Test name: Package OTAP_PLAN ------------------------------
-Passed runtime: +00 00:00:00.185022 (runs: 7 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.000787 package OTAP_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.001053 package body OTAP_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.002340 function OTAP_TEST.INIT_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.001957 function OTAP_TEST.FINISH_TEST exists check (OTAP)
+Passed    Passed    +00 00:00:00.010321 function OTAP_TEST.CURRENT_SETTINGS exists check (OTAP)
+Passed    Passed    +00 00:00:00.010652 function OTAP_TEST.CURRENT_SUMMARY exists check (OTAP)
+Passed    Passed    +00 00:00:00.021491 function OTAP_TEST.SET_TEST_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.026441 function OTAP_TEST.SET_TEST_GROUP exists check (OTAP)
+Passed    Passed    +00 00:00:00.009509 function OTAP_TEST.SET_TEST_SET exists check (OTAP)
+Passed    Passed    +00 00:00:00.006771 function OTAP_TEST.GET_SESSION_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.015563 function OTAP_TEST.GET_REPORT_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.012379 function OTAP_TEST.RESULT_VIEW exists check (OTAP)
+Passed    Passed    +00 00:00:00.005255 function OTAP_TEST.HAS_TABLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.005898 function OTAP_TEST.HAS_COLUMN exists check (OTAP)
+Passed    Passed    +00 00:00:00.023547 function OTAP_TEST.HAS_PACKAGE exists check (OTAP)
+Passed    Passed    +00 00:00:00.008104 function OTAP_TEST.HAS_PROCEDURE exists check (OTAP)
+Passed    Passed    +00 00:00:00.003000 function OTAP_TEST.HAS_TRIGGER exists check (OTAP)
+Passed    Passed    +00 00:00:00.015524 function OTAP_TEST.GET_SESSION_VAR exists check (OTAP)
+--------------------------- Test name: OTAP package OTAP_UTIL ----------------------------
+Passed runtime: +00 00:00:01.186691 (runs: 19 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000497 Package OTAP.OTAP_PLAN exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000528 Package OTAP.OTAP_PLAN exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.001967 Procedure OTAP_PLAN.WRITE_TEST_RESULT exists (OTAP)
-Passed    Passed    +00 00:00:00.008672 Procedure OTAP_PLAN.WRITE_COUNT_RESULT exists (OTAP)
-Passed    Passed    +00 00:00:00.008751 Function OTAP_PLAN.INIT_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.007823 Function OTAP_PLAN.RUN_TESTS exists (OTAP)
-Passed    Passed    +00 00:00:00.011846 Function OTAP_PLAN.FINISH_TEST exists (OTAP)
------------------------------ Test name: Package OTAP_SCHEMA -----------------------------
-Passed runtime: +00 00:00:00.170150 (runs: 6 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001530 package OTAP_UTIL exists check (OTAP)
+Passed    Passed    +00 00:00:00.001871 package body OTAP_UTIL exists check (OTAP)
+Passed    Passed    +00 00:00:00.012929 function OTAP_UTIL.IS_NUMBER exists check (OTAP)
+Passed    Passed    +00 00:00:00.015030 function OTAP_UTIL.IS_INTEGER exists check (OTAP)
+Passed    Passed    +00 00:00:00.014602 procedure OTAP_UTIL.VALIDATE_CONFIG_NAME exists check (OTAP)
+Passed    Passed    +00 00:00:00.018762 function OTAP_UTIL.VALIDATE_CONFIG_VALUE exists check (OTAP)
+Passed    Passed    +00 00:00:00.023531 procedure OTAP_UTIL.VALIDATE_TRANSLATABLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.019257 function OTAP_UTIL.GET_CONFIG_VALUE exists check (OTAP)
+Passed    Passed    +00 00:00:00.032885 function OTAP_UTIL.GET_CONFIG_NUMBER exists check (OTAP)
+Passed    Passed    +00 00:00:00.009836 function OTAP_UTIL.GET_LABEL_ID exists check (OTAP)
+Passed    Passed    +00 00:00:00.025291 function OTAP_UTIL.GET_LENGTH_TEST_STATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.013476 function OTAP_UTIL.GET_LENGTH_SUMMARY_STATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.019219 function OTAP_UTIL.GET_LENGTH_HEADERS exists check (OTAP)
+Passed    Passed    +00 00:00:00.016826 function OTAP_UTIL.GET_LENGTH_RESULT_HEADERS exists check (OTAP)
+Passed    Passed    +00 00:00:00.005264 function OTAP_UTIL.TEST_RESULT_TO_TEXT exists check (OTAP)
+Passed    Passed    +00 00:00:00.023151 function OTAP_UTIL.BUILD_MSG exists check (OTAP)
+Passed    Passed    +00 00:00:00.003342 procedure OTAP_UTIL.WRITE_TEST_RESULT exists check (OTAP)
+Passed    Passed    +00 00:00:00.007518 function OTAP_UTIL.MAX_TEXT_SIZE exists check (OTAP)
+Passed    Passed    +00 00:00:00.010924 procedure OTAP_UTIL.RESULT_CLEANUP exists check (OTAP)
+------------------------- Test name: OTAP package OTAP_GENERATE --------------------------
+Passed runtime: +00 00:00:00.396477 (runs: 8 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.001286 Package OTAP.OTAP_SCHEMA exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000540 Package OTAP.OTAP_SCHEMA exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.012028 Function OTAP_SCHEMA.HAS_TABLE exists (OTAP)
-Passed    Passed    +00 00:00:00.006962 Function OTAP_SCHEMA.HAS_COLUMN exists (OTAP)
-Passed    Passed    +00 00:00:00.010039 Function OTAP_SCHEMA.HAS_PACKAGE exists (OTAP)
-Passed    Passed    +00 00:00:00.012388 Function OTAP_SCHEMA.HAS_PROCEDURE exists (OTAP)
------------------------------- Test name: Package OTAP_API -------------------------------
-Passed runtime: +00 00:00:00.980194 (runs: 35 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001516 package OTAP_GENERATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.001449 package body OTAP_GENERATE exists check (OTAP)
+Passed    Passed    +00 00:00:00.016136 function OTAP_GENERATE.COLUMN_TESTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.013500 function OTAP_GENERATE.TABLE_TESTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.009104 function OTAP_GENERATE.TRIGGER_TESTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.017325 function OTAP_GENERATE.PKG_PROCEDURES exists check (OTAP)
+Passed    Passed    +00 00:00:00.009141 function OTAP_GENERATE.PACKAGE_TESTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.009185 function OTAP_GENERATE.SCHEMA_TESTS exists check (OTAP)
+------------------------- Test name: OTAP package OTAP_CONSTANTS -------------------------
+Passed runtime: +00 00:00:00.970515 (runs: 19 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000605 Package OTAP.OTAP_API exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000503 Package OTAP.OTAP_API exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.003748 Function OTAP_API.INIT_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.003430 Function OTAP_API.FINISH_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.003134 Function OTAP_API.OTAP_SESSION_SHOW exists (OTAP)
-Passed    Passed    +00 00:00:00.003455 Function OTAP_API.OTAP_SESSION_SUMMARY exists (OTAP)
-Passed    Passed    +00 00:00:00.001983 Function OTAP_API.OTAP_SESSION_SET_TEST_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.003253 Function OTAP_API.OTAP_SESSION_SET_TEST_GROUP exists (OTAP)
-Passed    Passed    +00 00:00:00.001476 Function OTAP_API.OTAP_SESSION_SET_TEST_SET exists (OTAP)
-Passed    Passed    +00 00:00:00.003977 Function OTAP_API.OTAP_SESSION_GET_TEST_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.003255 Function OTAP_API.OTAP_SESSION_GET_REPORT_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.011157 Function OTAP_API.MAX_TEXT_SIZE exists (OTAP)
-Passed    Passed    +00 00:00:00.001981 Function OTAP_API.GET_REPORT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.001923 Function OTAP_API.GET_SESSION_ID_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.002789 Function OTAP_API.GET_SET_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.003296 Function OTAP_API.GET_SUMMARY exists (OTAP)
-Passed    Passed    +00 00:00:00.002203 Function OTAP_API.GET_GROUP_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.001939 Function OTAP_API.GET_TEST_NAME_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.003826 Function OTAP_API.GET_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.001983 Function OTAP_API.GET_RESULT_UNDERLINE exists (OTAP)
-Passed    Passed    +00 00:00:00.002166 Function OTAP_API.GET_RESULT_LINE exists (OTAP)
-Passed    Passed    +00 00:00:00.002140 Function OTAP_API.TEST_RESULT_TO_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.003285 Function OTAP_API.GET_ERROR_RESULT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.002266 Function OTAP_API.GET_ERROR_DETAILS exists (OTAP)
-Passed    Passed    +00 00:00:00.003544 Function OTAP_API.GET_NO_DATA_TEXT exists (OTAP)
-Passed    Passed    +00 00:00:00.002043 Function OTAP_API.GET_REPORT_FOOTER exists (OTAP)
-Passed    Passed    +00 00:00:00.001907 Function OTAP_API.FLATTEN exists (OTAP)
-Passed    Passed    +00 00:00:00.002064 Function OTAP_API.GET_TEXT_TEST_COUNT_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.001975 Function OTAP_API.GET_TEST_COUNT_HEADER exists (OTAP)
-Passed    Passed    +00 00:00:00.003283 Function OTAP_API.GET_REPORT_TOTAL exists (OTAP)
-Passed    Passed    +00 00:00:00.001912 Function OTAP_API.GET_REPORT_TOTAL_DETAILS exists (OTAP)
-Passed    Passed    +00 00:00:00.002078 Function OTAP_API.HAS_TABLE exists (OTAP)
-Passed    Passed    +00 00:00:00.002373 Function OTAP_API.HAS_COLUMN exists (OTAP)
-Passed    Passed    +00 00:00:00.001784 Function OTAP_API.HAS_PACKAGE exists (OTAP)
-Passed    Passed    +00 00:00:00.002281 Function OTAP_API.HAS_PROCEDURE exists (OTAP)
------------------------------- Test name: Package OTAP_TEST ------------------------------
-Passed runtime: +00 00:00:00.619947 (runs: 17 errors: 0 issues: 0)
+Passed    Passed    +00 00:00:00.001726 package OTAP_CONSTANTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.001463 package body OTAP_CONSTANTS exists check (OTAP)
+Passed    Passed    +00 00:00:00.015347 function OTAP_CONSTANTS.GET_VERSION exists check (OTAP)
+Passed    Passed    +00 00:00:00.010176 function OTAP_CONSTANTS.GET_OTAP_USER_ROLE exists check (OTAP)
+Passed    Passed    +00 00:00:00.022252 function OTAP_CONSTANTS.GET_OTAP_SCHEMA exists check (OTAP)
+Passed    Passed    +00 00:00:00.040488 function OTAP_CONSTANTS.GET_OTAP_TABLESPACE exists check (OTAP)
+Passed    Passed    +00 00:00:00.010564 function OTAP_CONSTANTS.GET_OTAP_NUM_TRUE exists check (OTAP)
+Passed    Passed    +00 00:00:00.023057 function OTAP_CONSTANTS.GET_OTAP_NUM_FALSE exists check (OTAP)
+Passed    Passed    +00 00:00:00.009783 function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_PASSED exists check (OTAP)
+Passed    Passed    +00 00:00:00.006567 function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_FAILED exists check (OTAP)
+Passed    Passed    +00 00:00:00.008855 function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_UNDEFINED exists check (OTAP)
+Passed    Passed    +00 00:00:00.010236 function OTAP_CONSTANTS.GET_OTAP_NUM_MIN_FILL_LENGTH exists check (OTAP)
+Passed    Passed    +00 00:00:00.006530 function OTAP_CONSTANTS.GET_OTAP_NUM_MAX_FILL_LENGTH exists check (OTAP)
+Passed    Passed    +00 00:00:00.015530 function OTAP_CONSTANTS.GET_OTAP_INTERNAL_DELIMITER exists check (OTAP)
+Passed    Passed    +00 00:00:00.006539 function OTAP_CONSTANTS.GET_OTAP_INTERNAL_ERROR exists check (OTAP)
+Passed    Passed    +00 00:00:00.006281 function OTAP_CONSTANTS.GET_OTAP_INTERNAL_NA exists check (OTAP)
+Passed    Passed    +00 00:00:00.006965 function OTAP_CONSTANTS.GET_OTAP_INTERNAL_VAR exists check (OTAP)
+Passed    Passed    +00 00:00:00.013546 function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_NUMBER exists check (OTAP)
+Passed    Passed    +00 00:00:00.009562 function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_CHAR exists check (OTAP)
+---------------------------- Test name: OTAP package OTAP_LOG ----------------------------
+Passed runtime: +00 00:00:00.146626 (runs: 3 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-Passed    Passed    +00 00:00:00.000464 Package OTAP.OTAP_TEST exists (PACKAGE)
-Passed    Passed    +00 00:00:00.000536 Package OTAP.OTAP_TEST exists (PACKAGE BODY)
-Passed    Passed    +00 00:00:00.002278 Function OTAP_TEST.INIT_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.003717 Function OTAP_TEST.FINISH_TEST exists (OTAP)
-Passed    Passed    +00 00:00:00.012116 Function OTAP_TEST.CURRENT_SETTINGS exists (OTAP)
-Passed    Passed    +00 00:00:00.009516 Function OTAP_TEST.CURRENT_SUMMARY exists (OTAP)
-Passed    Passed    +00 00:00:00.011712 Function OTAP_TEST.SET_TEST_NAME exists (OTAP)
-Passed    Passed    +00 00:00:00.010768 Function OTAP_TEST.SET_TEST_GROUP exists (OTAP)
-Passed    Passed    +00 00:00:00.010808 Function OTAP_TEST.SET_TEST_SET exists (OTAP)
-Passed    Passed    +00 00:00:00.006232 Function OTAP_TEST.GET_SESSION_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.006746 Function OTAP_TEST.GET_REPORT_ID exists (OTAP)
-Passed    Passed    +00 00:00:00.007641 Function OTAP_TEST.RESULT_VIEW exists (OTAP)
-Passed    Passed    +00 00:00:00.011003 Function OTAP_TEST.HAS_TABLE exists (OTAP)
-Passed    Passed    +00 00:00:00.004876 Function OTAP_TEST.HAS_COLUMN exists (OTAP)
-Passed    Passed    +00 00:00:00.001250 Function OTAP_TEST.HAS_PACKAGE exists (OTAP)
-Passed    Passed    +00 00:00:00.001961 Function OTAP_TEST.HAS_PROCEDURE exists (OTAP)
-Passed    Passed    +00 00:00:00.011311 Function OTAP_TEST.GET_SESSION_VAR exists (OTAP)
+Passed    Passed    +00 00:00:00.001781 package OTAP_LOG exists check (OTAP)
+Passed    Passed    +00 00:00:00.003470 package body OTAP_LOG exists check (OTAP)
+Passed    Passed    +00 00:00:00.014395 procedure OTAP_LOG.LOG exists check (OTAP)
 =================================== Test count summary ===================================
-FAILED runtime: +00 00:00:00.001513 (runs: 1 errors: 1 issues: 0)
+Passed runtime: +00 00:00:00.000367 (runs: 1 errors: 0 issues: 0)
 Result    Setup     Runtime             Test
 --------- --------- ------------------- ----------------------------------------
-FAILED    Passed    +00 00:00:00.001513 312 from 301 tests executed
+Passed    Passed    +00 00:00:00.000367 294 from 294 tests executed
 ================================ OTAP test report totals =================================
-sets: 2 groups: 3 names: 21 descriptions: 307
-Passed runtime: +00 00:00:13.308383 (runs: 312 errors: 0 issues: 0)
+sets: 2 groups: 4 names: 24 descriptions: 289
+Passed runtime: +00 00:00:18.694936 (runs: 294 errors: 0 issues: 0)
 =========================== OTAP test summary report finished ============================
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1

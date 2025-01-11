@@ -15,15 +15,15 @@ AS
   * @return The decorated string according to the configured layout orientation.
   */
   FUNCTION decorate( p_string     IN VARCHAR2
-                   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+                   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                    )
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_report.borderless
   * Main functionality to create a borderless output using the defined defaults in OTAP_CONFIG.
-  * Limited to layout orientation left and right. See also otap_constants.OTAP_RESULT_LAYOUT_DEFAULT.
+  * Limited to layout orientation left and right. See also otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT.
   *
   * @param p_string The string to display borderless in a report line using left or right layout.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
@@ -31,7 +31,7 @@ AS
   * @return The formatted string according to the configured layout orientation.
   */
   FUNCTION borderless( p_string     IN VARCHAR2
-                     , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                     , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                      )
     RETURN VARCHAR2
   ;
@@ -44,7 +44,7 @@ AS
   *
   * @return The configured and decorated report header.
   */
-  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -56,7 +56,7 @@ AS
   *
   * @return The configured and decorated report totals header.
   */
-  FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -76,7 +76,7 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
-                                   , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                                   , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    )
     RETURN VARCHAR2
   ;
@@ -89,7 +89,7 @@ AS
   *
   * @return The configured and decorated report footer as defined in OTAP_CONFIG.
   */
-  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -101,7 +101,7 @@ AS
   *
   * @return The configured result header as defined in OTAP_CONFIG.
   */
-  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -113,7 +113,7 @@ AS
   *
   * @return The configured result header underline as defined in OTAP_CONFIG.
   */
-  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -125,7 +125,7 @@ AS
   *
   * @return The decorated count header as defined in OTAP_CONFIG.
   */
-  FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
@@ -142,12 +142,12 @@ AS
   *
   * @return The configured summary template in OTAP_CONFIG enriched with data.
   */
-  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                      , p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
+  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                      , p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs     IN NUMBER   DEFAULT 0
                       , p_errors   IN NUMBER   DEFAULT 0
                       , p_issues   IN NUMBER   DEFAULT 0
-                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                       )
     RETURN VARCHAR2
   ;
@@ -162,7 +162,7 @@ AS
   * @return The decorated error result header for the given test name.
   */
   FUNCTION get_error_result_header( p_test_name IN VARCHAR2
-                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                   )
     RETURN VARCHAR2
   ;
@@ -177,9 +177,9 @@ AS
   *
   * @return The formatted error details for the given test description.
   */
-  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                             )
     RETURN VARCHAR2
   ;
@@ -193,7 +193,7 @@ AS
   * @return The formatted no data text for the given session id.
   */
   FUNCTION get_no_data_text( p_session_id IN NUMBER
-                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                            )
     RETURN VARCHAR2
   ;
@@ -207,7 +207,7 @@ AS
   * @return The formatted session id text for the given session id.
   */
   FUNCTION get_session_id_text( p_session_id IN NUMBER
-                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                               )
     RETURN VARCHAR2
   ;
@@ -221,7 +221,7 @@ AS
   * @return The decorated test set text for the given test set.
   */
   FUNCTION get_set_text( p_test_set IN VARCHAR2
-                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                        )
     RETURN VARCHAR2
   ;
@@ -235,7 +235,7 @@ AS
   * @return The decorated test group text for the given test group.
   */
   FUNCTION get_group_text( p_test_group IN VARCHAR2
-                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                          )
     RETURN VARCHAR2
   ;
@@ -249,7 +249,7 @@ AS
   * @return The test name text for the given test name.
   */
   FUNCTION get_test_name_text( p_test_name IN VARCHAR2
-                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                              )
     RETURN VARCHAR2
   ;
@@ -265,11 +265,11 @@ AS
   *
   * @return The result line for a given test.
   */
-  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                          , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                          , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                           )
     RETURN VARCHAR2
   ;
@@ -291,70 +291,20 @@ AS
 
   /** FUNCTION otap_report.get_separator_line
   * Builds a separator line from the given char. Only the first not space char is considered.
-  * otap_config_util provides get_format_set_char, get_format_group_char and get_format_name_char
-  * for current configuration access.
+  * otap_util provides functions for current configuration access.
   *
   * @param p_char The char to build a line from. Default is the default char "-" for format test name.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
   *
   * @return The separator line. Length is calculated from configured headers or minimum fill.
   */
-  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                             , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                             , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                              )
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_report.get_has_table_msg
-  * Builds a user message for the has_table test function based on given values from template. Will always
-  * reduce the string. No report formatting options only template handling.
-  *
-  * @param p_table_name The table name that was tested.
-  * @param p_schema_name The schema of the table tested.
-  *
-  * @return The formatted and reduced has table test message. Restricted to 4000 chars.
-  */
-  FUNCTION get_has_table_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                            )
-    RETURN VARCHAR2
-  ;
-
-  /** FUNCTION otap_report.get_has_column_msg
-  * Builds a user message for the has_column test function based on given values from template. Will always
-  * reduce the string. No report formatting options only template handling.
-  *
-  * @param p_table_name The table name that was tested.
-  * @param p_column_name The column name that was tested.
-  * @param p_schema_name The schema of the table tested.
-  *
-  * @return The formatted and reduced has column test message. Restricted to 4000 chars.
-  */
-  FUNCTION get_has_column_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                             , p_column_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                             , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                             )
-    RETURN VARCHAR2
-  ;
-
-  /** FUNCTION otap_report.get_has_package_msg
-  * Builds a user message for the has_package test function based on given values from template. Will always
-  * reduce the string. No report formatting options only template handling.
-  *
-  * @param p_package_name The package name that was tested.
-  * @param p_schema_name The schema of the package tested.
-  * @param p_package_type The package type of the package that was tested.
-  *
-  * @return The formatted and reduced has package test message. Restricted to 4000 chars.
-  */
-  FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              )
-    RETURN VARCHAR2
-  ;
-
-  /** FUNCTION otap_report.get_has_procedure_msg
+  /** FUNCTION otap_report.get_exists_msg
   * Builds a user message for the has_procedure test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.
   *
@@ -365,26 +315,14 @@ AS
   *
   * @return The formatted and reduced has procedure test message. Restricted to 4000 chars.
   */
-  FUNCTION get_has_procedure_msg( p_procedure_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                                , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                                , p_procedure_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                                , p_package_name    IN VARCHAR2 DEFAULT NULL
-                                )
-    RETURN VARCHAR2
-  ;
 
-  /** FUNCTION otap_report.get_has_trigger_msg
-  * Builds a user message for the has_trigger test function based on given values from template. Will always
-  * reduce the string. No report formatting options only template handling.
-  *
-  * @param p_trigger_name The name of the trigger tested.
-  * @param p_schema_name The schema of the procedure/function tested.
-  *
-  * @return The formatted and reduced has procedure test message. Restricted to 4000 chars.
-  */
-  FUNCTION get_has_trigger_msg( p_trigger_name    IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                              )
+  -- if sub object NOT NULL chose XEXIST message
+  FUNCTION get_exists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                         , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                         , p_object_type IN VARCHAR2 DEFAULT NULL
+                         , p_sub_object  IN VARCHAR2 DEFAULT NULL
+                         , p_desc        IN VARCHAR2 DEFAULT NULL
+                         )
     RETURN VARCHAR2
   ;
 

@@ -20,6 +20,8 @@ SPOOL logs/otap_cleanup.log
 -- jobs
 @@../otap_ddl/jobs/drop/drop_OTAP_MAINTENANCE.sql
 -- package objects
+@@../otap_ddl/packages/drop/drop_otap_generate_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_generate_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_test_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_test_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_api_pkb.sql
@@ -32,17 +34,19 @@ SPOOL logs/otap_cleanup.log
 @@../otap_ddl/packages/drop/drop_otap_objects_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_report_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_report_pks.sql
-@@../otap_ddl/packages/drop/drop_otap_results_util_pkb.sql
-@@../otap_ddl/packages/drop/drop_otap_results_util_pks.sql
-@@../otap_ddl/packages/drop/drop_otap_config_util_pkb.sql
-@@../otap_ddl/packages/drop/drop_otap_config_util_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_util_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_util_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_string_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_string_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_log_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_log_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_constants_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_constants_pks.sql
+-- views accessed by packages
+@@../otap_ddl/views/drop/drop_otap_labels_mv.sql
+@@../otap_ddl/views/drop/drop_otap_identifiers_v.sql
 -- table objects including associated table trigger
+@@../otap_ddl/tables/drop/drop_otap_translate.sql
 @@../otap_ddl/tables/drop/drop_otap_results.sql
 @@../otap_ddl/tables/drop/drop_otap_config.sql
 -- sequences

@@ -27,15 +27,17 @@ SPOOL logs/otap_setup.log
 -- tables
 @@../otap_ddl/tables/otap_config.sql
 @@../otap_ddl/tables/otap_results.sql
+@@../otap_ddl/tables/otap_translate.sql
+-- views accessed by packages
+@@../otap_ddl/views/otap_labels_mv.sql
+@@../otap_ddl/views/otap_identifiers_v.sql
 -- packages
 @@../otap_ddl/packages/otap_log.pks
 @@../otap_ddl/packages/otap_log.pkb
 @@../otap_ddl/packages/otap_string.pks
 @@../otap_ddl/packages/otap_string.pkb
-@@../otap_ddl/packages/otap_config_util.pks
-@@../otap_ddl/packages/otap_config_util.pkb
-@@../otap_ddl/packages/otap_results_util.pks
-@@../otap_ddl/packages/otap_results_util.pkb
+@@../otap_ddl/packages/otap_util.pks
+@@../otap_ddl/packages/otap_util.pkb
 @@../otap_ddl/packages/otap_report.pks
 @@../otap_ddl/packages/otap_report.pkb
 @@../otap_ddl/packages/otap_objects.pks
@@ -48,10 +50,18 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_api.pkb
 @@../otap_ddl/packages/otap_test.pks
 @@../otap_ddl/packages/otap_test.pkb
+@@../otap_ddl/packages/otap_generate.pks
+@@../otap_ddl/packages/otap_generate.pkb
+-- table trigger
+@@../otap_ddl/triggers/otap_config_trg.sql
+@@../otap_ddl/triggers/otap_results_trg.sql
+@@../otap_ddl/triggers/otap_translate_trg.sql
 -- jobs
 @@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
 -- views
 @@../otap_ddl/views/otap_latest_test_results_v.sql
+-- setup defaults
+@@otap_defaults.sql
 -- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so
@@ -67,8 +77,7 @@ SELECT TO_CHAR(SUBSTR(message, 1, 2000)) AS error_messages
   FROM sperrorlog
  WHERE identifier = '&IDENT'
 ;
-SELECT '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1' || CHR(10) ||
-       'Not allowed to be used as AI training material without explicite permission.' AS disclaimer
+SELECT otap_constants.get_version AS otap_version
   FROM dual;
 SPOOL OFF
 -- uncomment in SQL Developer to keep the session, otherwise the session is closed

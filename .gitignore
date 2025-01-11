@@ -2,3 +2,6 @@ setup/install.sh
 setup/uninstall.sh
 setup/reinstall.sh
 setup/run_tests.sh
+otap_gen/collection.sql
+setup/gen_const.sh
+setup/gen_schema.sh

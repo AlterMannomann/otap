@@ -53,17 +53,17 @@ AS
       RAISE;
   END flatten;
 
-  FUNCTION check_border(p_border IN INTEGER DEFAULT otap_constants.OTAP_BORDER_DEFAULT)
+  FUNCTION check_border(p_border IN INTEGER DEFAULT otap_constants.OTAP_FALLBACK_BORDER)
     RETURN NUMBER
   IS
     l_script VARCHAR2(256 CHAR) := 'otap_string.check_border';
     l_border INTEGER;
   BEGIN
-    IF NVL(p_border, otap_constants.OTAP_BORDER_DEFAULT) NOT BETWEEN 2 AND 10
+    IF NVL(p_border, otap_constants.OTAP_FALLBACK_BORDER) NOT BETWEEN 2 AND 10
     THEN
-      l_border := otap_constants.OTAP_BORDER_DEFAULT;
+      l_border := otap_constants.OTAP_FALLBACK_BORDER;
     ELSE
-      l_border := NVL(p_border, otap_constants.OTAP_BORDER_DEFAULT);
+      l_border := NVL(p_border, otap_constants.OTAP_FALLBACK_BORDER);
     END IF;
     RETURN l_border;
   EXCEPTION
@@ -72,22 +72,22 @@ AS
       RAISE;
   END check_border;
 
-  FUNCTION check_line_size(p_line_size IN INTEGER DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH)
+  FUNCTION check_line_size(p_line_size IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN NUMBER
   IS
     l_script    VARCHAR2(256 CHAR) := 'otap_string.check_line_size';
     l_line_size INTEGER;
   BEGIN
-    IF NVL(p_line_size, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH) NOT BETWEEN otap_constants.OTAP_REPORT_MIN_FILL_LENGTH AND otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+    IF NVL(p_line_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH) NOT BETWEEN otap_constants.OTAP_NUM_MIN_FILL_LENGTH AND otap_constants.OTAP_NUM_MAX_FILL_LENGTH
     THEN
-      IF p_line_size > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+      IF p_line_size > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
       THEN
-        l_line_size := otap_constants.OTAP_REPORT_MAX_FILL_LENGTH;
+        l_line_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
       ELSE
-        l_line_size := otap_constants.OTAP_REPORT_MIN_FILL_LENGTH;
+        l_line_size := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
       END IF;
     ELSE
-      l_line_size := NVL(p_line_size, otap_constants.OTAP_REPORT_MIN_FILL_LENGTH);
+      l_line_size := NVL(p_line_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH);
     END IF;
     RETURN l_line_size;
   EXCEPTION
@@ -97,7 +97,7 @@ AS
   END check_line_size;
 
   FUNCTION check_title_size( p_title_length IN INTEGER DEFAULT 0
-                           , p_border       IN INTEGER DEFAULT otap_constants.OTAP_BORDER_DEFAULT
+                           , p_border       IN INTEGER DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                            )
     RETURN NUMBER
   IS
@@ -106,9 +106,9 @@ AS
     l_border     INTEGER;
   BEGIN
     l_border := otap_string.check_border(p_border);
-    IF (NVL(p_title_length, 0) + (l_border * 2)) > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+    IF (NVL(p_title_length, 0) + (l_border * 2)) > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
     THEN
-      l_title_size := otap_constants.OTAP_REPORT_MAX_FILL_LENGTH - (l_border * 2);
+      l_title_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH - (l_border * 2);
     ELSE
       l_title_size := NVL(p_title_length, 0);
     END IF;
@@ -125,12 +125,12 @@ AS
     l_script      VARCHAR2(256 CHAR) := 'otap_string.check_string_size';
     l_string_size INTEGER;
   BEGIN
-    IF NVL(p_string_length, 0) > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+    IF NVL(p_string_length, 0) > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
     THEN
-      l_string_size := otap_constants.OTAP_REPORT_MAX_FILL_LENGTH;
-    ELSIF NVL(p_string_length, 0) < otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+      l_string_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
+    ELSIF NVL(p_string_length, 0) < otap_constants.OTAP_NUM_MIN_FILL_LENGTH
     THEN
-      l_string_size := otap_constants.OTAP_REPORT_MIN_FILL_LENGTH;
+      l_string_size := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
     ELSE
       l_string_size := NVL(p_string_length, 0);
     END IF;
@@ -141,7 +141,7 @@ AS
       RAISE;
   END check_string_size;
 
-  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
+  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT)
     RETURN VARCHAR2
   IS
     l_script VARCHAR2(256 CHAR) := 'otap_string.check_layout';
@@ -150,7 +150,7 @@ AS
     l_layout := CASE
                   WHEN p_layout IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
                   THEN p_layout
-                  ELSE otap_constants.OTAP_LAYOUT_DEFAULT
+                  ELSE otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                 END
     ;
     RETURN l_layout;
@@ -160,23 +160,23 @@ AS
       RAISE;
   END check_layout;
 
-  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR)
+  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR)
     RETURN VARCHAR2
   IS
     l_script     VARCHAR2(256 CHAR) := 'otap_string.check_decoration';
     l_decoration VARCHAR2(1 CHAR);
   BEGIN
-    l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1);
+    l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 1, 1);
     RETURN l_decoration;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, l_script, 'SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1)');
+      otap_log.log(SQLERRM, l_script, 'SUBSTR(NVL(p_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 1, 1)');
       RAISE;
   END check_decoration;
 
   FUNCTION line_size( p_title_length  IN INTEGER
-                    , p_border        IN INTEGER  DEFAULT otap_constants.OTAP_BORDER_DEFAULT
-                    , p_min_fill      IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+                    , p_border        IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
+                    , p_min_fill      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                     )
     RETURN INTEGER
   IS
@@ -192,12 +192,12 @@ AS
     l_title_size := otap_string.check_title_size(p_title_length, l_border);
     l_calc_size  := l_title_size + (l_border * 2);
     l_length     := GREATEST(NVL(l_calc_size, 0), l_line_size);
-    IF l_length < otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
+    IF l_length < otap_constants.OTAP_NUM_MIN_FILL_LENGTH
     THEN
-      l_length := otap_constants.OTAP_REPORT_MIN_FILL_LENGTH;
-    ELSIF l_length > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+      l_length := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+    ELSIF l_length > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
     THEN
-      l_length := otap_constants.OTAP_REPORT_MAX_FILL_LENGTH;
+      l_length := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
     END IF;
     RETURN l_length;
   EXCEPTION
@@ -207,8 +207,8 @@ AS
   END line_size;
 
   FUNCTION max_size( p_title_length IN INTEGER
-                   , p_line_size    IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                   , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_BORDER_DEFAULT
+                   , p_line_size    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                   , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                    )
     RETURN INTEGER
   IS
@@ -225,9 +225,9 @@ AS
     THEN
       l_max_size := 0;
     ELSE
-      IF (l_title_length + (l_border * 2)) > otap_constants.OTAP_REPORT_MAX_FILL_LENGTH
+      IF (l_title_length + (l_border * 2)) > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
       THEN
-        l_max_size := otap_constants.OTAP_REPORT_MAX_FILL_LENGTH - (l_border * 2);
+        l_max_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH - (l_border * 2);
       ELSE
         l_max_size := l_title_length;
       END IF;
@@ -240,10 +240,10 @@ AS
   END max_size;
 
   FUNCTION left_deco( p_title_length IN INTEGER  DEFAULT 0
-                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
-                    , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_BORDER_DEFAULT
+                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
+                    , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                     )
     RETURN VARCHAR2
   IS
@@ -286,10 +286,10 @@ AS
   END left_deco;
 
   FUNCTION right_deco( p_title_length IN INTEGER  DEFAULT 0
-                     , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
-                     , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_BORDER_DEFAULT
+                     , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
+                     , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                      )
     RETURN VARCHAR2
   IS
@@ -331,10 +331,10 @@ AS
   END right_deco;
 
   FUNCTION decorate( p_title       IN VARCHAR2 DEFAULT NULL
-                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                   , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
-                   , p_border      IN INTEGER  DEFAULT otap_constants.OTAP_BORDER_DEFAULT
+                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                   , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
+                   , p_border      IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                    )
     RETURN VARCHAR2
   IS
@@ -376,9 +376,9 @@ AS
       RAISE;
   END decorate;
 
-  FUNCTION borderless( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_CHAR_NA
-                     , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_REPORT_MIN_FILL_LENGTH
-                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_RESULT_LAYOUT_DEFAULT
+  FUNCTION borderless( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                     , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT
                      )
     RETURN VARCHAR2
   IS

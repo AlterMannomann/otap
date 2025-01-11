@@ -143,127 +143,25 @@ AS
     RETURN INTEGER
   ;
 
+  /** FUNCTION otap_schema.has_object
+  * Checks if a given database object exists.
+  *
+  * @param p_object_name The name of the object, take as is. Case sensitive.
+  * @param p_object_type The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_object( p_object_name     IN     VARCHAR2
+                     , p_object_type     IN     VARCHAR2
+                     , o_errors             OUT VARCHAR2
+                     , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN INTEGER
+  ;
+
 END;
 /
-
-/* SQLs for schema objects
-
-FUNCTION has_trigger
-FUNCTION has_object
-
--- triggers
-SELECT *
-  FROM dba_triggers
- WHERE owner = 'OTAP'
-   AND trigger_name = 'OTAP_CONFIG_INS_TRG'
-   AND trigger_type = 'BEFORE EACH ROW'
-   AND triggering_event = 'INSERT'
-   AND table_owner = 'OTAP'
-   AND table_name = 'OTAP_CONFIG' -- can be NULL
-;
-
--- package functions and procedures - only package joins with object_id, not package body, no result
-SELECT dbo.owner
-     , dbo.object_name
-     , dbo.object_type
-     , dbo.status
-     , dbp.procedure_name
-     , CASE
-         WHEN dbr.position       = 0
-          AND dbr.argument_name IS NULL
-         THEN 'FUNCTION'
-         ELSE 'PROCEDURE'
-       END AS procedure_type
-     , CASE
-         WHEN dbr.position       = 0
-          AND dbr.argument_name IS NULL
-         THEN dbr.data_type
-         ELSE NULL
-       END AS return_type
-  FROM dba_objects dbo
-  LEFT OUTER JOIN dba_procedures dbp
-    ON dbo.object_id    = dbp.object_id
-  LEFT OUTER JOIN dba_arguments dbr
-    ON dbp.object_id     = dbr.object_id
-   AND dbp.subprogram_id = dbr.subprogram_id
-   AND dbr.sequence      = 1
- WHERE dbo.owner        = 'OTAP'
-   AND dbo.object_type  = 'PACKAGE'
-   AND dbo.object_name  = 'OTAP_RESULTS_UTIL'
-;
-
--- package function and procedure parameter
-SELECT dbo.owner
-     , dbo.object_name
-     , dbo.object_type
-     , dbo.status
-     , dbp.procedure_name
-     , dbr.argument_name
-     , dbr.data_type
-     , dbr.position
-  FROM dba_objects dbo
-  LEFT OUTER JOIN dba_procedures dbp
-    ON dbo.object_id    = dbp.object_id
-  LEFT OUTER JOIN dba_arguments dbr
-    ON dbp.object_id      = dbr.object_id
-   AND dbp.subprogram_id  = dbr.subprogram_id
-   AND dbr.argument_name IS NOT NULL
- WHERE dbo.owner            = 'OTAP'
-   AND dbo.object_type      = 'PACKAGE'
-   AND dbo.object_name      = 'OTAP_RESULTS_UTIL'
-   AND dbp.procedure_name   = 'WRITE_TEST_RESULT'
---   AND dbp.procedure_name   = 'MAX_TEXT_SIZE'
-;
-
--- functions, procedures and trigger
-SELECT dbo.owner
-     , dbo.object_name
-     , dbo.object_type
-     , dbo.status
-     , dbp.procedure_name
-     , CASE
-         WHEN dbr.position       = 0
-          AND dbr.argument_name IS NULL
-         THEN 'FUNCTION'
-         ELSE 'PROCEDURE'
-       END AS procedure_type
-     , CASE
-         WHEN dbr.position       = 0
-          AND dbr.argument_name IS NULL
-         THEN dbr.data_type
-         ELSE NULL
-       END AS return_type
-  FROM dba_objects dbo
-  LEFT OUTER JOIN dba_procedures dbp
-    ON dbo.object_id    = dbp.object_id
-  LEFT OUTER JOIN dba_arguments dbr
-    ON dbp.object_id     = dbr.object_id
-   AND dbp.subprogram_id = dbr.subprogram_id
-   AND dbr.sequence      = 1
- WHERE dbo.owner        = 'OTAP'
-   AND dbo.object_type IN ('FUNCTION', 'PROCEDURE', 'TRIGGER')
---   AND dbo.object_name  = 'DUMMY_PROCEDURE'
-;
-
--- parameters functions and procedures
-SELECT dbo.owner
-     , dbo.object_name
-     , dbo.object_type
-     , dbo.status
-     , dbp.procedure_name
-     , dbr.argument_name
-     , dbr.data_type
-     , dbr.position
-  FROM dba_objects dbo
-  LEFT OUTER JOIN dba_procedures dbp
-    ON dbo.object_id    = dbp.object_id
-  LEFT OUTER JOIN dba_arguments dbr
-    ON dbp.object_id     = dbr.object_id
-   AND dbp.subprogram_id = dbr.subprogram_id
-   AND dbr.argument_name IS NOT NULL
- WHERE dbo.owner            = 'OTAP'
-   AND dbo.object_type     IN ('FUNCTION', 'PROCEDURE')
-   AND dbo.object_name      = 'DUMMY_FUNCTION'
-;
-
-*/

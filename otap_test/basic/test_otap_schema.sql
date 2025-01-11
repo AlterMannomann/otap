@@ -4,10 +4,10 @@
 -- Creates a test function, identified by defaults, that checks the otap schema using otap functionality.
 CREATE OR REPLACE PROCEDURE test_otap_schema
 IS
-  l_debug     VARCHAR2(15)     := 'OTAP_TEST_DEBUG';
-  l_test_proc VARCHAR2(28)     := 'test_otap_schema';
-  l_result    VARCHAR2(32767);
-  l_object    VARCHAR2(128);
+  l_debug     VARCHAR2(15 CHAR)     := 'OTAP_TEST_DEBUG';
+  l_test_proc VARCHAR2(28 CHAR)     := 'test_otap_schema';
+  l_result    VARCHAR2(32767 CHAR);
+  l_object    VARCHAR2(128 CHAR);
 BEGIN
   -- We simulate to be limited to otap_test package, as tester this is your only interface.
   -- For logging implement your own logging.

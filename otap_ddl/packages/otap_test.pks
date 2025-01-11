@@ -79,10 +79,10 @@ AS
   * @param p_executor Reads session user from caller environment, DO NOT SET, let the defaults provide the value.
   */
   FUNCTION init_test( p_test_count      IN NUMBER   DEFAULT 0
-                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_SET
-                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_GROUP
-                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_NAME
-                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_PREFIX
+                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                     , p_name_precedence IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
                     , p_include_pkg     IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
                     , p_persist         IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
@@ -136,7 +136,7 @@ AS
 
   /** FUNCTION otap_test.set_test_name
   * Handles and sets the current active test name. If test name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_NAME
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
   * is used. Only valid within one session, if session ends, test name is reset.
   * Wrapper for otap_api.otap_session_set_test_name.
   *
@@ -153,7 +153,7 @@ AS
 
   /** FUNCTION otap_test.set_test_group
   * Handles and sets the current active test group. If test group name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_GROUP
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
   * is used. Only valid within one session, if session ends, test name is reset.
   * Wrapper for otap_api.otap_session_set_test_group.
   *
@@ -170,7 +170,7 @@ AS
 
   /** FUNCTION otap_test.set_test_set
   * Handles and sets the current active test set. If test set name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_SET
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
   * is used. Wrapper for otap_api.otap_session_set_test_set.
   *
   * Test set names are usually retrieved from the executed test function or procedure. Can
@@ -223,7 +223,7 @@ AS
   *
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
   *
   * @return The test result as text.
@@ -248,7 +248,7 @@ AS
   * @param p_table_name The name of the table, taken as is. Case sensitive.
   * @param p_column_name The column name of the table, taken as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
   * @param p_data_length Optional check the data length of the column. Ignored if NULL.
   * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
@@ -279,7 +279,7 @@ AS
   *
   * @param p_package_name The name of the package, take as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the package must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
@@ -300,7 +300,7 @@ AS
   *
   * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
   * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
   * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
@@ -324,7 +324,7 @@ AS
   *
   * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
   * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
   * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
   * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.

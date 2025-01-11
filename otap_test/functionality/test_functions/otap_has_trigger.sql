@@ -17,7 +17,7 @@ SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_INS_TRG'
                             , p_table_name => 'OTAP_CONFIG'
                             ) FROM dual;
 SELECT otap_test.has_trigger( p_trigger_name => NULL
-                            , p_description => 'NULL trigger test'
+                            , p_description => 'NULL trigger name'
                             , p_expected_result => otap_constants.get_otap_num_test_undefined
                             ) FROM dual;
 SELECT otap_test.has_trigger( p_trigger_name => 'NO VALID NAME'
