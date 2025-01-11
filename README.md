@@ -13,7 +13,45 @@ Basic otap test script started, see [master script](./otap_test/otap_test_master
 # otap - Oracle Test Automation Protocol
 Automated testing for Oracle databases. Can be used with [SOSL](https://github.com/AlterMannomann/sosl).
 
-I would have preferred a PRIVATE TEMPORARY TABLE for results, but this construct did not support CLOB columns. Thus otap needs job execution rights to keep the OTAP_RESULTS table as small as possible with automatic result deletions. Otherwise some tests are probably worth to be persisted.
+## Setup
+- you need DBA rights to install the basic otap schema and user role. On install you can define the otap user name and the name of the otap user role.
+- Use [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as DBA to install the otap schema and give the necessary rights.
+  - Use [otap_setup.sql](./setup/otap_setup.sql) as otap user to install the schema objects.
+- Grant your defined otap user role (default OTAP_USER) to the users, that should be able to execute otap tests.
+- Users with the otap user roles can access the package OTAP_TEST and the view OTAP_LATEST_TEST_RESULTS_V.
+- You may want to create synonyms, so the otap schema is not needed for qualifying the package or view.
+## Usage
+To run a test simply call it
+
+    SELECT otap.otap_test.has_table('MY_TABLE') FROM dual;
+
+To run a test set with report run the following:
+
+    --  will setup default set, group and name, no check of tests executed
+    SELECT otap.otap_test.init_test FROM dual;
+    -- OPTIONAL set test set for schema
+    SELECT otap.otap_test.set_test_set('OTAP schema') FROM dual;
+    -- OPTIONAL set test group for tables
+    SELECT otap.otap_test.set_test_group('OTAP tables') FROM dual;
+    -- OPTIONAL set test name for table
+    SELECT otap.otap_test.set_test_name('OTAP table SPERRORLOG') FROM dual;
+    -- run your tests
+    SELECT otap.otap_test.has_table( p_table_name => 'SPERRORLOG'
+                                   , p_schema => 'OTAP'
+                                   ) FROM dual;
+    -- ...
+    -- finish test
+    SELECT otap.otap_test.finish_test FROM dual;
+    -- get the result
+    SELECT result_text FROM otap_latest_test_results_v;
+
+For options and parameters see package description.
+
+To generate schema tests simply pass the schema and execute
+
+    SELECT result_text FROM TABLE(otap_generate.schema_tests('MY_SCHEMA'));
+
+You may spool the content to a file, make sure to set heading, paging and other things off the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql). At the moment you must be the otap user to execute it, not granted to user role currently.
 
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
