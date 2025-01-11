@@ -143,5 +143,23 @@ AS
     RETURN otap_constants.OTAP_INTERNAL_VAR;
   END get_otap_internal_var;
 
+  FUNCTION get_otap_config_type_number
+    RETURN VARCHAR2
+    DETERMINISTIC
+    PARALLEL_ENABLE
+  IS
+  BEGIN
+    RETURN otap_constants.OTAP_CONFIG_TYPE_NUMBER;
+  END get_otap_config_type_number;
+
+  FUNCTION get_otap_config_type_char
+    RETURN VARCHAR2
+    DETERMINISTIC
+    PARALLEL_ENABLE
+  IS
+  BEGIN
+    RETURN otap_constants.OTAP_CONFIG_TYPE_CHAR;
+  END get_otap_config_type_char;
+
 END;
 /

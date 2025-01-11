@@ -4,25 +4,27 @@
 CREATE OR REPLACE PACKAGE BODY otap_plan
 AS
   -- for description see header file
-  PROCEDURE write_test_result( p_test_description IN VARCHAR2
-                             , p_otap_session     IN OTAP_SESSION
-                             , p_test_passed      IN NUMBER
-                             , p_test_start       IN TIMESTAMP
-                             , p_test_end         IN TIMESTAMP
-                             , p_test_errors      IN VARCHAR2
-                             )
+  FUNCTION write_test_result( p_test_description IN            VARCHAR2
+                            , o_otap_session     IN OUT NOCOPY OTAP_SESSION
+                            , p_schema_used      IN            VARCHAR2
+                            , p_test_passed      IN            NUMBER
+                            , p_test_start       IN            TIMESTAMP
+                            , p_test_errors      IN            VARCHAR2
+                            )
+    RETURN VARCHAR2
   IS
-    PRAGMA AUTONOMOUS_TRANSACTION;
     l_script            VARCHAR2(1024 CHAR) := 'otap_plan.write_test_result';
     l_test_passed       INTEGER;
     l_test_description  VARCHAR2(256 CHAR);
     l_errors            VARCHAR2(4000 CHAR);
     l_to_delete         INTEGER;
+    l_end               TIMESTAMP;
+    l_return            VARCHAR2(4000 CHAR);
   BEGIN
-    otap_objects.otap_session_verify(p_otap_session);
+    otap_objects.otap_session_verify(o_otap_session);
     IF LENGTH(TRIM(l_errors)) > 4000
     THEN
-      l_errors := SUBSTR(TRIM(p_test_errors), 1, 4000);
+      l_errors := otap_string.reduce(p_test_errors, 4000);
     ELSE
       l_errors := TRIM(p_test_errors);
     END IF;
@@ -31,40 +33,45 @@ AS
       l_test_passed := p_test_passed;
     ELSE
       l_test_passed := otap_constants.OTAP_NUM_TEST_FAILED;
-      l_errors      := SUBSTR('Invalid test passed value: ' || p_test_passed || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
+      l_errors      := otap_string.reduce('Invalid test passed value: ' || p_test_passed || otap_constants.OTAP_INTERNAL_LF || l_errors, 4000);
       otap_log.log('ERROR The given value for test passed ' || p_test_passed || ' for test description ' || p_test_description || ' is not valid.', l_script, 'p_test_passed IN (otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_UNDEFINED)');
     END IF;
     IF p_test_description IS NULL
     THEN
       l_test_description := 'Unspecified test ' || TIMESTAMP_TO_SCN(SYSTIMESTAMP);
-      l_errors           := SUBSTR('Missing test description' || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
+      l_errors           := otap_string.reduce('Missing test description' || otap_constants.OTAP_INTERNAL_LF || l_errors, 4000);
     ELSE
       IF LENGTH(p_test_description) > 256
       THEN
-        l_test_description := SUBSTR(TRIM(p_test_description), 1, 256);
-        l_errors           := SUBSTR('Test description too long, cutted' || otap_constants.OTAP_INTERNAL_LF || l_errors, 1, 4000);
+        l_test_description := otap_string.reduce(p_test_description, 256);
+        l_errors           := otap_string.reduce('Test description too long, cutted' || otap_constants.OTAP_INTERNAL_LF || l_errors, 4000);
       ELSE
         l_test_description := TRIM(p_test_description);
       END IF;
     END IF;
     -- set delete flag as stored
-    l_to_delete := CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_NUM_FALSE ELSE otap_constants.OTAP_NUM_TRUE END;
+    l_to_delete := CASE WHEN o_otap_session.persist_test THEN otap_constants.OTAP_NUM_FALSE ELSE otap_constants.OTAP_NUM_TRUE END;
+    l_end := SYSTIMESTAMP;
     -- ready to insert
     otap_util.write_test_result( l_to_delete
-                                       , l_test_passed
-                                       , p_otap_session.session_id
-                                       , p_otap_session.test_executor
-                                       , p_otap_session.test_set
-                                       , p_otap_session.db_user
-                                       , p_otap_session.db_schema
-                                       , p_otap_session.test_group
-                                       , p_test_start
-                                       , p_test_end
-                                       , p_otap_session.test_name
-                                       , l_test_description
-                                       , l_errors
-                                       )
+                               , l_test_passed
+                               , o_otap_session.session_id
+                               , o_otap_session.test_executor
+                               , o_otap_session.test_set
+                               , o_otap_session.db_user
+                               , NVL(p_schema_used, o_otap_session.db_schema)
+                               , o_otap_session.test_group
+                               , p_test_start
+                               , l_end
+                               , o_otap_session.test_name
+                               , l_test_description
+                               , l_errors
+                               )
     ;
+    -- add test to session var
+    otap_objects.otap_session_add_test(l_test_passed, o_otap_session);
+    l_return := otap_string.reduce(otap_util.test_result_to_text(l_test_passed) || ' ' || l_test_description, 4000);
+    RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
@@ -82,8 +89,8 @@ AS
     l_test_description  VARCHAR2(256 CHAR);
     l_errors            VARCHAR2(4000 CHAR);
     l_start             TIMESTAMP;
-    l_end               TIMESTAMP;
     l_tmp_otap_session  OTAP_SESSION;
+    l_return            VARCHAR2(4000 CHAR);
   BEGIN
     l_start := SYSTIMESTAMP;
     -- only write a record, if intended count is set, do nothing otherwise
@@ -92,10 +99,9 @@ AS
       l_test_passed      := CASE WHEN p_otap_session.test_count = p_otap_session.intended_count THEN otap_constants.OTAP_NUM_TEST_PASSED ELSE otap_constants.OTAP_NUM_TEST_FAILED END;
       l_test_description := otap_string.reduce(otap_report.get_count_desc(p_otap_session.test_count, p_otap_session.intended_count), 256);
       l_errors           := NULL;
-      l_end              := SYSTIMESTAMP;
       l_tmp_otap_session := otap_objects.otap_session_copy(p_otap_session);
       l_tmp_otap_session.test_name := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
-      otap_plan.write_test_result(l_test_description, l_tmp_otap_session, l_test_passed, l_start, l_end, l_errors);
+      l_return := otap_plan.write_test_result(l_test_description, l_tmp_otap_session, NULL, l_test_passed, l_start, l_errors);
     END IF;
   EXCEPTION
     WHEN OTHERS THEN

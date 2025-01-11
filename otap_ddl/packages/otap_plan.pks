@@ -15,26 +15,31 @@ AS
   * -20099 Internal error, OTAP_SESSION object not valid. Details see specific error message.
   */
 
-  /** PROCEDURE otap_plan.write_test_result
+  /** FUNCTION otap_plan.write_test_result
   * Writes the result of a test to OTAP_RESULTS. If OTAP_SESSION persist_test is set to FALSE
   * the TO_DELETE flag is set on insert. Will retrieve most of the details from the current
   * session_record given by OTAP_TEST package or the test function using this procedure.
-  * Will fail the test, if p_test_passed is not valid.
+  * Will fail the test, if p_test_passed is not valid. Adds a new test to the session variable
+  * and returns the result as VARCHAR2 message. Defines the test end by being called.
   *
   * @param p_test_description The test description for a specific test. If missing, will generate Unspecified test x where x is a SCN number.
-  * @param p_otap_session A valid OTAP_SESSION object to be used for the insert with details on the test category and scope.
+  * @param o_otap_session A valid OTAP_SESSION object to be used for update and the insert with details on the test category and scope.
+  * @param p_used_schema The schema used for the test. May differ from session object.
   * @param p_test_passed A valid test passed ID, allowed values are otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED and otap_constants.OTAP_NUM_TEST_UNDEFINED.
   * @param p_test_start The timestamp of the test start, must be provided by test functions.
   * @param p_test_end The timestamp of the test end, must be provided by test functions.
   * @param p_test_errors Test error information limited to 4000 chars.
+  *
+  * @return The result as message to display, limited to 4000 char.
   */
-  PROCEDURE write_test_result( p_test_description IN VARCHAR2
-                             , p_otap_session     IN OTAP_SESSION
-                             , p_test_passed      IN NUMBER
-                             , p_test_start       IN TIMESTAMP
-                             , p_test_end         IN TIMESTAMP
-                             , p_test_errors      IN VARCHAR2
-                             )
+  FUNCTION write_test_result( p_test_description IN            VARCHAR2
+                            , o_otap_session     IN OUT NOCOPY OTAP_SESSION
+                            , p_schema_used      IN            VARCHAR2
+                            , p_test_passed      IN            NUMBER
+                            , p_test_start       IN            TIMESTAMP
+                            , p_test_errors      IN            VARCHAR2
+                            )
+    RETURN VARCHAR2
   ;
 
   /** PROCEDURE otap_plan.write_count_result

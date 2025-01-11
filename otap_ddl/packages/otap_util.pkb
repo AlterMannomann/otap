@@ -97,7 +97,7 @@ AS
       RAISE_APPLICATION_ERROR(-20002, 'The given config_value is not supported. Empty or only spaces.');
     END IF;
     -- check type also mandatory, no default
-    IF NVL(p_config_type, otap_constants.OTAP_INTERNAL_NA) NOT IN ('CHAR', 'NUMBER')
+    IF NVL(p_config_type, otap_constants.OTAP_INTERNAL_NA) NOT IN (otap_constants.OTAP_CONFIG_TYPE_CHAR, otap_constants.OTAP_CONFIG_TYPE_NUMBER)
     THEN
       otap_log.log('-20003 The given config_type: ' || NVL(p_config_type, 'NULL') || ' is not supported. Only CHAR or NUMBER supported.', l_script);
       RAISE_APPLICATION_ERROR(-20003, 'The given config_type: ' || NVL(p_config_type, 'NULL') || ' is not supported. Only CHAR or NUMBER supported.');
@@ -247,6 +247,35 @@ AS
     END IF;
     RETURN l_config_value;
   END validate_config_value;
+
+  PROCEDURE validate_translatable(p_otap_identifier IN VARCHAR2)
+  IS
+    l_script          VARCHAR2(1024 CHAR) := 'otap_util.validate_translatable';
+    l_is_translatable INTEGER;
+    l_exists          INTEGER;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_exists
+      FROM otap_config
+     WHERE config_name = TRIM(UPPER(p_otap_identifier))
+    ;
+    IF l_exists > 0
+    THEN
+      SELECT COUNT(*)
+        INTO l_is_translatable
+        FROM otap_config
+      WHERE config_name   = TRIM(UPPER(p_otap_identifier))
+        AND translatable  = otap_constants.OTAP_NUM_TRUE
+      ;
+      IF l_is_translatable = 0
+      THEN
+        -- log the error
+        otap_log.log('-20020 The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item.', l_script);
+        -- only direct testing could call this currently as table has a NOT NULL constraint
+        RAISE_APPLICATION_ERROR(-20020, 'The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item.');
+      END IF;
+    END IF;
+  END validate_translatable;
 
   FUNCTION get_config_value(p_config_name IN VARCHAR2)
     RETURN VARCHAR2
@@ -435,6 +464,7 @@ AS
     l_script      VARCHAR2(256 CHAR) := 'otap_util.write_test_result';
     l_to_delete   NUMBER;
     l_test_passed NUMBER;
+    l_errors      otap_results.test_errors%TYPE;
   BEGIN
     l_to_delete   := CASE
                        WHEN p_to_delete IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
@@ -442,12 +472,15 @@ AS
                        ELSE otap_constants.OTAP_NUM_TRUE
                      END
     ;
-    l_test_passed := CASE
-                       WHEN p_test_passed IN (otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_UNDEFINED)
-                       THEN p_test_passed
-                       ELSE otap_constants.OTAP_NUM_TEST_UNDEFINED
-                     END
-    ;
+    -- this is an error and must be handled
+    IF p_test_passed NOT IN (otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_UNDEFINED)
+    THEN
+      l_errors := otap_string.reduce('Invalid test result: ' || p_test_passed || ' ' || p_test_errors, 4000);
+      l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    ELSE
+      l_test_passed := p_test_passed;
+      l_errors := p_test_errors;
+    END IF;
     INSERT INTO otap_results
       ( to_delete
       , test_passed
@@ -474,13 +507,14 @@ AS
                , p_test_end
                , p_test_name
                , p_test_desc
-               , p_test_errors
+               , l_errors
                )
     ;
     COMMIT;
   EXCEPTION
     WHEN OTHERS THEN
       otap_log.log(SQLERRM, l_script, 'INSERT into otap_results');
+      ROLLBACK;
       RAISE;
   END write_test_result;
 

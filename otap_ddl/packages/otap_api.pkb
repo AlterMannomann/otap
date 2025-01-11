@@ -4,6 +4,51 @@
 CREATE OR REPLACE PACKAGE BODY otap_api
 AS
   -- for description see header file
+  PROCEDURE validate_otap
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.validate_otap';
+    l_errors  INTEGER;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_errors
+      FROM dba_objects
+     WHERE owner = otap_constants.get_otap_schema
+       AND status != 'VALID'
+    ;
+    IF l_errors > 0
+    THEN
+      -- log the error
+      otap_log.log('-20099 The otap system is not valid. INVALID objects exist. Ask your admin to fix the system before testing.', l_script);
+      -- only direct testing could call this currently as table has a NOT NULL constraint
+      RAISE_APPLICATION_ERROR(-20099, 'The otap system is not valid. INVALID objects exist. Ask your admin to fix the system before testing.');
+    END IF;
+    SELECT COUNT(*)
+      INTO l_errors
+      FROM dba_triggers
+     WHERE owner = otap_constants.get_otap_schema
+       AND status != 'ENABLED'
+    ;
+    IF l_errors > 0
+    THEN
+      -- log the error
+      otap_log.log('-20099 The otap system is not valid. Triggers are not enabled. Ask your admin to fix the system before testing.', l_script);
+      -- only direct testing could call this currently as table has a NOT NULL constraint
+      RAISE_APPLICATION_ERROR(-20099, 'The otap system is not valid. Triggers are not enabled. Ask your admin to fix the system before testing.');
+    END IF;
+    SELECT COUNT(*)
+      INTO l_errors
+      FROM otap_translate
+     WHERE TRIM(UPPER(otap_identifier)) IN (SELECT config_name FROM otap_config WHERE translatable = otap_constants.get_otap_num_false)
+    ;
+    IF l_errors > 0
+    THEN
+      -- log the error
+      otap_log.log('-20099 The otap system is not valid. OTAP_TRANSLATE contains invalid entries. Ask your admin to fix the system before testing.', l_script);
+      -- only direct testing could call this currently as table has a NOT NULL constraint
+      RAISE_APPLICATION_ERROR(-20099, 'The otap system is not valid. OTAP_TRANSLATE contains invalid entries. Ask your admin to fix the system before testing.');
+    END IF;
+  END validate_otap;
+
   FUNCTION init_test( p_test_count          IN            NUMBER
                     , p_test_set            IN            VARCHAR2
                     , p_test_group          IN            VARCHAR2
@@ -309,10 +354,10 @@ AS
     BEGIN
       l_status := CASE
                     WHEN p_issues > 0
-                    THEN otap_constants.OTAP_TEXT_TEST_UNDEFINED
+                    THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                     WHEN p_errors > 0 AND p_issues <= 0
-                    THEN otap_constants.OTAP_TEXT_TEST_FAILED
-                    ELSE otap_constants.OTAP_TEXT_TEST_PASSED
+                    THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_FAILED
+                    ELSE otap_constants.OTAP_FALLBACK_TEXT_TEST_PASSED
                   END
       ;
       l_message := otap_report.get_summary(l_status, p_runtime, p_runs, p_errors, p_issues, p_min_fill);
@@ -410,8 +455,8 @@ AS
     RETURN l_message;
   END get_result_underline;
 
-  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -659,7 +704,6 @@ AS
   IS
     l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_table';
     l_start            TIMESTAMP;
-    l_end              TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
@@ -687,30 +731,19 @@ AS
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_table function');
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
-      l_end := SYSTIMESTAMP;
-      -- set session variable according current value, a part where otap could fail
-      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-      l_tmp_otap_session.db_schema  := l_schema;
-      -- try to write the test record
-      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-      otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_table: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_table function');
-        -- try again to write a record with the new informations, which may again raise an exception
-        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-        l_tmp_otap_session.db_schema  := l_schema;
-        l_end := SYSTIMESTAMP;
-        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
-        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -733,7 +766,6 @@ AS
   IS
     l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_column';
     l_start            TIMESTAMP;
-    l_end              TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
@@ -768,30 +800,19 @@ AS
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_column function');
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
-      l_end := SYSTIMESTAMP;
-      -- set session variable according current value, a part where otap could fail
-      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-      l_tmp_otap_session.db_schema  := l_schema;
-      -- try to write the test record
-      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-      otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_column: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_column function');
-        -- try again to write a record with the new informations, which may again raise an exception
-        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-        l_tmp_otap_session.db_schema  := l_schema;
-        l_end := SYSTIMESTAMP;
-        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
-        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -808,7 +829,6 @@ AS
   IS
     l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_package';
     l_start            TIMESTAMP;
-    l_end              TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
@@ -837,30 +857,19 @@ AS
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_package function');
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
-      l_end := SYSTIMESTAMP;
-      -- set session variable according current value, a part where otap could fail
-      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-      l_tmp_otap_session.db_schema  := l_schema;
-      -- try to write the test record
-      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-      otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_package: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_package function');
-        -- try again to write a record with the new informations, which may again raise an exception
-        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-        l_tmp_otap_session.db_schema  := l_schema;
-        l_end := SYSTIMESTAMP;
-        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
-        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -879,7 +888,6 @@ AS
   IS
     l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_procedure';
     l_start            TIMESTAMP;
-    l_end              TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
@@ -910,30 +918,19 @@ AS
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_procedure: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_procedure function');
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
-      l_end := SYSTIMESTAMP;
-      -- set session variable according current value, a part where otap could fail
-      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-      l_tmp_otap_session.db_schema  := l_schema;
-      -- try to write the test record
-      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-      otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_procedure: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_procedure function');
-        -- try again to write a record with the new informations, which may again raise an exception
-        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-        l_tmp_otap_session.db_schema  := l_schema;
-        l_end := SYSTIMESTAMP;
-        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_procedure_msg(p_procedure_name, l_schema, p_procedure_type, p_package_name)), 256);
-        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;
@@ -953,7 +950,6 @@ AS
   IS
     l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_trigger';
     l_start            TIMESTAMP;
-    l_end              TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
     l_errors           otap_results.test_errors%TYPE;
@@ -985,30 +981,19 @@ AS
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_trigger: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_trigger function');
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
-      l_end := SYSTIMESTAMP;
-      -- set session variable according current value, a part where otap could fail
-      l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-      l_tmp_otap_session.db_schema  := l_schema;
-      -- try to write the test record
-      otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-      otap_objects.otap_session_add_test(l_result, o_otap_session);
-      l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-        l_errors := otap_string.reduce('Internal error has_trigger: ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute has_trigger function');
-        -- try again to write a record with the new informations, which may again raise an exception
-        l_tmp_otap_session            := otap_objects.otap_session_copy(o_otap_session);
-        l_tmp_otap_session.db_schema  := l_schema;
-        l_end := SYSTIMESTAMP;
-        otap_plan.write_test_result(l_desc, l_tmp_otap_session, l_result, l_start, l_end, l_errors);
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_trigger_msg(p_trigger_name, l_schema)), 256);
-        l_return := otap_util.test_result_to_text(l_result) || ' ' || l_desc;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;

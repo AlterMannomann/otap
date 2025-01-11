@@ -5,8 +5,6 @@
 CREATE OR REPLACE TRIGGER otap_config_ins_trg
   BEFORE INSERT ON otap_config
   FOR EACH ROW
-DECLARE
-  l_ok                BOOLEAN;
 BEGIN
   -- only allow defined configuration names
   otap_util.validate_config_name(:NEW.config_name);
@@ -27,8 +25,6 @@ END;
 CREATE OR REPLACE TRIGGER otap_config_upd_trg
   BEFORE UPDATE ON otap_config
   FOR EACH ROW
-DECLARE
-  l_ok                BOOLEAN;
 BEGIN
   -- deny update of config names
   :NEW.config_name := :OLD.config_name;

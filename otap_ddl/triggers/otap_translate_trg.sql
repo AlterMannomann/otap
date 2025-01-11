@@ -9,7 +9,9 @@ BEGIN
   :NEW.created        := SYSDATE;
   :NEW.created_by     := SYS_CONTEXT('USERENV', 'SESSION_USER');
   :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
-  :NEW.language_id    := otap_constants.get_otap_internal_na;
+  :NEW.language_id    := otap_constants.OTAP_INTERNAL_NA;
+  -- check if the label is defined and translatable, deny if so
+  otap_util.validate_translatable(:NEW.otap_identifier);
 END;
 /
 
@@ -23,6 +25,7 @@ BEGIN
   :NEW.updated        := SYSDATE;
   :NEW.updated_by     := SYS_CONTEXT('USERENV', 'SESSION_USER');
   :NEW.updated_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
-  :NEW.language_id    := otap_constants.get_otap_internal_na;
+  :NEW.language_id    := otap_constants.OTAP_INTERNAL_NA;
+  otap_util.validate_translatable(:NEW.otap_identifier);
 END;
 /

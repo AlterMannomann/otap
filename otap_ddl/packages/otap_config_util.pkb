@@ -112,14 +112,14 @@ AS
     RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_PREFIX);
   END get_default_prefix;
 
-  PROCEDURE set_default_prefix(p_default_prefix IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_PREFIX)
+  PROCEDURE set_default_prefix(p_default_prefix IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX)
   IS
     l_prefix otap_config.config_value%TYPE;
   BEGIN
     l_prefix := CASE
                   WHEN LENGTH(p_default_prefix) > otap_constants.OTAP_NUM_PREFIX_MAX_SIZE
                     OR INSTR(p_default_prefix, '_') > 0
-                  THEN otap_constants.OTAP_DEFAULT_PREFIX
+                  THEN otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                   ELSE p_default_prefix
                 END
     ;
@@ -133,7 +133,7 @@ AS
     RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT);
   END get_default_layout;
 
-  PROCEDURE set_default_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
+  PROCEDURE set_default_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT)
   IS
     l_layout otap_config.config_value%TYPE;
   BEGIN
@@ -153,7 +153,7 @@ AS
     RETURN otap_util.get_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT);
   END get_default_result_layout;
 
-  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_RESULT_DEFAULT)
+  PROCEDURE set_default_result_layout(p_default_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT)
   IS
     l_layout otap_config.config_value%TYPE;
   BEGIN

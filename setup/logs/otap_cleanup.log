@@ -49,6 +49,22 @@ Disabled and dropped job OTAP_MAINTENANCE
 PL/SQL procedure successfully completed.
 
 SQL> -- package objects
+SQL> @@../otap_ddl/packages/drop/drop_otap_generate_pkb.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE BODY otap_generate;
+
+Package body dropped.
+
+SQL> @@../otap_ddl/packages/drop/drop_otap_generate_pks.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE otap_generate;
+
+Package dropped.
+
 SQL> @@../otap_ddl/packages/drop/drop_otap_test_pkb.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
@@ -247,6 +263,14 @@ SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
 SQL> DROP VIEW otap_labels_v;
+
+View dropped.
+
+SQL> @@../otap_ddl/views/drop/drop_otap_identifiers_v.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP VIEW otap_identifiers_v;
 
 View dropped.
 

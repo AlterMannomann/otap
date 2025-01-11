@@ -16,14 +16,14 @@ AS
   */
   FUNCTION decorate( p_string     IN VARCHAR2
                    , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                    )
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_report.borderless
   * Main functionality to create a borderless output using the defined defaults in OTAP_CONFIG.
-  * Limited to layout orientation left and right. See also otap_constants.OTAP_LAYOUT_RESULT_DEFAULT.
+  * Limited to layout orientation left and right. See also otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT.
   *
   * @param p_string The string to display borderless in a report line using left or right layout.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
@@ -142,7 +142,7 @@ AS
   *
   * @return The configured summary template in OTAP_CONFIG enriched with data.
   */
-  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                       , p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs     IN NUMBER   DEFAULT 0
                       , p_errors   IN NUMBER   DEFAULT 0
@@ -265,8 +265,8 @@ AS
   *
   * @return The result line for a given test.
   */
-  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -298,7 +298,7 @@ AS
   *
   * @return The separator line. Length is calculated from configured headers or minimum fill.
   */
-  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                              , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                              )
     RETURN VARCHAR2

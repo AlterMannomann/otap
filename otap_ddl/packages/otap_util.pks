@@ -57,6 +57,13 @@ AS
   CFG_TEXT_TRUE                    CONSTANT CHAR(9)              := 'TEXT_TRUE';
   CFG_TEXT_TRUE_YES                CONSTANT CHAR(13)             := 'TEXT_TRUE_YES';
 
+  -- extra labels for schema object types used
+  CFG_LABEL_TABLE                  CONSTANT CHAR(11)             := 'LABEL_TABLE';
+  CFG_LABEL_COLUMN                 CONSTANT CHAR(12)             := 'LABEL_COLUMN';
+  CFG_LABEL_TRIGGER                CONSTANT CHAR(13)             := 'LABEL_TRIGGER';
+  CFG_LABEL_PACKAGE                CONSTANT CHAR(13)             := 'LABEL_PACKAGE';
+  CFG_LABEL_PACKAGE_BODY           CONSTANT CHAR(18)             := 'LABEL_PACKAGE_BODY';
+
   /** FUNCTION otap_util.is_number
   * Checks if a VARCHAR2 can be converted to a number and back. No format options supported.
   * Simple TO_NUMBER without parameters.
@@ -122,6 +129,16 @@ AS
                                 )
     RETURN VARCHAR2
   ;
+
+  /** PROCEDURE otap_util.validate_translatable
+  * Checks for OTAP_TRANSLATE trigger if the identifier is defined and not translatable.
+  * Identifiers for not translatable config names are not allowed and will cause an exception.
+  *
+  * @param p_otap_identifier The identifier name, usally :NEW.otap_identifier or :OLD.otap_identifier.
+  *
+  * @throws -20020 The given identifier cannot be translated. Ask your admin to adjust this configuration item.
+  */
+  PROCEDURE validate_translatable(p_otap_identifier IN VARCHAR2);
 
   /** FUNCTION otap_util.get_config_value
   * Returns a config value for a given configuration as is. Return value is always VARCHAR2.

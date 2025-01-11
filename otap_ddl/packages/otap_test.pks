@@ -79,10 +79,10 @@ AS
   * @param p_executor Reads session user from caller environment, DO NOT SET, let the defaults provide the value.
   */
   FUNCTION init_test( p_test_count      IN NUMBER   DEFAULT 0
-                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_SET
-                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_GROUP
-                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_NAME
-                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_PREFIX
+                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                     , p_name_precedence IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
                     , p_include_pkg     IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
                     , p_persist         IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
@@ -136,7 +136,7 @@ AS
 
   /** FUNCTION otap_test.set_test_name
   * Handles and sets the current active test name. If test name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_NAME
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
   * is used. Only valid within one session, if session ends, test name is reset.
   * Wrapper for otap_api.otap_session_set_test_name.
   *
@@ -153,7 +153,7 @@ AS
 
   /** FUNCTION otap_test.set_test_group
   * Handles and sets the current active test group. If test group name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_GROUP
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
   * is used. Only valid within one session, if session ends, test name is reset.
   * Wrapper for otap_api.otap_session_set_test_group.
   *
@@ -170,7 +170,7 @@ AS
 
   /** FUNCTION otap_test.set_test_set
   * Handles and sets the current active test set. If test set name is longer than 256 chars
-  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_DEFAULT_TEST_SET
+  * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
   * is used. Wrapper for otap_api.otap_session_set_test_set.
   *
   * Test set names are usually retrieved from the executed test function or procedure. Can

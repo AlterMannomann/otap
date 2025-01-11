@@ -30,6 +30,7 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/tables/otap_translate.sql
 -- views accessed by packages
 @@../otap_ddl/views/otap_labels_v.sql
+@@../otap_ddl/views/otap_identifiers_v.sql
 -- packages
 @@../otap_ddl/packages/otap_log.pks
 @@../otap_ddl/packages/otap_log.pkb
@@ -49,6 +50,8 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_api.pkb
 @@../otap_ddl/packages/otap_test.pks
 @@../otap_ddl/packages/otap_test.pkb
+@@../otap_ddl/packages/otap_generate.pks
+@@../otap_ddl/packages/otap_generate.pkb
 -- table trigger
 @@../otap_ddl/triggers/otap_config_trg.sql
 @@../otap_ddl/triggers/otap_results_trg.sql

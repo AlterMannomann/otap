@@ -109,24 +109,24 @@ AS
   ;
 
   /** FUNCTION otap_string.check_layout
-  * Constraints the layout to allowed values. Invalid values will return otap_constants.OTAP_LAYOUT_DEFAULT.
+  * Constraints the layout to allowed values. Invalid values will return otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT.
   *
   * @param p_layout A valid layout orientation indicator as defined in OTAP_CONSTANTS.
   *
   * @return The given layout or the default value.
   */
-  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
+  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_string.check_decoration
-  * Constraints the decoration char to 1 char. Invalid values will return otap_constants.OTAP_FORMAT_NAME_CHAR.
+  * Constraints the decoration char to 1 char. Invalid values will return otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR.
   *
   * @param p_decoration A single decoration char. Only the first char is considered if string length > 1.
   *
   * @return The given decoration char or the default value.
   */
-  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR)
+  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR)
     RETURN VARCHAR2
   ;
 
@@ -181,8 +181,8 @@ AS
   */
   FUNCTION left_deco( p_title_length IN INTEGER  DEFAULT 0
                     , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                     , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                     )
     RETURN VARCHAR2
@@ -204,8 +204,8 @@ AS
   */
   FUNCTION right_deco( p_title_length IN INTEGER  DEFAULT 0
                      , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                      , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                      )
     RETURN VARCHAR2
@@ -234,9 +234,9 @@ AS
   * @return The decorated string. Limited to 4000 chars as it is used in SQL columns.
   */
   FUNCTION decorate( p_title       IN VARCHAR2 DEFAULT NULL
-                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                    , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                    , p_border      IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                    )
     RETURN VARCHAR2
@@ -244,7 +244,7 @@ AS
 
   /** FUNCTION otap_string.borderless
   * Builds not decorated report lines, like results or result headers, with given layout orientation. Only left and right allowed. Middle
-  * will translate to the default otap_constants.OTAP_LAYOUT_RESULT_DEFAULT.
+  * will translate to the default otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT.
   * For languages that read from right to left, the templates and headers have to be adjusted accordingly.
   *
   * @param p_string The string to format with the given orientation.
@@ -255,7 +255,7 @@ AS
   */
   FUNCTION borderless( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                      , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_RESULT_DEFAULT
+                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT
                      )
     RETURN VARCHAR2
   ;

@@ -40,11 +40,19 @@ AS
   OTAP_INTERNAL_ERROR      CONSTANT CHAR(10)            := 'OTAP_ERROR';
   OTAP_INTERNAL_NA         CONSTANT CHAR(3)             := 'N/A';
   OTAP_INTERNAL_VAR        CONSTANT CHAR(1)             := '@';
+  OTAP_CONFIG_TYPE_NUMBER  CONSTANT CHAR(6)             := 'NUMBER';
+  OTAP_CONFIG_TYPE_CHAR    CONSTANT CHAR(4)             := 'CHAR';
 
   -- no get functions for the following constants
   -- internal otap constants only usable within PLSQL
   OTAP_INTERNAL_LF                    CONSTANT CHAR(1)        := CHR(10);
   OTAP_NUM_PREFIX_MAX_SIZE            CONSTANT INTEGER        := 4;
+  OTAP_LAYOUT_RIGHT                   CONSTANT CHAR(1)        := 'R';
+  OTAP_LAYOUT_MIDDLE                  CONSTANT CHAR(1)        := 'M';
+  OTAP_LAYOUT_LEFT                    CONSTANT CHAR(1)        := 'L';
+  OTAP_LABEL_UPPER                    CONSTANT CHAR(1)        := 'U';
+  OTAP_LABEL_LOWER                    CONSTANT CHAR(1)        := 'L';
+  OTAP_LABEL_INIT_CAP                 CONSTANT CHAR(1)        := 'I';
   -- otap log needs to know the debug mode access name, therefore in otap_constants, other access identifiers are in otap_util
   OTAP_CFG_DEBUG_MODE                 CONSTANT CHAR(10)       := 'DEBUG_MODE';
   -- fallback constants for access failure situations, defaults and checks
@@ -60,27 +68,25 @@ AS
   OTAP_FALLBACK_DELETE_BATCH_SIZE     CONSTANT INTEGER        := 1000;
   OTAP_FALLBACK_DELETE_BATCH_SIZE_MIN CONSTANT INTEGER        := 100;
   OTAP_FALLBACK_DELETE_BATCH_SIZE_MAX CONSTANT INTEGER        := 10000;
-  OTAP_FORMAT_HEADER_CHAR             CONSTANT CHAR(1)        := '=';
-  OTAP_FORMAT_SET_CHAR                CONSTANT CHAR(1)        := '*';
-  OTAP_FORMAT_GROUP_CHAR              CONSTANT CHAR(1)        := '+';
-  OTAP_FORMAT_NAME_CHAR               CONSTANT CHAR(1)        := '-';
-  OTAP_TEXT_TRUE                      CONSTANT CHAR(4)        := 'true';
-  OTAP_TEXT_FALSE                     CONSTANT CHAR(5)        := 'false';
-  OTAP_TEXT_TRUE_YES                  CONSTANT CHAR(3)        := 'Yes';
-  OTAP_TEXT_FALSE_NO                  CONSTANT CHAR(2)        := 'No';
-  OTAP_TEXT_TEST_PASSED               CONSTANT CHAR(6)        := 'Passed';
-  OTAP_TEXT_TEST_FAILED               CONSTANT CHAR(6)        := 'FAILED';
-  OTAP_TEXT_TEST_UNDEFINED            CONSTANT CHAR(9)        := 'UNDEFINED';
-  OTAP_DEFAULT_PREFIX                 CONSTANT CHAR(4)        := 'TEST';
-  OTAP_DEFAULT_TEST_SET               CONSTANT CHAR(13)       := 'OTAP test set';
-  OTAP_DEFAULT_TEST_GROUP             CONSTANT CHAR(15)       := 'OTAP test group';
-  OTAP_DEFAULT_TEST_NAME              CONSTANT CHAR(14)       := 'OTAP test name';
-  OTAP_DEFAULT_LANGUAGE               CONSTANT CHAR(3)        := 'en';
-  OTAP_LAYOUT_RIGHT                   CONSTANT CHAR(1)        := 'R';
-  OTAP_LAYOUT_MIDDLE                  CONSTANT CHAR(1)        := 'M';
-  OTAP_LAYOUT_LEFT                    CONSTANT CHAR(1)        := 'L';
-  OTAP_LAYOUT_DEFAULT                 CONSTANT CHAR(1)        := 'M';
-  OTAP_LAYOUT_RESULT_DEFAULT          CONSTANT CHAR(1)        := 'L';
+  OTAP_FALLBACK_FORMAT_HEADER_CHAR    CONSTANT CHAR(1)        := '=';
+  OTAP_FALLBACK_FORMAT_SET_CHAR       CONSTANT CHAR(1)        := '*';
+  OTAP_FALLBACK_FORMAT_GROUP_CHAR     CONSTANT CHAR(1)        := '+';
+  OTAP_FALLBACK_FORMAT_NAME_CHAR      CONSTANT CHAR(1)        := '-';
+  OTAP_FALLBACK_TEXT_TRUE             CONSTANT CHAR(4)        := 'true';
+  OTAP_FALLBACK_TEXT_FALSE            CONSTANT CHAR(5)        := 'false';
+  OTAP_FALLBACK_TEXT_TRUE_YES         CONSTANT CHAR(3)        := 'Yes';
+  OTAP_FALLBACK_TEXT_FALSE_NO         CONSTANT CHAR(2)        := 'No';
+  OTAP_FALLBACK_TEXT_TEST_PASSED      CONSTANT CHAR(6)        := 'Passed';
+  OTAP_FALLBACK_TEXT_TEST_FAILED      CONSTANT CHAR(6)        := 'FAILED';
+  OTAP_FALLBACK_TEXT_TEST_UNDEFINED   CONSTANT CHAR(9)        := 'UNDEFINED';
+  OTAP_FALLBACK_DEFAULT_PREFIX        CONSTANT CHAR(4)        := 'TEST';
+  OTAP_FALLBACK_DEFAULT_TEST_SET      CONSTANT CHAR(13)       := 'OTAP test set';
+  OTAP_FALLBACK_DEFAULT_TEST_GROUP    CONSTANT CHAR(15)       := 'OTAP test group';
+  OTAP_FALLBACK_DEFAULT_TEST_NAME     CONSTANT CHAR(14)       := 'OTAP test name';
+  OTAP_FALLBACK_DEFAULT_LANGUAGE      CONSTANT CHAR(3)        := 'en';
+  OTAP_FALLBACK_LAYOUT_DEFAULT        CONSTANT CHAR(1)        := 'M';
+  OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT CONSTANT CHAR(1)        := 'L';
+  OTAP_FALLBACK_LABEL_DEFAULT         CONSTANT CHAR(1)        := 'L';
   /*====================================== end package constants used by otap ======================================*/
 
   /*====================================== start package constant get functions ======================================*/
@@ -171,6 +177,18 @@ AS
   ;
 -- @return otap_constants.OTAP_INTERNAL_VAR
   FUNCTION get_otap_internal_var
+    RETURN VARCHAR2
+    DETERMINISTIC
+    PARALLEL_ENABLE
+  ;
+-- @return otap_constants.OTAP_CONFIG_TYPE_NUMBER
+  FUNCTION get_otap_config_type_number
+    RETURN VARCHAR2
+    DETERMINISTIC
+    PARALLEL_ENABLE
+  ;
+-- @return otap_constants.OTAP_CONFIG_TYPE_CHAR
+  FUNCTION get_otap_config_type_char
     RETURN VARCHAR2
     DETERMINISTIC
     PARALLEL_ENABLE

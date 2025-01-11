@@ -24,6 +24,14 @@ AS
   * Comments are kept short, as this package gets huge. See wrapped functions for details.
   */
 
+  /** PROCEDURE otap_api.validate_otap
+  * Validates the basic system of otap, checks if objects are valid, triggers enabled and
+  * no illegal content in OTAP_TRANSLATE.
+  *
+  * @throws -20099 The otap system is not valid. Ask your admin to fix the system before testing.
+  */
+  PROCEDURE validate_otap;
+
   /** FUNCTION otap_api.init_test
   * @see otap_plan.init_test
   */
@@ -188,8 +196,8 @@ AS
   /** FUNCTION otap_api.get_result_line
   * @see otap_report.get_result_line
   */
-  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH

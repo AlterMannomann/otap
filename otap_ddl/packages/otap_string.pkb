@@ -141,7 +141,7 @@ AS
       RAISE;
   END check_string_size;
 
-  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT)
+  FUNCTION check_layout(p_layout IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT)
     RETURN VARCHAR2
   IS
     l_script VARCHAR2(256 CHAR) := 'otap_string.check_layout';
@@ -150,7 +150,7 @@ AS
     l_layout := CASE
                   WHEN p_layout IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_RIGHT)
                   THEN p_layout
-                  ELSE otap_constants.OTAP_LAYOUT_DEFAULT
+                  ELSE otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                 END
     ;
     RETURN l_layout;
@@ -160,17 +160,17 @@ AS
       RAISE;
   END check_layout;
 
-  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR)
+  FUNCTION check_decoration(p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR)
     RETURN VARCHAR2
   IS
     l_script     VARCHAR2(256 CHAR) := 'otap_string.check_decoration';
     l_decoration VARCHAR2(1 CHAR);
   BEGIN
-    l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1);
+    l_decoration := SUBSTR(NVL(p_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 1, 1);
     RETURN l_decoration;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, l_script, 'SUBSTR(NVL(p_decoration, otap_constants.OTAP_FORMAT_NAME_CHAR), 1, 1)');
+      otap_log.log(SQLERRM, l_script, 'SUBSTR(NVL(p_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 1, 1)');
       RAISE;
   END check_decoration;
 
@@ -241,8 +241,8 @@ AS
 
   FUNCTION left_deco( p_title_length IN INTEGER  DEFAULT 0
                     , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                    , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                    , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                     , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                     )
     RETURN VARCHAR2
@@ -287,8 +287,8 @@ AS
 
   FUNCTION right_deco( p_title_length IN INTEGER  DEFAULT 0
                      , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
-                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                     , p_decoration   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+                     , p_layout       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                      , p_border       IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                      )
     RETURN VARCHAR2
@@ -331,9 +331,9 @@ AS
   END right_deco;
 
   FUNCTION decorate( p_title       IN VARCHAR2 DEFAULT NULL
-                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+                   , p_decoration  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                    , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_DEFAULT
+                   , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT
                    , p_border      IN INTEGER  DEFAULT otap_constants.OTAP_FALLBACK_BORDER
                    )
     RETURN VARCHAR2
@@ -378,7 +378,7 @@ AS
 
   FUNCTION borderless( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                      , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_LAYOUT_RESULT_DEFAULT
+                     , p_layout      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT
                      )
     RETURN VARCHAR2
   IS

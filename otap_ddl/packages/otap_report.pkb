@@ -7,7 +7,7 @@ AS
   -- for description see header file
   FUNCTION decorate( p_string     IN VARCHAR2
                    , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+                   , p_decoration IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                    )
     RETURN VARCHAR2
   IS
@@ -194,7 +194,7 @@ AS
       RAISE;
   END get_test_count_header;
 
-  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_summary( p_status   IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                       , p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs     IN NUMBER   DEFAULT 0
                       , p_errors   IN NUMBER   DEFAULT 0
@@ -393,8 +393,8 @@ AS
       RAISE;
   END get_test_name_text;
 
-  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
-                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_TEXT_TEST_UNDEFINED
+  FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+                          , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -470,7 +470,7 @@ AS
       RAISE;
   END get_count_desc;
 
-  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FORMAT_NAME_CHAR
+  FUNCTION get_separator_line( p_char     IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
                              , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                              )
     RETURN VARCHAR2

@@ -7,12 +7,12 @@ AS
   --========= package session variables =========--
   -- define private package sesstion variables and set defaults
   session_record OTAP_SESSION := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
-                                             , otap_constants.OTAP_DEFAULT_TEST_SET
-                                             , otap_constants.OTAP_DEFAULT_TEST_GROUP
-                                             , otap_constants.OTAP_DEFAULT_TEST_NAME
+                                             , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+                                             , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+                                             , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
                                              , SYS_CONTEXT('USERENV', 'CURRENT_USER')
                                              , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                                             , otap_constants.OTAP_DEFAULT_PREFIX
+                                             , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                                              , 0
                                              , 0
                                              , FALSE
@@ -26,10 +26,10 @@ AS
   ;
 
   FUNCTION init_test( p_test_count      IN NUMBER   DEFAULT 0
-                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_SET
-                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_GROUP
-                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_TEST_NAME
-                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_DEFAULT_PREFIX
+                    , p_test_set        IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+                    , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+                    , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+                    , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
                     , p_name_precedence IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
                     , p_include_pkg     IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
                     , p_persist         IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
@@ -46,11 +46,12 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.init_test( NVL(p_test_count, 0)
-                                   , NVL(p_test_set, otap_constants.OTAP_DEFAULT_TEST_SET)
-                                   , NVL(p_test_group, otap_constants.OTAP_DEFAULT_TEST_GROUP)
-                                   , NVL(p_test_name, otap_constants.OTAP_DEFAULT_TEST_NAME)
-                                   , NVL(p_prefix, otap_constants.OTAP_DEFAULT_PREFIX)
+                                   , NVL(p_test_set, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET)
+                                   , NVL(p_test_group, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP)
+                                   , NVL(p_test_name, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME)
+                                   , NVL(p_prefix, otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX)
                                    , NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE)
                                    , NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE)
                                    , NVL(p_persist, otap_constants.OTAP_NUM_FALSE)
@@ -75,6 +76,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.finish_test(p_write_count_rec, session_record);
     RETURN l_message;
   EXCEPTION
@@ -338,7 +340,7 @@ AS
     -- footer row
     l_text_column := otap_api.get_report_footer(l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    -- add AI and copyrigth
+    -- add AI and copyright
     l_text_column := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     l_text_column := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
@@ -362,6 +364,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.otap_session_show(session_record);
     RETURN l_message;
   EXCEPTION
@@ -378,6 +381,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.otap_session_summary(session_record);
     RETURN l_message;
   EXCEPTION
@@ -478,6 +482,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
     RETURN l_message;
   EXCEPTION
@@ -505,6 +510,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.has_column( p_table_name
                                     , p_column_name
                                     , session_record
@@ -539,6 +545,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_expected_result);
     RETURN l_message;
   EXCEPTION
@@ -562,6 +569,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.has_procedure( p_procedure_name
                                        , session_record
                                        , p_schema
@@ -595,6 +603,7 @@ AS
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
+    otap_api.validate_otap;
     l_message := otap_api.has_trigger( p_trigger_name
                                      , session_record
                                      , p_schema
