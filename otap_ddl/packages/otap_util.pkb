@@ -223,7 +223,7 @@ AS
     IF l_config_name = otap_constants.OTAP_CFG_DEBUG_MODE
     THEN
       -- hardcoded minimal check, this is highly internal
-      IF l_config_value != '1'
+      IF l_config_value NOT IN ('0', '1')
       THEN
         otap_log.log('Invalid value for DEBUG_MODE: ' || l_config_value || ' use default.', l_script);
         l_config_value := '0';
@@ -242,6 +242,14 @@ AS
       IF l_config_value NOT IN (otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)
       THEN
         otap_log.log('Invalid value for DEFAULT_RESULT_LAYOUT: ' || l_config_value || ' use default.', l_script);
+        l_config_value := otap_constants.OTAP_LAYOUT_LEFT;
+      END IF;
+    END IF;
+    IF l_config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN
+    THEN
+      IF l_config_value NOT IN (otap_constants.OTAP_LABEL_LOWER, otap_constants.OTAP_LABEL_INIT_CAP, otap_constants.OTAP_LABEL_UPPER)
+      THEN
+        otap_log.log('Invalid value for DEFAULT_LABEL_LAYOUT: ' || l_config_value || ' use default.', l_script);
         l_config_value := otap_constants.OTAP_LAYOUT_LEFT;
       END IF;
     END IF;
@@ -283,19 +291,45 @@ AS
     l_script      VARCHAR2(1024 CHAR)            := 'otap_util.get_config_value';
     l_return      otap_config.config_value%TYPE;
     l_has_config  INTEGER;
+    l_has_label   INTEGER;
+    l_label_col   VARCHAR2(1 CHAR);
   BEGIN
     l_return := otap_constants.OTAP_INTERNAL_ERROR;
     SELECT COUNT(*)
       INTO l_has_config
-      FROM otap_config
-     WHERE config_name = UPPER(p_config_name)
+      FROM otap_identifiers_v
+     WHERE otap_identifier = UPPER(p_config_name)
     ;
-    IF l_has_config = 1
+    SELECT COUNT(*)
+      INTO l_has_label
+      FROM otap_config
+     WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN
+    ;
+    IF l_has_label = 1
     THEN
       SELECT config_value
-        INTO l_return
+        INTO l_label_col
         FROM otap_config
-      WHERE config_name = UPPER(p_config_name)
+       WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN
+      ;
+      l_label_col := NVL(l_label_col, otap_constants.OTAP_LABEL_LOWER);
+    ELSE
+      l_label_col := otap_constants.OTAP_LABEL_LOWER;
+    END IF;
+    IF l_has_config = 1
+    THEN
+      SELECT CASE l_label_col
+               WHEN otap_constants.OTAP_LABEL_LOWER
+               THEN label_text_lower
+               WHEN otap_constants.OTAP_LABEL_INIT_CAP
+               THEN label_text_cap
+               WHEN otap_constants.OTAP_LABEL_UPPER
+               THEN label_text_upper
+               ELSE label_text_lower
+             END
+        INTO l_return
+        FROM otap_identifiers_v
+      WHERE otap_identifier = UPPER(p_config_name)
       ;
     ELSE
       l_return := otap_constants.OTAP_INTERNAL_ERROR;
@@ -343,6 +377,36 @@ AS
       otap_log.log(SQLERRM, l_script);
       RAISE;
   END get_config_number;
+
+  FUNCTION get_label_id(p_object_type IN VARCHAR2)
+    RETURN VARCHAR2
+  IS
+    l_script VARCHAR2(1024 CHAR) := 'otap_util.get_label_id';
+    l_return VARCHAR2(256 CHAR);
+    l_count  INTEGER;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_count
+      FROM otap_labels_mv
+     WHERE otap_label_source = UPPER(p_object_type)
+    ;
+    IF l_count = 1
+    THEN
+      SELECT otap_string.reduce(otap_identifier, 256)
+        INTO l_return
+        FROM otap_labels_mv
+       WHERE otap_label_source = UPPER(p_object_type)
+      ;
+    ELSE
+      otap_log.log('Invalid object type: ' || p_object_type, l_script);
+      l_return := otap_util.CFG_LABEL_UNDEFINED;
+    END IF;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script);
+      RAISE;
+  END get_label_id;
 
   FUNCTION get_length_test_state
     RETURN NUMBER
@@ -444,6 +508,134 @@ AS
       otap_log.log(SQLERRM, 'otap_util.test_result_to_text', 'Translate test state to text');
       RAISE;
   END test_result_to_text;
+
+  FUNCTION build_msg( p_cfg_template  IN VARCHAR2
+                    , p_type_label    IN VARCHAR2 DEFAULT NULL
+                    , p_param1        IN VARCHAR2 DEFAULT NULL
+                    , p_param1_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param2        IN VARCHAR2 DEFAULT NULL
+                    , p_param2_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param3        IN VARCHAR2 DEFAULT NULL
+                    , p_param3_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param4        IN VARCHAR2 DEFAULT NULL
+                    , p_param4_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param5        IN VARCHAR2 DEFAULT NULL
+                    , p_param5_value  IN VARCHAR2 DEFAULT NULL
+                    , p_description   IN VARCHAR2 DEFAULT NULL
+                    )
+    RETURN VARCHAR2
+  IS
+    l_script        VARCHAR2(256 CHAR) := 'otap_util.build_msg';
+    l_text_result   VARCHAR2(4000 CHAR);
+    l_label         VARCHAR2(256 CHAR);
+    l_var_count     INTEGER;
+  BEGIN
+    IF p_description IS NOT NULL
+    THEN
+      l_text_result := otap_string.reduce(p_description, 4000);
+    ELSE
+      IF p_cfg_template IS NULL
+      THEN
+        l_text_result := otap_constants.OTAP_INTERNAL_ERROR || ' ' || l_script || ' missing description and template identifier';
+        otap_log.log(l_text_result, l_script);
+      ELSE
+        l_text_result := otap_util.get_config_value(p_cfg_template);
+        IF l_text_result = otap_constants.OTAP_INTERNAL_ERROR
+        THEN
+          l_text_result := otap_constants.OTAP_INTERNAL_ERROR || ' ' || l_script || ' invalid template identifier ' || p_cfg_template;
+          otap_log.log(l_text_result, l_script);
+        ELSE
+          -- check variables, only modify if present, otherwise text is delivered as is
+          l_var_count := REGEXP_COUNT(l_text_result, '@');
+          -- check also that @@ comes in pairs like valid variables
+          IF l_var_count != 0 AND MOD(l_var_count, 2) = 0
+          THEN
+            -- check type present
+            IF     p_type_label                                      IS NOT NULL
+               AND INSTR(l_text_result, otap_constants.OTAP_TYPE_VAR) > 0
+            THEN
+              l_label := otap_util.get_config_value(p_type_label);
+              -- do nothing on errors
+              IF l_label != otap_constants.OTAP_INTERNAL_ERROR
+              THEN
+                -- replace if exists in template
+                l_text_result := REPLACE(l_text_result, otap_constants.OTAP_TYPE_VAR, l_label);
+              ELSE
+                otap_log.log('Type ignored, Invalid label used: ' || p_type_label, l_script);
+              END IF;
+            END IF;
+            -- check vars and replace if condition met
+            IF p_param1_value IS NOT NULL
+            THEN
+              IF     p_param1                   IS NOT NULL
+                 AND REGEXP_COUNT(p_param1, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param1, p_param1_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Value without variable name: ' || p_param1_value || ' or invalid parameter: ' || p_param1, l_script);
+              END IF;
+            END IF;
+            IF p_param2_value IS NOT NULL
+            THEN
+              IF     p_param2                   IS NOT NULL
+                 AND REGEXP_COUNT(p_param2, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param2, p_param2_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Value without variable name: ' || p_param2_value || ' or invalid parameter: ' || p_param2, l_script);
+              END IF;
+            END IF;
+            IF p_param3_value IS NOT NULL
+            THEN
+              IF     p_param3                   IS NOT NULL
+                 AND REGEXP_COUNT(p_param3, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param3, p_param3_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Value without variable name: ' || p_param3_value || ' or invalid parameter: ' || p_param3, l_script);
+              END IF;
+            END IF;
+            IF p_param4_value IS NOT NULL
+            THEN
+              IF     p_param4                   IS NOT NULL
+                 AND REGEXP_COUNT(p_param4, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param4, p_param4_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Value without variable name: ' || p_param4_value || ' or invalid parameter: ' || p_param4, l_script);
+              END IF;
+            END IF;
+            IF p_param5_value IS NOT NULL
+            THEN
+              IF     p_param5                   IS NOT NULL
+                 AND REGEXP_COUNT(p_param5, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param5, p_param5_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Value without variable name: ' || p_param5_value || ' or invalid parameter: ' || p_param5, l_script);
+              END IF;
+            END IF;
+          END IF;
+        END IF;
+      END IF;
+    END IF;
+    RETURN l_text_result;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'Prepare message from template');
+      RAISE;
+    RETURN l_text_result;
+  END build_msg;
 
   PROCEDURE write_test_result( p_to_delete         IN NUMBER
                              , p_test_passed       IN NUMBER

@@ -223,7 +223,7 @@ AS
   *
   * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
   *
   * @return The test result as text.
@@ -248,7 +248,7 @@ AS
   * @param p_table_name The name of the table, taken as is. Case sensitive.
   * @param p_column_name The column name of the table, taken as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
   * @param p_data_length Optional check the data length of the column. Ignored if NULL.
   * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
@@ -279,7 +279,7 @@ AS
   *
   * @param p_package_name The name of the package, take as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the package must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
@@ -300,7 +300,7 @@ AS
   *
   * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
   * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
   * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
   * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
@@ -324,7 +324,7 @@ AS
   *
   * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
   * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
-  * @param p_description The test description if any. If not given, a description is generated, see FN template.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
   * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
   * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.

@@ -18,7 +18,7 @@ CREATE TABLE otap_translate
 ;
 
 COMMENT ON TABLE otap_translate IS 'Provides the possibility for translation of otap templates, formattings and labels.';
-COMMENT ON COLUMN otap_translate.otap_identifier IS 'Must match either the config_name in OTAP_CONFIG or the otap_identifier in OTAP_LABELS_V to be considered. Primary key.';
+COMMENT ON COLUMN otap_translate.otap_identifier IS 'Must match either the config_name in OTAP_CONFIG or the otap_identifier in OTAP_LABELS_MV to be considered. Primary key.';
 COMMENT ON COLUMN otap_translate.label_text IS 'Contains the translation for the template, formatting or label';
 COMMENT ON COLUMN otap_translate.language_id IS 'For future use, currently not supported and considered. Permanently set to N/A by trigger.';
 COMMENT ON COLUMN otap_translate.created IS 'Date created, managed by default and trigger.';

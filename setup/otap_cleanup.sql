@@ -43,7 +43,7 @@ SPOOL logs/otap_cleanup.log
 @@../otap_ddl/packages/drop/drop_otap_constants_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_constants_pks.sql
 -- views accessed by packages
-@@../otap_ddl/views/drop/drop_otap_labels_v.sql
+@@../otap_ddl/views/drop/drop_otap_labels_mv.sql
 @@../otap_ddl/views/drop/drop_otap_identifiers_v.sql
 -- table objects including associated table trigger
 @@../otap_ddl/tables/drop/drop_otap_translate.sql

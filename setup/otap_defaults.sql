@@ -56,6 +56,11 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
+  ('DEFAULT_LABEL_COLUMN', 'L', otap_constants.get_otap_config_type_char, 1, 'Defines the label column to use in translations for reports. Default L (left) or R (right), middle not supported, see OTAP_CONSTANTS. Wrong values lead to otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT as default.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
   ('DEFAULT_BORDER', '5', otap_constants.get_otap_config_type_number, 2, 'Defines the default minimum border chars to use for decorating report lines. Only values between 2 and 10 supported. Wrong values lead to otap_constants.OTAP_FALLBACK_BORDER as default.')
 ;
 INSERT INTO otap_config
@@ -234,44 +239,6 @@ INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
   ('TEMPLATE_REPORT_TOTAL', 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @schema@ represents the schema of the table
--- @tablename@ represents the table name
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEMPLATE_FN_HAS_TABLE', 'Table @schema@.@tablename@ exists', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @schema@ represents the schema of the table
--- @tablename@ represents the table name
--- @column@ represents the column name
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEMPLATE_FN_HAS_COLUMN', 'Column @column@ (@schema@.@tablename@) exists', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @schema@ represents the schema of the package
--- @package@ represents the package name
--- @packagetype@ represents the package type, e.g. PACKAGE or PACKAGE BODY
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEMPLATE_FN_HAS_PACKAGE', 'Package @schema@.@package@ exists (@packagetype@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @type@ represents the procedure type FUNCTION or PROCEDURE
--- @proc@ represents the procedure name including a package prefix if given
--- @schema@ represents the schema of the procedure or function
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEMPLATE_FN_HAS_PROCEDURE', '@proctype@ @proc@ exists (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @trigger@ represents the trigger name
--- @schema@ represents the schema of the procedure or function
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEMPLATE_FN_HAS_TRIGGER', 'Trigger @trigger@ exists (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- generic exists template
 -- @type@ represents the object type as defined in the database, see ALL_OBJECTS object_type.

@@ -719,7 +719,15 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_table_msg(p_table_name, l_schema)), 256);
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.CFG_LABEL_TABLE
+                                                                  , p_sub_object => NULL
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
         -- call function
         l_result := otap_schema.has_table( p_table_name
                                          , l_errors
@@ -752,15 +760,15 @@ AS
   FUNCTION has_column( p_table_name      IN            VARCHAR2
                      , p_column_name     IN            VARCHAR2
                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                     , p_schema          IN            VARCHAR2 DEFAULT NULL
-                     , p_description     IN            VARCHAR2 DEFAULT NULL
-                     , p_data_type       IN            VARCHAR2 DEFAULT NULL
-                     , p_data_length     IN            NUMBER   DEFAULT NULL
-                     , p_data_precision  IN            NUMBER   DEFAULT NULL
-                     , p_data_scale      IN            NUMBER   DEFAULT NULL
-                     , p_nullable        IN            VARCHAR2 DEFAULT NULL
-                     , p_data_default    IN            VARCHAR2 DEFAULT NULL
-                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     , p_description     IN            VARCHAR2     DEFAULT NULL
+                     , p_data_type       IN            VARCHAR2     DEFAULT NULL
+                     , p_data_length     IN            NUMBER       DEFAULT NULL
+                     , p_data_precision  IN            NUMBER       DEFAULT NULL
+                     , p_data_scale      IN            NUMBER       DEFAULT NULL
+                     , p_nullable        IN            VARCHAR2     DEFAULT NULL
+                     , p_data_default    IN            VARCHAR2     DEFAULT NULL
+                     , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN VARCHAR2
   IS
@@ -781,7 +789,15 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_column_msg(p_table_name, p_column_name, l_schema)), 256);
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.CFG_LABEL_COLUMN
+                                                                  , p_sub_object => p_column_name
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
         -- call function
         l_result := otap_schema.has_column( p_table_name
                                           , p_column_name
@@ -820,10 +836,10 @@ AS
 
   FUNCTION has_package( p_package_name    IN            VARCHAR2
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                      , p_schema          IN            VARCHAR2 DEFAULT NULL
-                      , p_description     IN            VARCHAR2 DEFAULT NULL
-                      , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2      DEFAULT NULL
+                      , p_description     IN            VARCHAR2      DEFAULT NULL
+                      , p_package_type    IN            VARCHAR2      DEFAULT 'PACKAGE'
+                      , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
   IS
@@ -844,7 +860,15 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_package_msg(p_package_name, l_schema, p_package_type)), 256);
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_package_name
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.get_label_id(p_package_type)
+                                                                  , p_sub_object => NULL
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
         -- call function
         l_result := otap_schema.has_package( p_package_name
                                            , l_errors
@@ -877,12 +901,12 @@ AS
 
   FUNCTION has_procedure( p_procedure_name  IN            VARCHAR2
                         , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                        , p_schema          IN            VARCHAR2 DEFAULT NULL
-                        , p_description     IN            VARCHAR2 DEFAULT NULL
-                        , p_procedure_type  IN            VARCHAR2 DEFAULT 'FUNCTION'
-                        , p_package_name    IN            VARCHAR2 DEFAULT NULL
-                        , p_return_type     IN            VARCHAR2 DEFAULT NULL
-                        , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        , p_schema          IN            VARCHAR2      DEFAULT NULL
+                        , p_description     IN            VARCHAR2      DEFAULT NULL
+                        , p_procedure_type  IN            VARCHAR2      DEFAULT 'FUNCTION'
+                        , p_package_name    IN            VARCHAR2      DEFAULT NULL
+                        , p_return_type     IN            VARCHAR2      DEFAULT NULL
+                        , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                         )
     RETURN VARCHAR2
   IS
@@ -903,7 +927,16 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_procedure_msg(p_procedure_name, l_schema, p_procedure_type, p_package_name)), 256);
+        -- TODO get_label in otap_util only labels compared with value, search always upper as stored in db
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => NVL(p_package_name, p_procedure_name)
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.get_label_id(p_procedure_type)
+                                                                  , p_sub_object => CASE WHEN p_package_name IS NOT NULL THEN p_procedure_name ELSE NULL END
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
         -- call function
         l_result := otap_schema.has_procedure( p_procedure_name
                                              , l_errors
@@ -938,13 +971,13 @@ AS
 
   FUNCTION has_trigger( p_trigger_name    IN            VARCHAR2
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                      , p_schema          IN            VARCHAR2 DEFAULT NULL
-                      , p_description     IN            VARCHAR2 DEFAULT NULL
-                      , p_trigger_type    IN            VARCHAR2 DEFAULT NULL
-                      , p_trigger_event   IN            VARCHAR2 DEFAULT NULL
-                      , p_table_owner     IN            VARCHAR2 DEFAULT NULL
-                      , p_table_name      IN            VARCHAR2 DEFAULT NULL
-                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2      DEFAULT NULL
+                      , p_description     IN            VARCHAR2      DEFAULT NULL
+                      , p_trigger_type    IN            VARCHAR2      DEFAULT NULL
+                      , p_trigger_event   IN            VARCHAR2      DEFAULT NULL
+                      , p_table_owner     IN            VARCHAR2      DEFAULT NULL
+                      , p_table_name      IN            VARCHAR2      DEFAULT NULL
+                      , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
   IS
@@ -965,7 +998,15 @@ AS
       -- own begin-end block for the function itself and prepare
       BEGIN
         l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-        l_desc   := otap_string.reduce(NVL(p_description, otap_report.get_has_trigger_msg(p_trigger_name, l_schema)), 256);
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_trigger_name
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.CFG_LABEL_TRIGGER
+                                                                  , p_sub_object => NULL
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
         -- call function
         l_result := otap_schema.has_trigger( p_trigger_name
                                            , l_errors

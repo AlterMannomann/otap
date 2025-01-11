@@ -4,7 +4,8 @@
 -- create a trigger exclude list for otap_config
 
 @@../../setup/util/log_silent.sql
-SPOOL tmp_generated.sql
-SELECT result_text FROM TABLE(otap_generate.schema_tests);
+-- disable header as script is called from other scripts
+SPOOL ../../otap_test/schema/generated_otap_schema_tests.sql
+SELECT result_text FROM TABLE(otap_generate.schema_tests(p_show_header => 0));
 SPOOL OFF
 EXIT

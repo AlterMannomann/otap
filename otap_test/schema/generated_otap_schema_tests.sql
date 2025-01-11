@@ -1,5 +1,3 @@
--- otap GENERATE test scripts for schema OTAP
-SELECT otap_test.init(297) FROM dual;
 -- set test set for schema
 SELECT otap_test.set_test_set('OTAP schema') FROM dual;
 -- set test group for tables
@@ -723,36 +721,6 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_COUNT_DESC'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'GET_SEPARATOR_LINE'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'FUNCTION'
-                              , p_package_name => 'OTAP_REPORT'
-                              , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_HAS_TABLE_MSG'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'FUNCTION'
-                              , p_package_name => 'OTAP_REPORT'
-                              , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_HAS_COLUMN_MSG'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'FUNCTION'
-                              , p_package_name => 'OTAP_REPORT'
-                              , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_HAS_PACKAGE_MSG'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'FUNCTION'
-                              , p_package_name => 'OTAP_REPORT'
-                              , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_HAS_PROCEDURE_MSG'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'FUNCTION'
-                              , p_package_name => 'OTAP_REPORT'
-                              , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_HAS_TRIGGER_MSG'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_REPORT'
@@ -1547,20 +1515,3 @@ SELECT otap_test.has_procedure( p_procedure_name => 'LOG'
 -- finish package function and procedure tests for OTAP_LOG
 -- finish package tests for %
 -- finish schema tests for OTAP
--- finish test session
-SELECT otap_test.finish_test FROM dual;
--- example spool setup for test script generation
-SET ECHO OFF
-SET VERIFY OFF
-SET FEEDBACK OFF
-SET HEADING OFF
-SET TRIMSPOOL ON
-SET LINESIZE 9999
-SET NEWPAGE NONE
-SET PAGESIZE 9999
-SPOOL generated_schema_tests.sql
-SELECT * FROM otap_latest_test_results_v;
-SPOOL OFF
--- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
--- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
--- Not allowed to be used as AI training material without explicite permission.

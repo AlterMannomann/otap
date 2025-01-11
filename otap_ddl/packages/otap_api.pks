@@ -83,7 +83,6 @@ AS
     RETURN VARCHAR2
   ;
 
-
   /** FUNCTION otap_api.otap_session_set_test_group
   * @see otap_objects.otap_session_set_test_group
   */
@@ -307,15 +306,15 @@ AS
   FUNCTION has_column( p_table_name      IN            VARCHAR2
                      , p_column_name     IN            VARCHAR2
                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                     , p_schema          IN            VARCHAR2 DEFAULT NULL
-                     , p_description     IN            VARCHAR2 DEFAULT NULL
-                     , p_data_type       IN            VARCHAR2 DEFAULT NULL
-                     , p_data_length     IN            NUMBER   DEFAULT NULL
-                     , p_data_precision  IN            NUMBER   DEFAULT NULL
-                     , p_data_scale      IN            NUMBER   DEFAULT NULL
-                     , p_nullable        IN            VARCHAR2 DEFAULT NULL
-                     , p_data_default    IN            VARCHAR2 DEFAULT NULL
-                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     , p_description     IN            VARCHAR2     DEFAULT NULL
+                     , p_data_type       IN            VARCHAR2     DEFAULT NULL
+                     , p_data_length     IN            NUMBER       DEFAULT NULL
+                     , p_data_precision  IN            NUMBER       DEFAULT NULL
+                     , p_data_scale      IN            NUMBER       DEFAULT NULL
+                     , p_nullable        IN            VARCHAR2     DEFAULT NULL
+                     , p_data_default    IN            VARCHAR2     DEFAULT NULL
+                     , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN VARCHAR2
   ;
@@ -325,26 +324,25 @@ AS
   */
   FUNCTION has_package( p_package_name    IN            VARCHAR2
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                      , p_schema          IN            VARCHAR2 DEFAULT NULL
-                      , p_description     IN            VARCHAR2 DEFAULT NULL
-                      , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2      DEFAULT NULL
+                      , p_description     IN            VARCHAR2      DEFAULT NULL
+                      , p_package_type    IN            VARCHAR2      DEFAULT 'PACKAGE'
+                      , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
   ;
-
 
   /** FUNCTION otap_api.has_procedure
   * @see otap_schema.has_procedure and otap_test.has_procedure
   */
   FUNCTION has_procedure( p_procedure_name  IN            VARCHAR2
                         , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                        , p_schema          IN            VARCHAR2 DEFAULT NULL
-                        , p_description     IN            VARCHAR2 DEFAULT NULL
-                        , p_procedure_type  IN            VARCHAR2 DEFAULT 'FUNCTION'
-                        , p_package_name    IN            VARCHAR2 DEFAULT NULL
-                        , p_return_type     IN            VARCHAR2 DEFAULT NULL
-                        , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                        , p_schema          IN            VARCHAR2      DEFAULT NULL
+                        , p_description     IN            VARCHAR2      DEFAULT NULL
+                        , p_procedure_type  IN            VARCHAR2      DEFAULT 'FUNCTION'
+                        , p_package_name    IN            VARCHAR2      DEFAULT NULL
+                        , p_return_type     IN            VARCHAR2      DEFAULT NULL
+                        , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                         )
     RETURN VARCHAR2
   ;
@@ -352,15 +350,15 @@ AS
   /** FUNCTION otap_schema.has_trigger
   * @see otap_schema.has_trigger and otap_test.has_trigger
   */
-  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+  FUNCTION has_trigger( p_trigger_name    IN            VARCHAR2
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                      , p_schema          IN     VARCHAR2 DEFAULT NULL
-                      , p_description     IN     VARCHAR2 DEFAULT NULL
-                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
-                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
-                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
-                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
-                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2      DEFAULT NULL
+                      , p_description     IN            VARCHAR2      DEFAULT NULL
+                      , p_trigger_type    IN            VARCHAR2      DEFAULT NULL
+                      , p_trigger_event   IN            VARCHAR2      DEFAULT NULL
+                      , p_table_owner     IN            VARCHAR2      DEFAULT NULL
+                      , p_table_name      IN            VARCHAR2      DEFAULT NULL
+                      , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN VARCHAR2
   ;

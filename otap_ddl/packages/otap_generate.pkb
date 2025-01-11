@@ -762,7 +762,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := 'SET PAGESIZE 9999';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      l_statement := 'SPOOL otap_schema_test.sql';
+      l_statement := 'SPOOL generated_schema_tests.sql';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := 'SELECT * FROM otap_latest_test_results_v;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));

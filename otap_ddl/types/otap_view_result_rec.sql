@@ -4,8 +4,8 @@
 -- A basic record type for result views
 CREATE OR REPLACE TYPE otap_view_result_rec
   AS OBJECT
-    ( result_text   VARCHAR2(4000)
-    , result_errors VARCHAR2(4000)
+    ( result_text   VARCHAR2(4000 CHAR)
+    , result_errors VARCHAR2(4000 CHAR)
     )
 ;
 /

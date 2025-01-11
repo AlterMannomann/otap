@@ -9,6 +9,7 @@ AS
   */
   -- configuration access constants apart from DEBUG_MODE which is in otap_constants.
   CFG_DEFAULT_BORDER               CONSTANT CHAR(14)             := 'DEFAULT_BORDER';
+  CFG_DEFAULT_LABEL_COLUMN         CONSTANT CHAR(20)             := 'DEFAULT_LABEL_COLUMN';
   CFG_DEFAULT_LAYOUT               CONSTANT CHAR(14)             := 'DEFAULT_LAYOUT';
   CFG_DEFAULT_PREFIX               CONSTANT CHAR(14)             := 'DEFAULT_PREFIX';
   CFG_DEFAULT_RESULT_LAYOUT        CONSTANT CHAR(21)             := 'DEFAULT_RESULT_LAYOUT';
@@ -26,11 +27,6 @@ AS
   CFG_TEMPLATE_ERRORS              CONSTANT CHAR(15)             := 'TEMPLATE_ERRORS';
   CFG_TEMPLATE_ERROR_DETAILS       CONSTANT CHAR(22)             := 'TEMPLATE_ERROR_DETAILS';
   CFG_TEMPLATE_EXISTS              CONSTANT CHAR(15)             := 'TEMPLATE_EXISTS';
-  CFG_TEMPLATE_FN_HAS_COLUMN       CONSTANT CHAR(22)             := 'TEMPLATE_FN_HAS_COLUMN';
-  CFG_TEMPLATE_FN_HAS_PACKAGE      CONSTANT CHAR(23)             := 'TEMPLATE_FN_HAS_PACKAGE';
-  CFG_TEMPLATE_FN_HAS_PROCEDURE    CONSTANT CHAR(25)             := 'TEMPLATE_FN_HAS_PROCEDURE';
-  CFG_TEMPLATE_FN_HAS_TABLE        CONSTANT CHAR(21)             := 'TEMPLATE_FN_HAS_TABLE';
-  CFG_TEMPLATE_FN_HAS_TRIGGER      CONSTANT CHAR(23)             := 'TEMPLATE_FN_HAS_TRIGGER';
   CFG_TEMPLATE_GROUP               CONSTANT CHAR(14)             := 'TEMPLATE_GROUP';
   CFG_TEMPLATE_NO_DATA             CONSTANT CHAR(16)             := 'TEMPLATE_NO_DATA';
   CFG_TEMPLATE_REPORT_TOTAL        CONSTANT CHAR(21)             := 'TEMPLATE_REPORT_TOTAL';
@@ -57,12 +53,58 @@ AS
   CFG_TEXT_TRUE                    CONSTANT CHAR(9)              := 'TEXT_TRUE';
   CFG_TEXT_TRUE_YES                CONSTANT CHAR(13)             := 'TEXT_TRUE_YES';
 
-  -- extra labels for schema object types used
-  CFG_LABEL_TABLE                  CONSTANT CHAR(11)             := 'LABEL_TABLE';
-  CFG_LABEL_COLUMN                 CONSTANT CHAR(12)             := 'LABEL_COLUMN';
-  CFG_LABEL_TRIGGER                CONSTANT CHAR(13)             := 'LABEL_TRIGGER';
-  CFG_LABEL_PACKAGE                CONSTANT CHAR(13)             := 'LABEL_PACKAGE';
-  CFG_LABEL_PACKAGE_BODY           CONSTANT CHAR(18)             := 'LABEL_PACKAGE_BODY';
+  -- extra labels for schema object types
+  CFG_LABEL_CLUSTER                     CONSTANT CHAR(13)             := 'LABEL_CLUSTER';
+  CFG_LABEL_CONSUMER_GROUP              CONSTANT CHAR(20)             := 'LABEL_CONSUMER_GROUP';
+  CFG_LABEL_CONTEXT                     CONSTANT CHAR(13)             := 'LABEL_CONTEXT';
+  CFG_LABEL_CREDENTIAL                  CONSTANT CHAR(16)             := 'LABEL_CREDENTIAL';
+  CFG_LABEL_DESTINATION                 CONSTANT CHAR(17)             := 'LABEL_DESTINATION';
+  CFG_LABEL_DIMENSION                   CONSTANT CHAR(15)             := 'LABEL_DIMENSION';
+  CFG_LABEL_DIRECTORY                   CONSTANT CHAR(15)             := 'LABEL_DIRECTORY';
+  CFG_LABEL_DOMAIN                      CONSTANT CHAR(12)             := 'LABEL_DOMAIN';
+  CFG_LABEL_EDITION                     CONSTANT CHAR(13)             := 'LABEL_EDITION';
+  CFG_LABEL_EVALUATION_CONTEXT          CONSTANT CHAR(24)             := 'LABEL_EVALUATION_CONTEXT';
+  CFG_LABEL_FUNCTION                    CONSTANT CHAR(14)             := 'LABEL_FUNCTION';
+  CFG_LABEL_INDEX                       CONSTANT CHAR(11)             := 'LABEL_INDEX';
+  CFG_LABEL_INDEX_PARTITION             CONSTANT CHAR(21)             := 'LABEL_INDEX_PARTITION';
+  CFG_LABEL_INDEX_SUBPARTITION          CONSTANT CHAR(24)             := 'LABEL_INDEX_SUBPARTITION';
+  CFG_LABEL_INDEXTYPE                   CONSTANT CHAR(15)             := 'LABEL_INDEXTYPE';
+  CFG_LABEL_JAVA_CLASS                  CONSTANT CHAR(16)             := 'LABEL_JAVA_CLASS';
+  CFG_LABEL_JAVA_DATA                   CONSTANT CHAR(15)             := 'LABEL_JAVA_DATA';
+  CFG_LABEL_JAVA_RESOURCE               CONSTANT CHAR(19)             := 'LABEL_JAVA_RESOURCE';
+  CFG_LABEL_JAVA_SOURCE                 CONSTANT CHAR(17)             := 'LABEL_JAVA_SOURCE';
+  CFG_LABEL_JOB                         CONSTANT CHAR(9)              := 'LABEL_JOB';
+  CFG_LABEL_JOB_CLASS                   CONSTANT CHAR(15)             := 'LABEL_JOB_CLASS';
+  CFG_LABEL_LIBRARY                     CONSTANT CHAR(13)             := 'LABEL_LIBRARY';
+  CFG_LABEL_LOB                         CONSTANT CHAR(9)              := 'LABEL_LOB';
+  CFG_LABEL_LOB_PARTITION               CONSTANT CHAR(19)             := 'LABEL_LOB_PARTITION';
+  CFG_LABEL_MATERIALIZED_VIEW           CONSTANT CHAR(23)             := 'LABEL_MATERIALIZED_VIEW';
+  CFG_LABEL_MLE_LANGUAGE                CONSTANT CHAR(18)             := 'LABEL_MLE_LANGUAGE';
+  CFG_LABEL_OPERATOR                    CONSTANT CHAR(14)             := 'LABEL_OPERATOR';
+  CFG_LABEL_PACKAGE                     CONSTANT CHAR(13)             := 'LABEL_PACKAGE';
+  CFG_LABEL_PACKAGE_BODY                CONSTANT CHAR(18)             := 'LABEL_PACKAGE_BODY';
+  CFG_LABEL_PROCEDURE                   CONSTANT CHAR(15)             := 'LABEL_PROCEDURE';
+  CFG_LABEL_PROGRAM                     CONSTANT CHAR(13)             := 'LABEL_PROGRAM';
+  CFG_LABEL_QUEUE                       CONSTANT CHAR(11)             := 'LABEL_QUEUE';
+  CFG_LABEL_RESOURCE_PLAN               CONSTANT CHAR(19)             := 'LABEL_RESOURCE_PLAN';
+  CFG_LABEL_RULE                        CONSTANT CHAR(10)             := 'LABEL_RULE';
+  CFG_LABEL_RULE_SET                    CONSTANT CHAR(14)             := 'LABEL_RULE_SET';
+  CFG_LABEL_SCHEDULE                    CONSTANT CHAR(14)             := 'LABEL_SCHEDULE';
+  CFG_LABEL_SCHEDULER_GROUP             CONSTANT CHAR(21)             := 'LABEL_SCHEDULER_GROUP';
+  CFG_LABEL_SEQUENCE                    CONSTANT CHAR(14)             := 'LABEL_SEQUENCE';
+  CFG_LABEL_SYNONYM                     CONSTANT CHAR(13)             := 'LABEL_SYNONYM';
+  CFG_LABEL_TABLE                       CONSTANT CHAR(11)             := 'LABEL_TABLE';
+  CFG_LABEL_TABLE_PARTITION             CONSTANT CHAR(21)             := 'LABEL_TABLE_PARTITION';
+  CFG_LABEL_TABLE_SUBPARTITION          CONSTANT CHAR(24)             := 'LABEL_TABLE_SUBPARTITION';
+  CFG_LABEL_TRIGGER                     CONSTANT CHAR(13)             := 'LABEL_TRIGGER';
+  CFG_LABEL_TYPE                        CONSTANT CHAR(10)             := 'LABEL_TYPE';
+  CFG_LABEL_TYPE_BODY                   CONSTANT CHAR(15)             := 'LABEL_TYPE_BODY';
+  CFG_LABEL_UNDEFINED                   CONSTANT CHAR(15)             := 'LABEL_UNDEFINED';
+  CFG_LABEL_UNIFIED_AUDIT_POLICY        CONSTANT CHAR(26)             := 'LABEL_UNIFIED_AUDIT_POLICY';
+  CFG_LABEL_VIEW                        CONSTANT CHAR(10)             := 'LABEL_VIEW';
+  CFG_LABEL_WINDOW                      CONSTANT CHAR(12)             := 'LABEL_WINDOW';
+  CFG_LABEL_XML_SCHEMA                  CONSTANT CHAR(16)             := 'LABEL_XML_SCHEMA';
+  CFG_LABEL_COLUMN                      CONSTANT CHAR(12)             := 'LABEL_COLUMN';
 
   /** FUNCTION otap_util.is_number
   * Checks if a VARCHAR2 can be converted to a number and back. No format options supported.
@@ -164,6 +206,17 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_util.get_label_id
+  * Returns the label name for a given object type. If not found the LABEL_UNDEFINED is returned.
+  * Exceptions are raised. Will not check OTAP_CONFIG, will operate on OTAP_LABELS_MV.
+  *
+  * @param p_object_type A valid Oracle object type as defined in DBA_OBJECTS or V$RESERVED_WORDS.
+  *
+  * @return The label identifier for a given object type or LABEL_UNDEFINED.
+  */
+  FUNCTION get_label_id(p_object_type IN VARCHAR2)
+    RETURN VARCHAR2
+  ;
 
   /** FUNCTION otap_util.get_length_test_state
   * Checks the defined text representations of passed, failed and undefined to
@@ -206,7 +259,6 @@ AS
     RETURN NUMBER
   ;
 
-
   /** FUNCTION otap_util.test_result_to_text
   * Translate the numeric test state to the defined text representation. If test state
   * is not valid, will return the otap error indicator OTAP_ERROR.
@@ -217,6 +269,51 @@ AS
   */
   FUNCTION test_result_to_text(p_test_passed IN NUMBER)
     RETURN VARCHAR
+  ;
+
+  /** FUNCTION otap_util.build_msg
+  * Builds a message from a template identifier. Fetches the template and fills the given
+  * variables in p_param1-5 with the given value, if the parameters are filled. Type has
+  * special translation handling for filling the @type@ variable, if it exists in the template and
+  * type label is not NULL. Must be a label from otap_identifiers view like LABEL_COLUMN or LABEL_TABLE.
+  *
+  * Leaving all parameters apart from p_cfg_template empty will return just the current translation of
+  * a config or label value, according to OTAP_TRANSLATE or the default.
+  *
+  * Parameters must contain leading and trailing @ variable indicator. Ignored if not a otap variable
+  * in style @varname@.
+  *
+  * @param p_cfg_template The config name of the template. See otap_util.CFG_ constants.
+  * @param p_type_label The label name of the @type@ variable, if needed. See otap_util.CFG_LABEL constants.
+  * @param p_param1 The 1st variable name in @variable@ notation. If @type@ ignored. Optional.
+  * @param p_param1_value The substitution value for the 1st variable name. Parameter ignored if not given. Optional.
+  * @param p_param2 The 2nd variable name in @variable@ notation. If @type@ ignored. Optional.
+  * @param p_param2_value The substitution value for the 2nd variable name. Parameter ignored if not given. Optional.
+  * @param p_param3 The 3rd variable name in @variable@ notation. If @type@ ignored. Optional.
+  * @param p_param3_value The substitution value for the 3rd variable name. Parameter ignored if not given. Optional.
+  * @param p_param4 The 4th variable name in @variable@ notation. If @type@ ignored. Optional.
+  * @param p_param4_value The substitution value for the 4th variable name. Parameter ignored if not given. Optional.
+  * @param p_param5 The 5th variable name in @variable@ notation. If @type@ ignored. Optional.
+  * @param p_param5_value The substitution value for the 5th variable name. Parameter ignored if not given. Optional.
+  * @param p_description A template overwrite. Will return the given description instead of the template. Optional.
+  *
+  * @return The message build from template, overwritten by description or an error message.
+  */
+  FUNCTION build_msg( p_cfg_template  IN VARCHAR2
+                    , p_type_label    IN VARCHAR2 DEFAULT NULL
+                    , p_param1        IN VARCHAR2 DEFAULT NULL
+                    , p_param1_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param2        IN VARCHAR2 DEFAULT NULL
+                    , p_param2_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param3        IN VARCHAR2 DEFAULT NULL
+                    , p_param3_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param4        IN VARCHAR2 DEFAULT NULL
+                    , p_param4_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param5        IN VARCHAR2 DEFAULT NULL
+                    , p_param5_value  IN VARCHAR2 DEFAULT NULL
+                    , p_description   IN VARCHAR2 DEFAULT NULL
+                    )
+    RETURN VARCHAR2
   ;
 
   /** PROCEDURE otap_util.write_test_result

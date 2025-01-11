@@ -7,13 +7,13 @@ CREATE OR REPLACE TYPE otap_session
   AS OBJECT
      -- provides the current data from a test session as stored in OTAP_TEST
      -- values may change during the session
-     ( test_executor    VARCHAR2(128)
-     , test_set         VARCHAR2(256)
-     , test_group       VARCHAR2(256)
-     , test_name        VARCHAR2(256)
-     , db_user          VARCHAR2(128)
-     , db_schema        VARCHAR2(128)
-     , test_prefix      VARCHAR2(4)
+     ( test_executor    VARCHAR2(128 CHAR)
+     , test_set         VARCHAR2(256 CHAR)
+     , test_group       VARCHAR2(256 CHAR)
+     , test_name        VARCHAR2(256 CHAR)
+     , db_user          VARCHAR2(128 CHAR)
+     , db_schema        VARCHAR2(128 CHAR)
+     , test_prefix      VARCHAR2(4 CHAR)
      , test_count       INTEGER
      , intended_count   INTEGER
      , persist_test     BOOLEAN

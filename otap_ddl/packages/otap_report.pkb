@@ -492,152 +492,46 @@ AS
       RAISE;
   END get_separator_line;
 
-  FUNCTION get_has_table_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                            , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                            )
-    RETURN VARCHAR2
-  IS
-    l_template_text VARCHAR2(32767 CHAR);
-  BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_TABLE);
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@tablename@', NVL(p_table_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_has_table_msg', 'Build has_table result message');
-      RAISE;
-  END get_has_table_msg;
-
-  FUNCTION get_has_column_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                             , p_column_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                             , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                             )
-    RETURN VARCHAR2
-  IS
-    l_template_text VARCHAR2(32767 CHAR);
-  BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_COLUMN);
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@tablename@', NVL(p_table_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@column@', NVL(p_column_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_has_column_msg', 'Build has_column result message');
-      RAISE;
-  END get_has_column_msg;
-
-  FUNCTION get_has_package_msg( p_package_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                              , p_schema_name   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                              , p_package_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                              )
-    RETURN VARCHAR2
-  IS
-    l_template_text VARCHAR2(32767 CHAR);
-  BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_PACKAGE);
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@package@', NVL(p_package_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@packagetype@', NVL(p_package_type, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_has_package_msg', 'Build has_package result message');
-      RAISE;
-  END get_has_package_msg;
-
-  FUNCTION get_has_procedure_msg( p_procedure_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                                , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                                , p_procedure_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                                , p_package_name    IN VARCHAR2 DEFAULT NULL
-                                )
-    RETURN VARCHAR2
-  IS
-    l_template_text  VARCHAR2(32767 CHAR);
-    l_procedure      VARCHAR2(1024 CHAR);
-  BEGIN
-    -- prepare
-    l_procedure := NVL(p_procedure_name, otap_constants.OTAP_INTERNAL_NA);
-    IF p_package_name IS NOT NULL
-    THEN
-      l_procedure := TRIM(p_package_name) || '.' || l_procedure;
-    END IF;
-    -- replace
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_PROCEDURE);
-    l_template_text := REPLACE(l_template_text, '@proctype@', NVL(INITCAP(p_procedure_type), otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@proc@', NVL(l_procedure, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_has_procedure_msg', 'Build has_procedure result message');
-      RAISE;
-  END get_has_procedure_msg;
-
-  FUNCTION get_has_trigger_msg( p_trigger_name    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                              , p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                              )
-    RETURN VARCHAR2
-  IS
-    l_template_text VARCHAR2(32767 CHAR);
-  BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_FN_HAS_TRIGGER);
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@trigger@', NVL(p_trigger_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_has_trigger_msg', 'Build has_trigger result message');
-      RAISE;
-  END get_has_trigger_msg;
-
   FUNCTION get_exists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                         , p_object_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                          , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                         , p_object_type IN VARCHAR2 DEFAULT NULL
+                         , p_sub_object  IN VARCHAR2 DEFAULT NULL
+                         , p_desc        IN VARCHAR2 DEFAULT NULL
                          )
     RETURN VARCHAR2
   IS
     l_template_text VARCHAR2(32767 CHAR); -- '@type@ @object@ exists check (@schema@)'
   BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS);
-    l_template_text := REPLACE(l_template_text, '@type@', NVL(p_object_type, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@object@', NVL(p_object_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
+    IF p_sub_object IS NOT NULL
+    THEN
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_XEXISTS
+                                            , p_type_label => p_object_type
+                                            , p_param1 => '@object@'
+                                            , p_param1_value => p_object_name
+                                            , p_param2 => '@schema@'
+                                            , p_param2_value => p_schema_name
+                                            , p_param3 => '@subobject@'
+                                            , p_param3_value => p_sub_object
+                                            , p_description => p_desc
+                                            )
+      ;
+    ELSE
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+                                            , p_type_label => p_object_type
+                                            , p_param1 => '@object@'
+                                            , p_param1_value => p_object_name
+                                            , p_param2 => '@schema@'
+                                            , p_param2_value => p_schema_name
+                                            , p_description => p_desc
+                                            )
+      ;
+    END IF;
     RETURN l_template_text;
   EXCEPTION
     WHEN OTHERS THEN
       otap_log.log(SQLERRM, 'otap_report.get_exists_msg', 'Build exists result message');
       RAISE;
   END get_exists_msg;
-
-  FUNCTION get_xexists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                          , p_sub_object  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                          , p_object_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                          , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                          )
-    RETURN VARCHAR2
-  IS
-    l_template_text VARCHAR2(32767 CHAR); -- '@type@ @object@.@subobject@ exists check (@schema@)'
-  BEGIN
-    l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS);
-    l_template_text := REPLACE(l_template_text, '@type@', NVL(p_object_type, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@object@', NVL(p_object_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@subobject@', NVL(p_sub_object, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@schema@', NVL(p_schema_name, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := otap_string.reduce(l_template_text, 4000);
-    RETURN l_template_text;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_report.get_xexists_msg', 'Build extended exists result message');
-      RAISE;
-  END get_xexists_msg;
 
 END;
 /

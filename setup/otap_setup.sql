@@ -29,7 +29,7 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/tables/otap_results.sql
 @@../otap_ddl/tables/otap_translate.sql
 -- views accessed by packages
-@@../otap_ddl/views/otap_labels_v.sql
+@@../otap_ddl/views/otap_labels_mv.sql
 @@../otap_ddl/views/otap_identifiers_v.sql
 -- packages
 @@../otap_ddl/packages/otap_log.pks
