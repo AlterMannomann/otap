@@ -43,13 +43,13 @@ To run a test set with report run the following:
     -- finish test
     SELECT otap.otap_test.finish_test FROM dual;
     -- get the result
-    SELECT result_text FROM otap_latest_test_results_v;
+    SELECT result_text FROM otap.otap_latest_test_results_v;
 
 For options and parameters see package description.
 
 To generate schema tests simply pass the schema and execute
 
-    SELECT result_text FROM TABLE(otap_generate.schema_tests('MY_SCHEMA'));
+    SELECT result_text FROM TABLE(otap.otap_generate.schema_tests('MY_SCHEMA'));
 
 You may spool the content to a file, make sure to set heading, paging and other things off the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql). At the moment you must be the otap user to execute it, not granted to user role currently.
 
