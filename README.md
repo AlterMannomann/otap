@@ -1,5 +1,23 @@
 # UNDER CONSTRUCTION
-Current state: Pre-alpha with has_table, has_column, has_package, has_procedure, has_trigger test and result view. Generate schema tests added. Package rework. Translation table added. Generic templates. Translation, generic templates and design generate some extra costs in execution speed, which is fine for my priority order: stable, usable, extendable, fast.
+Current state: Pre-alpha, basically stable with following tests (package otap_test):
+- has_table
+- has_column
+- has_package
+- has_procedure
+- has_trigger
+- result view: otap_latest_test_results_v
+
+Every function supports different optional parameters (not complete in sense of available object options) to narrow the exist check. If exist check fails this does not necessarily mean the object does not exist at all. It just doesn't exist in the specified way for the test. Exist function do not check for the reason currently. Every test has to pass two steps, the test it self and no errors by wrong usage or internal problems. Result shows the test result itself in the report, Setup shows any errors either caused by usage or otap itself.
+
+Test results have THREE states: Passed, Failed and UNDEFINED.
+
+otap tries to be fail safe as much as possible. UNDEFINED is used for any state otap discovered, either by usage error, like NULL for mandatory values, or internal errors where otap does not behave as expected. otap can not avoid all exceptions, but reduce them to not fail a test run, if it is run automatically. Errors will get logged additionally in SPERRORLOG, created by installation, and signalled by the return value.
+
+Every test function supports also the parameter *p_expected_result*. The default result is 1 (passed - otap_constants.get_otap_num_test_passed). Possible other values are 0 (UNDEFINED - otap_constants.get_otap_num_test_undefined) or -1 (failed - otap_constants.get_otap_num_test_failed).
+
+For function overview see currently [otap_test package description](./otap_ddl/packages/otap_test.pks).
+
+For generation options see currently [otap_generate package description](./otap_ddl/packages/otap_generate.pks).
 
 To do: Move test report code to otap_report package, extend test functions (schema, logic), fix minor formatting issues, continue test otap with otap.
 
