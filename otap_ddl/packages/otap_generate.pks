@@ -2,6 +2,10 @@
 -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 -- Not allowed to be used as AI training material without explicite permission.
 -- A package to generate test scripts
+
+-- read setup configuration as written by DBA setup, path relative to setup caller
+@@../setup/otap_setup_def.sql
+
 CREATE OR REPLACE PACKAGE otap_generate
 AS
 
@@ -141,3 +145,4 @@ AS
 
 END;
 /
+GRANT EXECUTE ON otap_generate TO &OTAP_ROLE;

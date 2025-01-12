@@ -6,7 +6,7 @@ SQL> SELECT otap_test.init_test( p_test_count => 294
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 2
+Test session id: 5
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -19,8 +19,8 @@ Expected tests: 294
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 2
-Test start: 2025-01-12 00:02:48
+Current view id: 5
+Test start: 2025-01-12 00:12:28
 
 
 1 row selected.
@@ -3255,9 +3255,9 @@ SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 2 tests: 294 from 294 errors: 0 run time: +000000000 00:00:22.000000000 started: 2025-01-12 00:02:48
+Summary id: 5 tests: 294 from 294 errors: 0 run time: +000000000 00:00:19.000000000 started: 2025-01-12 00:12:28
 Current test settings
-Test session id: 3
+Test session id: 6
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -3270,8 +3270,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 2
-Test start: 2025-01-12 00:03:10
+Current view id: 5
+Test start: 2025-01-12 00:12:47
 
 
 1 row selected.

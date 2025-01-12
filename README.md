@@ -18,7 +18,7 @@ Automated testing for Oracle databases. Can be used with [SOSL](https://github.c
 - Use [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as DBA to install the otap schema and give the necessary rights.
   - Use [otap_setup.sql](./setup/otap_setup.sql) as otap user to install the schema objects.
 - Grant your defined otap user role (default OTAP_USER) to the users, that should be able to execute otap tests.
-- Users with the otap user roles can access the package OTAP_TEST and the view OTAP_LATEST_TEST_RESULTS_V.
+- Users with the otap user roles can access the packages OTAP_TEST, OTAP_GENERATE and the view OTAP_LATEST_TEST_RESULTS_V.
 - You may want to create synonyms, so the otap schema is not needed for qualifying the package or view.
 ## Usage
 To run a test simply call it
@@ -51,7 +51,11 @@ To generate schema tests simply pass the schema and execute
 
     SELECT result_text FROM TABLE(otap.otap_generate.schema_tests('MY_SCHEMA'));
 
-You may spool the content to a file, make sure to set heading, paging and other things off the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql). At the moment you must be the otap user to execute it, not granted to user role currently.
+Or ensure that the current schema is the one you want to have test scripts for, then just simply
+
+    SELECT result_text FROM TABLE(otap.otap_generate.schema_tests);
+
+You may spool the content to a file, make sure to set heading, paging and other things off to the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql).
 
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
