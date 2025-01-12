@@ -17,9 +17,9 @@ otap tries to be fail safe as much as possible. UNDEFINED is used for any state 
 
 Every test function supports also the parameter *p_expected_result*. The default result is 1 (passed - otap_constants.get_otap_num_test_passed). Possible other values are 0 (UNDEFINED - otap_constants.get_otap_num_test_undefined) or -1 (failed - otap_constants.get_otap_num_test_failed).
 
-For function overview see currently [otap_test package description](./otap_ddl/packages/otap_test.pks).
+For function overview see currently [otap_test package description](./otap_ddl/packages/otap_test.md).
 
-For generation options see currently [otap_generate package description](./otap_ddl/packages/otap_generate.pks).
+For generation options see currently [otap_generate package description](./otap_ddl/packages/otap_generate.md).
 
 To do: Move test report code to otap_report package, extend test functions (schema, logic), fix minor formatting issues, continue test otap with otap.
 
