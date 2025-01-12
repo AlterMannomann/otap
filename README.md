@@ -1,5 +1,7 @@
 # UNDER CONSTRUCTION
-Current state: Pre-alpha, basically stable with following tests (package otap_test):
+Recommended to fully reinstall otap after updates. Currently no update support. Redesigns up to DBA may happen.
+
+**Current state**: Pre-alpha, basically stable with following tests (package otap_test):
 - has_table
 - has_column
 - has_package
