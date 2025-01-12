@@ -341,11 +341,15 @@ AS
     l_text_column := otap_api.get_report_footer(l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     -- add AI and copyright
-    l_text_column := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
+    l_text_column := LPAD(otap_constants.OTAP_INTERNAL_NAME, 59, ' ');
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
+    l_text_column := LPAD(otap_constants.OTAP_INTERNAL_VERSION_NR, 47, ' ');
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := 'Not allowed to be used as AI training material without explicite permission.';
+    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT1;
+    PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT2;
+    PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT3;
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     RETURN;
   EXCEPTION

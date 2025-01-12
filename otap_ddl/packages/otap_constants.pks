@@ -22,6 +22,7 @@ AS
   OTAP_INTERNAL_NAME       CONSTANT CHAR(38)            := 'otap - Oracle Test Automation Protocol';
   OTAP_INTERNAL_COPYRIGHT1 CONSTANT CHAR(80)            := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
   OTAP_INTERNAL_COPYRIGHT2 CONSTANT CHAR(54)            := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
+  OTAP_INTERNAL_COPYRIGHT3 CONSTANT CHAR(76)            := 'Not allowed to be used as AI training material without explicite permission.';
   -- we do not know the size of the setup configuration variable, this can be used as a string size attack, package will
   -- fail being created. otap can't handle this, must rely on Oracle (hard to believe). Nevertheless names currently
   -- (until Oracle 23i) are limited to 128 chars.
