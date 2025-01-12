@@ -3,7 +3,7 @@ Current state: Pre-alpha with has_table, has_column, has_package, has_procedure,
 
 To do: Move test report code to otap_report package, extend test functions (schema, logic), fix minor formatting issues, continue test otap with otap.
 
-See [simple_test_setup.sql](./otap_test/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
+See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
 ![otap_test_report](https://github.com/user-attachments/assets/10a7ed08-1e31-44f8-90f7-2a38c6b68113)
 
@@ -55,7 +55,7 @@ Or ensure that the current schema is the one you want to have test scripts for, 
 
     SELECT result_text FROM TABLE(otap.otap_generate.schema_tests);
 
-You may spool the content to a file, make sure to set heading, paging and other things off to the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql).
+You may spool the content to a file, make sure to set heading, paging and other things off to the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql) for setup and [generated_otap_schema_tests.sql](./otap_test/schema/generated_otap_schema_tests.sql) for the result showing all current functions active.
 
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
