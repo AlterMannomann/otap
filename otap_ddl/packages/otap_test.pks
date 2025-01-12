@@ -114,6 +114,24 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.finish_test_with_exit_code
+  * This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
+  * to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
+  * your build to fail, if test is not passed.
+  *
+  * Equal to finish_test apart from the return value check and translation. Undefined overrules failed. If undefined is returned, also
+  * failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
+  *
+  * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+  *
+  * @return A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION finish_test_with_exit_code(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+    RETURN NUMBER
+  ;
+
   /** FUNCTION otap_test.current_settings
   * Returns a LF terminated string about the current package session state.
   * Wrapper for otap_api.otap_session_show.
@@ -323,7 +341,7 @@ AS
   * Checks if a given trigger exists.
   *
   * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
-  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
   * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
@@ -345,10 +363,32 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_schema.has_object
+  * Checks if a given database object exists.
+  *
+  * @param p_object_name The name of the object, take as is. Case sensitive.
+  * @param p_object_type The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_object( p_object_name     IN     VARCHAR2
+                     , p_object_type     IN     VARCHAR2
+                     , p_schema          IN     VARCHAR2 DEFAULT NULL
+                     , p_description     IN     VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  ;
+
+/*
   -- debug function
   FUNCTION get_session_var
     RETURN OTAP_SESSION
   ;
+*/
 
 END;
 /

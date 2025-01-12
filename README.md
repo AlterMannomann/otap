@@ -1,6 +1,6 @@
 ![Logo](https://github.com/AlterMannomann/otap/blob/main/media/OtapLogo.jpg)
 # UNDER CONSTRUCTION
-Recommended to fully reinstall otap after updates. Currently no update support. Redesigns up to DBA may happen.
+Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 
 **Current state**: Pre-alpha, basically stable with following tests (package otap_test):
 - has_table
@@ -37,7 +37,8 @@ Automated testing for Oracle databases. Can be used with [SOSL](https://github.c
 ## Setup
 - you need DBA rights to install the basic otap schema and user role. On install you can define the otap user name and the name of the otap user role.
 - Use [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as DBA to install the otap schema and give the necessary rights.
-  - Use [otap_setup.sql](./setup/otap_setup.sql) as otap user to install the schema objects.
+  - You can use the DBA install also for updates (usually grants). It will try to identify the otap user, if it exists in the database.
+  - Use [otap_setup.sql](./setup/otap_setup.sql) as otap user to install the schema objects. Currently you should reinstall the schema objects after branch updates. See [otap_cleanup.sql](./setup/otap_cleanup.sql). Update mode for schema objects is not supported yet.
 - Grant your defined otap user role (default OTAP_USER) to the users, that should be able to execute otap tests.
 - Users with the otap user roles can access the packages OTAP_TEST, OTAP_GENERATE and the view OTAP_LATEST_TEST_RESULTS_V.
 - You may want to create synonyms, so the otap schema is not needed for qualifying the package or view.

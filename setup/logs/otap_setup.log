@@ -805,16 +805,19 @@ SQL> CREATE MATERIALIZED VIEW otap_labels_mv
   3  AS
   4  	 WITH grp AS (SELECT CAST(TRIM(object_type) AS VARCHAR2(128 CHAR)) AS object_type FROM dba_objects GROUP BY object_type
   5  		       UNION ALL
-  6  		      SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ('COLUMN')
-  7  		     )
-  8    SELECT object_type							     AS oracle_type
-  9  	    , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier
- 10  	    , LOWER(object_type)						     AS otap_label_lower
- 11  	    , INITCAP(object_type)						     AS otap_label_cap
- 12  	    , UPPER(object_type)						     AS otap_label_upper
- 13  	    , object_type							     AS otap_label_source
- 14  	 FROM grp
- 15  ;
+  6  		      SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ( 'COLUMN'
+  7  															     , 'USER'
+  8  															     , 'ROLE'
+  9  															     )
+ 10  		     )
+ 11    SELECT object_type							     AS oracle_type
+ 12  	    , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier
+ 13  	    , LOWER(object_type)						     AS otap_label_lower
+ 14  	    , INITCAP(object_type)						     AS otap_label_cap
+ 15  	    , UPPER(object_type)						     AS otap_label_upper
+ 16  	    , object_type							     AS otap_label_source
+ 17  	 FROM grp
+ 18  ;
 
 Materialized view created.
 
@@ -4637,8 +4640,29 @@ SQL> CREATE OR REPLACE PACKAGE otap_plan
 133  	 RETURN VARCHAR2
 134    ;
 135  
-136  END;
-137  /
+136    /** FUNCTION otap_api.finish_test_with_exit_code
+137    * This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
+138    * to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
+139    * your build to fail, if test is not passed.
+140    *
+141    * Equal to finish_test apart from the return value check and translation. Undefined overrules failed. If undefined is returned, also
+142    * failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
+143    *
+144    * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+145    * @param o_otap_session The current session_record from OTAP_TEST package.
+146    *
+147    * @return A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
+148    *
+149    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+150    */
+151    FUNCTION finish_test_with_exit_code( p_write_count_rec IN	    NUMBER
+152  					  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+153  					  )
+154  	 RETURN NUMBER
+155    ;
+156  
+157  END;
+158  /
 
 Package created.
 
@@ -4875,8 +4899,45 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
 227  	   RAISE;
 228    END finish_test;
 229  
-230  END;
-231  /
+230    FUNCTION finish_test_with_exit_code( p_write_count_rec IN	    NUMBER
+231  					  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+232  					  )
+233  	 RETURN NUMBER
+234    IS
+235  	 l_script  VARCHAR2(1024 CHAR) := 'otap_plan.finish_test_with_exit_code';
+236  	 l_message VARCHAR2(4000 CHAR);
+237  	 l_return  INTEGER;
+238    BEGIN
+239  	 IF p_write_count_rec = otap_constants.OTAP_NUM_TRUE
+240  	 THEN
+241  	   otap_plan.write_count_result(o_otap_session);
+242  	 END IF;
+243  	 -- check the test status of the current session before closing
+244  	   WITH trl AS
+245  		(SELECT test_session_id
+246  		      , CASE test_passed WHEN 1 THEN 0 WHEN -1 THEN 1 ELSE 2 END AS exit_code
+247  		   FROM otap_results
+248  		  WHERE test_session_id = o_otap_session.session_id
+249  		)
+250  	 SELECT NVL(MAX(exit_code), 2)
+251  	   INTO l_return
+252  	   FROM trl
+253  	 ;
+254  	 -- finish the session
+255  	 l_message := otap_objects.otap_session_finish(o_otap_session);
+256  	 -- return exit code
+257  	 RETURN l_return;
+258    EXCEPTION
+259  	 WHEN OTHERS THEN
+260  	   IF SQLCODE != -20099
+261  	   THEN
+262  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+263  	   END IF;
+264  	   RAISE;
+265    END finish_test_with_exit_code;
+266  
+267  END;
+268  /
 
 Package body created.
 
@@ -5633,7 +5694,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
  28    PROCEDURE validate_otap;
  29  
  30    /** FUNCTION otap_api.init_test
- 31    * @see otap_plan.init_test
+ 31    * @see otap_plan.init_test and otap_test.init_test
  32    */
  33    FUNCTION init_test( p_test_count 	 IN	       NUMBER
  34  			 , p_test_set		 IN	       VARCHAR2
@@ -5652,7 +5713,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
  47    ;
  48  
  49    /** FUNCTION otap_api.finish_test
- 50    * @see otap_plan.finish_test
+ 50    * @see otap_plan.finish_test and otap_test.finish_test
  51    */
  52    FUNCTION finish_test( p_write_count_rec IN	     NUMBER
  53  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
@@ -5660,311 +5721,333 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
  55  	 RETURN VARCHAR2
  56    ;
  57  
- 58    /** FUNCTION otap_api.otap_session_show
- 59    * @see otap_objects.otap_session_show
+ 58    /** FUNCTION otap_api.finish_test_with_exit_code
+ 59    * @see otap_plan.finish_test_with_exit_code and otap_test.finish_test_with_exit_code
  60    */
- 61    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
- 62  	 RETURN VARCHAR2
- 63    ;
- 64  
- 65    /** FUNCTION otap_api.otap_session_summary
- 66    * @see otap_objects.otap_session_summary
- 67    */
- 68    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
- 69  	 RETURN VARCHAR2
- 70    ;
- 71  
- 72    /** FUNCTION otap_api.otap_session_set_test_name
- 73    * @see otap_objects.otap_session_set_test_name
- 74    */
- 75    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
- 76  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
- 77  					  )
+ 61    FUNCTION finish_test_with_exit_code( p_write_count_rec IN	    NUMBER
+ 62  					  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+ 63  					  )
+ 64  	 RETURN NUMBER
+ 65    ;
+ 66  
+ 67    /** FUNCTION otap_api.otap_session_show
+ 68    * @see otap_objects.otap_session_show and otap_test.otap_session_show
+ 69    */
+ 70    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
+ 71  	 RETURN VARCHAR2
+ 72    ;
+ 73  
+ 74    /** FUNCTION otap_api.otap_session_summary
+ 75    * @see otap_objects.otap_session_summary and otap_test.otap_session_summary
+ 76    */
+ 77    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
  78  	 RETURN VARCHAR2
  79    ;
  80  
- 81    /** FUNCTION otap_api.otap_session_set_test_group
- 82    * @see otap_objects.otap_session_set_test_group
+ 81    /** FUNCTION otap_api.otap_session_set_test_name
+ 82    * @see otap_objects.otap_session_set_test_name and otap_test.otap_session_set_test_name
  83    */
- 84    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
- 85  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
- 86  					   )
+ 84    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
+ 85  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
+ 86  					  )
  87  	 RETURN VARCHAR2
  88    ;
  89  
- 90    /** FUNCTION otap_api.otap_session_set_test_set
- 91    * @see otap_objects.otap_session_set_test_set
+ 90    /** FUNCTION otap_api.otap_session_set_test_group
+ 91    * @see otap_objects.otap_session_set_test_group and otap_test.otap_session_set_test_group
  92    */
- 93    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
- 94  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
- 95  					 )
+ 93    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
+ 94  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
+ 95  					   )
  96  	 RETURN VARCHAR2
  97    ;
  98  
- 99    /** FUNCTION otap_api.otap_session_get_test_id
-100    * @see otap_objects.otap_session_get_test_id
+ 99    /** FUNCTION otap_api.otap_session_set_test_set
+100    * @see otap_objects.otap_session_set_test_set and otap_test.otap_session_set_test_set
 101    */
-102    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
-103  	 RETURN NUMBER
-104    ;
-105  
-106    /** FUNCTION otap_api.otap_session_get_report_id
-107    * @see otap_objects.otap_session_get_report_id
-108    */
-109    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
-110  	 RETURN NUMBER
-111    ;
-112  
-113    /** FUNCTION otap_api.max_text_size
-114    * @see otap_util.max_text_size
-115    */
-116    FUNCTION max_text_size(p_session_id IN NUMBER)
-117  	 RETURN NUMBER
-118    ;
-119  
-120    /** FUNCTION otap_api.get_report_header
-121    * @see otap_report.get_report_header
-122    */
-123    FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-124  	 RETURN VARCHAR2
-125    ;
-126  
-127    /** FUNCTION otap_api.get_session_id_text
-128    * @see otap_report.get_session_id_text
-129    */
-130    FUNCTION get_session_id_text( p_session_id IN NUMBER
-131  				   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-132  				   )
+102    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
+103  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+104  					 )
+105  	 RETURN VARCHAR2
+106    ;
+107  
+108    /** FUNCTION otap_api.otap_session_get_test_id
+109    * @see otap_objects.otap_session_get_test_id and otap_test.otap_session_get_test_id
+110    */
+111    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
+112  	 RETURN NUMBER
+113    ;
+114  
+115    /** FUNCTION otap_api.otap_session_get_report_id
+116    * @see otap_objects.otap_session_get_report_id and otap_test.otap_session_get_report_id
+117    */
+118    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+119  	 RETURN NUMBER
+120    ;
+121  
+122    /** FUNCTION otap_api.max_text_size
+123    * @see otap_util.max_text_size and otap_test.max_text_size
+124    */
+125    FUNCTION max_text_size(p_session_id IN NUMBER)
+126  	 RETURN NUMBER
+127    ;
+128  
+129    /** FUNCTION otap_api.get_report_header
+130    * @see otap_report.get_report_header and otap_test.get_report_header
+131    */
+132    FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
 133  	 RETURN VARCHAR2
 134    ;
 135  
-136    /** FUNCTION otap_api.get_set_text
-137    * @see otap_report.get_set_text
+136    /** FUNCTION otap_api.get_session_id_text
+137    * @see otap_report.get_session_id_text and otap_test.get_session_id_text
 138    */
-139    FUNCTION get_set_text( p_test_set IN VARCHAR2
-140  			    , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-141  			    )
+139    FUNCTION get_session_id_text( p_session_id IN NUMBER
+140  				   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+141  				   )
 142  	 RETURN VARCHAR2
 143    ;
 144  
-145    /** FUNCTION otap_api.get_summary
-146    * @see otap_report.get_summary
-147    * Calculates status needed by errors and issues.
-148    */
-149    FUNCTION get_summary( p_runtime	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-150  			   , p_runs	IN NUMBER   DEFAULT 0
-151  			   , p_errors	IN NUMBER   DEFAULT 0
-152  			   , p_issues	IN NUMBER   DEFAULT 0
-153  			   , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-154  			   )
-155  	 RETURN VARCHAR2
-156    ;
-157  
-158    /** FUNCTION otap_api.get_group_text
-159    * @see otap_report.get_group_text
-160    */
-161    FUNCTION get_group_text( p_test_group IN VARCHAR2
-162  			      , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-163  			      )
+145    /** FUNCTION otap_api.get_set_text
+146    * @see otap_report.get_set_text and otap_test.get_set_text
+147    */
+148    FUNCTION get_set_text( p_test_set IN VARCHAR2
+149  			    , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+150  			    )
+151  	 RETURN VARCHAR2
+152    ;
+153  
+154    /** FUNCTION otap_api.get_summary
+155    * @see otap_report.get_summary and otap_test.get_summary
+156    * Calculates status needed by errors and issues.
+157    */
+158    FUNCTION get_summary( p_runtime	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+159  			   , p_runs	IN NUMBER   DEFAULT 0
+160  			   , p_errors	IN NUMBER   DEFAULT 0
+161  			   , p_issues	IN NUMBER   DEFAULT 0
+162  			   , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+163  			   )
 164  	 RETURN VARCHAR2
 165    ;
 166  
-167    /** FUNCTION otap_api.get_test_name_text
-168    * @see otap_report.get_test_name_text
+167    /** FUNCTION otap_api.get_group_text
+168    * @see otap_report.get_group_text and otap_test.get_group_text
 169    */
-170    FUNCTION get_test_name_text( p_test_name IN VARCHAR2
-171  				  , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-172  				  )
+170    FUNCTION get_group_text( p_test_group IN VARCHAR2
+171  			      , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+172  			      )
 173  	 RETURN VARCHAR2
 174    ;
 175  
-176    /** FUNCTION otap_api.get_result_header
-177    * @see otap_report.get_result_header
+176    /** FUNCTION otap_api.get_test_name_text
+177    * @see otap_report.get_test_name_text and otap_test.get_test_name_text
 178    */
-179    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-180  	 RETURN VARCHAR2
-181    ;
-182  
-183    /** FUNCTION otap_api.get_result_underline
-184    * @see otap_report.get_result_underline
-185    */
-186    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-187  	 RETURN VARCHAR2
-188    ;
-189  
-190    /** FUNCTION otap_api.get_result_line
-191    * @see otap_report.get_result_line
-192    */
-193    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-194  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-195  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-196  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-197  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-198  			       )
-199  	 RETURN VARCHAR2
-200    ;
-201  
-202    /** FUNCTION otap_api.test_result_to_text
-203    * @see otap_util.test_result_to_text
-204    */
-205    FUNCTION test_result_to_text(p_test_passed IN NUMBER)
-206  	 RETURN VARCHAR
-207    ;
-208  
-209    /** FUNCTION otap_api.get_error_result_header
-210    * @see otap_report.get_error_result_header
-211    */
-212    FUNCTION get_error_result_header( p_test_name IN VARCHAR2
-213  				       , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-214  				       )
-215  	 RETURN VARCHAR2
+179    FUNCTION get_test_name_text( p_test_name IN VARCHAR2
+180  				  , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+181  				  )
+182  	 RETURN VARCHAR2
+183    ;
+184  
+185    /** FUNCTION otap_api.get_result_header
+186    * @see otap_report.get_result_header and otap_test.get_result_header
+187    */
+188    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+189  	 RETURN VARCHAR2
+190    ;
+191  
+192    /** FUNCTION otap_api.get_result_underline
+193    * @see otap_report.get_result_underline and otap_test.get_result_underline
+194    */
+195    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+196  	 RETURN VARCHAR2
+197    ;
+198  
+199    /** FUNCTION otap_api.get_result_line
+200    * @see otap_report.get_result_line and otap_test.get_result_line
+201    */
+202    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+203  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+204  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+205  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+206  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+207  			       )
+208  	 RETURN VARCHAR2
+209    ;
+210  
+211    /** FUNCTION otap_api.test_result_to_text
+212    * @see otap_util.test_result_to_text and otap_test.test_result_to_text
+213    */
+214    FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+215  	 RETURN VARCHAR
 216    ;
 217  
-218    /** FUNCTION otap_api.get_error_details
-219    * @see otap_report.get_error_details
+218    /** FUNCTION otap_api.get_error_result_header
+219    * @see otap_report.get_error_result_header and otap_test.get_error_result_header
 220    */
-221    FUNCTION get_error_details( p_test_desc	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-222  				 , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-223  				 , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-224  				 )
-225  	 RETURN VARCHAR2
-226    ;
-227  
-228    /** FUNCTION otap_api.get_no_data_text
-229    * @see otap_report.get_no_data_text
-230    */
-231    FUNCTION get_no_data_text( p_session_id IN NUMBER
-232  				, p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-233  				)
+221    FUNCTION get_error_result_header( p_test_name IN VARCHAR2
+222  				       , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+223  				       )
+224  	 RETURN VARCHAR2
+225    ;
+226  
+227    /** FUNCTION otap_api.get_error_details
+228    * @see otap_report.get_error_details and otap_test.get_error_details
+229    */
+230    FUNCTION get_error_details( p_test_desc	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+231  				 , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+232  				 , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+233  				 )
 234  	 RETURN VARCHAR2
 235    ;
 236  
-237    /** FUNCTION otap_api.get_report_footer
-238    * @see otap_report.get_report_footer
+237    /** FUNCTION otap_api.get_no_data_text
+238    * @see otap_report.get_no_data_text and otap_report.get_no_data_text
 239    */
-240    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-241  	 RETURN VARCHAR2
-242    ;
-243  
-244    /** FUNCTION otap_api.flatten
-245    * @see otap_string.flatten
-246    */
-247    FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
-248  		       , p_size   INTEGER  DEFAULT 0
-249  		       )
+240    FUNCTION get_no_data_text( p_session_id IN NUMBER
+241  				, p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+242  				)
+243  	 RETURN VARCHAR2
+244    ;
+245  
+246    /** FUNCTION otap_api.get_report_footer
+247    * @see otap_report.get_report_footer and otap_test.get_report_footer
+248    */
+249    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
 250  	 RETURN VARCHAR2
 251    ;
 252  
-253    /** FUNCTION otap_api.get_text_test_count_name
-254    *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)
+253    /** FUNCTION otap_api.flatten
+254    * @see otap_string.flatten and otap_test.flatten
 255    */
-256    FUNCTION get_text_test_count_name
-257  	 RETURN VARCHAR2
-258    ;
-259  
-260    /** FUNCTION otap_api.get_test_count_header
-261    * @see otap_report.get_test_count_header
-262    */
-263    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-264  	 RETURN VARCHAR2
-265    ;
-266  
-267    /** FUNCTION otap_api.get_report_total
-268    * @see otap_report.get_report_total
-269    */
-270    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-271  	 RETURN VARCHAR2
-272    ;
-273  
-274    /** FUNCTION otap_api.get_report_total_details
-275    * @see otap_report.get_report_total_details
-276    */
-277    FUNCTION get_report_total_details( p_sets	 IN INTEGER  DEFAULT 0
-278  					, p_groups	 IN INTEGER  DEFAULT 0
-279  					, p_names	 IN INTEGER  DEFAULT 0
-280  					, p_descriptions IN INTEGER  DEFAULT 0
-281  					, p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-282  					)
-283  	 RETURN VARCHAR2
-284    ;
-285  
-286    /** FUNCTION otap_api.has_table
-287    * @see otap_schema.has_table and otap_test.has_column
-288    */
-289    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
-290  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-291  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
-292  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
-293  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-294  			 )
-295  	 RETURN VARCHAR2
-296    ;
-297  
-298    /** FUNCTION otap_api.has_column
-299    * @see otap_schema.has_column and otap_test.has_column
-300    */
-301    FUNCTION has_column( p_table_name      IN	    VARCHAR2
-302  			  , p_column_name     IN	    VARCHAR2
-303  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-304  			  , p_schema	      IN	    VARCHAR2	 DEFAULT NULL
-305  			  , p_description     IN	    VARCHAR2	 DEFAULT NULL
-306  			  , p_data_type       IN	    VARCHAR2	 DEFAULT NULL
-307  			  , p_data_length     IN	    NUMBER	 DEFAULT NULL
-308  			  , p_data_precision  IN	    NUMBER	 DEFAULT NULL
-309  			  , p_data_scale      IN	    NUMBER	 DEFAULT NULL
-310  			  , p_nullable	      IN	    VARCHAR2	 DEFAULT NULL
-311  			  , p_data_default    IN	    VARCHAR2	 DEFAULT NULL
-312  			  , p_expected_result IN	    NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-313  			  )
-314  	 RETURN VARCHAR2
-315    ;
-316  
-317    /** FUNCTION otap_api.has_package
-318    * @see otap_schema.has_package and otap_test.has_package
-319    */
-320    FUNCTION has_package( p_package_name    IN	     VARCHAR2
-321  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-322  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
-323  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
-324  			   , p_package_type    IN	     VARCHAR2	   DEFAULT 'PACKAGE'
-325  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-326  			   )
-327  	 RETURN VARCHAR2
-328    ;
-329  
-330    /** FUNCTION otap_api.has_procedure
-331    * @see otap_schema.has_procedure and otap_test.has_procedure
-332    */
-333    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
-334  			     , o_otap_session	 IN OUT NOCOPY OTAP_SESSION
-335  			     , p_schema 	 IN	       VARCHAR2      DEFAULT NULL
-336  			     , p_description	 IN	       VARCHAR2      DEFAULT NULL
-337  			     , p_procedure_type  IN	       VARCHAR2      DEFAULT 'FUNCTION'
-338  			     , p_package_name	 IN	       VARCHAR2      DEFAULT NULL
-339  			     , p_return_type	 IN	       VARCHAR2      DEFAULT NULL
-340  			     , p_expected_result IN	       NUMBER	     DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-341  			     )
-342  	 RETURN VARCHAR2
-343    ;
-344  
-345    /** FUNCTION otap_schema.has_trigger
-346    * @see otap_schema.has_trigger and otap_test.has_trigger
-347    */
-348    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
-349  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-350  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
-351  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
-352  			   , p_trigger_type    IN	     VARCHAR2	   DEFAULT NULL
-353  			   , p_trigger_event   IN	     VARCHAR2	   DEFAULT NULL
-354  			   , p_table_owner     IN	     VARCHAR2	   DEFAULT NULL
-355  			   , p_table_name      IN	     VARCHAR2	   DEFAULT NULL
-356  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-357  			   )
-358  	 RETURN VARCHAR2
-359    ;
-360  
-361  END;
-362  /
+256    FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
+257  		       , p_size   INTEGER  DEFAULT 0
+258  		       )
+259  	 RETURN VARCHAR2
+260    ;
+261  
+262    /** FUNCTION otap_api.get_text_test_count_name
+263    *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME) and otap_test.get_text_test_count_name
+264    */
+265    FUNCTION get_text_test_count_name
+266  	 RETURN VARCHAR2
+267    ;
+268  
+269    /** FUNCTION otap_api.get_test_count_header
+270    * @see otap_report.get_test_count_header and otap_test.get_test_count_header
+271    */
+272    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+273  	 RETURN VARCHAR2
+274    ;
+275  
+276    /** FUNCTION otap_api.get_report_total
+277    * @see otap_report.get_report_total and otap_test.get_report_total
+278    */
+279    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+280  	 RETURN VARCHAR2
+281    ;
+282  
+283    /** FUNCTION otap_api.get_report_total_details
+284    * @see otap_report.get_report_total_details and otap_test.get_report_total_details
+285    */
+286    FUNCTION get_report_total_details( p_sets	 IN INTEGER  DEFAULT 0
+287  					, p_groups	 IN INTEGER  DEFAULT 0
+288  					, p_names	 IN INTEGER  DEFAULT 0
+289  					, p_descriptions IN INTEGER  DEFAULT 0
+290  					, p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+291  					)
+292  	 RETURN VARCHAR2
+293    ;
+294  
+295    /** FUNCTION otap_api.has_table
+296    * @see otap_schema.has_table and otap_test.has_column
+297    */
+298    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
+299  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+300  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
+301  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+302  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+303  			 )
+304  	 RETURN VARCHAR2
+305    ;
+306  
+307    /** FUNCTION otap_api.has_column
+308    * @see otap_schema.has_column and otap_test.has_column
+309    */
+310    FUNCTION has_column( p_table_name      IN	    VARCHAR2
+311  			  , p_column_name     IN	    VARCHAR2
+312  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+313  			  , p_schema	      IN	    VARCHAR2	 DEFAULT NULL
+314  			  , p_description     IN	    VARCHAR2	 DEFAULT NULL
+315  			  , p_data_type       IN	    VARCHAR2	 DEFAULT NULL
+316  			  , p_data_length     IN	    NUMBER	 DEFAULT NULL
+317  			  , p_data_precision  IN	    NUMBER	 DEFAULT NULL
+318  			  , p_data_scale      IN	    NUMBER	 DEFAULT NULL
+319  			  , p_nullable	      IN	    VARCHAR2	 DEFAULT NULL
+320  			  , p_data_default    IN	    VARCHAR2	 DEFAULT NULL
+321  			  , p_expected_result IN	    NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+322  			  )
+323  	 RETURN VARCHAR2
+324    ;
+325  
+326    /** FUNCTION otap_api.has_package
+327    * @see otap_schema.has_package and otap_test.has_package
+328    */
+329    FUNCTION has_package( p_package_name    IN	     VARCHAR2
+330  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+331  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
+332  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
+333  			   , p_package_type    IN	     VARCHAR2	   DEFAULT 'PACKAGE'
+334  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+335  			   )
+336  	 RETURN VARCHAR2
+337    ;
+338  
+339    /** FUNCTION otap_api.has_procedure
+340    * @see otap_schema.has_procedure and otap_test.has_procedure
+341    */
+342    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
+343  			     , o_otap_session	 IN OUT NOCOPY OTAP_SESSION
+344  			     , p_schema 	 IN	       VARCHAR2      DEFAULT NULL
+345  			     , p_description	 IN	       VARCHAR2      DEFAULT NULL
+346  			     , p_procedure_type  IN	       VARCHAR2      DEFAULT 'FUNCTION'
+347  			     , p_package_name	 IN	       VARCHAR2      DEFAULT NULL
+348  			     , p_return_type	 IN	       VARCHAR2      DEFAULT NULL
+349  			     , p_expected_result IN	       NUMBER	     DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+350  			     )
+351  	 RETURN VARCHAR2
+352    ;
+353  
+354    /** FUNCTION otap_schema.has_trigger
+355    * @see otap_schema.has_trigger and otap_test.has_trigger
+356    */
+357    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
+358  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+359  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
+360  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
+361  			   , p_trigger_type    IN	     VARCHAR2	   DEFAULT NULL
+362  			   , p_trigger_event   IN	     VARCHAR2	   DEFAULT NULL
+363  			   , p_table_owner     IN	     VARCHAR2	   DEFAULT NULL
+364  			   , p_table_name      IN	     VARCHAR2	   DEFAULT NULL
+365  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+366  			   )
+367  	 RETURN VARCHAR2
+368    ;
+369  
+370    /** FUNCTION otap_api.has_object
+371    * @see otap_schema.has_object and otap_test.has_object
+372    */
+373    FUNCTION has_object( p_object_name     IN	    VARCHAR2
+374  			  , p_object_type     IN	    VARCHAR2
+375  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+376  			  , p_schema	      IN	    VARCHAR2	 DEFAULT NULL
+377  			  , p_description     IN	    VARCHAR2	 DEFAULT NULL
+378  			  , p_expected_result IN	    NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+379  			  )
+380  	 RETURN VARCHAR2
+381    ;
+382  
+383  END;
+384  /
 
 Package created.
 
@@ -6074,945 +6157,1032 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 100  	 RETURN l_message;
 101    END finish_test;
 102  
-103    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
-104  	 RETURN VARCHAR2
-105    IS
-106  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_show';
-107  	 l_message VARCHAR2(4000 CHAR);
-108    BEGIN
-109  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-110  	 -- execute the wrapped function in an extra block
-111  	 BEGIN
-112  	   l_message := otap_objects.otap_session_show(p_otap_session);
-113  	 EXCEPTION
-114  	   WHEN OTHERS THEN
-115  	     -- consume error
-116  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_show');
-117  	     l_message := otap_string.reduce('Internal otap error session show: ' || SQLERRM, 4000);
-118  	 END;
-119  	 -- return or let exception happen
-120  	 RETURN l_message;
-121    END otap_session_show;
-122  
-123    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
-124  	 RETURN VARCHAR2
-125    IS
-126  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_summary';
-127  	 l_message VARCHAR2(4000 CHAR);
-128    BEGIN
-129  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-130  	 -- execute the wrapped function in an extra block
-131  	 BEGIN
-132  	   l_message := otap_objects.otap_session_summary(p_otap_session);
-133  	 EXCEPTION
-134  	   WHEN OTHERS THEN
-135  	     -- consume error
-136  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_summary');
-137  	     l_message := otap_string.reduce('Internal otap error session summary: ' || SQLERRM, 4000);
-138  	 END;
-139  	 -- return or let exception happen
-140  	 RETURN l_message;
-141    END otap_session_summary;
-142  
-143    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
-144  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
-145  					  )
+103    FUNCTION finish_test_with_exit_code( p_write_count_rec IN	    NUMBER
+104  					  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+105  					  )
+106  	 RETURN NUMBER
+107    IS
+108  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.finish_test_with_exit_code';
+109  	 l_return  INTEGER;
+110    BEGIN
+111  	 -- default undefined
+112  	 l_return := 2;
+113  	 BEGIN
+114  	   l_return := otap_plan.finish_test_with_exit_code(p_write_count_rec, o_otap_session);
+115  	 EXCEPTION
+116  	   WHEN OTHERS THEN
+117  	     -- consume error
+118  	     otap_log.log(SQLERRM, l_script, 'Calling otap_plan.finish_test_with_exit_code');
+119  	     l_return := 2;
+120  	 END;
+121  	 -- return or let exception happen
+122  	 RETURN l_return;
+123    END finish_test_with_exit_code;
+124  
+125    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
+126  	 RETURN VARCHAR2
+127    IS
+128  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_show';
+129  	 l_message VARCHAR2(4000 CHAR);
+130    BEGIN
+131  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+132  	 -- execute the wrapped function in an extra block
+133  	 BEGIN
+134  	   l_message := otap_objects.otap_session_show(p_otap_session);
+135  	 EXCEPTION
+136  	   WHEN OTHERS THEN
+137  	     -- consume error
+138  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_show');
+139  	     l_message := otap_string.reduce('Internal otap error session show: ' || SQLERRM, 4000);
+140  	 END;
+141  	 -- return or let exception happen
+142  	 RETURN l_message;
+143    END otap_session_show;
+144  
+145    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
 146  	 RETURN VARCHAR2
 147    IS
-148  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_name';
+148  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_summary';
 149  	 l_message VARCHAR2(4000 CHAR);
 150    BEGIN
 151  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 152  	 -- execute the wrapped function in an extra block
 153  	 BEGIN
-154  	   l_message := otap_objects.otap_session_set_test_name(p_test_name, o_otap_session);
+154  	   l_message := otap_objects.otap_session_summary(p_otap_session);
 155  	 EXCEPTION
 156  	   WHEN OTHERS THEN
 157  	     -- consume error
-158  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_name');
-159  	     l_message := otap_string.reduce('Internal otap error set test name: ' || SQLERRM, 4000);
+158  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_summary');
+159  	     l_message := otap_string.reduce('Internal otap error session summary: ' || SQLERRM, 4000);
 160  	 END;
 161  	 -- return or let exception happen
 162  	 RETURN l_message;
-163    END otap_session_set_test_name;
+163    END otap_session_summary;
 164  
-165    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
-166  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
-167  					   )
+165    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
+166  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
+167  					  )
 168  	 RETURN VARCHAR2
 169    IS
-170  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+170  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_name';
 171  	 l_message VARCHAR2(4000 CHAR);
 172    BEGIN
 173  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 174  	 -- execute the wrapped function in an extra block
 175  	 BEGIN
-176  	   l_message := otap_objects.otap_session_set_test_group(p_test_group, o_otap_session);
+176  	   l_message := otap_objects.otap_session_set_test_name(p_test_name, o_otap_session);
 177  	 EXCEPTION
 178  	   WHEN OTHERS THEN
 179  	     -- consume error
-180  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_group');
-181  	     l_message := otap_string.reduce('Internal otap error set group name: ' || SQLERRM, 4000);
+180  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_name');
+181  	     l_message := otap_string.reduce('Internal otap error set test name: ' || SQLERRM, 4000);
 182  	 END;
 183  	 -- return or let exception happen
 184  	 RETURN l_message;
-185    END otap_session_set_test_group;
+185    END otap_session_set_test_name;
 186  
-187    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
-188  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-189  					 )
+187    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
+188  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
+189  					   )
 190  	 RETURN VARCHAR2
 191    IS
-192  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_set';
+192  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
 193  	 l_message VARCHAR2(4000 CHAR);
 194    BEGIN
 195  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 196  	 -- execute the wrapped function in an extra block
 197  	 BEGIN
-198  	   l_message := otap_objects.otap_session_set_test_set(p_test_set, o_otap_session);
+198  	   l_message := otap_objects.otap_session_set_test_group(p_test_group, o_otap_session);
 199  	 EXCEPTION
 200  	   WHEN OTHERS THEN
 201  	     -- consume error
-202  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_set');
-203  	     l_message := otap_string.reduce('Internal otap error set test set name: ' || SQLERRM, 4000);
+202  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_group');
+203  	     l_message := otap_string.reduce('Internal otap error set group name: ' || SQLERRM, 4000);
 204  	 END;
 205  	 -- return or let exception happen
 206  	 RETURN l_message;
-207    END otap_session_set_test_set;
+207    END otap_session_set_test_group;
 208  
-209    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
-210  	 RETURN NUMBER
-211    IS
-212  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
-213  	 l_return  NUMBER;
-214    BEGIN
-215  	 l_return := -1;
-216  	 -- execute the wrapped function in an extra block
-217  	 BEGIN
-218  	   l_return := otap_objects.otap_session_get_test_id(p_otap_session);
-219  	 EXCEPTION
-220  	   WHEN OTHERS THEN
-221  	     -- consume error
-222  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_test_id');
-223  	     l_return := -1;
-224  	 END;
-225  	 -- return or let exception happen
-226  	 RETURN l_return;
-227    END otap_session_get_test_id;
-228  
-229    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
-230  	 RETURN NUMBER
-231    IS
-232  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_report_id';
-233  	 l_return  NUMBER;
-234    BEGIN
-235  	 l_return := -1;
-236  	 -- execute the wrapped function in an extra block
-237  	 BEGIN
-238  	   l_return := otap_objects.otap_session_get_report_id(p_otap_session);
-239  	 EXCEPTION
-240  	   WHEN OTHERS THEN
-241  	     -- consume error
-242  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_report_id');
-243  	     l_return := -1;
-244  	 END;
-245  	 -- return or let exception happen
-246  	 RETURN l_return;
-247    END otap_session_get_report_id;
-248  
-249    FUNCTION max_text_size(p_session_id IN NUMBER)
-250  	 RETURN NUMBER
-251    IS
-252  	 l_script    VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
-253  	 l_return    NUMBER;
-254  	 l_interval  NUMBER;
-255    BEGIN
-256  	 l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
-257  	 -- execute the wrapped function in an extra block
-258  	 BEGIN
-259  	   l_return := otap_util.max_text_size(p_session_id);
-260  	   -- now add the extra columns on the result line
-261  	   SELECT LENGTH(((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_interval FROM dual;
-262  	   l_return := l_return + l_interval + (2 * otap_util.get_length_test_state) + 3;
-263  	 EXCEPTION
-264  	   WHEN OTHERS THEN
-265  	     -- consume error
-266  	     otap_log.log(SQLERRM, l_script, 'Calling otap_util.max_text_size');
-267  	     l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
-268  	 END;
-269  	 -- return or let exception happen
-270  	 RETURN l_return;
-271    END max_text_size;
-272  
-273    FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-274  	 RETURN VARCHAR2
-275    IS
-276  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_header';
-277  	 l_message VARCHAR2(4000 CHAR);
-278    BEGIN
-279  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-280  	 -- execute the wrapped function in an extra block
-281  	 BEGIN
-282  	   l_message := otap_report.get_report_header(p_min_fill);
-283  	 EXCEPTION
-284  	   WHEN OTHERS THEN
-285  	     -- consume error
-286  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_header');
-287  	     l_message := otap_string.reduce('Internal otap error get report header: ' || SQLERRM, 4000);
-288  	 END;
-289  	 -- return or let exception happen
-290  	 RETURN l_message;
-291    END get_report_header;
-292  
-293    FUNCTION get_session_id_text( p_session_id IN NUMBER
-294  				   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-295  				   )
+209    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
+210  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+211  					 )
+212  	 RETURN VARCHAR2
+213    IS
+214  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_test_set';
+215  	 l_message VARCHAR2(4000 CHAR);
+216    BEGIN
+217  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+218  	 -- execute the wrapped function in an extra block
+219  	 BEGIN
+220  	   l_message := otap_objects.otap_session_set_test_set(p_test_set, o_otap_session);
+221  	 EXCEPTION
+222  	   WHEN OTHERS THEN
+223  	     -- consume error
+224  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_set_test_set');
+225  	     l_message := otap_string.reduce('Internal otap error set test set name: ' || SQLERRM, 4000);
+226  	 END;
+227  	 -- return or let exception happen
+228  	 RETURN l_message;
+229    END otap_session_set_test_set;
+230  
+231    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
+232  	 RETURN NUMBER
+233    IS
+234  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
+235  	 l_return  NUMBER;
+236    BEGIN
+237  	 l_return := -1;
+238  	 -- execute the wrapped function in an extra block
+239  	 BEGIN
+240  	   l_return := otap_objects.otap_session_get_test_id(p_otap_session);
+241  	 EXCEPTION
+242  	   WHEN OTHERS THEN
+243  	     -- consume error
+244  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_test_id');
+245  	     l_return := -1;
+246  	 END;
+247  	 -- return or let exception happen
+248  	 RETURN l_return;
+249    END otap_session_get_test_id;
+250  
+251    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+252  	 RETURN NUMBER
+253    IS
+254  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_report_id';
+255  	 l_return  NUMBER;
+256    BEGIN
+257  	 l_return := -1;
+258  	 -- execute the wrapped function in an extra block
+259  	 BEGIN
+260  	   l_return := otap_objects.otap_session_get_report_id(p_otap_session);
+261  	 EXCEPTION
+262  	   WHEN OTHERS THEN
+263  	     -- consume error
+264  	     otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_report_id');
+265  	     l_return := -1;
+266  	 END;
+267  	 -- return or let exception happen
+268  	 RETURN l_return;
+269    END otap_session_get_report_id;
+270  
+271    FUNCTION max_text_size(p_session_id IN NUMBER)
+272  	 RETURN NUMBER
+273    IS
+274  	 l_script    VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_test_id';
+275  	 l_return    NUMBER;
+276  	 l_interval  NUMBER;
+277    BEGIN
+278  	 l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+279  	 -- execute the wrapped function in an extra block
+280  	 BEGIN
+281  	   l_return := otap_util.max_text_size(p_session_id);
+282  	   -- now add the extra columns on the result line
+283  	   SELECT LENGTH(((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_interval FROM dual;
+284  	   l_return := l_return + l_interval + (2 * otap_util.get_length_test_state) + 3;
+285  	 EXCEPTION
+286  	   WHEN OTHERS THEN
+287  	     -- consume error
+288  	     otap_log.log(SQLERRM, l_script, 'Calling otap_util.max_text_size');
+289  	     l_return := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+290  	 END;
+291  	 -- return or let exception happen
+292  	 RETURN l_return;
+293    END max_text_size;
+294  
+295    FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
 296  	 RETURN VARCHAR2
 297    IS
-298  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_session_id_text';
+298  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_header';
 299  	 l_message VARCHAR2(4000 CHAR);
 300    BEGIN
 301  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 302  	 -- execute the wrapped function in an extra block
 303  	 BEGIN
-304  	   l_message := otap_report.get_session_id_text(p_session_id, p_min_fill);
+304  	   l_message := otap_report.get_report_header(p_min_fill);
 305  	 EXCEPTION
 306  	   WHEN OTHERS THEN
 307  	     -- consume error
-308  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_session_id_text');
-309  	     l_message := otap_string.reduce('Internal otap error get report session id text: ' || SQLERRM, 4000);
+308  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_header');
+309  	     l_message := otap_string.reduce('Internal otap error get report header: ' || SQLERRM, 4000);
 310  	 END;
 311  	 -- return or let exception happen
 312  	 RETURN l_message;
-313    END get_session_id_text;
+313    END get_report_header;
 314  
-315    FUNCTION get_set_text( p_test_set IN VARCHAR2
-316  			    , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-317  			    )
+315    FUNCTION get_session_id_text( p_session_id IN NUMBER
+316  				   , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+317  				   )
 318  	 RETURN VARCHAR2
 319    IS
-320  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_set_text';
+320  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_session_id_text';
 321  	 l_message VARCHAR2(4000 CHAR);
 322    BEGIN
 323  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 324  	 -- execute the wrapped function in an extra block
 325  	 BEGIN
-326  	   l_message := otap_report.get_set_text(p_test_set, p_min_fill);
+326  	   l_message := otap_report.get_session_id_text(p_session_id, p_min_fill);
 327  	 EXCEPTION
 328  	   WHEN OTHERS THEN
 329  	     -- consume error
-330  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_set_text');
-331  	     l_message := otap_string.reduce('Internal otap error get report test set text: ' || SQLERRM, 4000);
+330  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_session_id_text');
+331  	     l_message := otap_string.reduce('Internal otap error get report session id text: ' || SQLERRM, 4000);
 332  	 END;
 333  	 -- return or let exception happen
 334  	 RETURN l_message;
-335    END get_set_text;
+335    END get_session_id_text;
 336  
-337    FUNCTION get_summary( p_runtime	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-338  			   , p_runs	IN NUMBER   DEFAULT 0
-339  			   , p_errors	IN NUMBER   DEFAULT 0
-340  			   , p_issues	IN NUMBER   DEFAULT 0
-341  			   , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-342  			   )
-343  	 RETURN VARCHAR2
-344    IS
-345  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_summary';
-346  	 l_message VARCHAR2(4000 CHAR);
-347  	 l_status  VARCHAR2(4000 CHAR);
-348    BEGIN
-349  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-350  	 -- execute the wrapped function in an extra block
-351  	 BEGIN
-352  	   l_status := CASE
-353  			 WHEN p_issues > 0
-354  			 THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-355  			 WHEN p_errors > 0 AND p_issues <= 0
-356  			 THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_FAILED
-357  			 ELSE otap_constants.OTAP_FALLBACK_TEXT_TEST_PASSED
-358  		       END
-359  	   ;
-360  	   l_message := otap_report.get_summary(l_status, p_runtime, p_runs, p_errors, p_issues, p_min_fill);
-361  	 EXCEPTION
-362  	   WHEN OTHERS THEN
-363  	     -- consume error
-364  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_summary');
-365  	     l_message := otap_string.reduce('Internal otap error get report summary: ' || SQLERRM, 4000);
-366  	 END;
-367  	 -- return or let exception happen
-368  	 RETURN l_message;
-369    END get_summary;
-370  
-371    FUNCTION get_group_text( p_test_group IN VARCHAR2
-372  			      , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-373  			      )
-374  	 RETURN VARCHAR2
-375    IS
-376  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_group_text';
-377  	 l_message VARCHAR2(4000 CHAR);
-378    BEGIN
-379  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-380  	 -- execute the wrapped function in an extra block
-381  	 BEGIN
-382  	   l_message := otap_report.get_group_text(p_test_group, p_min_fill);
+337    FUNCTION get_set_text( p_test_set IN VARCHAR2
+338  			    , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+339  			    )
+340  	 RETURN VARCHAR2
+341    IS
+342  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_set_text';
+343  	 l_message VARCHAR2(4000 CHAR);
+344    BEGIN
+345  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+346  	 -- execute the wrapped function in an extra block
+347  	 BEGIN
+348  	   l_message := otap_report.get_set_text(p_test_set, p_min_fill);
+349  	 EXCEPTION
+350  	   WHEN OTHERS THEN
+351  	     -- consume error
+352  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_set_text');
+353  	     l_message := otap_string.reduce('Internal otap error get report test set text: ' || SQLERRM, 4000);
+354  	 END;
+355  	 -- return or let exception happen
+356  	 RETURN l_message;
+357    END get_set_text;
+358  
+359    FUNCTION get_summary( p_runtime	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+360  			   , p_runs	IN NUMBER   DEFAULT 0
+361  			   , p_errors	IN NUMBER   DEFAULT 0
+362  			   , p_issues	IN NUMBER   DEFAULT 0
+363  			   , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+364  			   )
+365  	 RETURN VARCHAR2
+366    IS
+367  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_summary';
+368  	 l_message VARCHAR2(4000 CHAR);
+369  	 l_status  VARCHAR2(4000 CHAR);
+370    BEGIN
+371  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+372  	 -- execute the wrapped function in an extra block
+373  	 BEGIN
+374  	   l_status := CASE
+375  			 WHEN p_issues > 0
+376  			 THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+377  			 WHEN p_errors > 0 AND p_issues <= 0
+378  			 THEN otap_constants.OTAP_FALLBACK_TEXT_TEST_FAILED
+379  			 ELSE otap_constants.OTAP_FALLBACK_TEXT_TEST_PASSED
+380  		       END
+381  	   ;
+382  	   l_message := otap_report.get_summary(l_status, p_runtime, p_runs, p_errors, p_issues, p_min_fill);
 383  	 EXCEPTION
 384  	   WHEN OTHERS THEN
 385  	     -- consume error
-386  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_group_text');
-387  	     l_message := otap_string.reduce('Internal otap error get report group text: ' || SQLERRM, 4000);
+386  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_summary');
+387  	     l_message := otap_string.reduce('Internal otap error get report summary: ' || SQLERRM, 4000);
 388  	 END;
 389  	 -- return or let exception happen
 390  	 RETURN l_message;
-391    END get_group_text;
+391    END get_summary;
 392  
-393    FUNCTION get_test_name_text( p_test_name IN VARCHAR2
-394  				  , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-395  				  )
+393    FUNCTION get_group_text( p_test_group IN VARCHAR2
+394  			      , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+395  			      )
 396  	 RETURN VARCHAR2
 397    IS
-398  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_name_text';
+398  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_group_text';
 399  	 l_message VARCHAR2(4000 CHAR);
 400    BEGIN
 401  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 402  	 -- execute the wrapped function in an extra block
 403  	 BEGIN
-404  	   l_message := otap_report.get_test_name_text(p_test_name, p_min_fill);
+404  	   l_message := otap_report.get_group_text(p_test_group, p_min_fill);
 405  	 EXCEPTION
 406  	   WHEN OTHERS THEN
 407  	     -- consume error
-408  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_test_name_text');
-409  	     l_message := otap_string.reduce('Internal otap error get report test name text: ' || SQLERRM, 4000);
+408  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_group_text');
+409  	     l_message := otap_string.reduce('Internal otap error get report group text: ' || SQLERRM, 4000);
 410  	 END;
 411  	 -- return or let exception happen
 412  	 RETURN l_message;
-413    END get_test_name_text;
+413    END get_group_text;
 414  
-415    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-416  	 RETURN VARCHAR2
-417    IS
-418  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_header';
-419  	 l_message VARCHAR2(4000 CHAR);
-420    BEGIN
-421  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-422  	 -- execute the wrapped function in an extra block
-423  	 BEGIN
-424  	   l_message := otap_report.get_result_header(p_min_fill);
-425  	 EXCEPTION
-426  	   WHEN OTHERS THEN
-427  	     -- consume error
-428  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_header');
-429  	     l_message := otap_string.reduce('Internal otap error get result header: ' || SQLERRM, 4000);
-430  	 END;
-431  	 -- return or let exception happen
-432  	 RETURN l_message;
-433    END get_result_header;
-434  
-435    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-436  	 RETURN VARCHAR2
-437    IS
-438  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_underline';
-439  	 l_message VARCHAR2(4000 CHAR);
-440    BEGIN
-441  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-442  	 -- execute the wrapped function in an extra block
-443  	 BEGIN
-444  	   l_message := otap_report.get_result_underline(p_min_fill);
-445  	 EXCEPTION
-446  	   WHEN OTHERS THEN
-447  	     -- consume error
-448  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_underline');
-449  	     l_message := otap_string.reduce('Internal otap error get result underline: ' || SQLERRM, 4000);
-450  	 END;
-451  	 -- return or let exception happen
-452  	 RETURN l_message;
-453    END get_result_underline;
-454  
-455    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-456  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-457  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-458  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-459  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-460  			       )
-461  	 RETURN VARCHAR2
-462    IS
-463  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_line';
-464  	 l_message VARCHAR2(4000 CHAR);
-465    BEGIN
-466  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-467  	 -- execute the wrapped function in an extra block
-468  	 BEGIN
-469  	   l_message := otap_report.get_result_line(p_test_state, p_issue_state, p_runtime, p_test_desc, p_min_fill);
-470  	 EXCEPTION
-471  	   WHEN OTHERS THEN
-472  	     -- consume error
-473  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_line');
-474  	     l_message := otap_string.reduce('Internal otap error get result line: ' || SQLERRM, 4000);
-475  	 END;
-476  	 -- return or let exception happen
-477  	 RETURN l_message;
-478    END get_result_line;
-479  
-480    FUNCTION test_result_to_text(p_test_passed IN NUMBER)
-481  	 RETURN VARCHAR
-482    IS
-483  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.test_result_to_text';
-484  	 l_message VARCHAR2(4000 CHAR);
-485    BEGIN
-486  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-487  	 -- execute the wrapped function in an extra block
-488  	 BEGIN
-489  	   l_message := otap_util.test_result_to_text(p_test_passed);
-490  	 EXCEPTION
-491  	   WHEN OTHERS THEN
-492  	     -- consume error
-493  	     otap_log.log(SQLERRM, l_script, 'Calling  otap_util.test_result_to_text');
-494  	     l_message := otap_string.reduce('Internal otap error translate test result to text: ' || SQLERRM, 4000);
-495  	 END;
-496  	 -- return or let exception happen
-497  	 RETURN l_message;
-498    END test_result_to_text;
-499  
-500    FUNCTION get_error_result_header( p_test_name IN VARCHAR2
-501  				       , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-502  				       )
-503  	 RETURN VARCHAR2
+415    FUNCTION get_test_name_text( p_test_name IN VARCHAR2
+416  				  , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+417  				  )
+418  	 RETURN VARCHAR2
+419    IS
+420  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_name_text';
+421  	 l_message VARCHAR2(4000 CHAR);
+422    BEGIN
+423  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+424  	 -- execute the wrapped function in an extra block
+425  	 BEGIN
+426  	   l_message := otap_report.get_test_name_text(p_test_name, p_min_fill);
+427  	 EXCEPTION
+428  	   WHEN OTHERS THEN
+429  	     -- consume error
+430  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_test_name_text');
+431  	     l_message := otap_string.reduce('Internal otap error get report test name text: ' || SQLERRM, 4000);
+432  	 END;
+433  	 -- return or let exception happen
+434  	 RETURN l_message;
+435    END get_test_name_text;
+436  
+437    FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+438  	 RETURN VARCHAR2
+439    IS
+440  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_header';
+441  	 l_message VARCHAR2(4000 CHAR);
+442    BEGIN
+443  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+444  	 -- execute the wrapped function in an extra block
+445  	 BEGIN
+446  	   l_message := otap_report.get_result_header(p_min_fill);
+447  	 EXCEPTION
+448  	   WHEN OTHERS THEN
+449  	     -- consume error
+450  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_header');
+451  	     l_message := otap_string.reduce('Internal otap error get result header: ' || SQLERRM, 4000);
+452  	 END;
+453  	 -- return or let exception happen
+454  	 RETURN l_message;
+455    END get_result_header;
+456  
+457    FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+458  	 RETURN VARCHAR2
+459    IS
+460  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_underline';
+461  	 l_message VARCHAR2(4000 CHAR);
+462    BEGIN
+463  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+464  	 -- execute the wrapped function in an extra block
+465  	 BEGIN
+466  	   l_message := otap_report.get_result_underline(p_min_fill);
+467  	 EXCEPTION
+468  	   WHEN OTHERS THEN
+469  	     -- consume error
+470  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_underline');
+471  	     l_message := otap_string.reduce('Internal otap error get result underline: ' || SQLERRM, 4000);
+472  	 END;
+473  	 -- return or let exception happen
+474  	 RETURN l_message;
+475    END get_result_underline;
+476  
+477    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+478  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+479  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+480  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+481  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+482  			       )
+483  	 RETURN VARCHAR2
+484    IS
+485  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_result_line';
+486  	 l_message VARCHAR2(4000 CHAR);
+487    BEGIN
+488  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+489  	 -- execute the wrapped function in an extra block
+490  	 BEGIN
+491  	   l_message := otap_report.get_result_line(p_test_state, p_issue_state, p_runtime, p_test_desc, p_min_fill);
+492  	 EXCEPTION
+493  	   WHEN OTHERS THEN
+494  	     -- consume error
+495  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_result_line');
+496  	     l_message := otap_string.reduce('Internal otap error get result line: ' || SQLERRM, 4000);
+497  	 END;
+498  	 -- return or let exception happen
+499  	 RETURN l_message;
+500    END get_result_line;
+501  
+502    FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+503  	 RETURN VARCHAR
 504    IS
-505  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_result_header';
+505  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.test_result_to_text';
 506  	 l_message VARCHAR2(4000 CHAR);
 507    BEGIN
 508  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 509  	 -- execute the wrapped function in an extra block
 510  	 BEGIN
-511  	   l_message := otap_report.get_error_result_header(p_test_name, p_min_fill);
+511  	   l_message := otap_util.test_result_to_text(p_test_passed);
 512  	 EXCEPTION
 513  	   WHEN OTHERS THEN
 514  	     -- consume error
-515  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_error_result_header');
-516  	     l_message := otap_string.reduce('Internal otap error get error result header: ' || SQLERRM, 4000);
+515  	     otap_log.log(SQLERRM, l_script, 'Calling  otap_util.test_result_to_text');
+516  	     l_message := otap_string.reduce('Internal otap error translate test result to text: ' || SQLERRM, 4000);
 517  	 END;
 518  	 -- return or let exception happen
 519  	 RETURN l_message;
-520    END get_error_result_header;
+520    END test_result_to_text;
 521  
-522    FUNCTION get_error_details( p_test_desc	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-523  				 , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-524  				 , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-525  				 )
-526  	 RETURN VARCHAR2
-527    IS
-528  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_details';
-529  	 l_message VARCHAR2(4000 CHAR);
-530    BEGIN
-531  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-532  	 -- execute the wrapped function in an extra block
-533  	 BEGIN
-534  	   l_message := otap_report.get_error_details(p_test_desc, p_error_info, p_min_fill);
-535  	 EXCEPTION
-536  	   WHEN OTHERS THEN
-537  	     -- consume error
-538  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_error_details');
-539  	     l_message := otap_string.reduce('Internal otap error get error details: ' || SQLERRM, 4000);
-540  	 END;
-541  	 -- return or let exception happen
-542  	 RETURN l_message;
-543    END get_error_details;
-544  
-545    FUNCTION get_no_data_text( p_session_id IN NUMBER
-546  				, p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-547  				)
+522    FUNCTION get_error_result_header( p_test_name IN VARCHAR2
+523  				       , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+524  				       )
+525  	 RETURN VARCHAR2
+526    IS
+527  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_result_header';
+528  	 l_message VARCHAR2(4000 CHAR);
+529    BEGIN
+530  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+531  	 -- execute the wrapped function in an extra block
+532  	 BEGIN
+533  	   l_message := otap_report.get_error_result_header(p_test_name, p_min_fill);
+534  	 EXCEPTION
+535  	   WHEN OTHERS THEN
+536  	     -- consume error
+537  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_error_result_header');
+538  	     l_message := otap_string.reduce('Internal otap error get error result header: ' || SQLERRM, 4000);
+539  	 END;
+540  	 -- return or let exception happen
+541  	 RETURN l_message;
+542    END get_error_result_header;
+543  
+544    FUNCTION get_error_details( p_test_desc	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+545  				 , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+546  				 , p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+547  				 )
 548  	 RETURN VARCHAR2
 549    IS
-550  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_no_data_text';
+550  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_error_details';
 551  	 l_message VARCHAR2(4000 CHAR);
 552    BEGIN
 553  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 554  	 -- execute the wrapped function in an extra block
 555  	 BEGIN
-556  	   l_message := otap_report.get_no_data_text(p_session_id, p_min_fill);
+556  	   l_message := otap_report.get_error_details(p_test_desc, p_error_info, p_min_fill);
 557  	 EXCEPTION
 558  	   WHEN OTHERS THEN
 559  	     -- consume error
-560  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_no_data_text');
-561  	     l_message := otap_string.reduce('Internal otap error get no data text: ' || SQLERRM, 4000);
+560  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_error_details');
+561  	     l_message := otap_string.reduce('Internal otap error get error details: ' || SQLERRM, 4000);
 562  	 END;
 563  	 -- return or let exception happen
 564  	 RETURN l_message;
-565    END get_no_data_text;
+565    END get_error_details;
 566  
-567    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-568  	 RETURN VARCHAR2
-569    IS
-570  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_footer';
-571  	 l_message VARCHAR2(4000 CHAR);
-572    BEGIN
-573  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-574  	 -- execute the wrapped function in an extra block
-575  	 BEGIN
-576  	   l_message := otap_report.get_report_footer(p_min_fill);
-577  	 EXCEPTION
-578  	   WHEN OTHERS THEN
-579  	     -- consume error
-580  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_footer');
-581  	     l_message := otap_string.reduce('Internal otap error get report footer: ' || SQLERRM, 4000);
-582  	 END;
-583  	 -- return or let exception happen
-584  	 RETURN l_message;
-585    END get_report_footer;
-586  
-587    FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
-588  		       , p_size   INTEGER  DEFAULT 0
-589  		       )
+567    FUNCTION get_no_data_text( p_session_id IN NUMBER
+568  				, p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+569  				)
+570  	 RETURN VARCHAR2
+571    IS
+572  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_no_data_text';
+573  	 l_message VARCHAR2(4000 CHAR);
+574    BEGIN
+575  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+576  	 -- execute the wrapped function in an extra block
+577  	 BEGIN
+578  	   l_message := otap_report.get_no_data_text(p_session_id, p_min_fill);
+579  	 EXCEPTION
+580  	   WHEN OTHERS THEN
+581  	     -- consume error
+582  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_no_data_text');
+583  	     l_message := otap_string.reduce('Internal otap error get no data text: ' || SQLERRM, 4000);
+584  	 END;
+585  	 -- return or let exception happen
+586  	 RETURN l_message;
+587    END get_no_data_text;
+588  
+589    FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
 590  	 RETURN VARCHAR2
 591    IS
-592  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.flatten';
+592  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_footer';
 593  	 l_message VARCHAR2(4000 CHAR);
 594    BEGIN
 595  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
 596  	 -- execute the wrapped function in an extra block
 597  	 BEGIN
-598  	   l_message := otap_string.flatten(p_string, p_size);
+598  	   l_message := otap_report.get_report_footer(p_min_fill);
 599  	 EXCEPTION
 600  	   WHEN OTHERS THEN
 601  	     -- consume error
-602  	     otap_log.log(SQLERRM, l_script, 'Calling otap_string.flatten');
-603  	     l_message := otap_string.reduce('Internal otap error flatten string: ' || SQLERRM, 4000);
+602  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_footer');
+603  	     l_message := otap_string.reduce('Internal otap error get report footer: ' || SQLERRM, 4000);
 604  	 END;
 605  	 -- return or let exception happen
 606  	 RETURN l_message;
-607    END flatten;
+607    END get_report_footer;
 608  
-609    FUNCTION get_text_test_count_name
-610  	 RETURN VARCHAR2
-611    IS
-612  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_text_test_count_name';
-613  	 l_message VARCHAR2(4000 CHAR);
-614    BEGIN
-615  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-616  	 -- execute the wrapped function in an extra block
-617  	 BEGIN
-618  	   l_message := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
-619  	 EXCEPTION
-620  	   WHEN OTHERS THEN
-621  	     -- consume error
-622  	     otap_log.log(SQLERRM, l_script, 'Calling otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)');
-623  	     l_message := otap_string.reduce('Internal otap error get test count name: ' || SQLERRM, 4000);
-624  	 END;
-625  	 -- return or let exception happen
-626  	 RETURN l_message;
-627    END get_text_test_count_name;
-628  
-629    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-630  	 RETURN VARCHAR2
-631    IS
-632  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_count_header';
-633  	 l_message VARCHAR2(4000 CHAR);
-634    BEGIN
-635  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-636  	 -- execute the wrapped function in an extra block
-637  	 BEGIN
-638  	   l_message := otap_report.get_test_count_header(p_min_fill);
-639  	 EXCEPTION
-640  	   WHEN OTHERS THEN
-641  	     -- consume error
-642  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_test_count_header');
-643  	     l_message := otap_string.reduce('Internal otap error get test count header: ' || SQLERRM, 4000);
-644  	 END;
-645  	 -- return or let exception happen
-646  	 RETURN l_message;
-647    END get_test_count_header;
-648  
-649    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
-650  	 RETURN VARCHAR2
-651    IS
-652  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total';
-653  	 l_message VARCHAR2(4000 CHAR);
-654    BEGIN
-655  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-656  	 -- execute the wrapped function in an extra block
-657  	 BEGIN
-658  	   l_message := otap_report.get_report_total(p_min_fill);
-659  	 EXCEPTION
-660  	   WHEN OTHERS THEN
-661  	     -- consume error
-662  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_total');
-663  	     l_message := otap_string.reduce('Internal otap error get total header: ' || SQLERRM, 4000);
-664  	 END;
-665  	 -- return or let exception happen
-666  	 RETURN l_message;
-667    END get_report_total;
-668  
-669    FUNCTION get_report_total_details( p_sets	 IN INTEGER  DEFAULT 0
-670  					, p_groups	 IN INTEGER  DEFAULT 0
-671  					, p_names	 IN INTEGER  DEFAULT 0
-672  					, p_descriptions IN INTEGER  DEFAULT 0
-673  					, p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-674  					)
-675  	 RETURN VARCHAR2
-676    IS
-677  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total_details';
-678  	 l_message VARCHAR2(4000 CHAR);
-679    BEGIN
-680  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
-681  	 -- execute the wrapped function in an extra block
-682  	 BEGIN
-683  	   l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_min_fill);
-684  	 EXCEPTION
-685  	   WHEN OTHERS THEN
-686  	     -- consume error
-687  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_total_details');
-688  	     l_message := otap_string.reduce('Internal otap error get total details: ' || SQLERRM, 4000);
-689  	 END;
-690  	 -- return or let exception happen
-691  	 RETURN l_message;
-692    END get_report_total_details;
-693  
-694    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
-695  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-696  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
-697  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
-698  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-699  			 )
-700  	 RETURN VARCHAR2
-701    IS
-702  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_table';
-703  	 l_start	    TIMESTAMP;
-704  	 l_result	    INTEGER;
-705  	 l_return	    VARCHAR2(4000 CHAR);
-706  	 l_errors	    otap_results.test_errors%TYPE;
-707  	 l_schema	    otap_results.db_schema%TYPE;
-708  	 l_desc 	    otap_results.test_desc%TYPE;
-709  	 l_tmp_otap_session OTAP_SESSION;
-710    BEGIN
-711  	 l_start  := SYSTIMESTAMP;
-712  	 -- default return
-713  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
-714  	 -- own begin-end for the transaction after the function
-715  	 BEGIN
-716  	   -- own begin-end block for the function itself and prepare
-717  	   BEGIN
-718  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-719  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
-720  								       , p_schema_name => l_schema
-721  								       , p_object_type => otap_util.CFG_LABEL_TABLE
-722  								       , p_sub_object => NULL
-723  								       , p_desc => p_description
-724  								       )
-725  					   , 256
-726  					   )
-727  	     ;
-728  	     -- call function
-729  	     l_result := otap_schema.has_table( p_table_name
-730  					      , l_errors
-731  					      , l_schema
-732  					      , p_expected_result
-733  					      )
-734  	     ;
-735  	   EXCEPTION
-736  	     WHEN OTHERS THEN
-737  	     -- consume error
-738  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-739  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-740  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-741  	   END;
-742  	   -- write result
-743  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-744  	 EXCEPTION
-745  	   WHEN OTHERS THEN
-746  	     -- consume error
-747  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-748  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-749  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-750  	     -- try again
-751  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-752  	 END;
-753  	 -- return result or let exception happen
-754  	 RETURN l_return;
-755    END has_table;
-756  
-757    FUNCTION has_column( p_table_name      IN	    VARCHAR2
-758  			  , p_column_name     IN	    VARCHAR2
-759  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-760  			  , p_schema	      IN	    VARCHAR2	 DEFAULT NULL
-761  			  , p_description     IN	    VARCHAR2	 DEFAULT NULL
-762  			  , p_data_type       IN	    VARCHAR2	 DEFAULT NULL
-763  			  , p_data_length     IN	    NUMBER	 DEFAULT NULL
-764  			  , p_data_precision  IN	    NUMBER	 DEFAULT NULL
-765  			  , p_data_scale      IN	    NUMBER	 DEFAULT NULL
-766  			  , p_nullable	      IN	    VARCHAR2	 DEFAULT NULL
-767  			  , p_data_default    IN	    VARCHAR2	 DEFAULT NULL
-768  			  , p_expected_result IN	    NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-769  			  )
-770  	 RETURN VARCHAR2
-771    IS
-772  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_column';
-773  	 l_start	    TIMESTAMP;
-774  	 l_result	    INTEGER;
-775  	 l_return	    VARCHAR2(4000 CHAR);
-776  	 l_errors	    otap_results.test_errors%TYPE;
-777  	 l_schema	    otap_results.db_schema%TYPE;
-778  	 l_desc 	    otap_results.test_desc%TYPE;
-779  	 l_tmp_otap_session OTAP_SESSION;
-780    BEGIN
-781  	 l_start  := SYSTIMESTAMP;
-782  	 -- default return
-783  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
-784  	 -- own begin-end for the transaction after the function
-785  	 BEGIN
-786  	   -- own begin-end block for the function itself and prepare
-787  	   BEGIN
-788  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-789  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
-790  								       , p_schema_name => l_schema
-791  								       , p_object_type => otap_util.CFG_LABEL_COLUMN
-792  								       , p_sub_object => p_column_name
-793  								       , p_desc => p_description
-794  								       )
-795  					   , 256
-796  					   )
-797  	     ;
-798  	     -- call function
-799  	     l_result := otap_schema.has_column( p_table_name
-800  					       , p_column_name
-801  					       , l_errors
-802  					       , l_schema
-803  					       , p_data_type
-804  					       , p_data_length
-805  					       , p_data_precision
-806  					       , p_data_scale
-807  					       , p_nullable
-808  					       , p_data_default
-809  					       , p_expected_result
-810  					       )
-811  	     ;
-812  	   EXCEPTION
-813  	     WHEN OTHERS THEN
-814  	     -- consume error
-815  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-816  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-817  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-818  	   END;
-819  	   -- write result
-820  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-821  	 EXCEPTION
-822  	   WHEN OTHERS THEN
-823  	     -- consume error
-824  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-825  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-826  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-827  	     -- try again
-828  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-829  	 END;
-830  	 -- return result or let exception happen
-831  	 RETURN l_return;
-832    END has_column;
-833  
-834    FUNCTION has_package( p_package_name    IN	     VARCHAR2
-835  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-836  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
-837  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
-838  			   , p_package_type    IN	     VARCHAR2	   DEFAULT 'PACKAGE'
-839  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-840  			   )
-841  	 RETURN VARCHAR2
-842    IS
-843  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_package';
-844  	 l_start	    TIMESTAMP;
-845  	 l_result	    INTEGER;
-846  	 l_return	    VARCHAR2(4000 CHAR);
-847  	 l_errors	    otap_results.test_errors%TYPE;
-848  	 l_schema	    otap_results.db_schema%TYPE;
-849  	 l_desc 	    otap_results.test_desc%TYPE;
-850  	 l_tmp_otap_session OTAP_SESSION;
-851    BEGIN
-852  	 l_start  := SYSTIMESTAMP;
-853  	 -- default return
-854  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
-855  	 -- own begin-end for the transaction after the function
-856  	 BEGIN
-857  	   -- own begin-end block for the function itself and prepare
-858  	   BEGIN
-859  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-860  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_package_name
-861  								       , p_schema_name => l_schema
-862  								       , p_object_type => otap_util.get_label_id(p_package_type)
-863  								       , p_sub_object => NULL
-864  								       , p_desc => p_description
-865  								       )
-866  					   , 256
-867  					   )
-868  	     ;
-869  	     -- call function
-870  	     l_result := otap_schema.has_package( p_package_name
-871  						, l_errors
-872  						, l_schema
-873  						, p_package_type
-874  						, p_expected_result
-875  						)
-876  	     ;
-877  	   EXCEPTION
-878  	     WHEN OTHERS THEN
-879  	     -- consume error
-880  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-881  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-882  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-883  	   END;
-884  	   -- write result
-885  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-886  	 EXCEPTION
-887  	   WHEN OTHERS THEN
-888  	     -- consume error
-889  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-890  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-891  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-892  	     -- try again
-893  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-894  	 END;
-895  	 -- return result or let exception happen
-896  	 RETURN l_return;
-897    END has_package;
-898  
-899    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
-900  			     , o_otap_session	 IN OUT NOCOPY OTAP_SESSION
-901  			     , p_schema 	 IN	       VARCHAR2      DEFAULT NULL
-902  			     , p_description	 IN	       VARCHAR2      DEFAULT NULL
-903  			     , p_procedure_type  IN	       VARCHAR2      DEFAULT 'FUNCTION'
-904  			     , p_package_name	 IN	       VARCHAR2      DEFAULT NULL
-905  			     , p_return_type	 IN	       VARCHAR2      DEFAULT NULL
-906  			     , p_expected_result IN	       NUMBER	     DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-907  			     )
-908  	 RETURN VARCHAR2
-909    IS
-910  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_procedure';
-911  	 l_start	    TIMESTAMP;
-912  	 l_result	    INTEGER;
-913  	 l_return	    VARCHAR2(4000 CHAR);
-914  	 l_errors	    otap_results.test_errors%TYPE;
-915  	 l_schema	    otap_results.db_schema%TYPE;
-916  	 l_desc 	    otap_results.test_desc%TYPE;
-917  	 l_tmp_otap_session OTAP_SESSION;
-918    BEGIN
-919  	 l_start  := SYSTIMESTAMP;
-920  	 -- default return
-921  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
-922  	 -- own begin-end for the transaction after the function
-923  	 BEGIN
-924  	   -- own begin-end block for the function itself and prepare
-925  	   BEGIN
-926  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-927  	     -- TODO get_label in otap_util only labels compared with value, search always upper as stored in db
-928  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => NVL(p_package_name, p_procedure_name)
-929  								       , p_schema_name => l_schema
-930  								       , p_object_type => otap_util.get_label_id(p_procedure_type)
-931  								       , p_sub_object => CASE WHEN p_package_name IS NOT NULL THEN p_procedure_name ELSE NULL END
-932  								       , p_desc => p_description
-933  								       )
-934  					   , 256
-935  					   )
-936  	     ;
-937  	     -- call function
-938  	     l_result := otap_schema.has_procedure( p_procedure_name
-939  						  , l_errors
-940  						  , l_schema
-941  						  , p_procedure_type
-942  						  , p_package_name
-943  						  , p_return_type
-944  						  , p_expected_result
-945  						  )
-946  	     ;
-947  	   EXCEPTION
-948  	     WHEN OTHERS THEN
-949  	     -- consume error
-950  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-951  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-952  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-953  	   END;
-954  	   -- write result
-955  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-956  	 EXCEPTION
-957  	   WHEN OTHERS THEN
-958  	     -- consume error
-959  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-960  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-961  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-962  	     -- try again
-963  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-964  	 END;
-965  	 -- return result or let exception happen
-966  	 RETURN l_return;
-967    END has_procedure;
-968  
-969    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
-970  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-971  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
-972  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
-973  			   , p_trigger_type    IN	     VARCHAR2	   DEFAULT NULL
-974  			   , p_trigger_event   IN	     VARCHAR2	   DEFAULT NULL
-975  			   , p_table_owner     IN	     VARCHAR2	   DEFAULT NULL
-976  			   , p_table_name      IN	     VARCHAR2	   DEFAULT NULL
-977  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-978  			   )
-979  	 RETURN VARCHAR2
-980    IS
-981  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_trigger';
-982  	 l_start	    TIMESTAMP;
-983  	 l_result	    INTEGER;
-984  	 l_return	    VARCHAR2(4000 CHAR);
-985  	 l_errors	    otap_results.test_errors%TYPE;
-986  	 l_schema	    otap_results.db_schema%TYPE;
-987  	 l_desc 	    otap_results.test_desc%TYPE;
-988  	 l_tmp_otap_session OTAP_SESSION;
-989    BEGIN
-990  	 l_start  := SYSTIMESTAMP;
-991  	 -- default return
-992  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
-993  	 -- own begin-end for the transaction after the function
-994  	 BEGIN
-995  	   -- own begin-end block for the function itself and prepare
-996  	   BEGIN
-997  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
-998  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_trigger_name
-999  								       , p_schema_name => l_schema
-1000  									, p_object_type => otap_util.CFG_LABEL_TRIGGER
-1001  									, p_sub_object => NULL
-1002  									, p_desc => p_description
-1003  									)
-1004  					    , 256
-1005  					    )
-1006  	      ;
-1007  	      -- call function
-1008  	      l_result := otap_schema.has_trigger( p_trigger_name
-1009  						 , l_errors
-1010  						 , l_schema
-1011  						 , p_trigger_type
-1012  						 , p_trigger_event
-1013  						 , p_table_owner
-1014  						 , p_table_name
-1015  						 , p_expected_result
-1016  						 )
-1017  	      ;
-1018  	    EXCEPTION
-1019  	      WHEN OTHERS THEN
-1020  	      -- consume error
-1021  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1022  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-1023  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-1024  	    END;
-1025  	    -- write result
-1026  	    l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-1027  	  EXCEPTION
-1028  	    WHEN OTHERS THEN
-1029  	      -- consume error
-1030  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1031  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-1032  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
-1033  	      -- try again
-1034  	      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
-1035  	  END;
-1036  	  -- return result or let exception happen
-1037  	  RETURN l_return;
-1038  	END has_trigger;
-1039  
-1040  END;
-1041  /
+609    FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
+610  		       , p_size   INTEGER  DEFAULT 0
+611  		       )
+612  	 RETURN VARCHAR2
+613    IS
+614  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.flatten';
+615  	 l_message VARCHAR2(4000 CHAR);
+616    BEGIN
+617  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+618  	 -- execute the wrapped function in an extra block
+619  	 BEGIN
+620  	   l_message := otap_string.flatten(p_string, p_size);
+621  	 EXCEPTION
+622  	   WHEN OTHERS THEN
+623  	     -- consume error
+624  	     otap_log.log(SQLERRM, l_script, 'Calling otap_string.flatten');
+625  	     l_message := otap_string.reduce('Internal otap error flatten string: ' || SQLERRM, 4000);
+626  	 END;
+627  	 -- return or let exception happen
+628  	 RETURN l_message;
+629    END flatten;
+630  
+631    FUNCTION get_text_test_count_name
+632  	 RETURN VARCHAR2
+633    IS
+634  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_text_test_count_name';
+635  	 l_message VARCHAR2(4000 CHAR);
+636    BEGIN
+637  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+638  	 -- execute the wrapped function in an extra block
+639  	 BEGIN
+640  	   l_message := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
+641  	 EXCEPTION
+642  	   WHEN OTHERS THEN
+643  	     -- consume error
+644  	     otap_log.log(SQLERRM, l_script, 'Calling otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)');
+645  	     l_message := otap_string.reduce('Internal otap error get test count name: ' || SQLERRM, 4000);
+646  	 END;
+647  	 -- return or let exception happen
+648  	 RETURN l_message;
+649    END get_text_test_count_name;
+650  
+651    FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+652  	 RETURN VARCHAR2
+653    IS
+654  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_test_count_header';
+655  	 l_message VARCHAR2(4000 CHAR);
+656    BEGIN
+657  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+658  	 -- execute the wrapped function in an extra block
+659  	 BEGIN
+660  	   l_message := otap_report.get_test_count_header(p_min_fill);
+661  	 EXCEPTION
+662  	   WHEN OTHERS THEN
+663  	     -- consume error
+664  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_test_count_header');
+665  	     l_message := otap_string.reduce('Internal otap error get test count header: ' || SQLERRM, 4000);
+666  	 END;
+667  	 -- return or let exception happen
+668  	 RETURN l_message;
+669    END get_test_count_header;
+670  
+671    FUNCTION get_report_total(p_min_fill IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+672  	 RETURN VARCHAR2
+673    IS
+674  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total';
+675  	 l_message VARCHAR2(4000 CHAR);
+676    BEGIN
+677  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+678  	 -- execute the wrapped function in an extra block
+679  	 BEGIN
+680  	   l_message := otap_report.get_report_total(p_min_fill);
+681  	 EXCEPTION
+682  	   WHEN OTHERS THEN
+683  	     -- consume error
+684  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_total');
+685  	     l_message := otap_string.reduce('Internal otap error get total header: ' || SQLERRM, 4000);
+686  	 END;
+687  	 -- return or let exception happen
+688  	 RETURN l_message;
+689    END get_report_total;
+690  
+691    FUNCTION get_report_total_details( p_sets	 IN INTEGER  DEFAULT 0
+692  					, p_groups	 IN INTEGER  DEFAULT 0
+693  					, p_names	 IN INTEGER  DEFAULT 0
+694  					, p_descriptions IN INTEGER  DEFAULT 0
+695  					, p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+696  					)
+697  	 RETURN VARCHAR2
+698    IS
+699  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_report_total_details';
+700  	 l_message VARCHAR2(4000 CHAR);
+701    BEGIN
+702  	 l_message := otap_constants.OTAP_INTERNAL_ERROR;
+703  	 -- execute the wrapped function in an extra block
+704  	 BEGIN
+705  	   l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_min_fill);
+706  	 EXCEPTION
+707  	   WHEN OTHERS THEN
+708  	     -- consume error
+709  	     otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_report_total_details');
+710  	     l_message := otap_string.reduce('Internal otap error get total details: ' || SQLERRM, 4000);
+711  	 END;
+712  	 -- return or let exception happen
+713  	 RETURN l_message;
+714    END get_report_total_details;
+715  
+716    FUNCTION has_table( p_table_name      IN 	   VARCHAR2
+717  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+718  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
+719  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+720  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+721  			 )
+722  	 RETURN VARCHAR2
+723    IS
+724  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_table';
+725  	 l_start	    TIMESTAMP;
+726  	 l_result	    INTEGER;
+727  	 l_return	    VARCHAR2(4000 CHAR);
+728  	 l_errors	    otap_results.test_errors%TYPE;
+729  	 l_schema	    otap_results.db_schema%TYPE;
+730  	 l_desc 	    otap_results.test_desc%TYPE;
+731  	 l_tmp_otap_session OTAP_SESSION;
+732    BEGIN
+733  	 l_start  := SYSTIMESTAMP;
+734  	 -- default return
+735  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+736  	 -- own begin-end for the transaction after the function
+737  	 BEGIN
+738  	   -- own begin-end block for the function itself and prepare
+739  	   BEGIN
+740  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+741  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
+742  								       , p_schema_name => l_schema
+743  								       , p_object_type => otap_util.CFG_LABEL_TABLE
+744  								       , p_sub_object => NULL
+745  								       , p_desc => p_description
+746  								       )
+747  					   , 256
+748  					   )
+749  	     ;
+750  	     -- call function
+751  	     l_result := otap_schema.has_table( p_table_name
+752  					      , l_errors
+753  					      , l_schema
+754  					      , p_expected_result
+755  					      )
+756  	     ;
+757  	   EXCEPTION
+758  	     WHEN OTHERS THEN
+759  	     -- consume error
+760  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+761  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+762  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+763  	   END;
+764  	   -- write result
+765  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+766  	 EXCEPTION
+767  	   WHEN OTHERS THEN
+768  	     -- consume error
+769  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+770  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+771  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+772  	     -- try again
+773  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+774  	 END;
+775  	 -- return result or let exception happen
+776  	 RETURN l_return;
+777    END has_table;
+778  
+779    FUNCTION has_column( p_table_name      IN	    VARCHAR2
+780  			  , p_column_name     IN	    VARCHAR2
+781  			  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+782  			  , p_schema	      IN	    VARCHAR2	 DEFAULT NULL
+783  			  , p_description     IN	    VARCHAR2	 DEFAULT NULL
+784  			  , p_data_type       IN	    VARCHAR2	 DEFAULT NULL
+785  			  , p_data_length     IN	    NUMBER	 DEFAULT NULL
+786  			  , p_data_precision  IN	    NUMBER	 DEFAULT NULL
+787  			  , p_data_scale      IN	    NUMBER	 DEFAULT NULL
+788  			  , p_nullable	      IN	    VARCHAR2	 DEFAULT NULL
+789  			  , p_data_default    IN	    VARCHAR2	 DEFAULT NULL
+790  			  , p_expected_result IN	    NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+791  			  )
+792  	 RETURN VARCHAR2
+793    IS
+794  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_column';
+795  	 l_start	    TIMESTAMP;
+796  	 l_result	    INTEGER;
+797  	 l_return	    VARCHAR2(4000 CHAR);
+798  	 l_errors	    otap_results.test_errors%TYPE;
+799  	 l_schema	    otap_results.db_schema%TYPE;
+800  	 l_desc 	    otap_results.test_desc%TYPE;
+801  	 l_tmp_otap_session OTAP_SESSION;
+802    BEGIN
+803  	 l_start  := SYSTIMESTAMP;
+804  	 -- default return
+805  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+806  	 -- own begin-end for the transaction after the function
+807  	 BEGIN
+808  	   -- own begin-end block for the function itself and prepare
+809  	   BEGIN
+810  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+811  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_table_name
+812  								       , p_schema_name => l_schema
+813  								       , p_object_type => otap_util.CFG_LABEL_COLUMN
+814  								       , p_sub_object => p_column_name
+815  								       , p_desc => p_description
+816  								       )
+817  					   , 256
+818  					   )
+819  	     ;
+820  	     -- call function
+821  	     l_result := otap_schema.has_column( p_table_name
+822  					       , p_column_name
+823  					       , l_errors
+824  					       , l_schema
+825  					       , p_data_type
+826  					       , p_data_length
+827  					       , p_data_precision
+828  					       , p_data_scale
+829  					       , p_nullable
+830  					       , p_data_default
+831  					       , p_expected_result
+832  					       )
+833  	     ;
+834  	   EXCEPTION
+835  	     WHEN OTHERS THEN
+836  	     -- consume error
+837  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+838  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+839  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+840  	   END;
+841  	   -- write result
+842  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+843  	 EXCEPTION
+844  	   WHEN OTHERS THEN
+845  	     -- consume error
+846  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+847  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+848  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+849  	     -- try again
+850  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+851  	 END;
+852  	 -- return result or let exception happen
+853  	 RETURN l_return;
+854    END has_column;
+855  
+856    FUNCTION has_package( p_package_name    IN	     VARCHAR2
+857  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+858  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
+859  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
+860  			   , p_package_type    IN	     VARCHAR2	   DEFAULT 'PACKAGE'
+861  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+862  			   )
+863  	 RETURN VARCHAR2
+864    IS
+865  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_package';
+866  	 l_start	    TIMESTAMP;
+867  	 l_result	    INTEGER;
+868  	 l_return	    VARCHAR2(4000 CHAR);
+869  	 l_errors	    otap_results.test_errors%TYPE;
+870  	 l_schema	    otap_results.db_schema%TYPE;
+871  	 l_desc 	    otap_results.test_desc%TYPE;
+872  	 l_tmp_otap_session OTAP_SESSION;
+873    BEGIN
+874  	 l_start  := SYSTIMESTAMP;
+875  	 -- default return
+876  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+877  	 -- own begin-end for the transaction after the function
+878  	 BEGIN
+879  	   -- own begin-end block for the function itself and prepare
+880  	   BEGIN
+881  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+882  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_package_name
+883  								       , p_schema_name => l_schema
+884  								       , p_object_type => otap_util.get_label_id(p_package_type)
+885  								       , p_sub_object => NULL
+886  								       , p_desc => p_description
+887  								       )
+888  					   , 256
+889  					   )
+890  	     ;
+891  	     -- call function
+892  	     l_result := otap_schema.has_package( p_package_name
+893  						, l_errors
+894  						, l_schema
+895  						, p_package_type
+896  						, p_expected_result
+897  						)
+898  	     ;
+899  	   EXCEPTION
+900  	     WHEN OTHERS THEN
+901  	     -- consume error
+902  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+903  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+904  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+905  	   END;
+906  	   -- write result
+907  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+908  	 EXCEPTION
+909  	   WHEN OTHERS THEN
+910  	     -- consume error
+911  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+912  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+913  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+914  	     -- try again
+915  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+916  	 END;
+917  	 -- return result or let exception happen
+918  	 RETURN l_return;
+919    END has_package;
+920  
+921    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
+922  			     , o_otap_session	 IN OUT NOCOPY OTAP_SESSION
+923  			     , p_schema 	 IN	       VARCHAR2      DEFAULT NULL
+924  			     , p_description	 IN	       VARCHAR2      DEFAULT NULL
+925  			     , p_procedure_type  IN	       VARCHAR2      DEFAULT 'FUNCTION'
+926  			     , p_package_name	 IN	       VARCHAR2      DEFAULT NULL
+927  			     , p_return_type	 IN	       VARCHAR2      DEFAULT NULL
+928  			     , p_expected_result IN	       NUMBER	     DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+929  			     )
+930  	 RETURN VARCHAR2
+931    IS
+932  	 l_script	    VARCHAR2(1024 CHAR) 		 := 'otap_api.has_procedure';
+933  	 l_start	    TIMESTAMP;
+934  	 l_result	    INTEGER;
+935  	 l_return	    VARCHAR2(4000 CHAR);
+936  	 l_errors	    otap_results.test_errors%TYPE;
+937  	 l_schema	    otap_results.db_schema%TYPE;
+938  	 l_desc 	    otap_results.test_desc%TYPE;
+939  	 l_tmp_otap_session OTAP_SESSION;
+940    BEGIN
+941  	 l_start  := SYSTIMESTAMP;
+942  	 -- default return
+943  	 l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+944  	 -- own begin-end for the transaction after the function
+945  	 BEGIN
+946  	   -- own begin-end block for the function itself and prepare
+947  	   BEGIN
+948  	     l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+949  	     -- TODO get_label in otap_util only labels compared with value, search always upper as stored in db
+950  	     l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => NVL(p_package_name, p_procedure_name)
+951  								       , p_schema_name => l_schema
+952  								       , p_object_type => otap_util.get_label_id(p_procedure_type)
+953  								       , p_sub_object => CASE WHEN p_package_name IS NOT NULL THEN p_procedure_name ELSE NULL END
+954  								       , p_desc => p_description
+955  								       )
+956  					   , 256
+957  					   )
+958  	     ;
+959  	     -- call function
+960  	     l_result := otap_schema.has_procedure( p_procedure_name
+961  						  , l_errors
+962  						  , l_schema
+963  						  , p_procedure_type
+964  						  , p_package_name
+965  						  , p_return_type
+966  						  , p_expected_result
+967  						  )
+968  	     ;
+969  	   EXCEPTION
+970  	     WHEN OTHERS THEN
+971  	     -- consume error
+972  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+973  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+974  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+975  	   END;
+976  	   -- write result
+977  	   l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+978  	 EXCEPTION
+979  	   WHEN OTHERS THEN
+980  	     -- consume error
+981  	     l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+982  	     l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+983  	     otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+984  	     -- try again
+985  	     l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+986  	 END;
+987  	 -- return result or let exception happen
+988  	 RETURN l_return;
+989    END has_procedure;
+990  
+991    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
+992  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+993  			   , p_schema	       IN	     VARCHAR2	   DEFAULT NULL
+994  			   , p_description     IN	     VARCHAR2	   DEFAULT NULL
+995  			   , p_trigger_type    IN	     VARCHAR2	   DEFAULT NULL
+996  			   , p_trigger_event   IN	     VARCHAR2	   DEFAULT NULL
+997  			   , p_table_owner     IN	     VARCHAR2	   DEFAULT NULL
+998  			   , p_table_name      IN	     VARCHAR2	   DEFAULT NULL
+999  			   , p_expected_result IN	     NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1000  			    )
+1001  	  RETURN VARCHAR2
+1002  	IS
+1003  	  l_script	     VARCHAR2(1024 CHAR)		  := 'otap_api.has_trigger';
+1004  	  l_start	     TIMESTAMP;
+1005  	  l_result	     INTEGER;
+1006  	  l_return	     VARCHAR2(4000 CHAR);
+1007  	  l_errors	     otap_results.test_errors%TYPE;
+1008  	  l_schema	     otap_results.db_schema%TYPE;
+1009  	  l_desc	     otap_results.test_desc%TYPE;
+1010  	  l_tmp_otap_session OTAP_SESSION;
+1011  	BEGIN
+1012  	  l_start  := SYSTIMESTAMP;
+1013  	  -- default return
+1014  	  l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+1015  	  -- own begin-end for the transaction after the function
+1016  	  BEGIN
+1017  	    -- own begin-end block for the function itself and prepare
+1018  	    BEGIN
+1019  	      l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+1020  	      l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_trigger_name
+1021  									, p_schema_name => l_schema
+1022  									, p_object_type => otap_util.CFG_LABEL_TRIGGER
+1023  									, p_sub_object => NULL
+1024  									, p_desc => p_description
+1025  									)
+1026  					    , 256
+1027  					    )
+1028  	      ;
+1029  	      -- call function
+1030  	      l_result := otap_schema.has_trigger( p_trigger_name
+1031  						 , l_errors
+1032  						 , l_schema
+1033  						 , p_trigger_type
+1034  						 , p_trigger_event
+1035  						 , p_table_owner
+1036  						 , p_table_name
+1037  						 , p_expected_result
+1038  						 )
+1039  	      ;
+1040  	    EXCEPTION
+1041  	      WHEN OTHERS THEN
+1042  	      -- consume error
+1043  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1044  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+1045  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+1046  	    END;
+1047  	    -- write result
+1048  	    l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+1049  	  EXCEPTION
+1050  	    WHEN OTHERS THEN
+1051  	      -- consume error
+1052  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1053  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+1054  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+1055  	      -- try again
+1056  	      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+1057  	  END;
+1058  	  -- return result or let exception happen
+1059  	  RETURN l_return;
+1060  	END has_trigger;
+1061  
+1062  	FUNCTION has_object( p_object_name     IN	     VARCHAR2
+1063  			   , p_object_type     IN	     VARCHAR2
+1064  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+1065  			   , p_schema	       IN	     VARCHAR2	  DEFAULT NULL
+1066  			   , p_description     IN	     VARCHAR2	  DEFAULT NULL
+1067  			   , p_expected_result IN	     NUMBER	  DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1068  			   )
+1069  	  RETURN VARCHAR2
+1070  	IS
+1071  	  l_script	     VARCHAR2(1024 CHAR)		  := 'otap_api.has_object';
+1072  	  l_start	     TIMESTAMP;
+1073  	  l_result	     INTEGER;
+1074  	  l_return	     VARCHAR2(4000 CHAR);
+1075  	  l_errors	     otap_results.test_errors%TYPE;
+1076  	  l_schema	     otap_results.db_schema%TYPE;
+1077  	  l_desc	     otap_results.test_desc%TYPE;
+1078  	  l_tmp_otap_session OTAP_SESSION;
+1079  	BEGIN
+1080  	  l_start  := SYSTIMESTAMP;
+1081  	  -- default return
+1082  	  l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+1083  	  -- own begin-end for the transaction after the function
+1084  	  BEGIN
+1085  	    -- own begin-end block for the function itself and prepare
+1086  	    BEGIN
+1087  	      l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+1088  	      l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_object_name
+1089  									, p_schema_name => l_schema
+1090  									, p_object_type => otap_util.get_label_id(p_object_type)
+1091  									, p_sub_object => NULL
+1092  									, p_desc => p_description
+1093  									)
+1094  					    , 256
+1095  					    )
+1096  	      ;
+1097  	      -- call function
+1098  	      l_result := otap_schema.has_object( p_object_name
+1099  						, p_object_type
+1100  						, l_errors
+1101  						, l_schema
+1102  						, p_expected_result
+1103  						)
+1104  	      ;
+1105  	    EXCEPTION
+1106  	      WHEN OTHERS THEN
+1107  	      -- consume error
+1108  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1109  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+1110  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+1111  	    END;
+1112  	    -- write result
+1113  	    l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+1114  	  EXCEPTION
+1115  	    WHEN OTHERS THEN
+1116  	      -- consume error
+1117  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1118  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+1119  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+1120  	      -- try again
+1121  	      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+1122  	  END;
+1123  	  -- return result or let exception happen
+1124  	  RETURN l_return;
+1125  	END has_object;
+1126  
+1127  END;
+1128  /
 
 Package body created.
 
@@ -7141,244 +7311,284 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 107  	 RETURN VARCHAR2
 108    ;
 109  
-110    /** FUNCTION otap_test.current_settings
-111    * Returns a LF terminated string about the current package session state.
-112    * Wrapper for otap_api.otap_session_show.
-113    *
-114    * @return An info message about the current package session variables.
-115    */
-116    FUNCTION current_settings
-117  	 RETURN VARCHAR2
-118    ;
-119  
-120    /** FUNCTION otap_test.current_summary
-121    * Returns a string with a current summary of the test session. Session id, run time, tests executed
-122    * and test in error. Wrapper for otap_api.otap_session_summary.
-123    *
-124    * @return An info message about the current package session variables.
-125    */
-126    FUNCTION current_summary
-127  	 RETURN VARCHAR2
-128    ;
-129  
-130    /** FUNCTION otap_test.set_test_name
-131    * Handles and sets the current active test name. If test name is longer than 256 chars
-132    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
-133    * is used. Only valid within one session, if session ends, test name is reset.
-134    * Wrapper for otap_api.otap_session_set_test_name.
-135    *
-136    * Test names are usually retrieved from the executed test function or procedure. Can
-137    * be used to overwrite the group within a test function or procedure.
-138    *
-139    * @param p_test_name The test name to use for the next test.
-140    *
-141    * @return The test name currently active as text message.
-142    */
-143    FUNCTION set_test_name(p_test_name IN VARCHAR2)
-144  	 RETURN VARCHAR2
-145    ;
-146  
-147    /** FUNCTION otap_test.set_test_group
-148    * Handles and sets the current active test group. If test group name is longer than 256 chars
-149    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
-150    * is used. Only valid within one session, if session ends, test name is reset.
-151    * Wrapper for otap_api.otap_session_set_test_group.
-152    *
-153    * Test group names are usually retrieved from the executed test function or procedure. Can
-154    * be used to overwrite the group within a test function or procedure.
-155    *
-156    * @param p_test_group The test group name to use for the next tests.
-157    *
-158    * @return The test group currently active as text message.
-159    */
-160    FUNCTION set_test_group(p_test_group IN VARCHAR2)
-161  	 RETURN VARCHAR2
-162    ;
-163  
-164    /** FUNCTION otap_test.set_test_set
-165    * Handles and sets the current active test set. If test set name is longer than 256 chars
-166    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-167    * is used. Wrapper for otap_api.otap_session_set_test_set.
-168    *
-169    * Test set names are usually retrieved from the executed test function or procedure. Can
-170    * be used to overwrite the set within a test function or procedure.
-171    *
-172    * @param p_test_set The test set name to use for the next tests.
+110    /** FUNCTION otap_test.finish_test_with_exit_code
+111    * This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
+112    * to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
+113    * your build to fail, if test is not passed.
+114    *
+115    * Equal to finish_test apart from the return value check and translation. Undefined overrules failed. If undefined is returned, also
+116    * failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
+117    *
+118    * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+119    *
+120    * @return A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
+121    *
+122    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+123    */
+124    FUNCTION finish_test_with_exit_code(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+125  	 RETURN NUMBER
+126    ;
+127  
+128    /** FUNCTION otap_test.current_settings
+129    * Returns a LF terminated string about the current package session state.
+130    * Wrapper for otap_api.otap_session_show.
+131    *
+132    * @return An info message about the current package session variables.
+133    */
+134    FUNCTION current_settings
+135  	 RETURN VARCHAR2
+136    ;
+137  
+138    /** FUNCTION otap_test.current_summary
+139    * Returns a string with a current summary of the test session. Session id, run time, tests executed
+140    * and test in error. Wrapper for otap_api.otap_session_summary.
+141    *
+142    * @return An info message about the current package session variables.
+143    */
+144    FUNCTION current_summary
+145  	 RETURN VARCHAR2
+146    ;
+147  
+148    /** FUNCTION otap_test.set_test_name
+149    * Handles and sets the current active test name. If test name is longer than 256 chars
+150    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+151    * is used. Only valid within one session, if session ends, test name is reset.
+152    * Wrapper for otap_api.otap_session_set_test_name.
+153    *
+154    * Test names are usually retrieved from the executed test function or procedure. Can
+155    * be used to overwrite the group within a test function or procedure.
+156    *
+157    * @param p_test_name The test name to use for the next test.
+158    *
+159    * @return The test name currently active as text message.
+160    */
+161    FUNCTION set_test_name(p_test_name IN VARCHAR2)
+162  	 RETURN VARCHAR2
+163    ;
+164  
+165    /** FUNCTION otap_test.set_test_group
+166    * Handles and sets the current active test group. If test group name is longer than 256 chars
+167    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+168    * is used. Only valid within one session, if session ends, test name is reset.
+169    * Wrapper for otap_api.otap_session_set_test_group.
+170    *
+171    * Test group names are usually retrieved from the executed test function or procedure. Can
+172    * be used to overwrite the group within a test function or procedure.
 173    *
-174    * @return The test set currently active as text message.
-175    */
-176    FUNCTION set_test_set(p_test_set IN VARCHAR2)
-177  	 RETURN VARCHAR2
-178    ;
-179  
-180    /** FUNCTION otap_test.get_session_id
-181    * Retrieves the current active test session id.
-182    * Wrapper for otap_api.otap_session_get_test_id.
-183    *
-184    * @return The current active test session id.
-185    */
-186    FUNCTION get_session_id
-187  	 RETURN NUMBER
-188    ;
-189  
-190    /** FUNCTION otap_test.get_report_id
-191    * Retrieves the last view id from finsih or the current active test session id. Usually used in views.
-192    * Wrapper for otap_api.otap_session_get_report_id.
-193    *
-194    * @return The last view id or the current active test session id.
-195    */
-196    FUNCTION get_report_id
-197  	 RETURN NUMBER
-198    ;
-199  
-200    /** FUNCTION otap_test.result_view
-201    * Returns the results and provides hierarchical master detail test results.
-202    * To be called with SELECT * FROM TABLE(otap_test.result_view(otap_test.get_session_id));
-203    * The only function which is no wrapper due to limitation with piped rows.
-204    *
-205    * @param p_session_id The test session id for filtering the results.
-206    *
-207    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-208    */
-209    FUNCTION result_view(p_session_id IN NUMBER)
-210  	 RETURN otap_view_result_tbl PIPELINED
-211    ;
-212  
-213    /** FUNCTION otap_test.has_table
-214    * Tests if a table exists or not and outputs the test result. Wrapper for otap_api.has_table.
-215    * Writes and adds the test result for the current active test session.
-216    *
-217    * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
-218    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
-219    * @param p_description The test description if any. If not given, a description is generated, see template.
-220    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
-221    *
-222    * @return The test result as text.
-223    */
-224    FUNCTION has_table( p_table_name      IN VARCHAR2
-225  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
-226  			 , p_description     IN VARCHAR2 DEFAULT NULL
-227  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-228  			 )
-229  	 RETURN VARCHAR2
-230    ;
-231  
-232    /** FUNCTION otap_test.has_column
-233    * Tests if a table column exists. Additional tests on the column can be added by using the additional
-234    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
-235    * column and schema.
-236    *
-237    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
-238    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
-239    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
-240    *
-241    * @param p_table_name The name of the table, taken as is. Case sensitive.
-242    * @param p_column_name The column name of the table, taken as is. Case sensitive.
-243    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. Case sensitive.
-244    * @param p_description The test description if any. If not given, a description is generated, see template.
-245    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
-246    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
-247    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
-248    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
-249    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
-250    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
-251    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
-252    *
-253    * @return The test result as text.
-254    */
-255    FUNCTION has_column( p_table_name      IN VARCHAR2
-256  			  , p_column_name     IN VARCHAR2
-257  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
-258  			  , p_description     IN VARCHAR2 DEFAULT NULL
-259  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
-260  			  , p_data_length     IN NUMBER   DEFAULT NULL
-261  			  , p_data_precision  IN NUMBER   DEFAULT NULL
-262  			  , p_data_scale      IN NUMBER   DEFAULT NULL
-263  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
-264  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
-265  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-266  			  )
-267  	 RETURN VARCHAR2
-268    ;
-269  
-270    /** FUNCTION otap_test.has_package
-271    * Checks if a given package exists. Check if header and body, if available, are valid by default.
-272    *
-273    * @param p_package_name The name of the package, take as is. Case sensitive.
-274    * @param p_schema A schema override of the current test session if needed, taken as is. If given the package must exist in this schema. Case sensitive.
-275    * @param p_description The test description if any. If not given, a description is generated, see template.
-276    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
-277    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
-278    *
-279    * @return The test result as text.
-280    */
-281    FUNCTION has_package( p_package_name    IN     VARCHAR2
-282  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
-283  			   , p_description     IN     VARCHAR2 DEFAULT NULL
-284  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-285  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-286  			   )
-287  	 RETURN VARCHAR2
-288    ;
-289  
-290    /** FUNCTION otap_schema.has_procedure
-291    * Checks if a given procedure or function exists. If package is given, the package procedure or function
-292    * is checked.
-293    *
-294    * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
-295    * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
-296    * @param p_description The test description if any. If not given, a description is generated, see template.
-297    * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
-298    * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
-299    * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
-300    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
-301    *
-302    * @return The test result as text.
-303    */
-304    FUNCTION has_procedure( p_procedure_name  IN	VARCHAR2
-305  			     , p_schema 	 IN	VARCHAR2 DEFAULT NULL
-306  			     , p_description	 IN	VARCHAR2 DEFAULT NULL
-307  			     , p_procedure_type  IN	VARCHAR2 DEFAULT 'FUNCTION'
-308  			     , p_package_name	 IN	VARCHAR2 DEFAULT NULL
-309  			     , p_return_type	 IN	VARCHAR2 DEFAULT NULL
-310  			     , p_expected_result IN	NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-311  			     )
-312  	 RETURN VARCHAR2
-313    ;
-314  
-315    /** FUNCTION otap_test.has_trigger
-316    * Checks if a given trigger exists.
-317    *
-318    * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
-319    * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
-320    * @param p_description The test description if any. If not given, a description is generated, see template.
-321    * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
-322    * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
-323    * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.
-324    * @param p_table_name The table name as in USER_TRIGGERS. Optional. Case sensitive.
-325    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
-326    *
-327    * @return The test result as text.
-328    */
-329    FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
-330  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
-331  			   , p_description     IN     VARCHAR2 DEFAULT NULL
-332  			   , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
-333  			   , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
-334  			   , p_table_owner     IN     VARCHAR2 DEFAULT NULL
-335  			   , p_table_name      IN     VARCHAR2 DEFAULT NULL
-336  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-337  			   )
-338  	 RETURN VARCHAR2
-339    ;
-340  
-341    -- debug function
-342    FUNCTION get_session_var
-343  	 RETURN OTAP_SESSION
-344    ;
-345  
-346  END;
-347  /
+174    * @param p_test_group The test group name to use for the next tests.
+175    *
+176    * @return The test group currently active as text message.
+177    */
+178    FUNCTION set_test_group(p_test_group IN VARCHAR2)
+179  	 RETURN VARCHAR2
+180    ;
+181  
+182    /** FUNCTION otap_test.set_test_set
+183    * Handles and sets the current active test set. If test set name is longer than 256 chars
+184    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+185    * is used. Wrapper for otap_api.otap_session_set_test_set.
+186    *
+187    * Test set names are usually retrieved from the executed test function or procedure. Can
+188    * be used to overwrite the set within a test function or procedure.
+189    *
+190    * @param p_test_set The test set name to use for the next tests.
+191    *
+192    * @return The test set currently active as text message.
+193    */
+194    FUNCTION set_test_set(p_test_set IN VARCHAR2)
+195  	 RETURN VARCHAR2
+196    ;
+197  
+198    /** FUNCTION otap_test.get_session_id
+199    * Retrieves the current active test session id.
+200    * Wrapper for otap_api.otap_session_get_test_id.
+201    *
+202    * @return The current active test session id.
+203    */
+204    FUNCTION get_session_id
+205  	 RETURN NUMBER
+206    ;
+207  
+208    /** FUNCTION otap_test.get_report_id
+209    * Retrieves the last view id from finsih or the current active test session id. Usually used in views.
+210    * Wrapper for otap_api.otap_session_get_report_id.
+211    *
+212    * @return The last view id or the current active test session id.
+213    */
+214    FUNCTION get_report_id
+215  	 RETURN NUMBER
+216    ;
+217  
+218    /** FUNCTION otap_test.result_view
+219    * Returns the results and provides hierarchical master detail test results.
+220    * To be called with SELECT * FROM TABLE(otap_test.result_view(otap_test.get_session_id));
+221    * The only function which is no wrapper due to limitation with piped rows.
+222    *
+223    * @param p_session_id The test session id for filtering the results.
+224    *
+225    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+226    */
+227    FUNCTION result_view(p_session_id IN NUMBER)
+228  	 RETURN otap_view_result_tbl PIPELINED
+229    ;
+230  
+231    /** FUNCTION otap_test.has_table
+232    * Tests if a table exists or not and outputs the test result. Wrapper for otap_api.has_table.
+233    * Writes and adds the test result for the current active test session.
+234    *
+235    * @param p_table_name The table name of the table, taken as is. If not case sensitive you must provide the table name in UPPERCASE.
+236    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+237    * @param p_description The test description if any. If not given, a description is generated, see template.
+238    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
+239    *
+240    * @return The test result as text.
+241    */
+242    FUNCTION has_table( p_table_name      IN VARCHAR2
+243  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
+244  			 , p_description     IN VARCHAR2 DEFAULT NULL
+245  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+246  			 )
+247  	 RETURN VARCHAR2
+248    ;
+249  
+250    /** FUNCTION otap_test.has_column
+251    * Tests if a table column exists. Additional tests on the column can be added by using the additional
+252    * parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table,
+253    * column and schema.
+254    *
+255    * If checking defaults, it is limited to defaults not longer than 4000 char, using the DATA_DEFAULT_VC column. Expressions
+256    * must match all chars in the default, like quotation. Use q-syntax where possible to define correct strings, e.g.
+257    * SELECT q'[SYS_CONTEXT('USERENV', 'OS_USER')]' FROM dual;
+258    *
+259    * @param p_table_name The name of the table, taken as is. Case sensitive.
+260    * @param p_column_name The column name of the table, taken as is. Case sensitive.
+261    * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and column must exist in this schema. Case sensitive.
+262    * @param p_description The test description if any. If not given, a description is generated, see template.
+263    * @param p_data_type Optional check the datatype of the column. Ignored if NULL. NOT case sensitive.
+264    * @param p_data_length Optional check the data length of the column. Ignored if NULL.
+265    * @param p_data_precision Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
+266    * @param p_data_scale Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
+267    * @param p_nullable Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
+268    * @param p_data_default Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
+269    * @param p_expected_result The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
+270    *
+271    * @return The test result as text.
+272    */
+273    FUNCTION has_column( p_table_name      IN VARCHAR2
+274  			  , p_column_name     IN VARCHAR2
+275  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
+276  			  , p_description     IN VARCHAR2 DEFAULT NULL
+277  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
+278  			  , p_data_length     IN NUMBER   DEFAULT NULL
+279  			  , p_data_precision  IN NUMBER   DEFAULT NULL
+280  			  , p_data_scale      IN NUMBER   DEFAULT NULL
+281  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
+282  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
+283  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+284  			  )
+285  	 RETURN VARCHAR2
+286    ;
+287  
+288    /** FUNCTION otap_test.has_package
+289    * Checks if a given package exists. Check if header and body, if available, are valid by default.
+290    *
+291    * @param p_package_name The name of the package, take as is. Case sensitive.
+292    * @param p_schema A schema override of the current test session if needed, taken as is. If given the package must exist in this schema. Case sensitive.
+293    * @param p_description The test description if any. If not given, a description is generated, see template.
+294    * @param p_package_type The object type of the package. PACKAGE or PACKAGE BODY. Not case sensitive. Invalid values cause test result undefined.
+295    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+296    *
+297    * @return The test result as text.
+298    */
+299    FUNCTION has_package( p_package_name    IN     VARCHAR2
+300  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+301  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+302  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+303  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+304  			   )
+305  	 RETURN VARCHAR2
+306    ;
+307  
+308    /** FUNCTION otap_schema.has_procedure
+309    * Checks if a given procedure or function exists. If package is given, the package procedure or function
+310    * is checked.
+311    *
+312    * @param p_procedure_name The name of the procedure or function, take as is. Case sensitive.
+313    * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+314    * @param p_description The test description if any. If not given, a description is generated, see template.
+315    * @param p_procedure_type Procedure type, mandatory. Either FUNCTION (default) or PROCEDURE. Not case sensitive. Invalid values cause test result undefined.
+316    * @param p_package_name Either NULL (normal functions and procedures) or a package name for package functions and procedures. Case sensitive.
+317    * @param p_return_type Either NULL (procedures) or the return data type of a function. Not case sensitive.
+318    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+319    *
+320    * @return The test result as text.
+321    */
+322    FUNCTION has_procedure( p_procedure_name  IN	VARCHAR2
+323  			     , p_schema 	 IN	VARCHAR2 DEFAULT NULL
+324  			     , p_description	 IN	VARCHAR2 DEFAULT NULL
+325  			     , p_procedure_type  IN	VARCHAR2 DEFAULT 'FUNCTION'
+326  			     , p_package_name	 IN	VARCHAR2 DEFAULT NULL
+327  			     , p_return_type	 IN	VARCHAR2 DEFAULT NULL
+328  			     , p_expected_result IN	NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+329  			     )
+330  	 RETURN VARCHAR2
+331    ;
+332  
+333    /** FUNCTION otap_test.has_trigger
+334    * Checks if a given trigger exists.
+335    *
+336    * @param p_trigger_name The name of the trigger, take as is. Case sensitive.
+337    * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+338    * @param p_description The test description if any. If not given, a description is generated, see template.
+339    * @param p_trigger_type The trigger type as in USER_TRIGGERS. Optional. Not case sensitive. Invalid values cause test failed.
+340    * @param p_trigger_event The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
+341    * @param p_table_owner The table owner as in USER_TRIGGERS. Optional. Case sensitive.
+342    * @param p_table_name The table name as in USER_TRIGGERS. Optional. Case sensitive.
+343    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+344    *
+345    * @return The test result as text.
+346    */
+347    FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+348  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+349  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+350  			   , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+351  			   , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+352  			   , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+353  			   , p_table_name      IN     VARCHAR2 DEFAULT NULL
+354  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+355  			   )
+356  	 RETURN VARCHAR2
+357    ;
+358  
+359    /** FUNCTION otap_schema.has_object
+360    * Checks if a given database object exists.
+361    *
+362    * @param p_object_name The name of the object, take as is. Case sensitive.
+363    * @param p_object_type The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
+364    * @param p_schema A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+365    * @param p_description The test description if any. If not given, a description is generated, see template.
+366    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+367    *
+368    * @return The test result as text.
+369    */
+370    FUNCTION has_object( p_object_name     IN     VARCHAR2
+371  			  , p_object_type     IN     VARCHAR2
+372  			  , p_schema	      IN     VARCHAR2 DEFAULT NULL
+373  			  , p_description     IN     VARCHAR2 DEFAULT NULL
+374  			  , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+375  			  )
+376  	 RETURN VARCHAR2
+377    ;
+378  
+379  /*
+380    -- debug function
+381    FUNCTION get_session_var
+382  	 RETURN OTAP_SESSION
+383    ;
+384  */
+385  
+386  END;
+387  /
 
 Package created.
 
@@ -7479,557 +7689,604 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
  85  	   RAISE;
  86    END finish_test;
  87  
- 88    FUNCTION result_view(p_session_id IN NUMBER)
- 89  	 RETURN otap_view_result_tbl PIPELINED
+ 88    FUNCTION finish_test_with_exit_code(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+ 89  	 RETURN NUMBER
  90    IS
- 91  	 l_delim_updown VARCHAR2(1 CHAR) := '=';
- 92  	 l_delim_tests	VARCHAR2(1 CHAR) := '-';
- 93  	 l_text_column	VARCHAR2(4000 CHAR);
- 94  	 l_has_errors	INTEGER;
- 95  	 l_has_records	INTEGER;
- 96  	 l_report_size	INTEGER;
- 97  	 CURSOR cur_test_sets(cp_session_id IN NUMBER)
- 98  	 IS
- 99  	   SELECT test_set
-100  		, COUNT(*) AS test_runs
-101  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
-102  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-103  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-104  	     FROM otap_results
-105  	    WHERE test_session_id = cp_session_id
-106  	      AND test_name	 != otap_api.get_text_test_count_name
-107  	    GROUP BY test_set
-108  	    ORDER BY MIN(test_run_date)
-109  	 ;
-110  	 CURSOR cur_test_groups( cp_session_id IN NUMBER
-111  			       , cp_test_set   IN VARCHAR2
-112  			       )
-113  	 IS
-114  	   SELECT test_group
-115  		, COUNT(*) AS test_runs
-116  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
-117  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-118  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-119  	     FROM otap_results
-120  	    WHERE test_session_id = cp_session_id
-121  	      AND test_set	  = cp_test_set
-122  	      AND test_name	 != otap_api.get_text_test_count_name
-123  	    GROUP BY test_group
-124  	    ORDER BY MIN(test_run_date)
-125  	 ;
-126  	 CURSOR cur_test_names( cp_session_id IN NUMBER
-127  			      , cp_test_set   IN VARCHAR2
-128  			      , cp_test_group IN VARCHAR2
-129  			      )
-130  	 IS
-131  	   SELECT test_name
-132  		, COUNT(*) AS test_runs
-133  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
-134  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-135  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-136  	     FROM otap_results
-137  	    WHERE test_session_id = cp_session_id
-138  	      AND test_set	  = cp_test_set
-139  	      AND test_group	  = cp_test_group
+ 91  	 l_return INTEGER;
+ 92    BEGIN
+ 93  	 otap_api.validate_otap;
+ 94  	 l_return := otap_api.finish_test_with_exit_code(p_write_count_rec, session_record);
+ 95  	 RETURN l_return;
+ 96    EXCEPTION
+ 97  	 WHEN OTHERS THEN
+ 98  	   IF SQLCODE != -20099
+ 99  	   THEN
+100  	     otap_log.log(SQLERRM, 'otap_test.finish_test_with_exit_code', 'l_message := otap_api.finish_test_with_exit_code(p_write_count_rec, session_record)');
+101  	   END IF;
+102  	   RAISE;
+103    END finish_test_with_exit_code;
+104  
+105  
+106    FUNCTION result_view(p_session_id IN NUMBER)
+107  	 RETURN otap_view_result_tbl PIPELINED
+108    IS
+109  	 l_delim_updown VARCHAR2(1 CHAR) := '=';
+110  	 l_delim_tests	VARCHAR2(1 CHAR) := '-';
+111  	 l_text_column	VARCHAR2(4000 CHAR);
+112  	 l_has_errors	INTEGER;
+113  	 l_has_records	INTEGER;
+114  	 l_report_size	INTEGER;
+115  	 CURSOR cur_test_sets(cp_session_id IN NUMBER)
+116  	 IS
+117  	   SELECT test_set
+118  		, COUNT(*) AS test_runs
+119  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
+120  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
+121  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+122  	     FROM otap_results
+123  	    WHERE test_session_id = cp_session_id
+124  	      AND test_name	 != otap_api.get_text_test_count_name
+125  	    GROUP BY test_set
+126  	    ORDER BY MIN(test_run_date)
+127  	 ;
+128  	 CURSOR cur_test_groups( cp_session_id IN NUMBER
+129  			       , cp_test_set   IN VARCHAR2
+130  			       )
+131  	 IS
+132  	   SELECT test_group
+133  		, COUNT(*) AS test_runs
+134  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
+135  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
+136  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+137  	     FROM otap_results
+138  	    WHERE test_session_id = cp_session_id
+139  	      AND test_set	  = cp_test_set
 140  	      AND test_name	 != otap_api.get_text_test_count_name
-141  	    GROUP BY test_name
+141  	    GROUP BY test_group
 142  	    ORDER BY MIN(test_run_date)
 143  	 ;
-144  	 CURSOR cur_test_count(cp_session_id IN NUMBER)
-145  	 IS
-146  	   SELECT test_name
-147  		, COUNT(*) AS test_runs
-148  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
-149  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-150  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-151  	     FROM otap_results
-152  	    WHERE test_session_id = cp_session_id
-153  	      AND test_name	  = otap_api.get_text_test_count_name
-154  	    GROUP BY test_name
-155  	    ORDER BY MIN(test_run_date)
-156  	 ;
-157  	 CURSOR cur_session_total(cp_session_id IN NUMBER)
-158  	 IS
-159  	   SELECT test_session_id
-160  		, COUNT(DISTINCT test_set) AS test_sets
-161  		, COUNT(DISTINCT test_group) AS test_groups
-162  		, COUNT(DISTINCT test_name) AS test_names
-163  		, COUNT(DISTINCT test_desc) AS test_descs
-164  		, COUNT(*) AS test_runs
-165  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
-166  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-167  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-168  	     FROM otap_results
-169  	    WHERE test_session_id = cp_session_id
-170  		  -- exclude optional extra total count test
-171  	      AND test_name	 != otap_api.get_text_test_count_name
-172  	    GROUP BY test_session_id
+144  	 CURSOR cur_test_names( cp_session_id IN NUMBER
+145  			      , cp_test_set   IN VARCHAR2
+146  			      , cp_test_group IN VARCHAR2
+147  			      )
+148  	 IS
+149  	   SELECT test_name
+150  		, COUNT(*) AS test_runs
+151  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
+152  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
+153  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+154  	     FROM otap_results
+155  	    WHERE test_session_id = cp_session_id
+156  	      AND test_set	  = cp_test_set
+157  	      AND test_group	  = cp_test_group
+158  	      AND test_name	 != otap_api.get_text_test_count_name
+159  	    GROUP BY test_name
+160  	    ORDER BY MIN(test_run_date)
+161  	 ;
+162  	 CURSOR cur_test_count(cp_session_id IN NUMBER)
+163  	 IS
+164  	   SELECT test_name
+165  		, COUNT(*) AS test_runs
+166  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
+167  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
+168  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+169  	     FROM otap_results
+170  	    WHERE test_session_id = cp_session_id
+171  	      AND test_name	  = otap_api.get_text_test_count_name
+172  	    GROUP BY test_name
 173  	    ORDER BY MIN(test_run_date)
 174  	 ;
-175  	 CURSOR cur_tests( cp_session_id IN NUMBER
-176  			 , cp_test_set	 IN VARCHAR2
-177  			 , cp_test_group IN VARCHAR2
-178  			 , cp_test_name  IN VARCHAR2
-179  			 )
-180  	 IS
-181  	   SELECT test_desc
-182  		, test_passed
-183  		, otap_api.test_result_to_text(test_passed) AS test_state
-184  		, TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
-185  		, test_errors
-186  		, otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END) AS issue_state
-187  	     FROM otap_results
-188  	    WHERE test_session_id = cp_session_id
-189  	      AND test_set	  = cp_test_set
-190  	      AND test_group	  = cp_test_group
-191  	      AND test_name	  = cp_test_name
-192  	    ORDER BY test_run_date
-193  	 ;
-194  	 CURSOR cur_count_tests( cp_session_id IN NUMBER
-195  			       , cp_test_name  IN VARCHAR2
-196  			       )
-197  	 IS
-198  	   SELECT test_desc
-199  		, test_passed
-200  		, otap_api.test_result_to_text(test_passed) AS test_state
-201  		, TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
-202  		, test_errors
-203  		, otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END) AS issue_state
-204  	     FROM otap_results
-205  	    WHERE test_session_id = cp_session_id
-206  	      AND test_name	  = cp_test_name
-207  	    ORDER BY test_run_date
-208  	 ;
-209    BEGIN
-210  	 l_report_size := otap_api.max_text_size(p_session_id);
-211  	 -- header row
-212  	 l_text_column := otap_api.get_report_header(l_report_size);
-213  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-214  	 l_text_column := otap_api.get_session_id_text(p_session_id, l_report_size);
-215  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-216  	 -- check for records
-217  	 SELECT COUNT(*) INTO l_has_records FROM otap_results WHERE test_session_id = p_session_id;
-218  	 IF l_has_records > 0
-219  	 THEN
-220  	   -- loop through the set
-221  	   FOR rec_set IN cur_test_sets(p_session_id)
-222  	   LOOP
-223  	     -- build test set column
-224  	     l_text_column := otap_api.get_set_text(rec_set.test_set, l_report_size);
-225  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-226  	     -- build test set summary
-227  	     l_text_column := otap_api.get_summary(rec_set.run_time, rec_set.test_runs, rec_set.test_errors, rec_set.setup_errors, l_report_size);
-228  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-229  	     -- loop through the group
-230  	     FOR rec_grp IN cur_test_groups(p_session_id, rec_set.test_set)
-231  	     LOOP
-232  	       l_text_column := otap_api.get_group_text(rec_grp.test_group, l_report_size);
-233  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-234  	       -- build test set summary
-235  	       l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size);
-236  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-237  	       -- loop through the names
-238  	       FOR rec_nam IN cur_test_names(p_session_id, rec_set.test_set, rec_grp.test_group)
-239  	       LOOP
-240  		 l_text_column := otap_api.get_test_name_text(rec_nam.test_name, l_report_size);
-241  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-242  		 -- build test set summary
-243  		 l_text_column := otap_api.get_summary(rec_nam.run_time, rec_nam.test_runs, rec_nam.test_errors, rec_nam.setup_errors, l_report_size);
-244  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-245  		 -- build header
-246  		 l_text_column := otap_api.get_result_header(l_report_size);
-247  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-248  		 l_text_column := otap_api.get_result_underline(l_report_size);
-249  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-250  		 -- loop through the tests
-251  		 FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
-252  		 LOOP
-253  		   l_text_column := otap_api.get_result_line(rec_tst.test_state, rec_tst.issue_state, rec_tst.run_time, rec_tst.test_desc, l_report_size);
-254  		   PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
-255  		 END LOOP;
-256  		 SELECT COUNT(*)
-257  		   INTO l_has_errors
-258  		   FROM otap_results
-259  		  WHERE test_session_id = p_session_id
-260  		    AND test_set	= rec_set.test_set
-261  		    AND test_group	= rec_grp.test_group
-262  		    AND test_name	= rec_nam.test_name
-263  		    AND test_errors    IS NOT NULL
-264  		 ;
-265  		 IF l_has_errors > 0
-266  		 THEN
-267  		   -- build error delimiter for tests
-268  		   l_text_column := otap_api.get_error_result_header(rec_nam.test_name, l_report_size);
-269  		   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-270  		   FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
-271  		   LOOP
-272  		     IF rec_tst.test_errors IS NOT NULL
-273  		     THEN
-274  		       l_text_column := otap_api.get_error_details(rec_tst.test_desc, otap_api.flatten(rec_tst.test_errors, 4000), l_report_size);
-275  		       PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
-276  		     END IF;
-277  		   END LOOP;
-278  		 END IF;
-279  	       END LOOP;
-280  	     END LOOP;
-281  	   END LOOP;
-282  	   -- no loop through the test count if exists
-283  	   FOR rec IN cur_test_count(p_session_id)
-284  	   LOOP
-285  	     -- build header
-286  	     l_text_column := otap_api.get_test_count_header(l_report_size);
-287  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-288  	     l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size);
-289  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-290  	     -- build header
-291  	     l_text_column := otap_api.get_result_header(l_report_size);
-292  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-293  	     l_text_column := otap_api.get_result_underline(l_report_size);
-294  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-295  	     -- loop through the tests
-296  	     FOR rec_tst IN cur_count_tests(p_session_id, rec.test_name)
-297  	     LOOP
-298  	       l_text_column := otap_api.get_result_line(rec_tst.test_state, rec_tst.issue_state, rec_tst.run_time, rec_tst.test_desc, l_report_size);
-299  	       PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
-300  	     END LOOP;
-301  	     SELECT COUNT(*)
-302  	       INTO l_has_errors
-303  	       FROM otap_results
-304  	      WHERE test_session_id = p_session_id
-305  		AND test_name	    = rec.test_name
-306  		AND test_errors    IS NOT NULL
-307  	     ;
-308  	     IF l_has_errors > 0
-309  	     THEN
-310  	       -- build error delimiter for tests
-311  	       l_text_column := otap_api.get_error_result_header(rec.test_name, l_report_size);
-312  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-313  	       FOR rec_tst IN cur_count_tests(p_session_id, rec.test_name)
-314  	       LOOP
-315  		 IF rec_tst.test_errors IS NOT NULL
-316  		 THEN
-317  		   l_text_column := otap_api.get_error_details(rec_tst.test_desc, otap_api.flatten(rec_tst.test_errors, 4000), l_report_size);
-318  		   PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
-319  		 END IF;
-320  	       END LOOP;
-321  	     END IF;
-322  	   END LOOP;
-323  	   -- eventually build the totals for the test session
-324  	   l_text_column := otap_api.get_report_total(l_report_size);
-325  	   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-326  	   FOR rec IN cur_session_total(p_session_id)
-327  	   LOOP
-328  	     l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, l_report_size);
-329  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-330  	     l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size);
-331  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-332  	   END LOOP;
-333  	 ELSE
-334  	   l_text_column := otap_api.get_no_data_text(p_session_id, l_report_size);
-335  	   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-336  	 END IF;
-337  	 -- footer row
-338  	 l_text_column := otap_api.get_report_footer(l_report_size);
-339  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-340  	 -- add AI and copyright
-341  	 l_text_column := LPAD(otap_constants.OTAP_INTERNAL_NAME, 59, ' ');
-342  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-343  	 l_text_column := LPAD(otap_constants.OTAP_INTERNAL_VERSION_NR, 47, ' ');
-344  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-345  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT1;
-346  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-347  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT2;
-348  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-349  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT3;
-350  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-351  	 RETURN;
-352    EXCEPTION
-353  	 WHEN NO_DATA_NEEDED THEN
-354  	   RAISE;
-355  	 WHEN OTHERS THEN
-356  	   IF SQLCODE != -20099
-357  	   THEN
-358  	     otap_log.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
-359  	   END IF;
-360  	   RAISE;
-361    END result_view;
-362  
-363    FUNCTION current_settings
-364  	 RETURN VARCHAR2
-365    IS
-366  	 l_message VARCHAR2(4000 CHAR);
-367    BEGIN
-368  	 otap_api.validate_otap;
-369  	 l_message := otap_api.otap_session_show(session_record);
-370  	 RETURN l_message;
-371    EXCEPTION
-372  	 WHEN OTHERS THEN
-373  	   IF SQLCODE != -20099
-374  	   THEN
-375  	     otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_api.otap_session_show(session_record)');
-376  	   END IF;
-377  	   RAISE;
-378    END current_settings;
-379  
-380    FUNCTION current_summary
-381  	 RETURN VARCHAR2
-382    IS
-383  	 l_message VARCHAR2(4000 CHAR);
-384    BEGIN
-385  	 otap_api.validate_otap;
-386  	 l_message := otap_api.otap_session_summary(session_record);
-387  	 RETURN l_message;
-388    EXCEPTION
-389  	 WHEN OTHERS THEN
-390  	   IF SQLCODE != -20099
-391  	   THEN
-392  	     otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_api.otap_session_summary(session_record)');
-393  	   END IF;
-394  	   RAISE;
-395    END current_summary;
-396  
-397    FUNCTION set_test_name(p_test_name IN VARCHAR2)
-398  	 RETURN VARCHAR2
-399    IS
-400  	 l_message VARCHAR2(4000 CHAR);
-401    BEGIN
-402  	 l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
-403  	 RETURN l_message;
-404    EXCEPTION
-405  	 WHEN OTHERS THEN
-406  	   IF SQLCODE != -20099
-407  	   THEN
-408  	     otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_api.otap_session_set_test_name(p_test_name, session_record)');
-409  	   END IF;
-410  	   RAISE;
-411    END set_test_name;
-412  
-413    FUNCTION set_test_group(p_test_group IN VARCHAR2)
-414  	 RETURN VARCHAR2
-415    IS
-416  	 l_message VARCHAR2(4000 CHAR);
-417    BEGIN
-418  	 l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
-419  	 RETURN l_message;
-420    EXCEPTION
-421  	 WHEN OTHERS THEN
-422  	   IF SQLCODE != -20099
-423  	   THEN
-424  	     otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_api.otap_session_set_test_group(p_test_group, session_record)');
-425  	   END IF;
-426  	   RAISE;
-427    END set_test_group;
-428  
-429    FUNCTION set_test_set(p_test_set IN VARCHAR2)
-430  	 RETURN VARCHAR2
-431    IS
-432  	 l_message VARCHAR2(4000 CHAR);
-433    BEGIN
-434  	 l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
-435  	 RETURN l_message;
-436    EXCEPTION
-437  	 WHEN OTHERS THEN
-438  	   IF SQLCODE != -20099
-439  	   THEN
-440  	     otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_api.otap_session_set_test_set(p_test_set, session_record)');
-441  	   END IF;
-442  	   RAISE;
-443    END set_test_set;
-444  
-445    FUNCTION get_session_id
-446  	 RETURN NUMBER
-447    IS
-448  	 l_return NUMBER;
-449    BEGIN
-450  	 l_return := otap_api.otap_session_get_test_id(session_record);
-451  	 RETURN l_return;
-452    EXCEPTION
-453  	 WHEN OTHERS THEN
-454  	   IF SQLCODE != -20099
-455  	   THEN
-456  	     otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_api.otap_session_get_test_id(session_record)');
-457  	   END IF;
-458  	   RAISE;
-459    END get_session_id;
-460  
-461    FUNCTION get_report_id
-462  	 RETURN NUMBER
-463    IS
-464  	 l_return NUMBER;
-465    BEGIN
-466  	 l_return := otap_api.otap_session_get_report_id(session_record);
-467  	 RETURN l_return;
-468    EXCEPTION
-469  	 WHEN OTHERS THEN
-470  	   IF SQLCODE != -20099
-471  	   THEN
-472  	     otap_log.log(SQLERRM, 'otap_test.get_report_id', 'l_message := otap_api.otap_session_get_report_id(session_record)');
-473  	   END IF;
-474  	   RAISE;
-475    END get_report_id;
-476  
-477    FUNCTION has_table( p_table_name      IN VARCHAR2
-478  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
-479  			 , p_description     IN VARCHAR2 DEFAULT NULL
-480  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-481  			 )
-482  	 RETURN VARCHAR2
-483    IS
-484  	 l_message VARCHAR2(4000 CHAR);
-485    BEGIN
-486  	 otap_api.validate_otap;
-487  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
-488  	 RETURN l_message;
-489    EXCEPTION
-490  	 WHEN OTHERS THEN
-491  	   IF SQLCODE != -20099
-492  	   THEN
-493  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
-494  	   END IF;
-495  	   RAISE;
-496    END has_table;
-497  
-498    FUNCTION has_column( p_table_name      IN VARCHAR2
-499  			  , p_column_name     IN VARCHAR2
-500  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
-501  			  , p_description     IN VARCHAR2 DEFAULT NULL
-502  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
-503  			  , p_data_length     IN NUMBER   DEFAULT NULL
-504  			  , p_data_precision  IN NUMBER   DEFAULT NULL
-505  			  , p_data_scale      IN NUMBER   DEFAULT NULL
-506  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
-507  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
-508  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-509  			  )
-510  	 RETURN VARCHAR2
-511    IS
-512  	 l_message VARCHAR2(4000 CHAR);
-513    BEGIN
-514  	 otap_api.validate_otap;
-515  	 l_message := otap_api.has_column( p_table_name
-516  					 , p_column_name
-517  					 , session_record
-518  					 , p_schema
-519  					 , p_description
-520  					 , p_data_type
-521  					 , p_data_length
-522  					 , p_data_precision
-523  					 , p_data_scale
-524  					 , p_nullable
-525  					 , p_data_default
-526  					 , p_expected_result
-527  					 )
-528  	 ;
-529  	 RETURN l_message;
-530    EXCEPTION
-531  	 WHEN OTHERS THEN
-532  	   IF SQLCODE != -20099
-533  	   THEN
-534  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
-535  	   END IF;
-536  	   RAISE;
-537    END has_column;
-538  
-539    FUNCTION has_package( p_package_name    IN     VARCHAR2
-540  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
-541  			   , p_description     IN     VARCHAR2 DEFAULT NULL
-542  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-543  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-544  			   )
-545  	 RETURN VARCHAR2
-546    IS
-547  	 l_message VARCHAR2(4000 CHAR);
-548    BEGIN
-549  	 otap_api.validate_otap;
-550  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_expected_result);
-551  	 RETURN l_message;
-552    EXCEPTION
-553  	 WHEN OTHERS THEN
-554  	   IF SQLCODE != -20099
-555  	   THEN
-556  	     otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
-557  	   END IF;
-558  	   RAISE;
-559    END has_package;
-560  
-561    FUNCTION has_procedure( p_procedure_name  IN	VARCHAR2
-562  			     , p_schema 	 IN	VARCHAR2 DEFAULT NULL
-563  			     , p_description	 IN	VARCHAR2 DEFAULT NULL
-564  			     , p_procedure_type  IN	VARCHAR2 DEFAULT 'FUNCTION'
-565  			     , p_package_name	 IN	VARCHAR2 DEFAULT NULL
-566  			     , p_return_type	 IN	VARCHAR2 DEFAULT NULL
-567  			     , p_expected_result IN	NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-568  			     )
-569  	 RETURN VARCHAR2
-570    IS
-571  	 l_message VARCHAR2(4000 CHAR);
-572    BEGIN
-573  	 otap_api.validate_otap;
-574  	 l_message := otap_api.has_procedure( p_procedure_name
-575  					    , session_record
-576  					    , p_schema
-577  					    , p_description
-578  					    , p_procedure_type
-579  					    , p_package_name
-580  					    , p_return_type
-581  					    , p_expected_result
-582  					    )
-583  	 ;
-584  	 RETURN l_message;
-585    EXCEPTION
-586  	 WHEN OTHERS THEN
-587  	   IF SQLCODE != -20099
-588  	   THEN
-589  	     otap_log.log(SQLERRM, 'otap_test.has_procedure', 'l_message := otap_api.has_procedure(p_procedure_name, session_record, ...');
-590  	   END IF;
-591  	   RAISE;
-592    END has_procedure;
-593  
-594    FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
-595  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
-596  			   , p_description     IN     VARCHAR2 DEFAULT NULL
-597  			   , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
-598  			   , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
-599  			   , p_table_owner     IN     VARCHAR2 DEFAULT NULL
-600  			   , p_table_name      IN     VARCHAR2 DEFAULT NULL
-601  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-602  			   )
-603  	 RETURN VARCHAR2
-604    IS
-605  	 l_message VARCHAR2(4000 CHAR);
-606    BEGIN
-607  	 otap_api.validate_otap;
-608  	 l_message := otap_api.has_trigger( p_trigger_name
-609  					  , session_record
-610  					  , p_schema
-611  					  , p_description
-612  					  , p_trigger_type
-613  					  , p_trigger_event
-614  					  , p_table_owner
-615  					  , p_table_name
-616  					  , p_expected_result
-617  					  )
-618  	 ;
-619  	 RETURN l_message;
-620    EXCEPTION
-621  	 WHEN OTHERS THEN
-622  	   IF SQLCODE != -20099
-623  	   THEN
-624  	     otap_log.log(SQLERRM, 'otap_test.has_trigger', 'l_message := otap_api.has_trigger( p_trigger_name, session_record, ...');
-625  	   END IF;
-626  	   RAISE;
-627    END has_trigger;
-628  
-629    -- debug function
-630    FUNCTION get_session_var
-631  	 RETURN OTAP_SESSION
-632    IS
-633    BEGIN
-634  	 RETURN session_record;
-635    END get_session_var;
-636  
-637  END;
-638  /
+175  	 CURSOR cur_session_total(cp_session_id IN NUMBER)
+176  	 IS
+177  	   SELECT test_session_id
+178  		, COUNT(DISTINCT test_set) AS test_sets
+179  		, COUNT(DISTINCT test_group) AS test_groups
+180  		, COUNT(DISTINCT test_name) AS test_names
+181  		, COUNT(DISTINCT test_desc) AS test_descs
+182  		, COUNT(*) AS test_runs
+183  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
+184  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
+185  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+186  	     FROM otap_results
+187  	    WHERE test_session_id = cp_session_id
+188  		  -- exclude optional extra total count test
+189  	      AND test_name	 != otap_api.get_text_test_count_name
+190  	    GROUP BY test_session_id
+191  	    ORDER BY MIN(test_run_date)
+192  	 ;
+193  	 CURSOR cur_tests( cp_session_id IN NUMBER
+194  			 , cp_test_set	 IN VARCHAR2
+195  			 , cp_test_group IN VARCHAR2
+196  			 , cp_test_name  IN VARCHAR2
+197  			 )
+198  	 IS
+199  	   SELECT test_desc
+200  		, test_passed
+201  		, otap_api.test_result_to_text(test_passed) AS test_state
+202  		, TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
+203  		, test_errors
+204  		, otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END) AS issue_state
+205  	     FROM otap_results
+206  	    WHERE test_session_id = cp_session_id
+207  	      AND test_set	  = cp_test_set
+208  	      AND test_group	  = cp_test_group
+209  	      AND test_name	  = cp_test_name
+210  	    ORDER BY test_run_date
+211  	 ;
+212  	 CURSOR cur_count_tests( cp_session_id IN NUMBER
+213  			       , cp_test_name  IN VARCHAR2
+214  			       )
+215  	 IS
+216  	   SELECT test_desc
+217  		, test_passed
+218  		, otap_api.test_result_to_text(test_passed) AS test_state
+219  		, TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
+220  		, test_errors
+221  		, otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END) AS issue_state
+222  	     FROM otap_results
+223  	    WHERE test_session_id = cp_session_id
+224  	      AND test_name	  = cp_test_name
+225  	    ORDER BY test_run_date
+226  	 ;
+227    BEGIN
+228  	 l_report_size := otap_api.max_text_size(p_session_id);
+229  	 -- header row
+230  	 l_text_column := otap_api.get_report_header(l_report_size);
+231  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+232  	 l_text_column := otap_api.get_session_id_text(p_session_id, l_report_size);
+233  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+234  	 -- check for records
+235  	 SELECT COUNT(*) INTO l_has_records FROM otap_results WHERE test_session_id = p_session_id;
+236  	 IF l_has_records > 0
+237  	 THEN
+238  	   -- loop through the set
+239  	   FOR rec_set IN cur_test_sets(p_session_id)
+240  	   LOOP
+241  	     -- build test set column
+242  	     l_text_column := otap_api.get_set_text(rec_set.test_set, l_report_size);
+243  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+244  	     -- build test set summary
+245  	     l_text_column := otap_api.get_summary(rec_set.run_time, rec_set.test_runs, rec_set.test_errors, rec_set.setup_errors, l_report_size);
+246  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+247  	     -- loop through the group
+248  	     FOR rec_grp IN cur_test_groups(p_session_id, rec_set.test_set)
+249  	     LOOP
+250  	       l_text_column := otap_api.get_group_text(rec_grp.test_group, l_report_size);
+251  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+252  	       -- build test set summary
+253  	       l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size);
+254  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+255  	       -- loop through the names
+256  	       FOR rec_nam IN cur_test_names(p_session_id, rec_set.test_set, rec_grp.test_group)
+257  	       LOOP
+258  		 l_text_column := otap_api.get_test_name_text(rec_nam.test_name, l_report_size);
+259  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+260  		 -- build test set summary
+261  		 l_text_column := otap_api.get_summary(rec_nam.run_time, rec_nam.test_runs, rec_nam.test_errors, rec_nam.setup_errors, l_report_size);
+262  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+263  		 -- build header
+264  		 l_text_column := otap_api.get_result_header(l_report_size);
+265  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+266  		 l_text_column := otap_api.get_result_underline(l_report_size);
+267  		 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+268  		 -- loop through the tests
+269  		 FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
+270  		 LOOP
+271  		   l_text_column := otap_api.get_result_line(rec_tst.test_state, rec_tst.issue_state, rec_tst.run_time, rec_tst.test_desc, l_report_size);
+272  		   PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
+273  		 END LOOP;
+274  		 SELECT COUNT(*)
+275  		   INTO l_has_errors
+276  		   FROM otap_results
+277  		  WHERE test_session_id = p_session_id
+278  		    AND test_set	= rec_set.test_set
+279  		    AND test_group	= rec_grp.test_group
+280  		    AND test_name	= rec_nam.test_name
+281  		    AND test_errors    IS NOT NULL
+282  		 ;
+283  		 IF l_has_errors > 0
+284  		 THEN
+285  		   -- build error delimiter for tests
+286  		   l_text_column := otap_api.get_error_result_header(rec_nam.test_name, l_report_size);
+287  		   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+288  		   FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name)
+289  		   LOOP
+290  		     IF rec_tst.test_errors IS NOT NULL
+291  		     THEN
+292  		       l_text_column := otap_api.get_error_details(rec_tst.test_desc, otap_api.flatten(rec_tst.test_errors, 4000), l_report_size);
+293  		       PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
+294  		     END IF;
+295  		   END LOOP;
+296  		 END IF;
+297  	       END LOOP;
+298  	     END LOOP;
+299  	   END LOOP;
+300  	   -- no loop through the test count if exists
+301  	   FOR rec IN cur_test_count(p_session_id)
+302  	   LOOP
+303  	     -- build header
+304  	     l_text_column := otap_api.get_test_count_header(l_report_size);
+305  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+306  	     l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size);
+307  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+308  	     -- build header
+309  	     l_text_column := otap_api.get_result_header(l_report_size);
+310  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+311  	     l_text_column := otap_api.get_result_underline(l_report_size);
+312  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+313  	     -- loop through the tests
+314  	     FOR rec_tst IN cur_count_tests(p_session_id, rec.test_name)
+315  	     LOOP
+316  	       l_text_column := otap_api.get_result_line(rec_tst.test_state, rec_tst.issue_state, rec_tst.run_time, rec_tst.test_desc, l_report_size);
+317  	       PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
+318  	     END LOOP;
+319  	     SELECT COUNT(*)
+320  	       INTO l_has_errors
+321  	       FROM otap_results
+322  	      WHERE test_session_id = p_session_id
+323  		AND test_name	    = rec.test_name
+324  		AND test_errors    IS NOT NULL
+325  	     ;
+326  	     IF l_has_errors > 0
+327  	     THEN
+328  	       -- build error delimiter for tests
+329  	       l_text_column := otap_api.get_error_result_header(rec.test_name, l_report_size);
+330  	       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+331  	       FOR rec_tst IN cur_count_tests(p_session_id, rec.test_name)
+332  	       LOOP
+333  		 IF rec_tst.test_errors IS NOT NULL
+334  		 THEN
+335  		   l_text_column := otap_api.get_error_details(rec_tst.test_desc, otap_api.flatten(rec_tst.test_errors, 4000), l_report_size);
+336  		   PIPE ROW (otap_view_result_rec(l_text_column, rec_tst.test_errors));
+337  		 END IF;
+338  	       END LOOP;
+339  	     END IF;
+340  	   END LOOP;
+341  	   -- eventually build the totals for the test session
+342  	   l_text_column := otap_api.get_report_total(l_report_size);
+343  	   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+344  	   FOR rec IN cur_session_total(p_session_id)
+345  	   LOOP
+346  	     l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, l_report_size);
+347  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+348  	     l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size);
+349  	     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+350  	   END LOOP;
+351  	 ELSE
+352  	   l_text_column := otap_api.get_no_data_text(p_session_id, l_report_size);
+353  	   PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+354  	 END IF;
+355  	 -- footer row
+356  	 l_text_column := otap_api.get_report_footer(l_report_size);
+357  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+358  	 -- add AI and copyright
+359  	 l_text_column := LPAD(otap_constants.OTAP_INTERNAL_NAME, 59, ' ');
+360  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+361  	 l_text_column := LPAD(otap_constants.OTAP_INTERNAL_VERSION_NR, 47, ' ');
+362  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+363  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT1;
+364  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+365  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT2;
+366  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+367  	 l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT3;
+368  	 PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+369  	 RETURN;
+370    EXCEPTION
+371  	 WHEN NO_DATA_NEEDED THEN
+372  	   RAISE;
+373  	 WHEN OTHERS THEN
+374  	   IF SQLCODE != -20099
+375  	   THEN
+376  	     otap_log.log(SQLERRM, 'otap_test.result_view', 'Unhandled exception otap_test.result_view');
+377  	   END IF;
+378  	   RAISE;
+379    END result_view;
+380  
+381    FUNCTION current_settings
+382  	 RETURN VARCHAR2
+383    IS
+384  	 l_message VARCHAR2(4000 CHAR);
+385    BEGIN
+386  	 otap_api.validate_otap;
+387  	 l_message := otap_api.otap_session_show(session_record);
+388  	 RETURN l_message;
+389    EXCEPTION
+390  	 WHEN OTHERS THEN
+391  	   IF SQLCODE != -20099
+392  	   THEN
+393  	     otap_log.log(SQLERRM, 'otap_test.current_settings', 'l_message := otap_api.otap_session_show(session_record)');
+394  	   END IF;
+395  	   RAISE;
+396    END current_settings;
+397  
+398    FUNCTION current_summary
+399  	 RETURN VARCHAR2
+400    IS
+401  	 l_message VARCHAR2(4000 CHAR);
+402    BEGIN
+403  	 otap_api.validate_otap;
+404  	 l_message := otap_api.otap_session_summary(session_record);
+405  	 RETURN l_message;
+406    EXCEPTION
+407  	 WHEN OTHERS THEN
+408  	   IF SQLCODE != -20099
+409  	   THEN
+410  	     otap_log.log(SQLERRM, 'otap_test.current_summary', 'l_message := otap_api.otap_session_summary(session_record)');
+411  	   END IF;
+412  	   RAISE;
+413    END current_summary;
+414  
+415    FUNCTION set_test_name(p_test_name IN VARCHAR2)
+416  	 RETURN VARCHAR2
+417    IS
+418  	 l_message VARCHAR2(4000 CHAR);
+419    BEGIN
+420  	 l_message := otap_api.otap_session_set_test_name(p_test_name, session_record);
+421  	 RETURN l_message;
+422    EXCEPTION
+423  	 WHEN OTHERS THEN
+424  	   IF SQLCODE != -20099
+425  	   THEN
+426  	     otap_log.log(SQLERRM, 'otap_test.set_test_name', 'l_message := otap_api.otap_session_set_test_name(p_test_name, session_record)');
+427  	   END IF;
+428  	   RAISE;
+429    END set_test_name;
+430  
+431    FUNCTION set_test_group(p_test_group IN VARCHAR2)
+432  	 RETURN VARCHAR2
+433    IS
+434  	 l_message VARCHAR2(4000 CHAR);
+435    BEGIN
+436  	 l_message := otap_api.otap_session_set_test_group(p_test_group, session_record);
+437  	 RETURN l_message;
+438    EXCEPTION
+439  	 WHEN OTHERS THEN
+440  	   IF SQLCODE != -20099
+441  	   THEN
+442  	     otap_log.log(SQLERRM, 'otap_test.set_test_group', 'l_message := otap_api.otap_session_set_test_group(p_test_group, session_record)');
+443  	   END IF;
+444  	   RAISE;
+445    END set_test_group;
+446  
+447    FUNCTION set_test_set(p_test_set IN VARCHAR2)
+448  	 RETURN VARCHAR2
+449    IS
+450  	 l_message VARCHAR2(4000 CHAR);
+451    BEGIN
+452  	 l_message := otap_api.otap_session_set_test_set(p_test_set, session_record);
+453  	 RETURN l_message;
+454    EXCEPTION
+455  	 WHEN OTHERS THEN
+456  	   IF SQLCODE != -20099
+457  	   THEN
+458  	     otap_log.log(SQLERRM, 'otap_test.set_test_set', 'l_message := otap_api.otap_session_set_test_set(p_test_set, session_record)');
+459  	   END IF;
+460  	   RAISE;
+461    END set_test_set;
+462  
+463    FUNCTION get_session_id
+464  	 RETURN NUMBER
+465    IS
+466  	 l_return NUMBER;
+467    BEGIN
+468  	 l_return := otap_api.otap_session_get_test_id(session_record);
+469  	 RETURN l_return;
+470    EXCEPTION
+471  	 WHEN OTHERS THEN
+472  	   IF SQLCODE != -20099
+473  	   THEN
+474  	     otap_log.log(SQLERRM, 'otap_test.get_session_id', 'l_message := otap_api.otap_session_get_test_id(session_record)');
+475  	   END IF;
+476  	   RAISE;
+477    END get_session_id;
+478  
+479    FUNCTION get_report_id
+480  	 RETURN NUMBER
+481    IS
+482  	 l_return NUMBER;
+483    BEGIN
+484  	 l_return := otap_api.otap_session_get_report_id(session_record);
+485  	 RETURN l_return;
+486    EXCEPTION
+487  	 WHEN OTHERS THEN
+488  	   IF SQLCODE != -20099
+489  	   THEN
+490  	     otap_log.log(SQLERRM, 'otap_test.get_report_id', 'l_message := otap_api.otap_session_get_report_id(session_record)');
+491  	   END IF;
+492  	   RAISE;
+493    END get_report_id;
+494  
+495    FUNCTION has_table( p_table_name      IN VARCHAR2
+496  			 , p_schema	     IN VARCHAR2 DEFAULT NULL
+497  			 , p_description     IN VARCHAR2 DEFAULT NULL
+498  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+499  			 )
+500  	 RETURN VARCHAR2
+501    IS
+502  	 l_message VARCHAR2(4000 CHAR);
+503    BEGIN
+504  	 otap_api.validate_otap;
+505  	 l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description, p_expected_result);
+506  	 RETURN l_message;
+507    EXCEPTION
+508  	 WHEN OTHERS THEN
+509  	   IF SQLCODE != -20099
+510  	   THEN
+511  	     otap_log.log(SQLERRM, 'otap_test.has_table', 'l_message := otap_api.has_table(p_table_name, session_record, p_schema, p_description)');
+512  	   END IF;
+513  	   RAISE;
+514    END has_table;
+515  
+516    FUNCTION has_column( p_table_name      IN VARCHAR2
+517  			  , p_column_name     IN VARCHAR2
+518  			  , p_schema	      IN VARCHAR2 DEFAULT NULL
+519  			  , p_description     IN VARCHAR2 DEFAULT NULL
+520  			  , p_data_type       IN VARCHAR2 DEFAULT NULL
+521  			  , p_data_length     IN NUMBER   DEFAULT NULL
+522  			  , p_data_precision  IN NUMBER   DEFAULT NULL
+523  			  , p_data_scale      IN NUMBER   DEFAULT NULL
+524  			  , p_nullable	      IN VARCHAR2 DEFAULT NULL
+525  			  , p_data_default    IN VARCHAR2 DEFAULT NULL
+526  			  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+527  			  )
+528  	 RETURN VARCHAR2
+529    IS
+530  	 l_message VARCHAR2(4000 CHAR);
+531    BEGIN
+532  	 otap_api.validate_otap;
+533  	 l_message := otap_api.has_column( p_table_name
+534  					 , p_column_name
+535  					 , session_record
+536  					 , p_schema
+537  					 , p_description
+538  					 , p_data_type
+539  					 , p_data_length
+540  					 , p_data_precision
+541  					 , p_data_scale
+542  					 , p_nullable
+543  					 , p_data_default
+544  					 , p_expected_result
+545  					 )
+546  	 ;
+547  	 RETURN l_message;
+548    EXCEPTION
+549  	 WHEN OTHERS THEN
+550  	   IF SQLCODE != -20099
+551  	   THEN
+552  	     otap_log.log(SQLERRM, 'otap_test.has_column', 'l_message := otap_api.has_column(p_table_name, ...');
+553  	   END IF;
+554  	   RAISE;
+555    END has_column;
+556  
+557    FUNCTION has_package( p_package_name    IN     VARCHAR2
+558  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+559  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+560  			   , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
+561  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+562  			   )
+563  	 RETURN VARCHAR2
+564    IS
+565  	 l_message VARCHAR2(4000 CHAR);
+566    BEGIN
+567  	 otap_api.validate_otap;
+568  	 l_message := otap_api.has_package(p_package_name, session_record, p_schema, p_description, p_package_type, p_expected_result);
+569  	 RETURN l_message;
+570    EXCEPTION
+571  	 WHEN OTHERS THEN
+572  	   IF SQLCODE != -20099
+573  	   THEN
+574  	     otap_log.log(SQLERRM, 'otap_test.has_package', 'l_message := otap_api.has_package(p_package_name, session_record, ...');
+575  	   END IF;
+576  	   RAISE;
+577    END has_package;
+578  
+579    FUNCTION has_procedure( p_procedure_name  IN	VARCHAR2
+580  			     , p_schema 	 IN	VARCHAR2 DEFAULT NULL
+581  			     , p_description	 IN	VARCHAR2 DEFAULT NULL
+582  			     , p_procedure_type  IN	VARCHAR2 DEFAULT 'FUNCTION'
+583  			     , p_package_name	 IN	VARCHAR2 DEFAULT NULL
+584  			     , p_return_type	 IN	VARCHAR2 DEFAULT NULL
+585  			     , p_expected_result IN	NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+586  			     )
+587  	 RETURN VARCHAR2
+588    IS
+589  	 l_message VARCHAR2(4000 CHAR);
+590    BEGIN
+591  	 otap_api.validate_otap;
+592  	 l_message := otap_api.has_procedure( p_procedure_name
+593  					    , session_record
+594  					    , p_schema
+595  					    , p_description
+596  					    , p_procedure_type
+597  					    , p_package_name
+598  					    , p_return_type
+599  					    , p_expected_result
+600  					    )
+601  	 ;
+602  	 RETURN l_message;
+603    EXCEPTION
+604  	 WHEN OTHERS THEN
+605  	   IF SQLCODE != -20099
+606  	   THEN
+607  	     otap_log.log(SQLERRM, 'otap_test.has_procedure', 'l_message := otap_api.has_procedure(p_procedure_name, session_record, ...');
+608  	   END IF;
+609  	   RAISE;
+610    END has_procedure;
+611  
+612    FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
+613  			   , p_schema	       IN     VARCHAR2 DEFAULT NULL
+614  			   , p_description     IN     VARCHAR2 DEFAULT NULL
+615  			   , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
+616  			   , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
+617  			   , p_table_owner     IN     VARCHAR2 DEFAULT NULL
+618  			   , p_table_name      IN     VARCHAR2 DEFAULT NULL
+619  			   , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+620  			   )
+621  	 RETURN VARCHAR2
+622    IS
+623  	 l_message VARCHAR2(4000 CHAR);
+624    BEGIN
+625  	 otap_api.validate_otap;
+626  	 l_message := otap_api.has_trigger( p_trigger_name
+627  					  , session_record
+628  					  , p_schema
+629  					  , p_description
+630  					  , p_trigger_type
+631  					  , p_trigger_event
+632  					  , p_table_owner
+633  					  , p_table_name
+634  					  , p_expected_result
+635  					  )
+636  	 ;
+637  	 RETURN l_message;
+638    EXCEPTION
+639  	 WHEN OTHERS THEN
+640  	   IF SQLCODE != -20099
+641  	   THEN
+642  	     otap_log.log(SQLERRM, 'otap_test.has_trigger', 'l_message := otap_api.has_trigger( p_trigger_name, session_record, ...');
+643  	   END IF;
+644  	   RAISE;
+645    END has_trigger;
+646  
+647    FUNCTION has_object( p_object_name     IN     VARCHAR2
+648  			  , p_object_type     IN     VARCHAR2
+649  			  , p_schema	      IN     VARCHAR2 DEFAULT NULL
+650  			  , p_description     IN     VARCHAR2 DEFAULT NULL
+651  			  , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+652  			  )
+653  	 RETURN VARCHAR2
+654    IS
+655  	 l_message VARCHAR2(4000 CHAR);
+656    BEGIN
+657  	 otap_api.validate_otap;
+658  	 l_message := otap_api.has_object( p_object_name
+659  					 , p_object_type
+660  					 , session_record
+661  					 , p_schema
+662  					 , p_description
+663  					 , p_expected_result
+664  					 )
+665  	 ;
+666  	 RETURN l_message;
+667    EXCEPTION
+668  	 WHEN OTHERS THEN
+669  	   IF SQLCODE != -20099
+670  	   THEN
+671  	     otap_log.log(SQLERRM, 'otap_test.has_object', 'l_message := otap_api.has_object( p_object_name, p_object_type, ...');
+672  	   END IF;
+673  	   RAISE;
+674    END has_object;
+675  
+676    -- debug function
+677    FUNCTION get_session_var
+678  	 RETURN OTAP_SESSION
+679    IS
+680    BEGIN
+681  	 RETURN session_record;
+682    END get_session_var;
+683  
+684  END;
+685  /
 
 Package body created.
 

@@ -20,7 +20,7 @@ Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-12 00:12:28
+Test start: 2025-01-12 23:53:36
 
 
 1 row selected.
@@ -2113,6 +2113,16 @@ Passed function OTAP_PLAN.FINISH_TEST exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_PLAN'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_PLAN.FINISH_TEST_WITH_EXIT_CODE exists check (OTAP)
+
+1 row selected.
+
 SQL> -- finish package function and procedure tests for OTAP_PLAN
 SQL> -- set test name for package
 SQL> SELECT otap_test.set_test_name('OTAP package OTAP_SCHEMA') FROM dual;
@@ -2236,6 +2246,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_API.FINISH_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_API.FINISH_TEST_WITH_EXIT_CODE exists check (OTAP)
 
 1 row selected.
 
@@ -2559,6 +2579,16 @@ Passed function OTAP_API.HAS_TRIGGER exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.HAS_OBJECT exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_OTAP'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'PROCEDURE'
@@ -2608,6 +2638,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_TEST.FINISH_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.FINISH_TEST_WITH_EXIT_CODE exists check (OTAP)
 
 1 row selected.
 
@@ -2741,13 +2781,13 @@ Passed function OTAP_TEST.HAS_TRIGGER exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_SESSION_VAR'
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
   4  				   , p_package_name => 'OTAP_TEST'
-  5  				   , p_return_type => 'OBJECT'
+  5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
-Passed function OTAP_TEST.GET_SESSION_VAR exists check (OTAP)
+Passed function OTAP_TEST.HAS_OBJECT exists check (OTAP)
 
 1 row selected.
 
@@ -3255,7 +3295,7 @@ SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 5 tests: 294 from 294 errors: 0 run time: +000000000 00:00:19.000000000 started: 2025-01-12 00:12:28
+Summary id: 5 tests: 298 from 294 errors: 0 run time: +000000000 00:00:18.000000000 started: 2025-01-12 23:53:36
 Current test settings
 Test session id: 6
 Test set: OTAP test set
@@ -3271,7 +3311,7 @@ Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-12 00:12:47
+Test start: 2025-01-12 23:53:54
 
 
 1 row selected.

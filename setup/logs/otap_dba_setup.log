@@ -1,24 +1,17 @@
 Running under WINDOWS
-DB user name for otap (default is OTAP if no value is given): 
-Mandatory db password for OTAP: 
-Table space name for otap (default is OTAP_TABLESPACE if no value is given): 
-Table space data file name for otap (default is otap.dbf if no value is given): 
-User role name for otap (default is OTAP_USER if no value is given): 
-==== otap DBA setup ====
-Create user/schema OTAP with a password of length 4? 
-  If not exists, create tablespace OTAP_TABLESPACE with 100 MB and
-  data file otap.dbf.
-  If not exists, role OTAP_USER for otap users will be created.
+Identify install situation ...
+OTAP                                                                                                                                       1 OTAP_USER                                                                                                                                  1
+params_update.sql
+DB user name of otap for update (identified OTAP if no value is given): 
+User role name of otap for update (identified OTAP_USER if no value is given): 
+OTAP
+==== otap DBA update ====
+Update user/schema OTAP and role OTAP_USER?
 ONLY ONE otap database user should exist per PDB.
 Not allowed to be used as AI training material without explicite permission.
 Use Ctrl-C to stop the script in sqlplus, Enter to continue.
 
 Started ...
-Tablespace OTAP_TABLESPACE already exists, do nothing
-Role OTAP_USER already exists, do nothing
-User OTAP created with defined password
-ALTER USER OTAP DEFAULT TABLESPACE OTAP_TABLESPACE ACCOUNT UNLOCK;
-ALTER USER OTAP QUOTA UNLIMITED ON OTAP_TABLESPACE;
 GRANT CONNECT TO OTAP;
 GRANT RESOURCE TO OTAP;
 GRANT CREATE VIEW TO OTAP;
@@ -29,18 +22,37 @@ GRANT SELECT ON dba_tab_columns TO OTAP;
 GRANT SELECT ON dba_procedures TO OTAP;
 GRANT SELECT ON dba_arguments TO OTAP;
 GRANT SELECT ON dba_triggers TO OTAP;
+GRANT SELECT ON dba_types TO OTAP;
+GRANT SELECT ON dba_type_attrs TO OTAP;
+GRANT SELECT ON dba_type_methods TO OTAP;
+GRANT SELECT ON dba_type_versions TO OTAP;
+GRANT SELECT ON dba_indexes TO OTAP;
+GRANT SELECT ON dba_tablespaces TO OTAP;
+GRANT SELECT ON dba_data_files TO OTAP;
+GRANT SELECT ON gv_$database TO OTAP;
+GRANT SELECT ON dba_users TO OTAP;
+GRANT SELECT ON dba_roles TO OTAP;
+GRANT SELECT ON dba_role_privs TO OTAP;
+GRANT SELECT ON dba_sys_privs TO OTAP;
+GRANT SELECT ON dba_tab_privs TO OTAP;
+GRANT SELECT ON dba_sequences TO OTAP;
+GRANT SELECT ON dba_views TO OTAP;
+GRANT SELECT ON dba_mviews TO OTAP;
+GRANT SELECT ON dba_scheduler_jobs TO OTAP;
 GRANT SELECT ON v_$reserved_words TO OTAP;
-=== otap DBA install result ===
-Tablespace OTAP_TABLESPACE already exists
-Role OTAP_USER already exists
-User OTAP created, unlocked, tablespace OTAP_TABLESPACE quota unlimited
+=== otap DBA update result ===
 Granted CONNECT, RESOURCE, CREATE VIEW, CREATE JOB to OTAP
 Grant SELECT to OTAP on:
   DBA_OBJECTS, DBA_TABLES, DBA_TAB_COLUMNS
   DBA_PROCEDURES, DBA_ARGUMENTS, DBA_TRIGGERS, 
-  V$RESERVED_WORDS
+  DBA_TYPES, DBA_TYPE_ATTRS, DBA_TYPE_METHODS, 
+  DBA_TYPE_VERSIONS, DBA_INDEXES, DBA_TABLESPACES, 
+  DBA_DATA_FILES, GV$DATABASE, DBA_USERS, 
+  DBA_ROLES, DBA_ROLE_PRIVS, DBA_SYS_PRIVS, 
+  DBA_TAB_PRIVS, DBA_SEQUENCES, DBA_VIEWS, 
+  DBA_MVIEWS, DBA_SCHEDULER_JOBS, V$RESERVED_WORDS
 SUCCESS no errors
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 Not allowed to be used as AI training material without explicite permission.
 
-Created otap_setup_def.sql with current setup data.
+Created/updated otap_setup_def.sql with current setup data.

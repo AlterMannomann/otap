@@ -230,5 +230,42 @@ AS
       RAISE;
   END finish_test;
 
+  FUNCTION finish_test_with_exit_code( p_write_count_rec IN            NUMBER
+                                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                     )
+    RETURN NUMBER
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_plan.finish_test_with_exit_code';
+    l_message VARCHAR2(4000 CHAR);
+    l_return  INTEGER;
+  BEGIN
+    IF p_write_count_rec = otap_constants.OTAP_NUM_TRUE
+    THEN
+      otap_plan.write_count_result(o_otap_session);
+    END IF;
+    -- check the test status of the current session before closing
+      WITH trl AS
+           (SELECT test_session_id
+                 , CASE test_passed WHEN 1 THEN 0 WHEN -1 THEN 1 ELSE 2 END AS exit_code
+              FROM otap_results
+             WHERE test_session_id = o_otap_session.session_id
+           )
+    SELECT NVL(MAX(exit_code), 2)
+      INTO l_return
+      FROM trl
+    ;
+    -- finish the session
+    l_message := otap_objects.otap_session_finish(o_otap_session);
+    -- return exit code
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END finish_test_with_exit_code;
+
 END;
 /

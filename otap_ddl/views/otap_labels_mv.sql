@@ -8,7 +8,10 @@ CREATE MATERIALIZED VIEW otap_labels_mv
 AS
     WITH grp AS (SELECT CAST(TRIM(object_type) AS VARCHAR2(128 CHAR)) AS object_type FROM dba_objects GROUP BY object_type
                   UNION ALL
-                 SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ('COLUMN')
+                 SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ( 'COLUMN'
+                                                                                                                        , 'USER'
+                                                                                                                        , 'ROLE'
+                                                                                                                        )
                 )
   SELECT object_type                                                            AS oracle_type
        , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier

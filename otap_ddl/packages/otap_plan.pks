@@ -137,5 +137,26 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.finish_test_with_exit_code
+  * This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
+  * to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
+  * your build to fail, if test is not passed.
+  *
+  * Equal to finish_test apart from the return value check and translation. Undefined overrules failed. If undefined is returned, also
+  * failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
+  *
+  * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+  * @param o_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION finish_test_with_exit_code( p_write_count_rec IN            NUMBER
+                                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                     )
+    RETURN NUMBER
+  ;
+
 END;
 /

@@ -88,6 +88,24 @@ AS
       RAISE;
   END finish_test;
 
+  FUNCTION finish_test_with_exit_code(p_write_count_rec IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+    RETURN NUMBER
+  IS
+    l_return INTEGER;
+  BEGIN
+    otap_api.validate_otap;
+    l_return := otap_api.finish_test_with_exit_code(p_write_count_rec, session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.finish_test_with_exit_code', 'l_message := otap_api.finish_test_with_exit_code(p_write_count_rec, session_record)');
+      END IF;
+      RAISE;
+  END finish_test_with_exit_code;
+
+
   FUNCTION result_view(p_session_id IN NUMBER)
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -628,6 +646,35 @@ AS
       END IF;
       RAISE;
   END has_trigger;
+
+  FUNCTION has_object( p_object_name     IN     VARCHAR2
+                     , p_object_type     IN     VARCHAR2
+                     , p_schema          IN     VARCHAR2 DEFAULT NULL
+                     , p_description     IN     VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap;
+    l_message := otap_api.has_object( p_object_name
+                                    , p_object_type
+                                    , session_record
+                                    , p_schema
+                                    , p_description
+                                    , p_expected_result
+                                    )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_object', 'l_message := otap_api.has_object( p_object_name, p_object_type, ...');
+      END IF;
+      RAISE;
+  END has_object;
 
   -- debug function
   FUNCTION get_session_var

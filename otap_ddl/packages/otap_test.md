@@ -3,11 +3,13 @@ Description of the test options available with package otap_test.
 
 - [init_test](#function-otap_testinit_test)
 - [finish_test](#function-otap_testfinish_test)
+- [finish_test_with_exit_code](#function-otap_testfinish_test_with_exit_code)
 - [has_table](#function-otap_testhas_table)
 - [has_column](#function-otap_testhas_column)
 - [has_package](#function-otap_testhas_package)
 - [has_procedure](#function-otap_schemahas_procedure)
 - [has_trigger](#function-otap_testhas_trigger)
+- [has_object](#function-otap_schemahas_object)
 - [current_summary](#function-otap_testcurrent_summary)
 - [set_test_name](#function-otap_testset_test_name)
 - [set_test_group](#function-otap_testset_test_group)
@@ -44,6 +46,20 @@ Parameter:
 - *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
 
 *Return* A summary of the old session and details of the new session as text message LF delimited.
+
+*Exception* -20099 Internal error, invalid OTAP_SESSION object.
+## FUNCTION otap_test.finish_test_with_exit_code
+This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
+to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
+your build to fail, if test is not passed.
+
+Equal to finish_test apart from the return value check and translation. Undefined overrules failed. If undefined is returned, also
+failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
+
+Parameter:
+- *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+
+*Return* A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
 
 *Exception* -20099 Internal error, invalid OTAP_SESSION object.
 ## FUNCTION otap_test.has_table
@@ -110,6 +126,16 @@ Parameter:
 - *p_trigger_event* The triggering event as in USER_TRIGGERS. Optional. Not case sensitive.
 - *p_table_owner* The table owner as in USER_TRIGGERS. Optional. Case sensitive.
 - *p_table_name* The table name as in USER_TRIGGERS. Optional. Case sensitive.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+## FUNCTION otap_schema.has_object
+Checks if a given database object exists.
+
+Parameter:
+- *p_object_name* The name of the object, take as is. Case sensitive.
+- *p_object_type* The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
 *Return* The test result as text.
