@@ -26,7 +26,7 @@ To do: Move test report code to otap_report package, extend test functions (sche
 
 See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
-![otap_test_report](https://github.com/user-attachments/assets/10a7ed08-1e31-44f8-90f7-2a38c6b68113)
+![Simple Test](https://github.com/AlterMannomann/otap/blob/main/media/otap_simple_test.jpg)
 
 Basic otap test script started, see [master script](./otap_test/otap_test_master.sql) and [test log](./otap_test/otap_test_result.log).
 
