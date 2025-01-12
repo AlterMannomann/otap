@@ -33,7 +33,7 @@ AS
   PROCEDURE validate_otap;
 
   /** FUNCTION otap_api.init_test
-  * @see otap_plan.init_test
+  * @see otap_plan.init_test and otap_test.init_test
   */
   FUNCTION init_test( p_test_count          IN            NUMBER
                     , p_test_set            IN            VARCHAR2
@@ -52,7 +52,7 @@ AS
   ;
 
   /** FUNCTION otap_api.finish_test
-  * @see otap_plan.finish_test
+  * @see otap_plan.finish_test and otap_test.finish_test
   */
   FUNCTION finish_test( p_write_count_rec IN            NUMBER
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
@@ -60,22 +60,31 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.finish_test_with_exit_code
+  * @see otap_plan.finish_test_with_exit_code and otap_test.finish_test_with_exit_code
+  */
+  FUNCTION finish_test_with_exit_code( p_write_count_rec IN            NUMBER
+                                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                     )
+    RETURN NUMBER
+  ;
+
   /** FUNCTION otap_api.otap_session_show
-  * @see otap_objects.otap_session_show
+  * @see otap_objects.otap_session_show and otap_test.otap_session_show
   */
   FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.otap_session_summary
-  * @see otap_objects.otap_session_summary
+  * @see otap_objects.otap_session_summary and otap_test.otap_session_summary
   */
   FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_name
-  * @see otap_objects.otap_session_set_test_name
+  * @see otap_objects.otap_session_set_test_name and otap_test.otap_session_set_test_name
   */
   FUNCTION otap_session_set_test_name( p_test_name    IN            VARCHAR2
                                      , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -84,7 +93,7 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_group
-  * @see otap_objects.otap_session_set_test_group
+  * @see otap_objects.otap_session_set_test_group and otap_test.otap_session_set_test_group
   */
   FUNCTION otap_session_set_test_group( p_test_group   IN            VARCHAR2
                                       , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -93,7 +102,7 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_set
-  * @see otap_objects.otap_session_set_test_set
+  * @see otap_objects.otap_session_set_test_set and otap_test.otap_session_set_test_set
   */
   FUNCTION otap_session_set_test_set( p_test_set     IN            VARCHAR2
                                     , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -102,35 +111,35 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_get_test_id
-  * @see otap_objects.otap_session_get_test_id
+  * @see otap_objects.otap_session_get_test_id and otap_test.otap_session_get_test_id
   */
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   ;
 
   /** FUNCTION otap_api.otap_session_get_report_id
-  * @see otap_objects.otap_session_get_report_id
+  * @see otap_objects.otap_session_get_report_id and otap_test.otap_session_get_report_id
   */
   FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   ;
 
   /** FUNCTION otap_api.max_text_size
-  * @see otap_util.max_text_size
+  * @see otap_util.max_text_size and otap_test.max_text_size
   */
   FUNCTION max_text_size(p_session_id IN NUMBER)
     RETURN NUMBER
   ;
 
   /** FUNCTION otap_api.get_report_header
-  * @see otap_report.get_report_header
+  * @see otap_report.get_report_header and otap_test.get_report_header
   */
   FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_session_id_text
-  * @see otap_report.get_session_id_text
+  * @see otap_report.get_session_id_text and otap_test.get_session_id_text
   */
   FUNCTION get_session_id_text( p_session_id IN NUMBER
                               , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -139,7 +148,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_set_text
-  * @see otap_report.get_set_text
+  * @see otap_report.get_set_text and otap_test.get_set_text
   */
   FUNCTION get_set_text( p_test_set IN VARCHAR2
                        , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -148,7 +157,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_summary
-  * @see otap_report.get_summary
+  * @see otap_report.get_summary and otap_test.get_summary
   * Calculates status needed by errors and issues.
   */
   FUNCTION get_summary( p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -161,7 +170,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_group_text
-  * @see otap_report.get_group_text
+  * @see otap_report.get_group_text and otap_test.get_group_text
   */
   FUNCTION get_group_text( p_test_group IN VARCHAR2
                          , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -170,7 +179,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_test_name_text
-  * @see otap_report.get_test_name_text
+  * @see otap_report.get_test_name_text and otap_test.get_test_name_text
   */
   FUNCTION get_test_name_text( p_test_name IN VARCHAR2
                              , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -179,21 +188,21 @@ AS
   ;
 
   /** FUNCTION otap_api.get_result_header
-  * @see otap_report.get_result_header
+  * @see otap_report.get_result_header and otap_test.get_result_header
   */
   FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_result_underline
-  * @see otap_report.get_result_underline
+  * @see otap_report.get_result_underline and otap_test.get_result_underline
   */
   FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_result_line
-  * @see otap_report.get_result_line
+  * @see otap_report.get_result_line and otap_test.get_result_line
   */
   FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
@@ -205,14 +214,14 @@ AS
   ;
 
   /** FUNCTION otap_api.test_result_to_text
-  * @see otap_util.test_result_to_text
+  * @see otap_util.test_result_to_text and otap_test.test_result_to_text
   */
   FUNCTION test_result_to_text(p_test_passed IN NUMBER)
     RETURN VARCHAR
   ;
 
   /** FUNCTION otap_api.get_error_result_header
-  * @see otap_report.get_error_result_header
+  * @see otap_report.get_error_result_header and otap_test.get_error_result_header
   */
   FUNCTION get_error_result_header( p_test_name IN VARCHAR2
                                   , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -221,7 +230,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_error_details
-  * @see otap_report.get_error_details
+  * @see otap_report.get_error_details and otap_test.get_error_details
   */
   FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                             , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -231,7 +240,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_no_data_text
-  * @see otap_report.get_no_data_text
+  * @see otap_report.get_no_data_text and otap_report.get_no_data_text
   */
   FUNCTION get_no_data_text( p_session_id IN NUMBER
                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -240,14 +249,14 @@ AS
   ;
 
   /** FUNCTION otap_api.get_report_footer
-  * @see otap_report.get_report_footer
+  * @see otap_report.get_report_footer and otap_test.get_report_footer
   */
   FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.flatten
-  * @see otap_string.flatten
+  * @see otap_string.flatten and otap_test.flatten
   */
   FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
                   , p_size   INTEGER  DEFAULT 0
@@ -256,28 +265,28 @@ AS
   ;
 
   /** FUNCTION otap_api.get_text_test_count_name
-  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME)
+  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME) and otap_test.get_text_test_count_name
   */
   FUNCTION get_text_test_count_name
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_test_count_header
-  * @see otap_report.get_test_count_header
+  * @see otap_report.get_test_count_header and otap_test.get_test_count_header
   */
   FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_report_total
-  * @see otap_report.get_report_total
+  * @see otap_report.get_report_total and otap_test.get_report_total
   */
   FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_report_total_details
-  * @see otap_report.get_report_total_details
+  * @see otap_report.get_report_total_details and otap_test.get_report_total_details
   */
   FUNCTION get_report_total_details( p_sets         IN INTEGER  DEFAULT 0
                                    , p_groups       IN INTEGER  DEFAULT 0
@@ -360,6 +369,19 @@ AS
                       , p_table_name      IN            VARCHAR2      DEFAULT NULL
                       , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_object
+  * @see otap_schema.has_object and otap_test.has_object
+  */
+  FUNCTION has_object( p_object_name     IN            VARCHAR2
+                     , p_object_type     IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     , p_description     IN            VARCHAR2     DEFAULT NULL
+                     , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
     RETURN VARCHAR2
   ;
 

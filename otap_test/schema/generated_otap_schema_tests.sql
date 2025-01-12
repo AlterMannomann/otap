@@ -853,6 +853,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST'
                               , p_package_name => 'OTAP_PLAN'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_PLAN'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
 -- finish package function and procedure tests for OTAP_PLAN
 -- set test name for package
 SELECT otap_test.set_test_name('OTAP package OTAP_SCHEMA') FROM dual;
@@ -922,6 +928,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'NUMBER'
                               ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SHOW'
                               , p_schema => 'OTAP'
@@ -1115,6 +1127,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_OTAP'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
@@ -1142,6 +1160,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_TEST'
                               , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'NUMBER'
                               ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'CURRENT_SETTINGS'
                               , p_schema => 'OTAP'
@@ -1221,11 +1245,11 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
                               , p_package_name => 'OTAP_TEST'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'GET_SESSION_VAR'
+SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_TEST'
-                              , p_return_type => 'OBJECT'
+                              , p_return_type => 'VARCHAR2'
                               ) FROM dual;
 -- finish package function and procedure tests for OTAP_TEST
 -- set test name for package

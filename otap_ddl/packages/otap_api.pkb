@@ -103,6 +103,28 @@ AS
     RETURN l_message;
   END finish_test;
 
+  FUNCTION finish_test_with_exit_code( p_write_count_rec IN            NUMBER
+                                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                     )
+    RETURN NUMBER
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.finish_test_with_exit_code';
+    l_return  INTEGER;
+  BEGIN
+    -- default undefined
+    l_return := 2;
+    BEGIN
+      l_return := otap_plan.finish_test_with_exit_code(p_write_count_rec, o_otap_session);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_plan.finish_test_with_exit_code');
+        l_return := 2;
+    END;
+    -- return or let exception happen
+    RETURN l_return;
+  END finish_test_with_exit_code;
+
   FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
@@ -1039,6 +1061,71 @@ AS
     -- return result or let exception happen
     RETURN l_return;
   END has_trigger;
+
+  FUNCTION has_object( p_object_name     IN            VARCHAR2
+                     , p_object_type     IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     , p_description     IN            VARCHAR2     DEFAULT NULL
+                     , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_object';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+    l_tmp_otap_session OTAP_SESSION;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce( otap_report.get_exists_msg( p_object_name => p_object_name
+                                                                  , p_schema_name => l_schema
+                                                                  , p_object_type => otap_util.get_label_id(p_object_type)
+                                                                  , p_sub_object => NULL
+                                                                  , p_desc => p_description
+                                                                  )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_schema.has_object( p_object_name
+                                          , p_object_type
+                                          , l_errors
+                                          , l_schema
+                                          , p_expected_result
+                                          )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_object;
 
 END;
 /
