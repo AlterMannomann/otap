@@ -1,3 +1,4 @@
+![Logo](https://github.com/AlterMannomann/otap/blob/main/media/OtapLogo.jpg)
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap after updates. Currently no update support. Redesigns up to DBA may happen.
 
