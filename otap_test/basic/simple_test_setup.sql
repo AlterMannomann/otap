@@ -5,7 +5,7 @@ SET LONGCHUNKSIZE 4000
 SET HEADING OFF
 SET FEEDBACK OFF
 SELECT otap_test.current_settings FROM dual;
-SELECT otap_test.init_test(10, 'OTAP examples' , 'Test functions', 'Tests passing') FROM dual;
+SELECT otap_test.init_test(9, 'OTAP examples' , 'Test functions', 'Tests passing') FROM dual;
 SELECT otap_test.has_table('OTAP_CONFIG') FROM dual;
 SELECT otap_test.has_column('OTAP_CONFIG', 'CONFIG_NAME') FROM dual;
 SELECT otap_test.has_trigger('OTAP_TRANSLATE_INS_TRG') FROM dual;
