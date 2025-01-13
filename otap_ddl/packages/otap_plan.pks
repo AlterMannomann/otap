@@ -44,7 +44,8 @@ AS
 
   /** PROCEDURE otap_plan.write_count_result
   * Checks if intended_count is set and writes a final test record about expected and executed tests.
-  * Does nothing if OTAP_SESSION intended_count less or equal to 0.
+  * Does nothing if OTAP_SESSION intended_count less or equal to 0. This test is not counted within
+  * the test count.
   *
   * @param p_otap_session A valid OTAP_SESSION object to be used for test result insert.
   */
