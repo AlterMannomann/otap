@@ -1,4 +1,4 @@
-![Logo](https://github.com/AlterMannomann/otap/blob/main/media/OtapLogo.jpg)
+![OtapLogo](https://github.com/user-attachments/assets/b2ffe1ea-b139-43bd-a204-79bed632aa52)
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 
@@ -29,7 +29,7 @@ To do: Move test report code to otap_report package, extend test functions (sche
 
 See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
-![Simple Test](https://github.com/AlterMannomann/otap/blob/main/media/otap_simple_test.jpg)
+![otap_simple_test](https://github.com/user-attachments/assets/27bf12b7-7fea-42ea-9056-e4e0881c9d47)
 
 Basic otap test script started, see [master script](./otap_test/otap_test_master.sql) and [test log](./otap_test/otap_test_result.log).
 
