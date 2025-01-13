@@ -125,6 +125,14 @@ AS
     RETURN otap_view_result_tbl PIPELINED
   ;
 
+  FUNCTION view_tests( p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_like_view     IN VARCHAR2 DEFAULT '%'
+                     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                     , p_show_header   IN INTEGER  DEFAULT 1
+                     )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
   /** FUNCTION otap_generate.schema_tests
   * Generates the test scripts for the current available otap schema functions.
   * Provides set, group and name management.  Limited to line size 4000 but not to rows,

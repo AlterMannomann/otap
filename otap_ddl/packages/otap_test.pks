@@ -104,7 +104,7 @@ AS
   * longer show the tests from the old session. If intended count is set, a test record about
   * executed and expected tests is written. Wrapper for otap_api.finish_test.
   *
-  * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+  * @param p_write_count_rec The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE. Setting has no effect if intented count is not set or 0.
   *
   * @return A summary of the old session and details of the new session as text message LF delimited.
   *

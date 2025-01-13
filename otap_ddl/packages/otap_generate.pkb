@@ -24,7 +24,15 @@ AS
                       , cp_like   IN VARCHAR2
                       )
     IS
-      SELECT *
+      SELECT table_name
+           , column_name
+           , owner
+           , data_type
+           , data_precision
+           , data_length
+           , data_scale
+           , nullable
+           , data_default_vc
         FROM dba_tab_columns
        WHERE owner          = cp_schema
          AND table_name     = cp_table
@@ -254,7 +262,12 @@ AS
                       , cp_like   IN VARCHAR2
                       )
     IS
-      SELECT *
+      SELECT trigger_name
+           , table_name
+           , table_owner
+           , owner
+           , trigger_type
+           , triggering_event
         FROM dba_triggers
        WHERE owner           = cp_schema
          AND table_name      = cp_table
@@ -265,7 +278,10 @@ AS
                             , cp_like   IN VARCHAR2
                             )
     IS
-      SELECT *
+      SELECT trigger_name
+           , owner
+           , trigger_type
+           , triggering_event
         FROM dba_triggers
        WHERE owner           = cp_schema
          AND table_name     IS NULL
@@ -653,6 +669,113 @@ AS
       RAISE;
   END package_tests;
 
+  FUNCTION view_tests( p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_like_view     IN VARCHAR2 DEFAULT '%'
+                     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                     , p_show_header   IN INTEGER  DEFAULT 1
+                     )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_schema      VARCHAR2(128 CHAR);
+    l_base_title  VARCHAR2(256 CHAR);
+    l_like        VARCHAR2(256 CHAR);
+    l_test_count  INTEGER;
+    CURSOR cur_views( cp_schema IN VARCHAR2
+                    , cp_like   IN VARCHAR2
+                    )
+    IS
+      SELECT owner
+           , object_name AS view_name
+           , object_type
+        FROM dba_objects
+       WHERE owner          = cp_schema
+         AND object_type LIKE '%VIEW'
+         AND object_name LIKE cp_like
+       ORDER BY object_type DESC
+              , object_name
+    ;
+    CURSOR cur_columns( cp_schema IN VARCHAR2
+                      , cp_table  IN VARCHAR2
+                      , cp_like   IN VARCHAR2
+                      , cp_prefix IN VARCHAR2
+                      )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, '$', 0))
+    ;
+  BEGIN
+    l_like       := NVL(p_like_view, '%');
+    l_schema     := otap_string.reduce(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')), 128);
+    l_base_title := CASE WHEN p_title_prefix IS NULL THEN l_schema ELSE otap_string.reduce(p_title_prefix, 10) || ' - ' || l_schema END;
+    IF NVL(p_show_header, 1) = 1
+    THEN
+      l_statement := '-- otap GENERATE view test scripts for schema ' || l_schema || ' scope: ' || l_like;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      -- get test count
+      SELECT SUM(expected_tests) + 1 -- add one for the test count test
+        INTO l_test_count
+        FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type IN ('PACKAGE', 'PACKAGE BODY')
+               UNION ALL
+              SELECT COUNT(*) AS expected_tests FROM dba_procedures WHERE owner = l_schema AND procedure_name IS NOT NULL
+             )
+      ;
+      -- build init
+      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    END IF;
+    -- build group row
+    l_statement := '-- set test group for views';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'SELECT otap_test.set_test_group(''' || l_base_title || ' views'') FROM dual;';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    -- first loop through views
+    FOR rec IN cur_views(l_schema, l_like)
+    LOOP
+      l_statement := '-- set test name for view';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := 'SELECT otap_test.set_test_name(''' || l_base_title || ' view ' || rec.view_name || ''') FROM dual;';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := 'SELECT otap_test.has_object( p_object_name => ''' || rec.view_name || '''';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '                           , p_object_type => ''' || rec.object_type || '''';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '                           , p_schema => ''' || l_schema || '''';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '                           ) FROM dual;';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      FOR colrec IN cur_columns(l_schema, rec.view_name, '%', p_title_prefix)
+      LOOP
+        PIPE ROW (otap_view_result_rec(colrec.result_text, NULL));
+      END LOOP;
+    END LOOP;
+    IF NVL(p_show_header, 1) = 1
+    THEN
+      -- build finish
+      l_statement := '-- finish view tests for ' || l_like;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '-- finish test session';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := 'SELECT otap_test.finish_test FROM dual;';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := 'SELECT * FROM otap_latest_test_results_v;';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      -- add AI and copyright
+      l_statement := '-- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '-- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := '-- Not allowed to be used as AI training material without explicite permission.';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    ELSE
+      l_statement := '-- finish view tests for ' || l_like;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END view_tests;
 
   FUNCTION schema_tests( p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                        , p_title_prefix  IN VARCHAR2 DEFAULT NULL
@@ -688,6 +811,14 @@ AS
     IS
       SELECT result_text
         FROM TABLE(otap_generate.package_tests(cp_schema, cp_like, p_title_prefix, 0))
+    ;
+    CURSOR cur_views( cp_schema IN VARCHAR2
+                    , cp_like   IN VARCHAR2
+                    , cp_prefix IN VARCHAR2
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.view_tests(cp_schema, cp_like, p_title_prefix, 0))
     ;
   BEGIN
     l_like       := '%';
@@ -731,6 +862,10 @@ AS
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
     FOR rec IN cur_packages(l_schema, l_like, p_title_prefix)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    FOR rec IN cur_views(l_schema, l_like, p_title_prefix)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;

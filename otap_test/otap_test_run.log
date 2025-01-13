@@ -1,6 +1,6 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 294
+SQL> SELECT otap_test.init_test( p_test_count => 317
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 294
+Expected tests: 317
 Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-12 23:53:36
+Test start: 2025-01-13 02:06:43
 
 
 1 row selected.
@@ -3053,6 +3053,16 @@ Passed function OTAP_GENERATE.PACKAGE_TESTS exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VIEW_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.VIEW_TESTS exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_TESTS'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3290,12 +3300,232 @@ Passed procedure OTAP_LOG.LOG exists check (OTAP)
 
 SQL> -- finish package function and procedure tests for OTAP_LOG
 SQL> -- finish package tests for %
+SQL> -- set test group for views
+SQL> SELECT otap_test.set_test_group('OTAP views') FROM dual;
+Current test group: OTAP views
+
+1 row selected.
+
+SQL> -- set test name for view
+SQL> SELECT otap_test.set_test_name('OTAP view OTAP_IDENTIFIERS_V') FROM dual;
+Current test: OTAP view OTAP_IDENTIFIERS_V
+
+1 row selected.
+
+SQL> SELECT otap_test.has_object( p_object_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_object_type => 'VIEW'
+  3  				, p_schema => 'OTAP'
+  4  				) FROM dual;
+Passed view OTAP_IDENTIFIERS_V exists check (OTAP)
+
+1 row selected.
+
+SQL> -- loop through columns with names like %
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'OTAP_IDENTIFIER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_TEXT_LOWER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 16000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_LOWER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_TEXT_CAP'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 16000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_CAP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_TEXT_UPPER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 16000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_UPPER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_SOURCE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 16000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_SOURCE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_TYPE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 32767
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'LABEL_TRANSLATABLE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'NUMBER'
+  5  				, p_data_length => 22
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.LABEL_TRANSLATABLE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+  2  				, p_column_name => 'FROM_CONFIG'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'NUMBER'
+  5  				, p_data_length => 22
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_IDENTIFIERS_V.FROM_CONFIG exists check (OTAP)
+
+1 row selected.
+
+SQL> -- finish column tests for OTAP_IDENTIFIERS_V
+SQL> -- set test name for view
+SQL> SELECT otap_test.set_test_name('OTAP view OTAP_LATEST_TEST_RESULTS_V') FROM dual;
+Current test: OTAP view OTAP_LATEST_TEST_RESULTS_V
+
+1 row selected.
+
+SQL> SELECT otap_test.has_object( p_object_name => 'OTAP_LATEST_TEST_RESULTS_V'
+  2  				, p_object_type => 'VIEW'
+  3  				, p_schema => 'OTAP'
+  4  				) FROM dual;
+Passed view OTAP_LATEST_TEST_RESULTS_V exists check (OTAP)
+
+1 row selected.
+
+SQL> -- loop through columns with names like %
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LATEST_TEST_RESULTS_V'
+  2  				, p_column_name => 'RESULT_TEXT'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 16000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LATEST_TEST_RESULTS_V.RESULT_TEXT exists check (OTAP)
+
+1 row selected.
+
+SQL> -- finish column tests for OTAP_LATEST_TEST_RESULTS_V
+SQL> -- set test name for view
+SQL> SELECT otap_test.set_test_name('OTAP view OTAP_LABELS_MV') FROM dual;
+Current test: OTAP view OTAP_LABELS_MV
+
+1 row selected.
+
+SQL> SELECT otap_test.has_object( p_object_name => 'OTAP_LABELS_MV'
+  2  				, p_object_type => 'MATERIALIZED VIEW'
+  3  				, p_schema => 'OTAP'
+  4  				) FROM dual;
+Passed materialized view OTAP_LABELS_MV exists check (OTAP)
+
+1 row selected.
+
+SQL> -- loop through columns with names like %
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'ORACLE_TYPE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_IDENTIFIER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_LOWER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_CAP'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_UPPER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_SOURCE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
+
+1 row selected.
+
+SQL> -- finish column tests for OTAP_LABELS_MV
+SQL> -- finish view tests for %
 SQL> -- finish schema tests for OTAP
 SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 5 tests: 298 from 294 errors: 0 run time: +000000000 00:00:18.000000000 started: 2025-01-12 23:53:36
+Summary id: 5 tests: 317 from 317 errors: 0 run time: +000000000 00:00:18.000000000 started: 2025-01-13 02:06:43
 Current test settings
 Test session id: 6
 Test set: OTAP test set
@@ -3311,7 +3541,7 @@ Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-12 23:53:54
+Test start: 2025-01-13 02:07:01
 
 
 1 row selected.
