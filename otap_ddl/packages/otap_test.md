@@ -42,10 +42,8 @@ Parameter:
 ## FUNCTION otap_test.finish_test
 Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names for test set, group and name. When a test session is finished, the result is available with view OTAP_LATEST_RESULTS_V. If intended count is set, a test record about executed and expected tests is written. This test record is not included in the count test compare.
 
-Does nothing if intented count is not set or 0.
-
 Parameter:
-- *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE (1) or otap_constants.OTAP_NUM_FALSE (0). Default is otap_constants.OTAP_NUM_TRUE.
+- *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE (1) or otap_constants.OTAP_NUM_FALSE (0). Default is otap_constants.OTAP_NUM_TRUE. Setting has no effect if intented count is not set or 0.
 
 *Return* A summary of the old session and details of the new session as text message LF delimited.
 
@@ -59,7 +57,7 @@ Equal to finish_test apart from the return value check and translation. Undefine
 failed tests may be contained in the current test report. If you finish a test session without any test run, the result is UNDEFINED.
 
 Parameter:
-- *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE.
+- *p_write_count_rec* The indicator, if record count test should be done and written. Either otap_constants.OTAP_NUM_TRUE or otap_constants.OTAP_NUM_FALSE. Setting has no effect if intented count is not set or 0.
 
 *Return* A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
 
