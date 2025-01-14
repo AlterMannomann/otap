@@ -39,6 +39,7 @@ GRANT SELECT ON dba_sequences TO OTAP;
 GRANT SELECT ON dba_views TO OTAP;
 GRANT SELECT ON dba_mviews TO OTAP;
 GRANT SELECT ON dba_scheduler_jobs TO OTAP;
+GRANT SELECT ON dba_constraints TO OTAP;
 GRANT SELECT ON v_$reserved_words TO OTAP;
 === otap DBA update result ===
 Granted CONNECT, RESOURCE, CREATE VIEW, CREATE JOB to OTAP
@@ -50,7 +51,7 @@ Grant SELECT to OTAP on:
   DBA_DATA_FILES, GV$DATABASE, DBA_USERS, 
   DBA_ROLES, DBA_ROLE_PRIVS, DBA_SYS_PRIVS, 
   DBA_TAB_PRIVS, DBA_SEQUENCES, DBA_VIEWS, 
-  DBA_MVIEWS, DBA_SCHEDULER_JOBS, V$RESERVED_WORDS
+  DBA_MVIEWS, DBA_SCHEDULER_JOBS, DBA_CONSTRAINTS, V$RESERVED_WORDS
 SUCCESS no errors
 (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 Not allowed to be used as AI training material without explicite permission.

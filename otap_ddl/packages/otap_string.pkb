@@ -411,5 +411,25 @@ AS
       RAISE;
   END borderless;
 
+  FUNCTION is_sys_object( p_string  IN VARCHAR2
+                        , p_exclude IN NUMBER   DEFAULT 1
+                        )
+    RETURN BOOLEAN
+  IS
+    l_script VARCHAR2(256 CHAR) := 'otap_string.is_sys_object';
+    l_return BOOLEAN;
+  BEGIN
+    l_return := FALSE;
+    IF NVL(p_exclude, 1) != 0
+    THEN
+      l_return := (UPPER(SUBSTR(TRIM(p_string), 1, 4)) = 'SYS_' OR INSTR(p_string, '$') > 0 OR INSTR(p_string, '#') > 0);
+    END IF;
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'Identify sys object');
+      RETURN FALSE;
+  END is_sys_object;
+
 END;
 /

@@ -58,7 +58,7 @@ COLUMN ROLE_UPDATE NEW_VAL ROLE_UPDATE
                      , 1           AS user_update
                   FROM otapx
                  WHERE otap_users   = 1
-                   AND object_count = 46
+                   AND object_count = 45
                  UNION ALL
                SELECT 'OTAP'  AS otap_schema
                     , CASE WHEN otap_users > 0 THEN -1 ELSE otap_users END AS user_update
@@ -232,94 +232,122 @@ BEGIN
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'Grant SELECT to &OTAP_USER. on:' || l_lf;
   l_output := l_output || '  DBA_OBJECTS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_tables TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TABLES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_tab_columns TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TAB_COLUMNS' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_procedures TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_PROCEDURES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_arguments TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_ARGUMENTS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_triggers TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TRIGGERS, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_types TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_TYPES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_type_attrs TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TYPE_ATTRS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_type_methods TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TYPE_METHODS, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_type_versions TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_TYPE_VERSIONS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_indexes TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_INDEXES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_tablespaces TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_TABLESPACES, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_data_files TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_DATA_FILES, ';
+  --
   l_statement := 'GRANT SELECT ON gv_$database TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'GV$DATABASE, ';
+  --
   l_statement := 'GRANT SELECT ON dba_users TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_USERS, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_roles TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_ROLES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_role_privs TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_ROLE_PRIVS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_sys_privs TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_SYS_PRIVS, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_tab_privs TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_TAB_PRIVS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_sequences TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_SEQUENCES, ';
+  --
   l_statement := 'GRANT SELECT ON dba_views TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_VIEWS, ' || l_lf;
+  --
   l_statement := 'GRANT SELECT ON dba_mviews TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_MVIEWS, ';
+  --
   l_statement := 'GRANT SELECT ON dba_scheduler_jobs TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_SCHEDULER_JOBS, ';
+  --
+  l_statement := 'GRANT SELECT ON dba_constraints TO &OTAP_USER.';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || 'DBA_CONSTRAINTS, ';
+  -- final
   l_statement := 'GRANT SELECT ON v_$reserved_words TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;

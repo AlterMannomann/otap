@@ -463,6 +463,26 @@ OR p_otap_session.session_view_id             IS NULL]'
       RAISE;
   END otap_session_get_report_id;
 
+  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            VARCHAR2
+                                           , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                           )
+    RETURN NUMBER
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_session_view_id';
+  BEGIN
+    otap_objects.otap_session_verify(o_otap_session);
+    o_otap_session.session_view_id := p_session_view_id;
+    RETURN o_otap_session.session_view_id;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_set_session_view_id;
+
   PROCEDURE otap_session_add_test( p_test_passed  IN NUMBER
                                  , o_otap_session IN OUT NOCOPY OTAP_SESSION
                                  )

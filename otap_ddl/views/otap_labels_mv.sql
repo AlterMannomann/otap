@@ -11,6 +11,7 @@ AS
                  SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ( 'COLUMN'
                                                                                                                         , 'USER'
                                                                                                                         , 'ROLE'
+                                                                                                                        , 'CONSTRAINT'
                                                                                                                         )
                 )
   SELECT object_type                                                            AS oracle_type
