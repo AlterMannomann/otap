@@ -260,5 +260,22 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_string.is_sys_object
+  * Analyze names for typical system objects. Identifier is beginning SYS_ for system generated object and $ or #,
+  * which may occur anywhere in the name of system objects. Oracle strongly discourages the use of the symbols $ and # in object names.
+  *
+  * Usually used in NOT constructs like WHERE NOT otap_string.is_sys_object(object_name, 1).
+  *
+  * @param p_string The string to analyze if it is a system object starting with SYS_ or containing a $ sign.
+  * @param p_exclude Switch to turn the check off when set to 0. Default is 1. Other values interpreted as 1. If set to 0 will always return FALSE.
+  *
+  * @return TRUE if string is a system object, otherwise FALSE (also on errors).
+  */
+  FUNCTION is_sys_object( p_string  IN VARCHAR2
+                        , p_exclude IN NUMBER   DEFAULT 1
+                        )
+    RETURN BOOLEAN
+  ;
+
 END;
 /

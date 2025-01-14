@@ -4,56 +4,6 @@ SELECT otap_test.set_test_set('OTAP schema') FROM dual;
 SELECT otap_test.set_test_group('OTAP tables') FROM dual;
 -- loop through tables with names like %
 -- set test name for table
-SELECT otap_test.set_test_name('OTAP table SPERRORLOG') FROM dual;
-SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
-                          , p_schema => 'OTAP'
-                          ) FROM dual;
--- loop through columns with names like %
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'USERNAME'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 1024
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'TIMESTAMP'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'TIMESTAMP(6)'
-                           , p_data_length => 11
-                           , p_data_scale => 6
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'SCRIPT'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'IDENTIFIER'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 1024
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'MESSAGE'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'STATEMENT'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
--- finish column tests for SPERRORLOG
--- set test name for table
 SELECT otap_test.set_test_name('OTAP table OTAP_CONFIG') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_CONFIG'
                           , p_schema => 'OTAP'
@@ -121,7 +71,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'SESSION_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_column_name => 'CREATED_BY_OS'
@@ -129,7 +78,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'OS_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_column_name => 'UPDATED_BY'
@@ -137,7 +85,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'SESSION_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_column_name => 'UPDATED_BY_OS'
@@ -145,7 +92,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'OS_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_column_name => 'CONFIG_DESCRIPTION'
@@ -215,7 +161,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 512
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'SESSION_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_column_name => 'TEST_SET'
@@ -231,7 +176,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 512
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'CURRENT_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_column_name => 'DB_SCHEMA'
@@ -239,7 +183,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 512
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_column_name => 'TEST_GROUP'
@@ -351,7 +294,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'SESSION_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_column_name => 'CREATED_BY_OS'
@@ -359,7 +301,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'OS_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_column_name => 'UPDATED_BY'
@@ -367,7 +308,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'SESSION_USER')]'
                            ) FROM dual;
 SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_column_name => 'UPDATED_BY_OS'
@@ -375,7 +315,6 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_data_type => 'VARCHAR2'
                            , p_data_length => 1024
                            , p_nullable => 'N'
-                           , p_data_default => q'[SYS_CONTEXT('USERENV', 'OS_USER')]'
                            ) FROM dual;
 -- finish column tests for OTAP_TRANSLATE
 -- set test name for table
@@ -427,6 +366,56 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
                            , p_nullable => 'Y'
                            ) FROM dual;
 -- finish column tests for OTAP_LABELS_MV
+-- set test name for table
+SELECT otap_test.set_test_name('OTAP table SPERRORLOG') FROM dual;
+SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
+                          , p_schema => 'OTAP'
+                          ) FROM dual;
+-- loop through columns with names like %
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'USERNAME'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 1024
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'TIMESTAMP'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'TIMESTAMP(6)'
+                           , p_data_length => 11
+                           , p_data_scale => 6
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'SCRIPT'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'IDENTIFIER'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 1024
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'MESSAGE'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'STATEMENT'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+-- finish column tests for SPERRORLOG
 -- finish table tests for %
 -- set test group for trigger
 SELECT otap_test.set_test_group('OTAP trigger') FROM dual;
@@ -594,6 +583,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'BORDERLESS'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_STRING'
                               , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'IS_SYS_OBJECT'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_STRING'
+                              , p_return_type => 'BOOLEAN'
                               ) FROM dual;
 -- finish package function and procedure tests for OTAP_STRING
 -- set test name for package
@@ -917,6 +912,11 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_API'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
 -- loop through package functions and triggers with names like %
+SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_OTAP'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'PROCEDURE'
+                              , p_package_name => 'OTAP_API'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'INIT_TEST'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1132,11 +1132,6 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'VARCHAR2'
-                              ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_OTAP'
-                              , p_schema => 'OTAP'
-                              , p_procedure_type => 'PROCEDURE'
-                              , p_package_name => 'OTAP_API'
                               ) FROM dual;
 -- finish package function and procedure tests for OTAP_API
 -- set test name for package
@@ -1408,6 +1403,23 @@ SELECT otap_test.has_procedure( p_procedure_name => 'VIEW_TESTS'
                               , p_return_type => 'TABLE'
                               ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'SET_GEN_TYPE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'PROCEDURE'
+                              , p_package_name => 'OTAP_GENERATE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_GEN_TYPE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_HEADER'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_GENERATE'

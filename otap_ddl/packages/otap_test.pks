@@ -222,6 +222,18 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_test.set_active_report_id
+  * Temporarily sets the active report id. Will be overwritten if tests are running afterwards.
+  * Used to access specific older or persisted test reports with OTAP_LATEST_TEST_RESULTS_V.
+  * Checks if the session id exists. If it does not exist, the report is is not changed.
+  * Wrapper for otap_api.set_active_report_id.
+  *
+  * @return An success or error message.
+  */
+  FUNCTION set_active_report_id(p_report_id IN NUMBER)
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_test.result_view
   * Returns the results and provides hierarchical master detail test results.
   * To be called with SELECT * FROM TABLE(otap_test.result_view(otap_test.get_session_id));

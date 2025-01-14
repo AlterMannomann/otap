@@ -3,13 +3,99 @@
 -- Not allowed to be used as AI training material without explicite permission.
 CREATE OR REPLACE PACKAGE BODY otap_generate
 AS
+  -- package constants and variables
+  GEN_TYPE_SCRIPT     CONSTANT CHAR(1)  := 'S';
+  GEN_TYPE_FUNCTION   CONSTANT CHAR(1)  := 'F';
+  GEN_TYPE_PROCEDURE  CONSTANT CHAR(1)  := 'P';
+  PREFIX_SQL          CONSTANT CHAR(7)  := 'SELECT ';
+  PREFIX_PLSQL        CONSTANT CHAR(15) := '  l_message := ';
+  POSTFIX_SQL         CONSTANT CHAR(11) := ' FROM daul;';
+  POSTFIX_PLSQL       CONSTANT CHAR(1)  := ';';
+
+  generation_type VARCHAR2(1) := 'S';
+
   -- for description see header file
+  PROCEDURE set_gen_type(p_gen_type IN VARCHAR2)
+  IS
+  BEGIN
+    IF TRIM(p_gen_type) IN (GEN_TYPE_SCRIPT, GEN_TYPE_FUNCTION, GEN_TYPE_PROCEDURE)
+    THEN
+      generation_type := TRIM(p_gen_type);
+    END IF;
+  END set_gen_type;
+
+  FUNCTION get_gen_type
+    RETURN VARCHAR2
+  IS
+  BEGIN
+    RETURN generation_type;
+  END;
+
+  FUNCTION build_function_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                , p_group         IN VARCHAR2 DEFAULT NULL
+                                , p_name          IN VARCHAR2 DEFAULT NULL
+                                )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_set         VARCHAR2(128 CHAR);
+    l_group       VARCHAR2(128 CHAR);
+    l_name        VARCHAR2(128 CHAR);
+    l_fn_name     VARCHAR2(128 CHAR);
+    l_prefix      VARCHAR2(10 CHAR);
+  BEGIN
+    l_fn_name := 'test_';
+    -- set, group and nem should not contain underscore
+    l_set     := CASE
+                   WHEN p_title_prefix IS NOT NULL
+                   -- add prefix limited to 10 chars
+                   THEN SUBSTR(TRIM(p_title_prefix), 1, 10) || NVL(TRIM(p_set), SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+                   ELSE NVL(TRIM(p_set), SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+                 END
+    ;
+    l_set     := otap_string.reduce(REGEXP_REPLACE(l_set, '[^[:alnum:]]'), 40);
+    l_fn_name := l_fn_name || l_set;
+    -- if group is not defined, name is not considered
+    IF p_group IS NOT NULL
+    THEN
+      l_group := otap_string.reduce(REGEXP_REPLACE(p_group, '[^[:alnum:]]'), 30);
+      l_fn_name := l_fn_name || '_' || l_group;
+      IF p_name IS NOT NULL
+      THEN
+        -- for names we do not care about underscores
+        l_name := otap_string.reduce(REGEXP_REPLACE(p_name, '[^[:alnum:]_]'), 128);
+        l_fn_name := l_fn_name || '_' || l_name;
+      END IF;
+    END IF;
+    -- remove blanks and not allowed/recommended chars if still any and reduce
+    l_fn_name  := otap_string.reduce(REGEXP_REPLACE(l_fn_name, '[^[:alnum:]_]'), 128);
+    l_statement := '-- otap GENERATE test function ' || UPPER(l_fn_name);
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'CREATE OR REPLACE FUNCTION ' || l_fn_name;
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := ' RETURN NUMBER';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'IS';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := '  l_message VARCHAR2(4000);';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := '  l_return  NUMBER;';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'BEGIN';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END build_function_header;
+
   FUNCTION column_tests( p_table         IN VARCHAR2
                        , p_like_column   IN VARCHAR2 DEFAULT '%'
                        , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                        , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-                       , p_excl_default  IN VARCHAR2 DEFAULT '$'
                        , p_show_header   IN INTEGER  DEFAULT 1
+                       , p_excl_sysgen   IN INTEGER  DEFAULT 1
                        )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -22,6 +108,7 @@ AS
     CURSOR cur_columns( cp_schema IN VARCHAR2
                       , cp_table  IN VARCHAR2
                       , cp_like   IN VARCHAR2
+                      , cp_excl   IN NUMBER
                       )
     IS
       SELECT table_name
@@ -37,6 +124,7 @@ AS
        WHERE owner          = cp_schema
          AND table_name     = cp_table
          AND column_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(column_name, cp_excl)
        ORDER BY column_id
     ;
   BEGIN
@@ -51,17 +139,21 @@ AS
         l_statement := '-- otap GENERATE column test scripts for table ' || l_schema || '.' || l_table || ' scope: ' || l_like;
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
         -- get test count
-        SELECT SUM(expected_tests) + 1 -- add one for the test count test
+        SELECT COUNT(*)
           INTO l_test_count
-          FROM (SELECT COUNT(*) AS expected_tests FROM dba_tab_columns WHERE owner = l_schema AND table_name = l_table)
+          FROM dba_tab_columns
+         WHERE owner          = l_schema
+           AND table_name     = l_table
+           AND column_name LIKE l_like
+           AND NOT otap_string.is_sys_object(column_name, p_excl_sysgen)
         ;
         -- build init
-        l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+        l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
       END IF;
       l_statement := '-- loop through columns with names like ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      FOR rec IN cur_columns(l_schema, l_table, l_like)
+      FOR rec IN cur_columns(l_schema, l_table, l_like, p_excl_sysgen)
       LOOP
         l_statement := 'SELECT otap_test.has_column( p_table_name => ''' || rec.table_name || '''';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -85,8 +177,8 @@ AS
         END IF;
         l_statement := '                           , p_nullable => ''' || rec.nullable || '''';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
-        IF     rec.data_default_vc                               IS NOT NULL
-           AND NVL(INSTR(rec.data_default_vc, p_excl_default), 0) = 0
+        IF     rec.data_default_vc IS NOT NULL
+           AND NOT otap_string.is_sys_object(rec.data_default_vc, p_excl_sysgen)
         THEN
           IF INSTR(rec.data_default_vc, '''') > 0
           THEN
@@ -133,6 +225,7 @@ AS
                       , p_like_table    IN VARCHAR2 DEFAULT '%'
                       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                       , p_show_header   IN INTEGER  DEFAULT 1
+                      , p_excl_sysgen   IN INTEGER  DEFAULT 1
                       )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -143,6 +236,7 @@ AS
     l_test_count  INTEGER;
     CURSOR cur_tables( cp_schema IN VARCHAR2
                      , cp_like   IN VARCHAR2
+                     , cp_excl   IN NUMBER
                      )
     IS
       SELECT object_name AS table_name
@@ -150,15 +244,17 @@ AS
        WHERE owner          = cp_schema
          AND object_type    = 'TABLE'
          AND object_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(object_name, cp_excl)
     ;
     CURSOR cur_columns( cp_schema IN VARCHAR2
                       , cp_table  IN VARCHAR2
                       , cp_like   IN VARCHAR2
                       , cp_prefix IN VARCHAR2
+                      , cp_excl   IN NUMBER
                       )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, '$', 0))
+        FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, 0, cp_excl))
     ;
   BEGIN
     l_like       := NVL(p_like_table, '%');
@@ -168,16 +264,44 @@ AS
     THEN
       l_statement := '-- otap GENERATE table test scripts for schema ' || l_schema || ' scope: ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      -- get test count
-      SELECT SUM(expected_tests) + 1 -- add one for the test count test
-        INTO l_test_count
-        FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type = 'TABLE'
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_tab_columns WHERE owner = l_schema
+      -- get test count, simulate conditions of called test generators
+         WITH base AS
+             (SELECT object_name
+                   , object_type
+                   , owner
+                FROM dba_objects
+               WHERE owner = l_schema
+                     -- currently supported objects
+                 AND object_type    = 'TABLE'
+                     -- user like condition
+                 AND object_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
              )
-      ;
+             -- counter objects
+           , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
+           , cols AS
+             (SELECT dbc.owner
+                   , dbc.table_name
+                   , dbc.column_name
+                FROM dba_tab_columns dbc
+               INNER JOIN base
+                  ON dbc.owner      = base.owner
+                 AND dbc.table_name = base.object_name
+                     -- user like condition
+               WHERE dbc.column_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbc.column_name, p_excl_sysgen)
+             )
+           , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
+           , cnt AS
+             (SELECT expected_count, 'BASE' AS info FROM cnt_base
+               UNION ALL
+              SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
+             )
+      SELECT SUM(expected_count) INTO l_test_count FROM cnt;
       -- build init
-      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
     END IF;
     -- build group row
@@ -187,7 +311,7 @@ AS
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     l_statement := '-- loop through tables with names like ' || l_like;
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
-    FOR rec IN cur_tables(l_schema, l_like)
+    FOR rec IN cur_tables(l_schema, l_like, p_excl_sysgen)
     LOOP
       l_statement := '-- set test name for table';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -199,7 +323,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := '                          ) FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      FOR colrec IN cur_columns(l_schema, rec.table_name, '%', p_title_prefix)
+      FOR colrec IN cur_columns(l_schema, rec.table_name, l_like, p_title_prefix, p_excl_sysgen)
       LOOP
         PIPE ROW (otap_view_result_rec(colrec.result_text, NULL));
       END LOOP;
@@ -236,6 +360,7 @@ AS
                         , p_like_trigger  IN VARCHAR2 DEFAULT '%'
                         , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                         , p_show_header   IN INTEGER  DEFAULT 1
+                        , p_excl_sysgen   IN INTEGER  DEFAULT 1
                         )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -247,6 +372,7 @@ AS
     l_test_count  INTEGER;
     CURSOR cur_table_trigger( cp_schema IN VARCHAR2
                             , cp_like   IN VARCHAR2
+                            , cp_excl   IN NUMBER
                             )
     IS
       SELECT table_name
@@ -254,12 +380,15 @@ AS
        WHERE owner           = cp_schema
          AND table_name     IS NOT NULL
          AND trigger_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(table_name, cp_excl)
+         AND NOT otap_string.is_sys_object(trigger_name, cp_excl)
        GROUP BY table_name
        ORDER BY table_name
     ;
     CURSOR cur_trigger( cp_schema IN VARCHAR2
                       , cp_table  IN VARCHAR2
                       , cp_like   IN VARCHAR2
+                      , cp_excl   IN NUMBER
                       )
     IS
       SELECT trigger_name
@@ -272,10 +401,12 @@ AS
        WHERE owner           = cp_schema
          AND table_name      = cp_table
          AND trigger_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(trigger_name, cp_excl)
        ORDER BY trigger_name
     ;
     CURSOR cur_other_trigger( cp_schema IN VARCHAR2
                             , cp_like   IN VARCHAR2
+                            , cp_excl   IN NUMBER
                             )
     IS
       SELECT trigger_name
@@ -286,6 +417,7 @@ AS
        WHERE owner           = cp_schema
          AND table_name     IS NULL
          AND trigger_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(trigger_name, cp_excl)
        ORDER BY trigger_name
     ;
   BEGIN
@@ -297,12 +429,15 @@ AS
       l_statement := '-- otap GENERATE trigger test scripts for schema ' || l_schema || ' scope: ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       -- get test count
-      SELECT SUM(expected_tests) + 1 -- add one for the test count test
+      SELECT COUNT(*)
         INTO l_test_count
-        FROM (SELECT COUNT(*) AS expected_tests FROM dba_triggers WHERE owner = l_schema)
+        FROM dba_triggers
+       WHERE owner           = l_schema
+         AND trigger_name LIKE l_like
+         AND NOT otap_string.is_sys_object(trigger_name, p_excl_sysgen)
       ;
       -- build init
-      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
     END IF;
     -- build group row
@@ -315,14 +450,14 @@ AS
     SELECT COUNT(*) INTO l_count FROM dba_triggers WHERE owner = l_schema AND table_name IS NOT NULL;
     IF l_count > 0
     THEN
-      FOR rec IN cur_table_trigger(l_schema, l_like)
+      FOR rec IN cur_table_trigger(l_schema, l_like, p_excl_sysgen)
       LOOP
         -- build name
         l_statement := 'SELECT otap_test.set_test_name(''' || l_base_title || ' ' || rec.table_name || ' table trigger'') FROM dual;';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
         l_statement := '-- loop through triggers with names like ' || l_like;
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
-        FOR rectrg IN cur_trigger(l_schema, rec.table_name, l_like)
+        FOR rectrg IN cur_trigger(l_schema, rec.table_name, l_like, p_excl_sysgen)
         LOOP
           l_statement := 'SELECT otap_test.has_trigger( p_trigger_name => ''' || rectrg.trigger_name || '''';
           PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -349,7 +484,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := '-- loop through triggers with names like ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      FOR rec IN cur_other_trigger(l_schema, l_like)
+      FOR rec IN cur_other_trigger(l_schema, l_like, p_excl_sysgen)
       LOOP
         l_statement := 'SELECT otap_test.has_trigger( p_trigger_name => ''' || rec.trigger_name || '''';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -396,6 +531,7 @@ AS
                          , p_schema         IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                          , p_title_prefix   IN VARCHAR2 DEFAULT NULL
                          , p_show_header    IN INTEGER  DEFAULT 1
+                         , p_excl_sysgen    IN INTEGER  DEFAULT 1
                          )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -408,6 +544,7 @@ AS
     CURSOR cur_pkg_proc( cp_schema  IN VARCHAR2
                        , cp_package IN VARCHAR2
                        , cp_like    IN VARCHAR2
+                       , cp_excl    IN NUMBER
                        )
     IS
         WITH prc AS
@@ -443,6 +580,8 @@ AS
                  AND dbo.object_type  = 'PACKAGE'
                      -- exclude package itself
                  AND dbp.procedure_name IS NOT NULL
+                 AND NOT otap_string.is_sys_object(dbp.procedure_name, cp_excl)
+                 AND NOT otap_string.is_sys_object(dbo.object_name, cp_excl)
                UNION ALL
               SELECT dbo.owner
                    , dbo.object_name AS procedure_name
@@ -468,6 +607,7 @@ AS
                  AND dbr.sequence      = 1
                WHERE dbo.owner        = cp_schema
                  AND dbo.object_type IN ('FUNCTION', 'PROCEDURE')
+                 AND NOT otap_string.is_sys_object(dbo.object_name, cp_excl)
              )
       SELECT DISTINCT
              owner
@@ -492,20 +632,43 @@ AS
         l_statement := '-- otap GENERATE package function and procedure test scripts for package ' || l_schema || '.' || l_package || ' scope: ' || l_like;
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
         -- get test count
-        SELECT SUM(expected_tests) + 1 -- add one for the test count test
-          INTO l_test_count
-          FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type IN ('PACKAGE', 'PACKAGE BODY')
-                 UNION ALL
-                SELECT COUNT(*) AS expected_tests FROM dba_procedures WHERE owner = l_schema AND procedure_name IS NOT NULL
+           WITH base AS
+               (SELECT object_name
+                     , object_type
+                     , owner
+                  FROM dba_objects
+                 WHERE owner = l_schema
+                       -- currently supported objects
+                   AND object_type = 'PACKAGE'
+                       -- user like condition
+                   AND object_name = l_package
+                       -- user exclude condition
+                   AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
                )
-        ;
+               -- depending procedures
+             , prc AS
+               (SELECT dbp.procedure_name
+                     , dbp.object_name
+                     , dbp.object_type
+                  FROM dba_procedures dbp
+                 INNER JOIN base
+                    ON dbp.object_name = base.object_name
+                   AND dbp.object_type = base.object_type
+                   AND dbp.owner       = base.owner
+                       -- user like condition
+                 WHERE dbp.procedure_name LIKE l_like
+                       -- user exclude condition
+                   AND NOT otap_string.is_sys_object(dbp.procedure_name, p_excl_sysgen)
+               )
+             , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
+        SELECT expected_count INTO l_test_count FROM cnt_prc;
         -- build init
-        l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+        l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
       END IF;
       l_statement := '-- loop through package functions and triggers with names like ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      FOR rec IN cur_pkg_proc(l_schema, l_package, l_like)
+      FOR rec IN cur_pkg_proc(l_schema, l_package, l_like, p_excl_sysgen)
       LOOP
         l_statement := 'SELECT otap_test.has_procedure( p_procedure_name => ''' || rec.procedure_name || '''';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -556,6 +719,7 @@ AS
                         , p_like_package  IN VARCHAR2 DEFAULT '%'
                         , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                         , p_show_header   IN INTEGER  DEFAULT 1
+                        , p_excl_sysgen   IN INTEGER  DEFAULT 1
                         )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -567,6 +731,7 @@ AS
     l_test_count  INTEGER;
     CURSOR cur_packages( cp_schema IN VARCHAR2
                        , cp_like   IN VARCHAR2
+                       , cp_excl   IN NUMBER
                        )
     IS
       SELECT object_name AS package_name
@@ -575,16 +740,18 @@ AS
        WHERE owner          = cp_schema
          AND object_type LIKE 'PACKAGE%'
          AND object_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(object_name, cp_excl)
        GROUP BY object_name
     ;
     CURSOR cur_procedures( cp_schema  IN VARCHAR2
                          , cp_package IN VARCHAR2
                          , cp_like    IN VARCHAR2
                          , cp_prefix  IN VARCHAR2
+                         , cp_excl    IN NUMBER
                          )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.pkg_procedures(cp_package, cp_like, cp_schema, cp_prefix, 0))
+        FROM TABLE(otap_generate.pkg_procedures(cp_package, cp_like, cp_schema, cp_prefix, 0, cp_excl))
     ;
   BEGIN
     l_like       := NVL(p_like_package, '%');
@@ -594,16 +761,48 @@ AS
     THEN
       l_statement := '-- otap GENERATE package test scripts for schema ' || l_schema || ' scope: ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      -- get test count
-      SELECT SUM(expected_tests) + 1 -- add one for the test count test
-        INTO l_test_count
-        FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type IN ('PACKAGE', 'PACKAGE BODY')
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_procedures WHERE owner = l_schema AND procedure_name IS NOT NULL
+      -- get test count, simulate conditions of called test generators
+         WITH base AS
+             (SELECT object_name
+                   , object_type
+                   , owner
+                FROM dba_objects
+               WHERE owner = l_schema
+                     -- currently supported objects
+                 AND object_type LIKE 'PACKAGE%'
+                     -- user like condition
+                 AND object_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
              )
-      ;
+             -- counter objects
+           , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
+             -- depending procedures
+           , prc AS
+             (SELECT dbp.procedure_name
+                   , dbp.object_name
+                   , dbp.object_type
+                FROM dba_procedures dbp
+               INNER JOIN base
+                  ON dbp.object_name = base.object_name
+                 AND dbp.object_type = base.object_type
+                 AND dbp.owner       = base.owner
+                     -- exclude pure functions and procedures, already counted by base
+                 AND base.object_type NOT IN ('FUNCTION', 'PROCEDURE')
+                     -- user like condition
+               WHERE dbp.procedure_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbp.procedure_name, p_excl_sysgen)
+             )
+           , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
+           , cnt AS
+             (SELECT expected_count, 'BASE' AS info FROM cnt_base
+               UNION ALL
+              SELECT expected_count, 'PROCEDURES' AS info FROM cnt_prc
+             )
+      SELECT SUM(expected_count) INTO l_test_count FROM cnt;
       -- build init
-      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
     END IF;
     -- build group row
@@ -612,7 +811,7 @@ AS
     l_statement := 'SELECT otap_test.set_test_group(''' || l_base_title || ' packages'') FROM dual;';
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     -- first loop through packages
-    FOR rec IN cur_packages(l_schema, l_like)
+    FOR rec IN cur_packages(l_schema, l_like, p_excl_sysgen)
     LOOP
       l_statement := '-- set test name for package';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -636,7 +835,7 @@ AS
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
       END IF;
       -- now loop through the package procedures and functions
-      FOR recfn IN cur_procedures(l_schema, rec.package_name, l_like, p_title_prefix)
+      FOR recfn IN cur_procedures(l_schema, rec.package_name, l_like, p_title_prefix, p_excl_sysgen)
       LOOP
         PIPE ROW (otap_view_result_rec(recfn.result_text, NULL));
       END LOOP;
@@ -673,6 +872,7 @@ AS
                      , p_like_view     IN VARCHAR2 DEFAULT '%'
                      , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                      , p_show_header   IN INTEGER  DEFAULT 1
+                     , p_excl_sysgen   IN INTEGER  DEFAULT 1
                      )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -683,6 +883,7 @@ AS
     l_test_count  INTEGER;
     CURSOR cur_views( cp_schema IN VARCHAR2
                     , cp_like   IN VARCHAR2
+                    , cp_excl   IN NUMBER
                     )
     IS
       SELECT owner
@@ -692,6 +893,7 @@ AS
        WHERE owner          = cp_schema
          AND object_type LIKE '%VIEW'
          AND object_name LIKE cp_like
+         AND NOT otap_string.is_sys_object(object_name, cp_excl)
        ORDER BY object_type DESC
               , object_name
     ;
@@ -699,10 +901,11 @@ AS
                       , cp_table  IN VARCHAR2
                       , cp_like   IN VARCHAR2
                       , cp_prefix IN VARCHAR2
+                      , cp_excl   IN NUMBER
                       )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, '$', 0))
+        FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, 0, cp_excl))
     ;
   BEGIN
     l_like       := NVL(p_like_view, '%');
@@ -712,16 +915,44 @@ AS
     THEN
       l_statement := '-- otap GENERATE view test scripts for schema ' || l_schema || ' scope: ' || l_like;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      -- get test count
-      SELECT SUM(expected_tests) + 1 -- add one for the test count test
-        INTO l_test_count
-        FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type IN ('PACKAGE', 'PACKAGE BODY')
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_procedures WHERE owner = l_schema AND procedure_name IS NOT NULL
+      -- get test count, simulate conditions of called test generators
+         WITH base AS
+             (SELECT object_name
+                   , object_type
+                   , owner
+                FROM dba_objects
+               WHERE owner = l_schema
+                     -- currently supported objects
+                 AND object_type LIKE '%VIEW'
+                     -- user like condition
+                 AND object_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
              )
-      ;
+             -- counter objects
+           , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
+           , cols AS
+             (SELECT dbc.owner
+                   , dbc.table_name
+                   , dbc.column_name
+                FROM dba_tab_columns dbc
+               INNER JOIN base
+                  ON dbc.owner      = base.owner
+                 AND dbc.table_name = base.object_name
+                     -- user like condition
+               WHERE dbc.column_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbc.column_name, p_excl_sysgen)
+             )
+           , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
+           , cnt AS
+             (SELECT expected_count, 'BASE' AS info FROM cnt_base
+               UNION ALL
+              SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
+             )
+      SELECT SUM(expected_count) INTO l_test_count FROM cnt;
       -- build init
-      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
     END IF;
     -- build group row
@@ -730,7 +961,7 @@ AS
     l_statement := 'SELECT otap_test.set_test_group(''' || l_base_title || ' views'') FROM dual;';
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     -- first loop through views
-    FOR rec IN cur_views(l_schema, l_like)
+    FOR rec IN cur_views(l_schema, l_like, p_excl_sysgen)
     LOOP
       l_statement := '-- set test name for view';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
@@ -744,7 +975,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := '                           ) FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      FOR colrec IN cur_columns(l_schema, rec.view_name, '%', p_title_prefix)
+      FOR colrec IN cur_columns(l_schema, rec.view_name, l_like, p_title_prefix, p_excl_sysgen)
       LOOP
         PIPE ROW (otap_view_result_rec(colrec.result_text, NULL));
       END LOOP;
@@ -780,6 +1011,7 @@ AS
   FUNCTION schema_tests( p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                        , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                        , p_show_header   IN INTEGER  DEFAULT 1
+                       , p_excl_sysgen   IN INTEGER  DEFAULT 1
                        )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -791,34 +1023,38 @@ AS
     CURSOR cur_tables( cp_schema IN VARCHAR2
                      , cp_like   IN VARCHAR2
                      , cp_prefix IN VARCHAR2
+                     , cp_excl   IN NUMBER
                      )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.table_tests(cp_schema, cp_like, p_title_prefix, 0))
+        FROM TABLE(otap_generate.table_tests(cp_schema, cp_like, p_title_prefix, 0, cp_excl))
     ;
     CURSOR cur_trigger( cp_schema IN VARCHAR2
                       , cp_like   IN VARCHAR2
                       , cp_prefix IN VARCHAR2
+                      , cp_excl   IN NUMBER
                       )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.trigger_tests(cp_schema, cp_like, p_title_prefix, 0))
+        FROM TABLE(otap_generate.trigger_tests(cp_schema, cp_like, p_title_prefix, 0, cp_excl))
     ;
     CURSOR cur_packages( cp_schema IN VARCHAR2
                        , cp_like   IN VARCHAR2
                        , cp_prefix IN VARCHAR2
+                       , cp_excl   IN NUMBER
                        )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.package_tests(cp_schema, cp_like, p_title_prefix, 0))
+        FROM TABLE(otap_generate.package_tests(cp_schema, cp_like, p_title_prefix, 0, cp_excl))
     ;
     CURSOR cur_views( cp_schema IN VARCHAR2
                     , cp_like   IN VARCHAR2
                     , cp_prefix IN VARCHAR2
+                    , cp_excl   IN NUMBER
                     )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.view_tests(cp_schema, cp_like, p_title_prefix, 0))
+        FROM TABLE(otap_generate.view_tests(cp_schema, cp_like, p_title_prefix, 0, cp_excl))
     ;
   BEGIN
     l_like       := '%';
@@ -828,24 +1064,102 @@ AS
     THEN
       l_statement := '-- otap GENERATE test scripts for schema ' || l_schema;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
-      -- get test count
-      SELECT SUM(expected_tests) + 1 -- add one for the test count test
-        INTO l_test_count
-        FROM (SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type = 'TABLE'
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_tab_columns WHERE owner = l_schema
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_triggers WHERE owner = l_schema
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type LIKE 'PACKAGE%'
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_objects WHERE owner = l_schema AND object_type LIKE 'PACKAGE%'
-               UNION ALL
-              SELECT COUNT(*) AS expected_tests FROM dba_procedures WHERE owner = l_schema
+      -- get test count, simulate conditions of called test generators
+         WITH base AS
+             (SELECT object_name
+                   , object_type
+                   , owner
+                FROM dba_objects
+               WHERE owner = l_schema
+                     -- currently supported objects
+                 AND (   object_type   IN ('TABLE', 'FUNCTION', 'PROCEDURE')
+                      OR object_type LIKE '%VIEW'
+                      OR object_type LIKE 'PACKAGE%'
+                     )
+                     -- user like condition
+                 AND object_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
              )
-      ;
+             -- counter objects
+           , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
+             -- depending procedures
+           , prc AS
+             (SELECT dbp.procedure_name
+                   , dbp.object_name
+                   , dbp.object_type
+                FROM dba_procedures dbp
+               INNER JOIN base
+                  ON dbp.object_name = base.object_name
+                 AND dbp.object_type = base.object_type
+                 AND dbp.owner       = base.owner
+                     -- exclude pure functions and procedures, already counted by base
+                 AND base.object_type NOT IN ('FUNCTION', 'PROCEDURE')
+                     -- user like condition
+               WHERE dbp.procedure_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbp.procedure_name, p_excl_sysgen)
+             )
+           , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
+           , cols AS
+             (SELECT dbc.owner
+                   , dbc.table_name
+                   , dbc.column_name
+                FROM dba_tab_columns dbc
+               INNER JOIN base
+                  ON dbc.owner      = base.owner
+                 AND dbc.table_name = base.object_name
+                     -- user like condition
+               WHERE dbc.column_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbc.column_name, p_excl_sysgen)
+             )
+           , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
+             -- table triggers
+           , trgt AS
+             (SELECT dbt.owner
+                   , dbt.trigger_name
+                   , dbt.table_owner
+                FROM dba_triggers dbt
+               INNER JOIN base
+                  ON dbt.table_owner      = base.owner
+                 AND dbt.table_name       = base.object_name
+                 AND dbt.base_object_type = base.object_type
+               WHERE dbt.table_name     IS NOT NULL
+                     -- user like condition
+                 AND dbt.trigger_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbt.trigger_name, p_excl_sysgen)
+             )
+           , cnt_trgt AS (SELECT COUNT(*) AS expected_count FROM trgt)
+           , trgs AS
+             (SELECT dbt.owner
+                   , dbt.trigger_name
+                   , dbt.table_owner
+                FROM dba_triggers dbt
+               INNER JOIN base
+                  ON dbt.owner = base.owner
+               WHERE dbt.table_name     IS NULL
+                     -- user like condition
+                 AND dbt.trigger_name LIKE l_like
+                     -- user exclude condition
+                 AND NOT otap_string.is_sys_object(dbt.trigger_name, p_excl_sysgen)
+             )
+           , cnt_trgs AS (SELECT COUNT(*) AS expected_count FROM trgs)
+           , cnt AS
+             (SELECT expected_count, 'BASE' AS info FROM cnt_base
+               UNION ALL
+              SELECT expected_count, 'PROCEDURES' AS info FROM cnt_prc
+               UNION ALL
+              SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
+               UNION ALL
+              SELECT expected_count, 'TABLE TRIGGER' AS info FROM cnt_trgt
+               UNION ALL
+              SELECT expected_count, 'SCHEMA TRIGGER' AS info FROM cnt_trgs
+             )
+      SELECT SUM(expected_count) INTO l_test_count FROM cnt;
       -- build init
-      l_statement := 'SELECT otap_test.init(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
+      l_statement := 'SELECT otap_test.init_test(' || TRIM(TO_CHAR(l_test_count)) || ') FROM dual;';
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
     END IF;
     -- build set row
@@ -853,19 +1167,19 @@ AS
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     l_statement := 'SELECT otap_test.set_test_set(''' || l_base_title || ' schema'') FROM dual;';
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
-    FOR rec IN cur_tables(l_schema, l_like, p_title_prefix)
+    FOR rec IN cur_tables(l_schema, l_like, p_title_prefix, p_excl_sysgen)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
-    FOR rec IN cur_trigger(l_schema, l_like, p_title_prefix)
+    FOR rec IN cur_trigger(l_schema, l_like, p_title_prefix, p_excl_sysgen)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
-    FOR rec IN cur_packages(l_schema, l_like, p_title_prefix)
+    FOR rec IN cur_packages(l_schema, l_like, p_title_prefix, p_excl_sysgen)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
-    FOR rec IN cur_views(l_schema, l_like, p_title_prefix)
+    FOR rec IN cur_views(l_schema, l_like, p_title_prefix, p_excl_sysgen)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;

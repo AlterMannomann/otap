@@ -167,6 +167,22 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_objects.otap_session_set_session_view_id
+  * Sets the current active session_view_id.
+  *
+  * @param p_session_view_id The session view id as is. No checks if valid.
+  * @param o_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The active session_view_id. Unchanged on errors.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            VARCHAR2
+                                           , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                           )
+    RETURN NUMBER
+  ;
+
   /** PROCEDURE otap_objects.otap_session_add_test
   * Adds a test run to the OTAP_SESSION object. If the test is not passed, raises
   * the error count for this test session.

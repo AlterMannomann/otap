@@ -28,9 +28,13 @@ AS
   * Validates the basic system of otap, checks if objects are valid, triggers enabled and
   * no illegal content in OTAP_TRANSLATE.
   *
+  * Will change the session id to ensure that every user has a unique id within the sequence borders.
+  *
+  * @param o_otap_session A valid OTAP_SESSION object to be used for update of session id if not set.
+  *
   * @throws -20099 The otap system is not valid. Ask your admin to fix the system before testing.
   */
-  PROCEDURE validate_otap;
+  PROCEDURE validate_otap(o_otap_session IN OUT NOCOPY OTAP_SESSION);
 
   /** FUNCTION otap_api.init_test
   * @see otap_plan.init_test and otap_test.init_test
@@ -122,6 +126,16 @@ AS
   */
   FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
+  ;
+
+  /** FUNCTION otap_api.set_active_report_id
+  * @see otap_objects.otap_session_get_report_id and otap_test.set_active_report_id
+  * Does an extra check if TEST_SESSION_ID exists in OTAP_RESULTS.
+  */
+  FUNCTION set_active_report_id( p_report_id    IN            NUMBER
+                               , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                               )
+    RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.max_text_size
@@ -295,6 +309,13 @@ AS
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    )
     RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.result_view
+  * @see otap_test.result_view
+  */
+  FUNCTION result_view(p_session_id IN NUMBER)
+    RETURN otap_view_result_tbl PIPELINED
   ;
 
   /** FUNCTION otap_api.has_table

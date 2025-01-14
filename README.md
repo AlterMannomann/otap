@@ -1,8 +1,18 @@
 ![OtapLogo](https://github.com/user-attachments/assets/b2ffe1ea-b139-43bd-a204-79bed632aa52)
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
-
-**Current state**: Pre-alpha, basically stable with following tests (package otap_test):
+### Current changes
+- Session id now stable and unique in every state for all concurrent users
+- Provided otap_test.set_active_report_id to change the report shown by OTAP_LATEST_TEST_RESULTS_V
+- Reorganized package code otap_test, moved report to otap_api.
+### Next steps
+- Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
+- Modularize otap_generate a bit more.
+- Extend otap_schema (has_type, is_object_valid ...)
+- Start with otap_logic (is_eq ...)
+- Enhance documentation
+### Current state
+Pre-alpha, basically stable with following tests (package otap_test):
 - has_table
 - has_column
 - has_package
@@ -24,8 +34,6 @@ The finish_test function is also available as a function with exit code (otap_te
 For function overview see currently [otap_test package description](./otap_ddl/packages/otap_test.md).
 
 For generation options see currently [otap_generate package description](./otap_ddl/packages/otap_generate.md).
-
-To do: Move test report code to otap_report package, extend test functions (schema, logic), fix minor formatting issues, continue test otap with otap.
 
 See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
@@ -81,7 +89,10 @@ Or ensure that the current schema is the one you want to have test scripts for, 
     SELECT result_text FROM TABLE(otap.otap_generate.schema_tests);
 
 You may spool the content to a file, make sure to set heading, paging and other things off to the get a working script. See [schema_test.sql](./otap_gen/tests/schema_test.sql) for setup and [generated_otap_schema_tests.sql](./otap_test/schema/generated_otap_schema_tests.sql) for the result showing all current functions active.
-
+## Known issues
+A list of known issues that will not be fixed.
+### Persisted tests
+In case of sequence cycle for session id, situations may occur where stored tests are no longer uniquely identified by session id. Still date and db user can help to distinguish the tests. In this cases it is recommended, to delete on of the tests with equal session id.
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 
