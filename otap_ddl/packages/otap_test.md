@@ -100,11 +100,11 @@ Examples:
     CREATE OR REPLACE test_my_testing
       RETURN NUMBER
     IS
-      l_return NUMBER
+      l_return NUMBER;
     BEGIN
       -- do init and some tests
       l_return := otap.otap_test.finish_test_with_exit_code;
-      -- persist report id or reports to wherever needed
+      -- persist report id or reports if needed
       RETURN l_return;
     END IF;
 

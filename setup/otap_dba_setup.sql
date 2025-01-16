@@ -58,7 +58,7 @@ COLUMN ROLE_UPDATE NEW_VAL ROLE_UPDATE
                      , 1           AS user_update
                   FROM otapx
                  WHERE otap_users   = 1
-                   AND object_count = 45
+                   AND object_count = 47
                  UNION ALL
                SELECT 'OTAP'  AS otap_schema
                     , CASE WHEN otap_users > 0 THEN -1 ELSE otap_users END AS user_update
@@ -346,7 +346,12 @@ BEGIN
   l_statement := 'GRANT SELECT ON dba_constraints TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
-  l_output := l_output || 'DBA_CONSTRAINTS, ';
+  l_output := l_output || 'DBA_CONSTRAINTS, ' || l_lf;
+  --
+  l_statement := 'GRANT SELECT ON dba_cons_columns TO &OTAP_USER.';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || '  DBA_CONS_COLUMNS, ';
   -- final
   l_statement := 'GRANT SELECT ON v_$reserved_words TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
