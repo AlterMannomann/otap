@@ -3,10 +3,7 @@
 -- Not allowed to be used as AI training material without explicite permission.
 CREATE OR REPLACE PACKAGE BODY otap_generate
 AS
-  -- package constants and variables
-  GEN_TYPE_SCRIPT     CONSTANT CHAR(1)  := 'S';
-  GEN_TYPE_FUNCTION   CONSTANT CHAR(1)  := 'F';
-  GEN_TYPE_PROCEDURE  CONSTANT CHAR(1)  := 'P';
+  -- internal package constants and variables
   PREFIX_SQL          CONSTANT CHAR(7)  := 'SELECT ';
   PREFIX_PLSQL        CONSTANT CHAR(15) := '  l_message := ';
   POSTFIX_SQL         CONSTANT CHAR(11) := ' FROM daul;';
@@ -31,10 +28,52 @@ AS
     RETURN generation_type;
   END;
 
+  FUNCTION build_script_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                              , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                              , p_group         IN VARCHAR2 DEFAULT NULL
+                              , p_name          IN VARCHAR2 DEFAULT NULL
+                              , p_script_count  IN NUMBER   DEFAULT 0
+                              )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_title       VARCHAR2(4000 CHAR);
+  BEGIN
+    l_title := NULL;
+    IF p_name IS NOT NULL
+    THEN
+      -- for names we do not care about underscores
+      l_title := otap_string.reduce(p_name, 4000);
+    ELSE
+      IF p_group IS NOT NULL
+      THEN
+        l_title := otap_string.reduce(p_group, 4000);
+      ELSE
+          l_title := otap_string.reduce(p_set, 4000);
+      END IF;
+    END IF;
+    l_title := CASE
+                 WHEN p_title_prefix IS NOT NULL
+                 -- add prefix limited to 10 chars
+                 THEN otap_string.reduce(p_title_prefix, 10) || ' ' || NVL(l_title, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+                 ELSE NVL(l_title, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+               END
+    ;
+    l_statement := '-- otap GENERATE test scripts ' || l_title;
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := PREFIX_SQL || 'otap_test.init_test(' || TRIM(TO_CHAR(NVL(p_script_count, 0))) || ')' || POSTFIX_SQL;
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END build_script_header;
+
   FUNCTION build_function_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
                                 , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                                 , p_group         IN VARCHAR2 DEFAULT NULL
                                 , p_name          IN VARCHAR2 DEFAULT NULL
+                                , p_script_count  IN NUMBER   DEFAULT 0
                                 )
     RETURN otap_view_result_tbl PIPELINED
   IS
@@ -89,6 +128,129 @@ AS
     WHEN NO_DATA_NEEDED THEN
       RAISE;
   END build_function_header;
+
+  FUNCTION build_procedure_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                 , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                 , p_group         IN VARCHAR2 DEFAULT NULL
+                                 , p_name          IN VARCHAR2 DEFAULT NULL
+                                 , p_script_count  IN NUMBER   DEFAULT 0
+                                 )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_set         VARCHAR2(128 CHAR);
+    l_group       VARCHAR2(128 CHAR);
+    l_name        VARCHAR2(128 CHAR);
+    l_fn_name     VARCHAR2(128 CHAR);
+    l_prefix      VARCHAR2(10 CHAR);
+  BEGIN
+    l_fn_name := 'test_';
+    -- set, group and nem should not contain underscore
+    l_set     := CASE
+                   WHEN p_title_prefix IS NOT NULL
+                   -- add prefix limited to 10 chars
+                   THEN SUBSTR(TRIM(p_title_prefix), 1, 10) || NVL(TRIM(p_set), SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+                   ELSE NVL(TRIM(p_set), SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))
+                 END
+    ;
+    l_set     := otap_string.reduce(REGEXP_REPLACE(l_set, '[^[:alnum:]]'), 40);
+    l_fn_name := l_fn_name || l_set;
+    -- if group is not defined, name is not considered
+    IF p_group IS NOT NULL
+    THEN
+      l_group := otap_string.reduce(REGEXP_REPLACE(p_group, '[^[:alnum:]]'), 30);
+      l_fn_name := l_fn_name || '_' || l_group;
+      IF p_name IS NOT NULL
+      THEN
+        -- for names we do not care about underscores
+        l_name := otap_string.reduce(REGEXP_REPLACE(p_name, '[^[:alnum:]_]'), 128);
+        l_fn_name := l_fn_name || '_' || l_name;
+      END IF;
+    END IF;
+    -- remove blanks and not allowed/recommended chars if still any and reduce
+    l_fn_name  := otap_string.reduce(REGEXP_REPLACE(l_fn_name, '[^[:alnum:]_]'), 128);
+    l_statement := '-- otap GENERATE test procedure ' || UPPER(l_fn_name);
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'CREATE OR REPLACE PROCEDURE ' || l_fn_name;
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'IS';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := '  l_message VARCHAR2(4000);';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := '  l_return  NUMBER;';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    l_statement := 'BEGIN';
+    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END build_procedure_header;
+
+  FUNCTION get_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                     , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_group         IN VARCHAR2 DEFAULT NULL
+                     , p_name          IN VARCHAR2 DEFAULT NULL
+                     , p_script_count  IN NUMBER   DEFAULT 0
+                     )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    CURSOR cur_fn_header( cp_title_prefix IN VARCHAR2
+                        , cp_set          IN VARCHAR2
+                        , cp_group        IN VARCHAR2
+                        , cp_name         IN VARCHAR2
+                        , cp_count        IN NUMBER
+                        )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.build_function_header(cp_title_prefix, cp_set, cp_group, cp_name, cp_count))
+    ;
+    CURSOR cur_prc_header( cp_title_prefix IN VARCHAR2
+                         , cp_set          IN VARCHAR2
+                         , cp_group        IN VARCHAR2
+                         , cp_name         IN VARCHAR2
+                         , cp_count        IN NUMBER
+                         )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.build_procedure_header(cp_title_prefix, cp_set, cp_group, cp_name, cp_count))
+    ;
+    CURSOR cur_scr_header( cp_title_prefix IN VARCHAR2
+                         , cp_set          IN VARCHAR2
+                         , cp_group        IN VARCHAR2
+                         , cp_name         IN VARCHAR2
+                         , cp_count        IN NUMBER
+                         )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.build_script_header(cp_title_prefix, cp_set, cp_group, cp_name, cp_count))
+    ;
+  BEGIN
+    IF generation_type = otap_generate.GEN_TYPE_FUNCTION
+    THEN
+      FOR rec IN cur_fn_header(p_title_prefix, p_set, p_group, p_name, p_script_count)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    ELSIF generation_type = otap_generate.GEN_TYPE_PROCEDURE
+    THEN
+      FOR rec IN cur_prc_header(p_title_prefix, p_set, p_group, p_name, p_script_count)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    ELSE
+      -- all other cases script
+      FOR rec IN cur_scr_header(p_title_prefix, p_set, p_group, p_name, p_script_count)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END get_header;
 
   FUNCTION column_tests( p_table         IN VARCHAR2
                        , p_like_column   IN VARCHAR2 DEFAULT '%'

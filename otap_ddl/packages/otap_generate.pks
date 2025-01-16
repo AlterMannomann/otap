@@ -16,6 +16,11 @@ AS
   * a simple start with schema tests, NOT with functional tests.
   */
 
+  -- package constants and variables
+  GEN_TYPE_SCRIPT     CONSTANT CHAR(1)  := 'S';
+  GEN_TYPE_FUNCTION   CONSTANT CHAR(1)  := 'F';
+  GEN_TYPE_PROCEDURE  CONSTANT CHAR(1)  := 'P';
+
   /** FUNCTION otap_generate.column_tests
   * Generates the test scripts for the columns of a given table and schema with the current available
   * otap schema functions. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
@@ -194,7 +199,35 @@ AS
                                 , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                                 , p_group         IN VARCHAR2 DEFAULT NULL
                                 , p_name          IN VARCHAR2 DEFAULT NULL
+                                , p_script_count  IN NUMBER   DEFAULT 0
                                 )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  FUNCTION build_script_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                              , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                              , p_group         IN VARCHAR2 DEFAULT NULL
+                              , p_name          IN VARCHAR2 DEFAULT NULL
+                              , p_script_count  IN NUMBER   DEFAULT 0
+                              )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  FUNCTION build_procedure_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                 , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                 , p_group         IN VARCHAR2 DEFAULT NULL
+                                 , p_name          IN VARCHAR2 DEFAULT NULL
+                                 , p_script_count  IN NUMBER   DEFAULT 0
+                                 )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  FUNCTION get_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                     , p_set           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_group         IN VARCHAR2 DEFAULT NULL
+                     , p_name          IN VARCHAR2 DEFAULT NULL
+                     , p_script_count  IN NUMBER   DEFAULT 0
+                     )
     RETURN otap_view_result_tbl PIPELINED
   ;
 
