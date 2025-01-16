@@ -260,7 +260,7 @@ AS
   * @param p_test_state The test state as text representation for a test result report, e.g. passed, failed or undefined.
   * @param p_issue_state The issue state as text representation for a test result report, e.g. passed, failed or undefined.
   * @param p_runtime The runtime of the test as string.
-  * @param p_test_desc The test description of the related test.
+  * @param p_test_desc The test description of the related test if any.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
   *
   * @return The result line for a given test.
@@ -305,24 +305,40 @@ AS
   ;
 
   /** FUNCTION otap_report.get_exists_msg
-  * Builds a user message for the has_procedure test function based on given values from template. Will always
+  * Builds a user message for the schema exist test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.
   *
-  * @param p_procedure_name The name of the procedure or function tested.
-  * @param p_schema_name The schema of the procedure/function tested.
-  * @param p_procedure_type The procedure type FUNCTION/PROCEDURE of the procedure that was tested.
-  * @param p_package_name Optional package name, if function or procedure are part of a package.
+  * @param p_object_name The name of the object tested for existance.
+  * @param p_schema_name The schema of the object tested.
+  * @param p_object_type The object type as label of the object that was tested. See otap_util.CFG_LABEL constants.
+  * @param p_sub_object Optional sub object, like functions of a package or columns of a table. If set, TEMPLATE_XEXISTS is used.
+  * @param p_test_desc The test description of the related test if any.
   *
-  * @return The formatted and reduced has procedure test message. Restricted to 4000 chars.
+  * @return The formatted and reduced exists test message. Restricted to 4000 chars.
   */
-
-  -- if sub object NOT NULL chose XEXIST message
   FUNCTION get_exists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                          , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                          , p_object_type IN VARCHAR2 DEFAULT NULL
                          , p_sub_object  IN VARCHAR2 DEFAULT NULL
-                         , p_desc        IN VARCHAR2 DEFAULT NULL
+                         , p_test_desc   IN VARCHAR2 DEFAULT NULL
                          )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_report.get_match_msg
+  * Builds a user message for the logic compare test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_match_type The object type as label that was compared as defined by matching function (BOOLEAN, VARCHAR2, NUMBER, DATE). See otap_util.CFG_LABEL constants.
+  * @param p_match_data The data of the compare as string, e.g. 'my string to compare', 2, TRUE ...
+  * @param p_test_desc The test description of the related test if any.
+  *
+  * @return The formatted and reduced matches test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_match_msg( p_match_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                        , p_match_data IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                        , p_test_desc  IN VARCHAR2 DEFAULT NULL
+                        )
     RETURN VARCHAR2
   ;
 

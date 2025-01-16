@@ -12,6 +12,10 @@ AS
                                                                                                                         , 'USER'
                                                                                                                         , 'ROLE'
                                                                                                                         , 'CONSTRAINT'
+                                                                                                                        , 'VARCHAR2'
+                                                                                                                        , 'NUMBER'
+                                                                                                                        , 'BOOLEAN'
+                                                                                                                        , 'DATE'
                                                                                                                         )
                 )
   SELECT object_type                                                            AS oracle_type

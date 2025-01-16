@@ -7,11 +7,16 @@
 SPOOL tmp_generated.sql
   WITH len AS
        (SELECT MAX(LENGTH(otap_identifier)) AS maxlen FROM otap_labels_mv)
-SELECT RPAD(('  CFG_' || otap_identifier), len.maxlen + 14, ' ') ||
-       RPAD('CONSTANT CHAR(' || TRIM(TO_CHAR(LENGTH(otap_identifier))) || ')', 30) ||
-       ':= ''' || TRIM(otap_identifier) || ''';' AS list_lbl_constants
-  FROM otap_labels_mv
- CROSS JOIN len
+     , res AS 
+       (SELECT RPAD(('  CFG_' || otap_identifier), len.maxlen + 10, ' ') ||
+               RPAD('CONSTANT CHAR(' || TRIM(TO_CHAR(LENGTH(otap_identifier))) || ')', 20) ||
+               ':= ''' || TRIM(otap_identifier) || ''';' AS list_lbl_constants
+          FROM otap_labels_mv
+         CROSS JOIN len
+        ) 
+SELECT list_lbl_constants
+  FROM res 
+ ORDER BY list_lbl_constants 
 ;
 SPOOL OFF
 EXIT

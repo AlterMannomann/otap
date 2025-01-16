@@ -1,5 +1,5 @@
 # otap_test
-Description of the test options available with package otap_test.
+Description of the test options available with package otap_test. For a detailed description see [package header](otap_test.pks).
 
 - [init_test](#function-otap_testinit_test)
 - [finish_test](#function-otap_testfinish_test)
@@ -10,6 +10,10 @@ Description of the test options available with package otap_test.
 - [has_procedure](#function-otap_schemahas_procedure)
 - [has_trigger](#function-otap_testhas_trigger)
 - [has_object](#function-otap_schemahas_object)
+- [ok](#function-otap_testok)
+- [is_eq](#function-otap_testis_eq)
+- [match_regex](#function-otap_testmatch_regex)
+- [match_like](#function-otap_testmatch_like)
 - [current_summary](#function-otap_testcurrent_summary)
 - [set_test_name](#function-otap_testset_test_name)
 - [set_test_group](#function-otap_testset_test_group)
@@ -39,6 +43,21 @@ Parameter:
 - *p_persist* Can enable to persist the test results longer than the current default of PRESERVE_DAYS in OTAP_CONFIG, if set to otap_constants.OTAP_NUM_TRUE.
 
 *Return* Current session settings LF delimited.
+
+Examples:
+
+    -- simple init, do not check test count
+    SELECT otap.otap_test.init FROM dual;
+    -- simple init, expect 20 tests to run
+    SELECT otap.otap_test.init(20) FROM dual;
+    -- typical options
+    SELECT otap.otap_test.init( p_test_count => 20
+                              , p_test_set => 'My next test set'
+                              , p_test_group => 'My next test group'
+                              , p_test_name => 'My next test name'
+                              , p_persist => otap.otap_constants.get_otap_num_true
+                              ) FROM dual;
+
 ## FUNCTION otap_test.finish_test
 Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names for test set, group and name. When a test session is finished, the result is available with view OTAP_LATEST_RESULTS_V. If intended count is set, a test record about executed and expected tests is written. This test record is not included in the count test compare.
 
@@ -48,6 +67,14 @@ Parameter:
 *Return* A summary of the old session and details of the new session as text message LF delimited.
 
 *Exception* -20099 Internal error, invalid OTAP_SESSION object.
+
+Examples:
+
+    -- simple and default finish
+    SELECT otap.otap_test.finish_test FROM dual;
+    -- overwrite count setting, do not create test count
+    SELECT otap.otap_test.finish_test(otap_constants.get_otap_num_false) FROM dual;
+
 ## FUNCTION otap_test.finish_test_with_exit_code
 This function is for automation purposes. It translates and returns an exit code that can be uses in CMD and shell scripts
 to handle reactions based on the output of a test session, e.g. if test is passed you don't need probably the test report. Or you want
@@ -62,6 +89,25 @@ Parameter:
 *Return* A positive integer as result. 0 = success, all tests passed. 1 = at least one test failed. 2 = at least one test undefined.
 
 *Exception* -20099 Internal error, invalid OTAP_SESSION object.
+
+Examples:
+
+    -- example using finish code in scripts
+    COLUMN EXIT_CODE NEW_VAL EXIT_CODE
+    SELECT otap.otap_test.finish_test_with_exit_code AS EXIT_CODE FROM dual;
+    EXIT &EXIT_CODE
+    -- example using finish code in functions
+    CREATE OR REPLACE test_my_testing
+      RETURN NUMBER
+    IS
+      l_return NUMBER
+    BEGIN
+      -- do init and some tests
+      l_return := otap.otap_test.finish_test_with_exit_code;
+      -- persist report id or reports to wherever needed
+      RETURN l_return;
+    END IF;
+
 ## FUNCTION otap_test.has_table
 Tests if a table exists or not and outputs the test result. Wrapper for otap_api.has_table. Writes and adds the test result for the current active test session.
 
@@ -72,6 +118,18 @@ Parameter:
 - *p_expected_result* The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple table check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_table('MY_TABLE') FROM dual;
+    -- all parameters
+    SELECT otap.otap_test.has_table( p_table_name => 'MY_TABLE'
+                                   , p_schema => 'MY_SCHEMA'
+                                   , p_description => 'Testing MY_TABLE'
+                                   , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                   ) FROM dual;
+
 ## FUNCTION otap_test.has_column
 Tests if a table column exists. Additional tests on the column can be added by using the additional parameters with default NULL. The expected values have to match the content of DBA_TAB_COLUMNS for the given table, column and schema.
 
@@ -86,11 +144,30 @@ Parameter:
 - *p_data_length* Optional check the data length of the column. Ignored if NULL.
 - *p_data_precision* Optional check the data precision of the column. Ignored if NULL. Results in test error if datatype is not NUMBER.
 - *p_data_scale* Optional check the data scale of the column. Ignored if NULL. Results in test error if datatype is not NUMBER or TIMESTAMP.
-- *p_nullable* Optional check if the column is nullable. Ignored if NULL. NOT case sensitive.
+- *p_nullable* Optional check if the column is nullable. Value as defined in USER_TAB_COLUMNS, 'Y' or 'N'. Ignored if NULL. NOT case sensitive.
 - *p_data_default* Optional check the default for the column. Ignored if NULL. Must match all chars, including ' and ". Limited to defaults shorter than 4000 chars.
 - *p_expected_result* The expected test result, 1 (Passed), -1 (FAILED), 0 (UNDEFINED). Default is 1 (Passed).
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple column check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_column('MY_TABLE', 'MY_COLUMN') FROM dual;
+    -- all parameters
+    SELECT otap.otap_test.has_column( p_table_name => 'MY_TABLE'
+                                    , p_column_name => 'MY_COLUMN'
+                                    , p_schema => 'MY_SCHEMA'
+                                    , p_description => 'Testing MY_TABLE column'
+                                    , p_data_type => 'NUMBER'
+                                    , p_data_length => 22
+                                    , p_data_precision => 1
+                                    , p_data_scale => 0
+                                    , p_nullable => 'Y'
+                                    , p_data_default => '0'
+                                    , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                    ) FROM dual;
+
 ## FUNCTION otap_test.has_package
 Checks if a given package exists. Check if header and body, if available, are valid by default.
 
@@ -102,6 +179,19 @@ Parameter:
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple package check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_package('MY_PACKAGE') FROM dual;
+    -- all parameters
+    SELECT otap.otap_test.has_package( p_package_name => 'MY_PACKAGE'
+                                     , p_schema => 'MY_SCHEMA'
+                                     , p_description => 'MY_PACKAGE test'
+                                     , p_package_type => 'PACKAGE BODY'
+                                     , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                     ) FROM dual;
+
 ## FUNCTION otap_schema.has_procedure
 Checks if a given procedure or function exists. If package is given, the package procedure or function is checked.
 
@@ -115,6 +205,21 @@ Parameter:
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple function check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_procedure('MY_FUNCTION') FROM dual;
+    -- all parameters
+    SELECT otap.otap_test.has_procedure( p_procedure_name => 'MY_FUNCTION'
+                                       , p_schema => 'MY_SCHEMA'
+                                       , p_description => 'My description'
+                                       , p_procedure_type => 'FUNCTION'
+                                       , p_package_name => 'MY_PACKAGE'
+                                       , p_return_type => 'NUMBER'
+                                       , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                       ) FROM dual;
+
 ## FUNCTION otap_test.has_trigger
 Checks if a given trigger exists.
 
@@ -129,6 +234,22 @@ Parameter:
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple trigger check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_trigger('MY_INSERT_TRIGGER') FROM dual;
+    -- all parameters
+    SELECT otap.otap_test.has_trigger( p_trigger_name => 'MY_INSERT_TRIGGER'
+                                     , p_schema => 'MY_SCHEMA'
+                                     , p_description => 'My description'
+                                     , p_trigger_type => 'BEFORE EACH ROW'
+                                     , p_trigger_event => 'INSERT'
+                                     , p_table_owner => 'MY_SCHEMA'
+                                     , p_table_name => 'MY_TABLE'
+                                     , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                     ) FROM dual;
+
 ## FUNCTION otap_schema.has_object
 Checks if a given database object exists.
 
@@ -136,9 +257,128 @@ Parameter:
 - *p_object_name* The name of the object, take as is. Case sensitive.
 - *p_object_type* The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
 - *p_schema* A schema override of the current test session if needed, taken as is. If given the procedure or function must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
 *Return* The test result as text.
+
+Examples:
+
+    -- simple object check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_object('MY_TYPE') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_object( p_object_name => 'MY_TYPE'
+                                    , p_object_type => 'TYPE'
+                                    , p_schema => 'MY_SCHEMA'
+                                    , p_description => 'My description'
+                                    , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                    ) FROM dual;
+
+## FUNCTION otap_test.ok
+Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED. It is recommended to use a description as generated text does not contain details on the the test condition.
+
+Parameter:
+- *p_boolean* The result of a boolean expression to check.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple ok check, you don't need in all cases the () construct but I recommend to use it for an expression
+    SELECT otap.otap_test.ok((2 = 2)) FROM dual;
+    SELECT otap.otap_test.ok((1 = 2), 'My not working test') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.ok( p_boolean => (1 = 2)
+                            , p_description => 'My NOW working test'
+                            , p_expected_result => otap.otap_constants.get_otap_num_test_failed
+                            ) FROM dual;
+
+## FUNCTION otap_test.is_eq
+Checks given data of type VARCHAR2, NUMBER and DATE against a given value. As "IS" is a reserved word in Oracle this is the equivalent of is and isnt. isnt is achieved by setting expected result to otap_constants.OTAP_NUM_TEST_FAILED.
+
+Other types are more or less problematic, e.g. you can't declare in Oracle a function with date and timestamp parameter. If providing TIMESTAMP Oracle gets confused which function to use. Try to convert or cast the types to the base types. CAST will probably not preserve all information. TO_CHAR is almost always an option.
+
+Passing simply NULL, NULL without that datatypes are defined by columns, the function will fail with ORA-06553: Too much declarations of is_eq. To do a NULL test, use, according to p_have datatype, **TO_CHAR(NULL)**, **TO_NUMBER(NULL)** or **TO_DATE(NULL)** so correct function signature is identified and function does not fail.
+
+Parameter:
+- *p_have* The data to check.
+- *p_want* The expected data. Must have the same datatype as p_have.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple equal checks
+    SELECT otap.otap_test.is_eq('test', 'test') FROM dual;
+    SELECT otap.otap_test.is_eq(10, 10) FROM dual;
+    SELECT otap.otap_test.is_eq(SYSDATE, SYSDATE) FROM dual;
+    SELECT otap.otap_test.is_eq(NULL, TO_CHAR(NULL)) FROM dual;
+    SELECT otap.otap_test.is_eq(NULL, TO_NUMBER(NULL)) FROM dual;
+    SELECT otap.otap_test.is_eq(NULL, TO_DATE(NULL)) FROM dual;
+    -- not equal check passing
+    SELECT otap.otap_test.is_eq( p_have => 'test'
+                               , p_want => 'xxx'
+                               , p_expected_result => otap.otap_constants.get_otap_num_test_failed
+                               ) FROM dual;
+    -- you can use this for table data to be checked
+    SELECT otap.otap_test.is_eq( p_have => my_char_column
+                               , p_want => 'Expected value'
+                               , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                               ) FROM my_table WHERE id = 1;
+    SELECT otap.otap_test.is_eq( p_have => my_number_column
+                               , p_want => 10
+                               , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                               ) FROM my_table WHERE id = 1;
+    SELECT otap.otap_test.is_eq( p_have => my_date_column
+                               , p_want => TO_DATE('01.01.1984', 'DD.MM.YYYY')
+                               , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                               ) FROM my_table WHERE id = 1;
+
+## FUNCTION otap_test.match_regex
+Checks given data of type VARCHAR2 against an Oracle REGEX expression. Uses REGEXP_LIKE. **ATTENTION** Oracle REGEX implementation is not standard. Unix regex which work like charm take hours to implement in Oracle REGEX to work as desired. Test your expression well with Oracle before using it.
+
+Easiest way to check is
+
+    SELECT COUNT(*) FROM dual WHERE regexp_like('your string', 'your regex', 'regex param');
+
+Should result in 1 if successful checked. You may want to prepare a with block with different string to pass them through the regular expression.
+
+Parameter:
+- *p_have* The data to check.
+- *p_regex* A valid Oracle regular expression that p_have must match.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_param* Parameter for REGEXP_LIKE. 'i' is case insensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple regex check, only AGCD in any combination and length allowed
+    SELECT otap.otap_test.match_regex('AGCC', '^[ACGD]*$') FROM dual;
+    -- case insensitive
+    SELECT otap.otap_test.match_regex('acggacccdaad', '^[ACGD]*$', NULL, 'i') FROM dual;
+
+## FUNCTION otap_test.match_like
+Checks given data of type VARCHAR2 against an Oracle LIKE expression. LIKE is currently more reliable and easier to use than Oracle REGEX implementation. But also much more limited.
+
+Parameter:
+- *p_have* The data to check.
+- *p_like* A valid Oracle like expression that p_have must match.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple LIKE check, must start with MY
+    SELECT otap.otap_test.match_like('MY_TABLE', 'MY%') FROM dual;
+
 ## FUNCTION otap_test.current_summary
 Returns a string with a current summary of the test session. Session id, run time, tests executed and test in error.
 
