@@ -406,5 +406,69 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.ok
+  * @see otap_logic.ok and otap_test.ok
+  */
+  FUNCTION ok( p_boolean         IN            BOOLEAN
+             , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+             , p_description     IN            VARCHAR2     DEFAULT NULL
+             , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.is_eq
+  * @see otap_logic.is_eq and otap_test.is_eq
+  */
+  FUNCTION is_eq( p_have            IN            VARCHAR2
+                , p_want            IN            VARCHAR2
+                , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                , p_description     IN            VARCHAR2      DEFAULT NULL
+                , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+  FUNCTION is_eq( p_have            IN            NUMBER
+                , p_want            IN            NUMBER
+                , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                , p_description     IN            VARCHAR2      DEFAULT NULL
+                , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+  FUNCTION is_eq( p_have            IN            DATE
+                , p_want            IN            DATE
+                , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                , p_description     IN            VARCHAR2      DEFAULT NULL
+                , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.match_regex
+  * @see otap_logic.match_regex and otap_test.match_regex
+  */
+  FUNCTION match_regex( p_have            IN            VARCHAR2
+                      , p_regex           IN            VARCHAR2
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      , p_description     IN            VARCHAR2      DEFAULT NULL
+                      , p_param           IN            VARCHAR2      DEFAULT NULL
+                      , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.match_like
+  * @see otap_logic.match_like and otap_test.match_like
+  */
+  FUNCTION match_like( p_have            IN            VARCHAR2
+                     , p_like            IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_description     IN            VARCHAR2      DEFAULT NULL
+                     , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  ;
+
 END;
 /

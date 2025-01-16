@@ -128,6 +128,22 @@ SQL> DROP PACKAGE otap_api;
 
 Package dropped.
 
+SQL> @@../otap_ddl/packages/drop/drop_otap_logic_pkb.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE BODY otap_logic;
+
+Package body dropped.
+
+SQL> @@../otap_ddl/packages/drop/drop_otap_logic_pks.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP PACKAGE otap_logic;
+
+Package dropped.
+
 SQL> @@../otap_ddl/packages/drop/drop_otap_schema_pkb.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1

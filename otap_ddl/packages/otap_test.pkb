@@ -449,6 +449,168 @@ AS
       RAISE;
   END has_object;
 
+  FUNCTION ok( p_boolean         IN     BOOLEAN
+             , p_description     IN     VARCHAR2 DEFAULT NULL
+             , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.ok( p_boolean
+                            , session_record
+                            , p_description
+                            , p_expected_result
+                            )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.ok', 'l_message := otap_api.ok( p_boolean, ...');
+      END IF;
+      RAISE;
+  END ok;
+
+  FUNCTION is_eq( p_have            IN     VARCHAR2
+                , p_want            IN     VARCHAR2
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.is_eq( p_have
+                               , p_want
+                               , session_record
+                               , p_description
+                               , p_expected_result
+                               )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.is_eq', '(VARCHAR2) l_message := otap_api.is_eq( p_have, ...');
+      END IF;
+      RAISE;
+  END is_eq;
+
+  FUNCTION is_eq( p_have            IN     NUMBER
+                , p_want            IN     NUMBER
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.is_eq( p_have
+                               , p_want
+                               , session_record
+                               , p_description
+                               , p_expected_result
+                               )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.is_eq', '(NUMBER) l_message := otap_api.is_eq( p_have, ...');
+      END IF;
+      RAISE;
+  END is_eq;
+
+  FUNCTION is_eq( p_have            IN     DATE
+                , p_want            IN     DATE
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.is_eq( p_have
+                               , p_want
+                               , session_record
+                               , p_description
+                               , p_expected_result
+                               )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.is_eq', '(DATE) l_message := otap_api.is_eq( p_have, ...');
+      END IF;
+      RAISE;
+  END is_eq;
+
+  FUNCTION match_regex( p_have            IN     VARCHAR2
+                      , p_regex           IN     VARCHAR2
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_param           IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.match_regex( p_have
+                                     , p_regex
+                                     , session_record
+                                     , p_description
+                                     , p_param
+                                     , p_expected_result
+                                     )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.match_regex', 'l_message := otap_api.match_regex( p_have, ...');
+      END IF;
+      RAISE;
+  END match_regex;
+
+  FUNCTION match_like( p_have            IN     VARCHAR2
+                     , p_like            IN     VARCHAR2
+                     , p_description     IN     VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.match_like( p_have
+                                    , p_like
+                                    , session_record
+                                    , p_description
+                                    , p_expected_result
+                                    )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.match_like', 'l_message := otap_api.match_like( p_have, ...');
+      END IF;
+      RAISE;
+  END match_like;
+
   -- debug function
   FUNCTION get_session_var
     RETURN OTAP_SESSION

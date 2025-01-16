@@ -9,7 +9,6 @@ Recommended to fully reinstall otap schema after updates. Currently only update 
 - Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
 - Modularize otap_generate a bit more.
 - Extend otap_schema (has_type, is_object_valid ...)
-- Start with otap_logic (is_eq ...)
 - Enhance documentation
 ### Current state
 Pre-alpha, basically stable with following tests (package otap_test):
@@ -19,6 +18,10 @@ Pre-alpha, basically stable with following tests (package otap_test):
 - has_procedure
 - has_trigger
 - has_object
+- ok (boolean compare check)
+- is_eq (VARCHAR2, NUMBER and DATE compare check including NULL checks, see [documentation](./otap_ddl/packages/otap_test.md))
+- match_regex (regular expression check on strings)
+- match_like (LIKE expression check on strings)
 - result view: otap_latest_test_results_v
 
 Every function supports different optional parameters (not complete in sense of available object options) to narrow the exist check. If exist check fails this does not necessarily mean the object does not exist at all. It just doesn't exist in the specified way for the test. Exist function do not check for the reason currently. Every test has to pass two steps, the test it self and no errors by wrong usage or internal problems. Result shows the test result itself in the report, Setup shows any errors either caused by usage or otap itself.
@@ -44,6 +47,8 @@ Basic otap test script started, see [master script](./otap_test/otap_test_master
 **SQL Developer 23.x not recommmended for development** Refresh of objects after reinstall does not work, not even after log out and log in again. Relogin has no effect at all. Wrong object code in memory. Shutdown and restart of SQL Developer needed in case of doubts (in most cases with a good reason) to ensure propper mapping of objects and object code. Works only more (or less) with stable database schemas. Last failing version 23.1. Currently it is a user tool, not a developer tool. Oracle should rename it to SQL User.
 # otap - Oracle Test Automation Protocol
 Automated testing for Oracle databases. Can be used with [SOSL](https://github.com/AlterMannomann/sosl).
+
+**Will never support system columns of type LONG for examination.** Since 9i Oracle itself recommends using LOB and CLOB. But even with current 23ai version, system tables have still LONG and no transform like TO_CLOB is working with normal SQL. Dumping system DBA tables to other tables is not an option. Overhead for implementation is just to big and error prone.
 
 ## Setup
 - you need DBA rights to install the basic otap schema and user role. On install you can define the otap user name and the name of the otap user role.

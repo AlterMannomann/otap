@@ -395,6 +395,109 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.ok
+  * Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED.
+  * It is recommended to use a description as generated text does not contain details on the the test condition.
+  *
+  * @param p_boolean The result of a boolean expression to check.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION ok( p_boolean         IN     BOOLEAN
+             , p_description     IN     VARCHAR2 DEFAULT NULL
+             , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.is_eq
+  * Checks given data of type VARCHAR2, NUMBER and DATE against a given value. As "IS" is a reserved word in Oracle
+  * this is the equivalent of is and isnt. isnt is achieved by setting expected result to otap_constants.OTAP_NUM_TEST_FAILED.
+  *
+  * Other types are more or less problematic, e.g. you can't declare in Oracle a function with date and timestamp parameter. If providing
+  * TIMESTAMP Oracle gets confused which function to use. Try to convert or cast the types to the base types. CAST will probably not
+  * preserve all information. TO_CHAR is almost always an option.
+  *
+  * Passing simply NULL, NULL without that datatypes are defined by columns, the function will fail with ORA-06553: Too much declarations
+  * of is_eq. To do a NULL test, use, according to p_have datatype, TO_CHAR(NULL), TO_NUMBER(NULL) or TO_DATE(NULL) so correct function
+  * signature is identified and function does not fail.
+  *
+  * @param p_have The data to check.
+  * @param p_want The expected data. Must have the same datatype as p_have.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION is_eq( p_have            IN     VARCHAR2
+                , p_want            IN     VARCHAR2
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+  FUNCTION is_eq( p_have            IN     NUMBER
+                , p_want            IN     NUMBER
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+  FUNCTION is_eq( p_have            IN     DATE
+                , p_want            IN     DATE
+                , p_description     IN     VARCHAR2 DEFAULT NULL
+                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.match_regex
+  * Checks given data of type VARCHAR2 against an Oracle REGEX expression. Uses REGEXP_LIKE.
+  * ATTENTION Oracle REGEX implementation is not standard. Unix regex which work like charm take hours to implement in
+  * Oracle REGEX to work as desired. Test your expression well with Oracle before using it.
+  *
+  * Easiest way to check is SELECT COUNT(*) FROM dual WHERE regexp_like('your string', 'your regex', 'regex param');
+  * Should result in 1 if successful checked. You may want to prepare a with block with different string to pass them
+  * through the regular expression.
+  *
+  * @param p_have The data to check.
+  * @param p_regex A valid Oracle regular expression that p_have must match.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_param Parameter for REGEXP_LIKE. 'i' is case insensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION match_regex( p_have            IN     VARCHAR2
+                      , p_regex           IN     VARCHAR2
+                      , p_description     IN     VARCHAR2 DEFAULT NULL
+                      , p_param           IN     VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.match_like
+  * Checks given data of type VARCHAR2 against an Oracle LIKE expression. LIKE is currently more reliable and easier
+  * to use than Oracle REGEX implementation. But also much more limited.
+  *
+  * @param p_have The data to check.
+  * @param p_like A valid Oracle like expression that p_have must match.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION match_like( p_have            IN     VARCHAR2
+                     , p_like            IN     VARCHAR2
+                     , p_description     IN     VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                     )
+    RETURN VARCHAR2
+  ;
+
 /*
   -- debug function
   FUNCTION get_session_var

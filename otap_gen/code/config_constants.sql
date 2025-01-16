@@ -7,12 +7,17 @@
 SPOOL tmp_generated.sql
   WITH len AS
        (SELECT MAX(LENGTH(config_name)) AS maxlen FROM otap_config)
-SELECT RPAD(('  CFG_' || config_name), len.maxlen + 10, ' ') ||
-       RPAD('CONSTANT CHAR(' || TRIM(TO_CHAR(LENGTH(config_name))) || ')', 30) ||
-       ':= ''' || TRIM(config_name) || ''';' AS list_cfg_constants
-  FROM otap_config
- CROSS JOIN len
-WHERE config_name != 'DEBUG_MODE' -- belongs to OTAP_CONSTANTS
+     , res AS 
+       (SELECT RPAD(('  CFG_' || config_name), len.maxlen + 14, ' ') ||
+               RPAD('CONSTANT CHAR(' || TRIM(TO_CHAR(LENGTH(config_name))) || ')', 20) ||
+               ':= ''' || TRIM(config_name) || ''';' AS list_cfg_constants
+          FROM otap_config
+         CROSS JOIN len
+        WHERE config_name != 'DEBUG_MODE' -- belongs to OTAP_CONSTANTS
+       )
+SELECT list_cfg_constants 
+  FROM res 
+ ORDER BY list_cfg_constants 
 ;
 SPOOL OFF
 EXIT

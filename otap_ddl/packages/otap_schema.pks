@@ -26,10 +26,10 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_table( p_table_name      IN     VARCHAR2
-                    , o_errors             OUT VARCHAR2
-                    , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                    , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_table( p_table_name      IN            VARCHAR2
+                    , o_errors             OUT NOCOPY VARCHAR2
+                    , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN INTEGER
   ;
@@ -57,17 +57,17 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_column( p_table_name      IN     VARCHAR2
-                     , p_column_name     IN     VARCHAR2
-                     , o_errors             OUT VARCHAR2
-                     , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                     , p_data_type       IN     VARCHAR2 DEFAULT NULL
-                     , p_data_length     IN     NUMBER   DEFAULT NULL
-                     , p_data_precision  IN     NUMBER   DEFAULT NULL
-                     , p_data_scale      IN     NUMBER   DEFAULT NULL
-                     , p_nullable        IN     VARCHAR2 DEFAULT NULL
-                     , p_data_default    IN     VARCHAR2 DEFAULT NULL
-                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_column( p_table_name      IN            VARCHAR2
+                     , p_column_name     IN            VARCHAR2
+                     , o_errors             OUT NOCOPY VARCHAR2
+                     , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_data_type       IN            VARCHAR2 DEFAULT NULL
+                     , p_data_length     IN            NUMBER   DEFAULT NULL
+                     , p_data_precision  IN            NUMBER   DEFAULT NULL
+                     , p_data_scale      IN            NUMBER   DEFAULT NULL
+                     , p_nullable        IN            VARCHAR2 DEFAULT NULL
+                     , p_data_default    IN            VARCHAR2 DEFAULT NULL
+                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN INTEGER
   ;
@@ -83,11 +83,11 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_package( p_package_name    IN     VARCHAR2
-                      , o_errors             OUT VARCHAR2
-                      , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                      , p_package_type    IN     VARCHAR2 DEFAULT 'PACKAGE'
-                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_package( p_package_name    IN            VARCHAR2
+                      , o_errors             OUT NOCOPY VARCHAR2
+                      , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_package_type    IN            VARCHAR2 DEFAULT 'PACKAGE'
+                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN INTEGER
   ;
@@ -106,13 +106,13 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_procedure( p_procedure_name  IN     VARCHAR2
-                        , o_errors             OUT VARCHAR2
-                        , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                        , p_procedure_type  IN     VARCHAR2 DEFAULT 'FUNCTION'
-                        , p_package_name    IN     VARCHAR2 DEFAULT NULL
-                        , p_return_type     IN     VARCHAR2 DEFAULT NULL
-                        , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_procedure( p_procedure_name  IN            VARCHAR2
+                        , o_errors             OUT NOCOPY VARCHAR2
+                        , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                        , p_procedure_type  IN            VARCHAR2 DEFAULT 'FUNCTION'
+                        , p_package_name    IN            VARCHAR2 DEFAULT NULL
+                        , p_return_type     IN            VARCHAR2 DEFAULT NULL
+                        , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                         )
     RETURN INTEGER
   ;
@@ -131,14 +131,14 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_trigger( p_trigger_name    IN     VARCHAR2
-                      , o_errors             OUT VARCHAR2
-                      , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                      , p_trigger_type    IN     VARCHAR2 DEFAULT NULL
-                      , p_trigger_event   IN     VARCHAR2 DEFAULT NULL
-                      , p_table_owner     IN     VARCHAR2 DEFAULT NULL
-                      , p_table_name      IN     VARCHAR2 DEFAULT NULL
-                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_trigger( p_trigger_name    IN            VARCHAR2
+                      , o_errors             OUT NOCOPY VARCHAR2
+                      , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_trigger_type    IN            VARCHAR2 DEFAULT NULL
+                      , p_trigger_event   IN            VARCHAR2 DEFAULT NULL
+                      , p_table_owner     IN            VARCHAR2 DEFAULT NULL
+                      , p_table_name      IN            VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       )
     RETURN INTEGER
   ;
@@ -154,11 +154,11 @@ AS
   *
   * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
   */
-  FUNCTION has_object( p_object_name     IN     VARCHAR2
-                     , p_object_type     IN     VARCHAR2
-                     , o_errors             OUT VARCHAR2
-                     , p_schema          IN     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION has_object( p_object_name     IN            VARCHAR2
+                     , p_object_type     IN            VARCHAR2
+                     , o_errors             OUT NOCOPY VARCHAR2
+                     , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
     RETURN INTEGER
   ;

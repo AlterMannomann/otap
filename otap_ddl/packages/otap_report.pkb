@@ -496,7 +496,7 @@ AS
                          , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                          , p_object_type IN VARCHAR2 DEFAULT NULL
                          , p_sub_object  IN VARCHAR2 DEFAULT NULL
-                         , p_desc        IN VARCHAR2 DEFAULT NULL
+                         , p_test_desc   IN VARCHAR2 DEFAULT NULL
                          )
     RETURN VARCHAR2
   IS
@@ -512,7 +512,7 @@ AS
                                             , p_param2_value => p_schema_name
                                             , p_param3 => '@subobject@'
                                             , p_param3_value => p_sub_object
-                                            , p_description => p_desc
+                                            , p_description => p_test_desc
                                             )
       ;
     ELSE
@@ -522,7 +522,7 @@ AS
                                             , p_param1_value => p_object_name
                                             , p_param2 => '@schema@'
                                             , p_param2_value => p_schema_name
-                                            , p_description => p_desc
+                                            , p_description => p_test_desc
                                             )
       ;
     END IF;
@@ -532,6 +532,28 @@ AS
       otap_log.log(SQLERRM, 'otap_report.get_exists_msg', 'Build exists result message');
       RAISE;
   END get_exists_msg;
+
+  FUNCTION get_match_msg( p_match_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                        , p_match_data IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                        , p_test_desc  IN VARCHAR2 DEFAULT NULL
+                        )
+    RETURN VARCHAR2
+  IS
+    l_template_text VARCHAR2(32767 CHAR); -- '@type@ match (@data@)'
+  BEGIN
+    l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_MATCH
+                                          , p_type_label => p_match_type
+                                          , p_param1 => '@data@'
+                                          , p_param1_value => p_match_data
+                                          , p_description => p_test_desc
+                                          )
+    ;
+    RETURN l_template_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_match_msg', 'Build match compare result message');
+      RAISE;
+  END get_match_msg;
 
 END;
 /

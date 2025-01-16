@@ -259,6 +259,12 @@ INSERT INTO otap_config
   VALUES
   ('TEMPLATE_XEXISTS', '@type@ @object@.@subobject@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
--- LABEL_COLUMN, rest can be received from DBA_OBJECTS or other DBA views
--- rework API reduce sections to the max, like write and add, errorhandling (template?)
+-- generic match template
+-- @type@ represents the match object type as defined in the matching function (BOOLEAN, VARCHAR2, NUMBER, DATE).
+-- @data@ represents the given compare data to match.
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  VALUES
+  ('TEMPLATE_MATCH', '@type@ match (@data@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
 COMMIT;

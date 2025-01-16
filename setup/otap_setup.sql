@@ -46,6 +46,8 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_plan.pkb
 @@../otap_ddl/packages/otap_schema.pks
 @@../otap_ddl/packages/otap_schema.pkb
+@@../otap_ddl/packages/otap_logic.pks
+@@../otap_ddl/packages/otap_logic.pkb
 @@../otap_ddl/packages/otap_api.pks
 @@../otap_ddl/packages/otap_api.pkb
 @@../otap_ddl/packages/otap_test.pks
