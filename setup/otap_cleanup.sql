@@ -20,10 +20,10 @@ SPOOL logs/otap_cleanup.log
 -- jobs
 @@../otap_ddl/jobs/drop/drop_OTAP_MAINTENANCE.sql
 -- package objects
-@@../otap_ddl/packages/drop/drop_otap_generate_pkb.sql
-@@../otap_ddl/packages/drop/drop_otap_generate_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_test_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_test_pks.sql
+@@../otap_ddl/packages/drop/drop_otap_generate_pkb.sql
+@@../otap_ddl/packages/drop/drop_otap_generate_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_api_pkb.sql
 @@../otap_ddl/packages/drop/drop_otap_api_pks.sql
 @@../otap_ddl/packages/drop/drop_otap_logic_pkb.sql
