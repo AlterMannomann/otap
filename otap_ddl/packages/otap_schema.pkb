@@ -351,8 +351,8 @@ AS
          AND NVL(return_type, 'n/a')  = NVL(l_return_type, NVL(return_type, 'n/a'))
          AND NVL(package_name, 'n/a') = NVL(l_package_name, NVL(package_name, 'n/a'))
       ;
-      -- we should find one or zero entries
-      l_test_passed := count_chk(l_has_procedure, l_errors, l_script);
+      -- we may find more than 1 entry, if function or procedure has same name but different signature
+      l_test_passed := CASE WHEN l_has_procedure = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
     ELSE
       -- invalid package name, type or state
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;

@@ -6,6 +6,6 @@
 @@../../setup/util/log_silent.sql
 -- disable header as script is called from other scripts
 SPOOL ../../otap_test/schema/generated_otap_schema_tests.sql
-SELECT result_text FROM TABLE(otap_generate.schema_tests(p_show_header => 0));
+SELECT result_text FROM TABLE(otap_test.generate_schema_tests(p_show_header => 0));
 SPOOL OFF
 EXIT

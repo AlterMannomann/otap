@@ -1,14 +1,68 @@
+-- otap GENERATE test scripts OTAP schemas
+-- LIKE scope: OTAP
 -- set test set for schema
-SELECT otap_test.set_test_set('OTAP schema') FROM dual;
+SELECT otap_test.set_test_set('schema OTAP') FROM dual;
+-- otap GENERATE test scripts OTAP tables
+-- LIKE scope: %
 -- set test group for tables
-SELECT otap_test.set_test_group('OTAP tables') FROM dual;
--- loop through tables with names like %
+SELECT otap_test.set_test_group('tables') FROM dual;
 -- set test name for table
-SELECT otap_test.set_test_name('OTAP table OTAP_CONFIG') FROM dual;
+SELECT otap_test.set_test_name('table SPERRORLOG') FROM dual;
+SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
+                          , p_schema => 'OTAP'
+                          ) FROM dual;
+-- otap GENERATE test scripts OTAP columns SPERRORLOG
+-- LIKE scope: %
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'USERNAME'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 1024
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'TIMESTAMP'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'TIMESTAMP(6)'
+                           , p_data_length => 11
+                           , p_data_scale => 6
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'SCRIPT'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'IDENTIFIER'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 1024
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'MESSAGE'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+                           , p_column_name => 'STATEMENT'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'CLOB'
+                           , p_data_length => 4000
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+-- set test name for table
+SELECT otap_test.set_test_name('table OTAP_CONFIG') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_CONFIG'
                           , p_schema => 'OTAP'
                           ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_CONFIG
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_column_name => 'CONFIG_NAME'
                            , p_schema => 'OTAP'
@@ -100,13 +154,13 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
                            , p_data_length => 16000
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_CONFIG
 -- set test name for table
-SELECT otap_test.set_test_name('OTAP table OTAP_RESULTS') FROM dual;
+SELECT otap_test.set_test_name('table OTAP_RESULTS') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_RESULTS'
                           , p_schema => 'OTAP'
                           ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_RESULTS
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_column_name => 'TO_DELETE'
                            , p_schema => 'OTAP'
@@ -243,13 +297,13 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
                            , p_data_length => 16000
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_RESULTS
 -- set test name for table
-SELECT otap_test.set_test_name('OTAP table OTAP_TRANSLATE') FROM dual;
+SELECT otap_test.set_test_name('table OTAP_TRANSLATE') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_TRANSLATE'
                           , p_schema => 'OTAP'
                           ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_TRANSLATE
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_column_name => 'OTAP_IDENTIFIER'
                            , p_schema => 'OTAP'
@@ -316,13 +370,13 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_TRANSLATE'
                            , p_data_length => 1024
                            , p_nullable => 'N'
                            ) FROM dual;
--- finish column tests for OTAP_TRANSLATE
 -- set test name for table
-SELECT otap_test.set_test_name('OTAP table OTAP_LABELS_MV') FROM dual;
+SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
                           , p_schema => 'OTAP'
                           ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
                            , p_column_name => 'ORACLE_TYPE'
                            , p_schema => 'OTAP'
@@ -365,62 +419,11 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
                            , p_data_length => 512
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_LABELS_MV
--- set test name for table
-SELECT otap_test.set_test_name('OTAP table SPERRORLOG') FROM dual;
-SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
-                          , p_schema => 'OTAP'
-                          ) FROM dual;
--- loop through columns with names like %
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'USERNAME'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 1024
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'TIMESTAMP'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'TIMESTAMP(6)'
-                           , p_data_length => 11
-                           , p_data_scale => 6
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'SCRIPT'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'IDENTIFIER'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 1024
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'MESSAGE'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-                           , p_column_name => 'STATEMENT'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'CLOB'
-                           , p_data_length => 4000
-                           , p_nullable => 'Y'
-                           ) FROM dual;
--- finish column tests for SPERRORLOG
--- finish table tests for %
--- set test group for trigger
-SELECT otap_test.set_test_group('OTAP trigger') FROM dual;
-SELECT otap_test.set_test_name('OTAP OTAP_CONFIG table trigger') FROM dual;
--- loop through triggers with names like %
+-- otap GENERATE test scripts OTAP trigger
+-- LIKE scope: %
+SELECT otap_test.set_group_name('trigger') FROM dual;
+-- set test name for table trigger
+SELECT otap_test.set_test_name('table trigger OTAP_CONFIG') FROM dual;
 SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_DEL_TRG'
                             , p_schema => 'OTAP'
                             , p_trigger_type => 'BEFORE EACH ROW'
@@ -442,8 +445,8 @@ SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_CONFIG_UPD_TRG'
                             , p_table_owner => 'OTAP'
                             , p_table_name => 'OTAP_CONFIG'
                             ) FROM dual;
-SELECT otap_test.set_test_name('OTAP OTAP_RESULTS table trigger') FROM dual;
--- loop through triggers with names like %
+-- set test name for table trigger
+SELECT otap_test.set_test_name('table trigger OTAP_RESULTS') FROM dual;
 SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_RESULTS_DEL_TRG'
                             , p_schema => 'OTAP'
                             , p_trigger_type => 'BEFORE EACH ROW'
@@ -465,8 +468,8 @@ SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_RESULTS_UPD_TRG'
                             , p_table_owner => 'OTAP'
                             , p_table_name => 'OTAP_RESULTS'
                             ) FROM dual;
-SELECT otap_test.set_test_name('OTAP OTAP_TRANSLATE table trigger') FROM dual;
--- loop through triggers with names like %
+-- set test name for table trigger
+SELECT otap_test.set_test_name('table trigger OTAP_TRANSLATE') FROM dual;
 SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_TRANSLATE_INS_TRG'
                             , p_schema => 'OTAP'
                             , p_trigger_type => 'BEFORE EACH ROW'
@@ -481,11 +484,12 @@ SELECT otap_test.has_trigger( p_trigger_name => 'OTAP_TRANSLATE_UPD_TRG'
                             , p_table_owner => 'OTAP'
                             , p_table_name => 'OTAP_TRANSLATE'
                             ) FROM dual;
--- finish trigger tests for %
+-- otap GENERATE test scripts OTAP packages
+-- LIKE scope: %
 -- set test group for package
-SELECT otap_test.set_test_group('OTAP packages') FROM dual;
+SELECT otap_test.set_test_group('packages') FROM dual;
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_STRING') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_STRING') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_STRING'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -493,7 +497,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_STRING'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'REDUCE'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -590,9 +595,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'IS_SYS_OBJECT'
                               , p_package_name => 'OTAP_STRING'
                               , p_return_type => 'BOOLEAN'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_STRING
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_REPORT') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_REPORT') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_REPORT'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -600,7 +604,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_REPORT'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'DECORATE'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -727,9 +732,14 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_EXISTS_MSG'
                               , p_package_name => 'OTAP_REPORT'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_REPORT
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_MATCH_MSG'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_REPORT'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_OBJECTS') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_OBJECTS') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_OBJECTS'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -737,7 +747,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_OBJECTS'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_VERIFY'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
@@ -791,6 +802,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_GET_REPORT_ID'
                               , p_package_name => 'OTAP_OBJECTS'
                               , p_return_type => 'NUMBER'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_SESSION_VIEW_ID'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_OBJECTS'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_ADD_TEST'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
@@ -808,9 +825,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_FINISH'
                               , p_package_name => 'OTAP_OBJECTS'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_OBJECTS
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_PLAN') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_PLAN') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_PLAN'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -818,7 +834,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_PLAN'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'WRITE_TEST_RESULT'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -854,9 +871,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'FINISH_TEST_WITH_EXIT_CODE'
                               , p_package_name => 'OTAP_PLAN'
                               , p_return_type => 'NUMBER'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_PLAN
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_SCHEMA') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_SCHEMA') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_SCHEMA'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -864,7 +880,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_SCHEMA'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TABLE'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -901,9 +918,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
                               , p_package_name => 'OTAP_SCHEMA'
                               , p_return_type => 'NUMBER'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_SCHEMA
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_API') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_API') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_API'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -911,7 +927,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_API'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_OTAP'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
@@ -976,6 +993,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_GET_REPORT_ID'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'NUMBER'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'SET_ACTIVE_REPORT_ID'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
                               ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'MAX_TEXT_SIZE'
                               , p_schema => 'OTAP'
@@ -1097,6 +1120,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_REPORT_TOTAL_DETAILS'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'RESULT_VIEW'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TABLE'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1133,9 +1162,32 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
                               , p_package_name => 'OTAP_API'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_API
+SELECT otap_test.has_procedure( p_procedure_name => 'OK'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_API'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_TEST') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_TEST') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_TEST'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -1143,7 +1195,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_TEST'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'INIT_TEST'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1204,6 +1257,12 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_REPORT_ID'
                               , p_package_name => 'OTAP_TEST'
                               , p_return_type => 'NUMBER'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'SET_ACTIVE_REPORT_ID'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'RESULT_VIEW'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1246,9 +1305,85 @@ SELECT otap_test.has_procedure( p_procedure_name => 'HAS_OBJECT'
                               , p_package_name => 'OTAP_TEST'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_TEST
+SELECT otap_test.has_procedure( p_procedure_name => 'OK'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SET_TYPE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'PROCEDURE'
+                              , p_package_name => 'OTAP_TEST'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_TYPE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEMA_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_TABLE_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_COLUMN_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_TRIGGER_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_PACKAGE_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_PROCEDURE_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_VIEW_TESTS'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_TEST'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_UTIL') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_UTIL') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -1256,7 +1391,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'IS_NUMBER'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1355,9 +1491,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'RESULT_CLEANUP'
                               , p_procedure_type => 'PROCEDURE'
                               , p_package_name => 'OTAP_UTIL'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_UTIL
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_GENERATE') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_GENERATE') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -1365,7 +1500,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'COLUMN_TESTS'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1384,7 +1520,7 @@ SELECT otap_test.has_procedure( p_procedure_name => 'TRIGGER_TESTS'
                               , p_package_name => 'OTAP_GENERATE'
                               , p_return_type => 'TABLE'
                               ) FROM dual;
-SELECT otap_test.has_procedure( p_procedure_name => 'PKG_PROCEDURES'
+SELECT otap_test.has_procedure( p_procedure_name => 'PROCEDURE_TESTS'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_GENERATE'
@@ -1408,6 +1544,17 @@ SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_TESTS'
                               , p_package_name => 'OTAP_GENERATE'
                               , p_return_type => 'TABLE'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'PROCEDURE'
+                              , p_package_name => 'OTAP_GENERATE'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'SET_GEN_TYPE'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
@@ -1419,15 +1566,80 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_GEN_TYPE'
                               , p_package_name => 'OTAP_GENERATE'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX_LEN'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_POSTFIX'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PAD'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'VARCHAR2'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_HEADER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
 SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_HEADER'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
                               , p_package_name => 'OTAP_GENERATE'
                               , p_return_type => 'TABLE'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_GENERATE
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_HEADER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_HEADER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_FOOTER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_FOOTER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_FOOTER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'GET_FOOTER'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_GENERATE'
+                              , p_return_type => 'TABLE'
+                              ) FROM dual;
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_CONSTANTS') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_CONSTANTS') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -1435,7 +1647,8 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'GET_VERSION'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'FUNCTION'
@@ -1538,9 +1751,8 @@ SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_CONFIG_TYPE_CHAR'
                               , p_package_name => 'OTAP_CONSTANTS'
                               , p_return_type => 'VARCHAR2'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_CONSTANTS
 -- set test name for package
-SELECT otap_test.set_test_name('OTAP package OTAP_LOG') FROM dual;
+SELECT otap_test.set_test_name('package OTAP_LOG') FROM dual;
 SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
                             , p_schema => 'OTAP'
                             ) FROM dual;
@@ -1548,23 +1760,60 @@ SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
                             , p_schema => 'OTAP'
                             , p_package_type => 'PACKAGE BODY'
                             ) FROM dual;
--- loop through package functions and triggers with names like %
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
 SELECT otap_test.has_procedure( p_procedure_name => 'LOG'
                               , p_schema => 'OTAP'
                               , p_procedure_type => 'PROCEDURE'
                               , p_package_name => 'OTAP_LOG'
                               ) FROM dual;
--- finish package function and procedure tests for OTAP_LOG
--- finish package tests for %
+-- set test name for package
+SELECT otap_test.set_test_name('package OTAP_LOGIC') FROM dual;
+SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
+                            , p_schema => 'OTAP'
+                            ) FROM dual;
+SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
+                            , p_schema => 'OTAP'
+                            , p_package_type => 'PACKAGE BODY'
+                            ) FROM dual;
+-- otap GENERATE test scripts OTAP procedures
+-- LIKE scope: %
+SELECT otap_test.has_procedure( p_procedure_name => 'OK'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_LOGIC'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_LOGIC'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_LOGIC'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
+SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+                              , p_schema => 'OTAP'
+                              , p_procedure_type => 'FUNCTION'
+                              , p_package_name => 'OTAP_LOGIC'
+                              , p_return_type => 'NUMBER'
+                              ) FROM dual;
+-- otap GENERATE test scripts OTAP views
+-- LIKE scope: %
 -- set test group for views
-SELECT otap_test.set_test_group('OTAP views') FROM dual;
+SELECT otap_test.set_test_group('views') FROM dual;
 -- set test name for view
-SELECT otap_test.set_test_name('OTAP view OTAP_IDENTIFIERS_V') FROM dual;
+SELECT otap_test.set_test_name('view OTAP_IDENTIFIERS_V') FROM dual;
 SELECT otap_test.has_object( p_object_name => 'OTAP_IDENTIFIERS_V'
                            , p_object_type => 'VIEW'
                            , p_schema => 'OTAP'
                            ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_IDENTIFIERS_V
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
                            , p_column_name => 'OTAP_IDENTIFIER'
                            , p_schema => 'OTAP'
@@ -1621,14 +1870,14 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
                            , p_data_length => 22
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_IDENTIFIERS_V
 -- set test name for view
-SELECT otap_test.set_test_name('OTAP view OTAP_LATEST_TEST_RESULTS_V') FROM dual;
+SELECT otap_test.set_test_name('view OTAP_LATEST_TEST_RESULTS_V') FROM dual;
 SELECT otap_test.has_object( p_object_name => 'OTAP_LATEST_TEST_RESULTS_V'
                            , p_object_type => 'VIEW'
                            , p_schema => 'OTAP'
                            ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_LATEST_TEST_RESULTS_V
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_LATEST_TEST_RESULTS_V'
                            , p_column_name => 'RESULT_TEXT'
                            , p_schema => 'OTAP'
@@ -1636,14 +1885,14 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_LATEST_TEST_RESULTS_V'
                            , p_data_length => 16000
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_LATEST_TEST_RESULTS_V
 -- set test name for view
-SELECT otap_test.set_test_name('OTAP view OTAP_LABELS_MV') FROM dual;
+SELECT otap_test.set_test_name('view OTAP_LABELS_MV') FROM dual;
 SELECT otap_test.has_object( p_object_name => 'OTAP_LABELS_MV'
                            , p_object_type => 'MATERIALIZED VIEW'
                            , p_schema => 'OTAP'
                            ) FROM dual;
--- loop through columns with names like %
+-- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
+-- LIKE scope: %
 SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
                            , p_column_name => 'ORACLE_TYPE'
                            , p_schema => 'OTAP'
@@ -1686,6 +1935,3 @@ SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
                            , p_data_length => 512
                            , p_nullable => 'Y'
                            ) FROM dual;
--- finish column tests for OTAP_LABELS_MV
--- finish view tests for %
--- finish schema tests for OTAP

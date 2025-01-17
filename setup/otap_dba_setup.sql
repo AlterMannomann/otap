@@ -214,18 +214,26 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'Granted CONNECT, ';
+  --
   l_statement := 'GRANT RESOURCE TO &OTAP_USER';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'RESOURCE, ';
+  --
   l_statement := 'GRANT CREATE VIEW TO &OTAP_USER';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'CREATE VIEW, ';
+  --
   l_statement := 'GRANT CREATE JOB TO &OTAP_USER';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'CREATE JOB to &OTAP_USER' || l_lf;
+  --
+  l_statement := 'GRANT &OTAP_ROLE. TO &OTAP_USER. WITH ADMIN OPTION';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || 'Granted role &OTAP_ROLE. WITH ADMIN OPTION' || l_lf;
   -- admin role grants
   l_statement := 'GRANT SELECT ON dba_objects TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');

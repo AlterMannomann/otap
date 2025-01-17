@@ -1,11 +1,12 @@
 Running under WINDOWS
 Identify install situation ...
-OTAP                                                                                                                                      -1 OTAP_USER                                                                                                                                  1
-params_unclear.sql
-Specify DB user name of otap for update (no default): OTAP
-Specify user role name of otap for update (no default): OTAP_USER
+OTAP                                                                                                                                       1 OTAP_USER                                                                                                                                  1
+params_update.sql
+DB user name of otap for update (identified OTAP if no value is given): 
+User role name of otap for update (identified OTAP_USER if no value is given): 
+OTAP
 ==== otap DBA update ====
-More than one otap installation idenfified. Update given user/schema OTAP and role OTAP_USER?
+Update user/schema OTAP and role OTAP_USER?
 ONLY ONE otap database user should exist per PDB.
 Not allowed to be used as AI training material without explicite permission.
 Use Ctrl-C to stop the script in sqlplus, Enter to continue.
@@ -15,6 +16,7 @@ GRANT CONNECT TO OTAP;
 GRANT RESOURCE TO OTAP;
 GRANT CREATE VIEW TO OTAP;
 GRANT CREATE JOB TO OTAP;
+GRANT OTAP_USER TO OTAP WITH ADMIN OPTION;
 GRANT SELECT ON dba_objects TO OTAP;
 GRANT SELECT ON dba_tables TO OTAP;
 GRANT SELECT ON dba_tab_columns TO OTAP;
@@ -43,6 +45,7 @@ GRANT SELECT ON dba_cons_columns TO OTAP;
 GRANT SELECT ON v_$reserved_words TO OTAP;
 === otap DBA update result ===
 Granted CONNECT, RESOURCE, CREATE VIEW, CREATE JOB to OTAP
+Granted role OTAP_USER WITH ADMIN OPTION
 Grant SELECT to OTAP on:
   DBA_OBJECTS, DBA_TABLES, DBA_TAB_COLUMNS
   DBA_PROCEDURES, DBA_ARGUMENTS, DBA_TRIGGERS, 

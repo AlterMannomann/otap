@@ -2,12 +2,11 @@
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 ### Current changes
-- Session id now stable and unique in every state for all concurrent users
-- Provided otap_test.set_active_report_id to change the report shown by OTAP_LATEST_TEST_RESULTS_V
-- Reorganized package code otap_test, moved report to otap_api.
+- Moved generate access to otap_test.
+- Fixed LIKE issue in generate, LIKE option only valid for the base objects, depending objects like columns and functions are not limited by given LIKE option.
+- otap can now grant the otap user role to others
 ### Next steps
 - Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
-- Modularize otap_generate a bit more.
 - Extend otap_schema (has_type, is_object_valid ...)
 - Enhance documentation
 ### Current state
@@ -34,9 +33,7 @@ Every test function supports also the parameter *p_expected_result*. The default
 
 The finish_test function is also available as a function with exit code (otap_test.finish_test_with_exit_code). This can be used to automate test execution and handle actions depending on test outcome.
 
-For function overview see currently [otap_test package description](./otap_ddl/packages/otap_test.md).
-
-For generation options see currently [otap_generate package description](./otap_ddl/packages/otap_generate.md).
+For function and generation overview see currently [otap_test package description](./otap_ddl/packages/otap_test.md).
 
 See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
@@ -56,7 +53,7 @@ Automated testing for Oracle databases. Can be used with [SOSL](https://github.c
   - You can use the DBA install also for updates (usually grants). It will try to identify the otap user, if it exists in the database.
   - Use [otap_setup.sql](./setup/otap_setup.sql) as otap user to install the schema objects. Currently you should reinstall the schema objects after branch updates. See [otap_cleanup.sql](./setup/otap_cleanup.sql). Update mode for schema objects is not supported yet.
 - Grant your defined otap user role (default OTAP_USER) to the users, that should be able to execute otap tests.
-- Users with the otap user roles can access the packages OTAP_TEST, OTAP_GENERATE and the view OTAP_LATEST_TEST_RESULTS_V.
+- Users with the otap user roles can access the package OTAP_TEST and the view OTAP_LATEST_TEST_RESULTS_V.
 - You may want to create synonyms, so the otap schema is not needed for qualifying the package or view.
 ## Usage
 To run a test simply call it

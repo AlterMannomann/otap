@@ -50,10 +50,10 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/packages/otap_logic.pkb
 @@../otap_ddl/packages/otap_api.pks
 @@../otap_ddl/packages/otap_api.pkb
-@@../otap_ddl/packages/otap_test.pks
-@@../otap_ddl/packages/otap_test.pkb
 @@../otap_ddl/packages/otap_generate.pks
 @@../otap_ddl/packages/otap_generate.pkb
+@@../otap_ddl/packages/otap_test.pks
+@@../otap_ddl/packages/otap_test.pkb
 -- table trigger
 @@../otap_ddl/triggers/otap_config_trg.sql
 @@../otap_ddl/triggers/otap_results_trg.sql

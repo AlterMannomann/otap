@@ -55,6 +55,9 @@ AS
   OTAP_LABEL_LOWER                    CONSTANT CHAR(1)        := 'L';
   OTAP_LABEL_INIT_CAP                 CONSTANT CHAR(1)        := 'I';
   OTAP_TYPE_VAR                       CONSTANT CHAR(6)        := '@type@';
+  OTAP_GEN_TYPE_SCRIPT                CONSTANT CHAR(1)        := 'S';
+  OTAP_GEN_TYPE_FUNCTION              CONSTANT CHAR(1)        := 'F';
+  OTAP_GEN_TYPE_PROCEDURE             CONSTANT CHAR(1)        := 'P';
   -- otap log needs to know the debug mode access name, therefore in otap_constants, other access identifiers are in otap_util
   OTAP_CFG_DEBUG_MODE                 CONSTANT CHAR(10)       := 'DEBUG_MODE';
   -- fallback constants for access failure situations, defaults and checks
