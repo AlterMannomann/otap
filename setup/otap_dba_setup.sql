@@ -360,6 +360,11 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || '  DBA_CONS_COLUMNS, ';
+  --
+  l_statement := 'GRANT SELECT ON dba_ind_columns TO &OTAP_USER.';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || 'DBA_IND_COLUMNS, ';
   -- final
   l_statement := 'GRANT SELECT ON v_$reserved_words TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');

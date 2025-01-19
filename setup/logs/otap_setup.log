@@ -5517,9 +5517,26 @@ SQL> CREATE OR REPLACE PACKAGE otap_schema
 252  				       )
 253  	 RETURN INTEGER
 254    ;
-255  
-256  END;
-257  /
+255  /*
+256    -- table name guaranteed, column can be null, index not in dba_ind_columns
+257    FUNCTION has_index( p_table_name      IN 	   VARCHAR2
+258  			 , o_errors		OUT NOCOPY VARCHAR2
+259  			 , p_column_name     IN 	   VARCHAR2 DEFAULT NULL
+260  			 , p_index_name      IN 	   VARCHAR2 DEFAULT NULL
+261  			 , p_index_type      IN 	   VARCHAR2 DEFAULT NULL
+262  			 , p_table_type      IN 	   VARCHAR2 DEFAULT NULL
+263  			 , p_uniqueness      IN 	   VARCHAR2 DEFAULT NULL
+264  			 , p_tablespace_name IN 	   VARCHAR2 DEFAULT NULL
+265  			 , p_partitioned     IN 	   VARCHAR2 DEFAULT NULL
+266  			 , p_last_analyzed   IN 	   DATE     DEFAULT NULL
+267  			 , p_schema	     IN 	   VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+268  			 , p_expected_result IN 	   NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+269  			 )
+270  	 RETURN INTEGER
+271    ;
+272  */
+273  END;
+274  /
 
 Package created.
 
@@ -5654,12 +5671,12 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 125  	    WHERE owner 			     = l_schema_to_use
 126  	      AND table_name			     = l_table_name
 127  	      AND column_name			     = l_column_name
-128  	      AND data_type			     = UPPER(NVL(p_data_type, data_type))
+128  	      AND data_type			     = NVL(UPPER(p_data_type), data_type)
 129  	      AND data_length			     = NVL(p_data_length, data_length)
 130  	      AND nullable			     = UPPER(NVL(p_nullable, nullable))
 131  	      AND NVL(data_precision, -1)	     = NVL(p_data_precision, NVL(data_precision, -1))
 132  	      AND NVL(data_scale, -1)		     = NVL(p_data_scale, NVL(data_scale, -1))
-133  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, NVL(data_default_vc, 'n/a')))
+133  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, TRIM(NVL(data_default_vc, 'n/a'))))
 134  	   ;
 135  	   -- we should find one or zero entries
 136  	   l_test_passed := count_chk(l_has_column, l_errors, l_script);
@@ -5954,12 +5971,12 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 425  	   SELECT COUNT(*)
 426  	     INTO l_has_trigger
 427  	     FROM dba_triggers
-428  	    WHERE owner 		 = l_schema_to_use
-429  	      AND trigger_name		 = l_trigger_name
-430  	      AND trigger_type		 = NVL(l_trigger_type, trigger_type)
-431  	      AND triggering_event	 = NVL(l_trigger_event, triggering_event)
-432  	      AND table_owner		 = NVL(l_table_owner, table_owner)
-433  	      AND NVL(table_name, 'n/a') = NVL(l_table_name, NVL(table_name, 'n/a'))
+428  	    WHERE owner 		       = l_schema_to_use
+429  	      AND trigger_name		       = l_trigger_name
+430  	      AND NVL(trigger_type, 'n/a')     = NVL(l_trigger_type, NVL(trigger_type, 'n/a'))
+431  	      AND NVL(triggering_event, 'n/a') = NVL(l_trigger_event, NVL(triggering_event, 'n/a'))
+432  	      AND NVL(table_owner, 'n/a')      = NVL(l_table_owner, NVL(table_owner, 'n/a'))
+433  	      AND NVL(table_name, 'n/a')       = NVL(l_table_name, NVL(table_name, 'n/a'))
 434  	   ;
 435  	   -- we should find one or zero entries
 436  	   l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
@@ -6103,14 +6120,14 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 574  	     INTO l_has_constraint
 575  	     FROM dba_constraints dco
 576  	     LEFT OUTER JOIN dba_cons_columns dcc
-577  	       ON dco.owner	      = dcc.owner
-578  	      AND dco.constraint_name = dcc.constraint_name
-579  	      AND dco.table_name      = dcc.table_name
-580  	    WHERE dco.owner	      = l_schema_to_use
-581  	      AND dco.table_name      = l_table_name
-582  	      AND dcc.column_name     = NVL(l_column_name, dcc.column_name)
-583  	      AND dco.constraint_name = NVL(l_constraint_name, dco.constraint_name)
-584  	      AND dco.constraint_type = l_constraint_type
+577  	       ON dco.owner			   = dcc.owner
+578  	      AND dco.constraint_name		   = dcc.constraint_name
+579  	      AND dco.table_name		   = dcc.table_name
+580  	    WHERE dco.owner			   = l_schema_to_use
+581  	      AND dco.table_name		   = l_table_name
+582  	      AND NVL(dcc.column_name, 'n/a')	   = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+583  	      AND NVL(dco.constraint_name, 'n/a')  = NVL(l_constraint_name, NVL(dco.constraint_name, 'n/a'))
+584  	      AND dco.constraint_type		   = l_constraint_type
 585  	   ;
 586  	   -- we may find more than one entry for combined primary keys
 587  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
@@ -6201,17 +6218,17 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
 672  	      AND dco.constraint_name = dcc.constraint_name
 673  	      AND dco.table_name      = dcc.table_name
 674  	     LEFT OUTER JOIN dba_cons_columns dcr
-675  	       ON dco.r_owner		 = dcr.owner
-676  	      AND dco.r_constraint_name  = dcr.constraint_name
-677  	    WHERE dco.owner		 = l_schema_to_use
-678  	      AND dco.table_name	 = l_table_name
-679  	      AND dcc.column_name	 = NVL(l_column_name, dcc.column_name)
-680  	      AND dco.constraint_name	 = NVL(l_constraint_name, dco.constraint_name)
-681  	      AND dco.r_owner		 = NVL(l_r_schema, dco.r_owner)
-682  	      AND dco.r_constraint_name  = NVL(l_r_constraint_name, dco.r_constraint_name)
-683  	      AND dcr.table_name	 = NVL(l_r_table_name, dcr.table_name)
-684  	      AND dcr.column_name	 = NVL(l_r_column_name, dcr.column_name)
-685  	      AND dco.constraint_type	 = l_constraint_type
+675  	       ON dco.r_owner			     = dcr.owner
+676  	      AND dco.r_constraint_name 	     = dcr.constraint_name
+677  	    WHERE dco.owner			     = l_schema_to_use
+678  	      AND dco.table_name		     = l_table_name
+679  	      AND NVL(dcc.column_name, 'n/a')	     = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+680  	      AND dco.constraint_name		     = NVL(l_constraint_name, dco.constraint_name)
+681  	      AND NVL(dco.r_owner, 'n/a')	     = NVL(l_r_schema, NVL(dco.r_owner, 'n/a'))
+682  	      AND NVL(dco.r_constraint_name, 'n/a')  = NVL(l_r_constraint_name, NVL(dco.r_constraint_name, 'n/a'))
+683  	      AND NVL(dcr.table_name, 'n/a')	     = NVL(l_r_table_name, NVL(dcr.table_name, 'n/a'))
+684  	      AND NVL(dcr.column_name, 'n/a')	     = NVL(l_r_column_name, NVL(dcr.column_name, 'n/a'))
+685  	      AND dco.constraint_type		     = l_constraint_type
 686  	   ;
 687  	   -- we may find more than one entry for combined primary keys
 688  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;

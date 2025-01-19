@@ -256,6 +256,23 @@ AS
                                   )
     RETURN INTEGER
   ;
-
+/*
+  -- table name guaranteed, column can be null, index not in dba_ind_columns
+  FUNCTION has_index( p_table_name      IN            VARCHAR2
+                    , o_errors             OUT NOCOPY VARCHAR2
+                    , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN            VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN            VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN            VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN            VARCHAR2 DEFAULT NULL
+                    , p_last_analyzed   IN            DATE     DEFAULT NULL
+                    , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
+    RETURN INTEGER
+  ;
+*/
 END;
 /
