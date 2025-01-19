@@ -554,6 +554,48 @@ AS
       RAISE;
   END has_not_null_constraint;
 
+  FUNCTION has_index( p_table_name      IN VARCHAR2
+                    , p_column_name     IN VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN VARCHAR2 DEFAULT NULL
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_index( p_table_name
+                                   , session_record
+                                   , p_column_name
+                                   , p_index_name
+                                   , p_index_type
+                                   , p_table_type
+                                   , p_uniqueness
+                                   , p_tablespace_name
+                                   , p_partitioned
+                                   , p_schema
+                                   , p_description
+                                   , p_expected_result
+                                   )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_index', 'l_message := otap_api.has_index( p_table_name, ...');
+      END IF;
+      RAISE;
+  END has_index;
+
+
   FUNCTION ok( p_boolean         IN     BOOLEAN
              , p_description     IN     VARCHAR2 DEFAULT NULL
              , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED

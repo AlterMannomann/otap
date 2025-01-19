@@ -1672,6 +1672,86 @@ AS
     RETURN l_return;
   END has_not_null_constraint;
 
+  FUNCTION has_index( p_table_name      IN            VARCHAR2
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN            VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN            VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN            VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN            VARCHAR2 DEFAULT NULL
+                    , p_schema          IN            VARCHAR2 DEFAULT NULL
+                    , p_description     IN            VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_index';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_type_label       VARCHAR2(128 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce( otap_report.get_exists_f_msg( p_schema_name => l_schema
+                                                                    , p_check_object => p_index_name
+                                                                    , p_check_type => otap_util.CFG_LABEL_INDEX
+                                                                    , p_rel_object_type => otap_util.CFG_LABEL_TABLE
+                                                                    , p_rel_object => p_table_name
+                                                                    , p_rel_subobject => p_column_name
+                                                                    , p_test_desc => p_description
+                                                                    )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_schema.has_index( p_table_name
+                                         , l_errors
+                                         , p_column_name
+                                         , p_index_name
+                                         , p_index_type
+                                         , p_table_type
+                                         , p_uniqueness
+                                         , p_tablespace_name
+                                         , p_partitioned
+                                         , l_schema
+                                         , p_expected_result
+                                         )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_index;
+
   FUNCTION ok( p_boolean         IN            BOOLEAN
              , o_otap_session    IN OUT NOCOPY OTAP_SESSION
              , p_description     IN            VARCHAR2     DEFAULT NULL

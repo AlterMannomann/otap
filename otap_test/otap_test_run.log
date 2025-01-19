@@ -1,6 +1,6 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 373
+SQL> SELECT otap_test.init_test( p_test_count => 378
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 373
+Expected tests: 378
 Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-19 00:51:11
+Test start: 2025-01-19 22:49:09
 
 
 1 row selected.
@@ -1917,6 +1917,16 @@ Passed function OTAP_REPORT.GET_EXISTS_C_MSG exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_EXISTS_F_MSG'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_REPORT'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_REPORT.GET_EXISTS_F_MSG exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_MATCH_MSG'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2270,6 +2280,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_NOT_NULL_CONSTRAIN
   5  				   , p_return_type => 'NUMBER'
   6  				   ) FROM dual;
 Passed function OTAP_SCHEMA.HAS_NOT_NULL_CONSTRAINT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_SCHEMA'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_SCHEMA.HAS_INDEX exists check (OTAP)
 
 1 row selected.
 
@@ -2715,6 +2735,16 @@ Passed function OTAP_API.HAS_NOT_NULL_CONSTRAINT exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.HAS_INDEX exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OK'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2985,6 +3015,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_NOT_NULL_CONSTRAIN
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_TEST.HAS_NOT_NULL_CONSTRAINT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.HAS_INDEX exists check (OTAP)
 
 1 row selected.
 
@@ -3567,6 +3607,16 @@ Passed function OTAP_GENERATE.GET_FOOTER exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_DBA_COL_DETAILS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_DBA_COL_DETAILS exists check (OTAP)
+
+1 row selected.
+
 SQL> -- set test name for package
 SQL> SELECT otap_test.set_test_name('package OTAP_CONSTANTS') FROM dual;
 Current test: package OTAP_CONSTANTS
@@ -4080,7 +4130,7 @@ SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 5 tests: 373 from 373 errors: 0 run time: +000000000 00:00:23.000000000 started: 2025-01-19 00:51:11
+Summary id: 5 tests: 378 from 378 errors: 0 run time: +000000000 00:00:22.000000000 started: 2025-01-19 22:49:09
 Current test settings
 Test session id: 6
 Test set: OTAP test set
@@ -4096,7 +4146,7 @@ Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-19 00:51:34
+Test start: 2025-01-19 22:49:31
 
 
 1 row selected.

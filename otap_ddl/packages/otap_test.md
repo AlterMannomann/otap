@@ -13,6 +13,7 @@ Description of the test options available with package otap_test. For a detailed
 - [has_constraint](#function-otap_testhas_constraint)
 - [has_ref_constraint](#function-otap_testhas_ref_constraint)
 - [has_not_null_constraint](#function-otap_testhas_not_null_constraint)
+- [has_index](#function-otap_testhas_index)
 - [ok](#function-otap_testok)
 - [is_eq](#function-otap_testis_eq)
 - [match_regex](#function-otap_testmatch_regex)
@@ -341,7 +342,7 @@ Parameter:
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
-*Return* The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+*Return* The test result as text.
 
 Examples:
 
@@ -372,7 +373,7 @@ Parameter:
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
-*Return* The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+*Return* The test result as text.
 
 Examples:
 
@@ -386,6 +387,43 @@ Examples:
                                                  , p_description => 'My description'
                                                  , p_expected_result => otap.otap_constants.get_otap_num_test_passed
                                                  ) FROM dual;
+
+## FUNCTION otap_test.has_index
+Checks if a given index exists. You may specify table name or index name. Both values NULL will lead to test failed.
+
+Parameter:
+- *p_table_name* Mandatory if index name is NULL. The table name of the table that owns the index.
+- *p_column_name* Optional. The column name used in the index. Case sensitive.
+- *p_index_name* Mandatory if table name is NULL. The index name to check. Case sensitive.
+- *p_index_type* Optional. The index type of the index to check. Not case sensitive.
+- *p_table_type* Optional. The table type of the index to check. Not case sensitive.
+- *p_uniqueness* Optional. The uniqueness of the index to check. Not case sensitive.
+- *p_tablespace_name* Optional. The tablespace name used by the index to check. Case sensitive.
+- *p_partitioned* Optional. The partitioned state of the index to check. Not case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_index('MY_TABLE', 'MY_COLUMN', 'MY_INDEX') FROM dual;
+    SELECT otap.otap_test.has_index(NULL, NULL, 'MY_INDEX') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_index( p_table_name => 'MY_TABLE'
+                                   , p_column_name => 'MY_COLUMN'
+                                   , p_index_name => 'MY_TABLE_PK'
+                                   , p_index_type => 'NORMAL'
+                                   , p_table_type => 'TABLE'
+                                   , p_uniqueness => 'UNIQUE'
+                                   , p_tablespace_name => 'MY_TABLESPACE'
+                                   , p_partitioned => 'NO'
+                                   , p_schema => 'MY_SCHEMA'
+                                   , p_description => 'My description'
+                                   , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                   ) FROM dual;
 
 ## FUNCTION otap_test.ok
 Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED. It is recommended to use a description as generated text does not contain details on the the test condition.

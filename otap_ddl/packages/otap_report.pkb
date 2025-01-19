@@ -589,6 +589,72 @@ AS
       RAISE;
   END get_exists_c_msg;
 
+  FUNCTION get_exists_f_msg( p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_check_object    IN VARCHAR2 DEFAULT NULL
+                           , p_check_type      IN VARCHAR2 DEFAULT NULL
+                           , p_rel_object_type IN VARCHAR2 DEFAULT NULL
+                           , p_rel_object      IN VARCHAR2 DEFAULT NULL
+                           , p_rel_subobject   IN VARCHAR2 DEFAULT NULL
+                           , p_test_desc       IN VARCHAR2 DEFAULT NULL
+                           )
+    RETURN VARCHAR2
+  IS
+    l_template_text VARCHAR2(32767 CHAR);
+    -- '@type@ @name@ for @otype@ @object@.@subobject@ exists check (@schema@)'
+  BEGIN
+    IF     p_rel_object    IS NOT NULL
+       AND p_rel_subobject IS NOT NULL
+    THEN
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_FX
+                                            , p_type_label => p_check_type
+                                            , p_param1 => '@otype@'
+                                            , p_param1_value => otap_util.get_config_value(p_rel_object_type)
+                                            , p_param2 => '@schema@'
+                                            , p_param2_value => p_schema_name
+                                            , p_param3 => '@object@'
+                                            , p_param3_value => p_rel_object
+                                            , p_param4 => '@subobject@'
+                                            , p_param4_value => p_rel_subobject
+                                            , p_param6n => '@name@'
+                                            , p_param6n_value => p_check_object
+                                            , p_description => p_test_desc
+                                            )
+      ;
+    ELSE
+      IF p_rel_object IS NOT NULL
+      THEN
+        l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_F
+                                              , p_type_label => p_check_type
+                                              , p_param1 => '@otype@'
+                                              , p_param1_value => otap_util.get_config_value(p_rel_object_type)
+                                              , p_param2 => '@schema@'
+                                              , p_param2_value => p_schema_name
+                                              , p_param3 => '@object@'
+                                              , p_param3_value => p_rel_object
+                                              , p_param6n => '@name@'
+                                              , p_param6n_value => p_check_object
+                                              , p_description => p_test_desc
+                                              )
+        ;
+      ELSE
+        l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+                                              , p_type_label => p_check_type
+                                              , p_param1 => '@object@'
+                                              , p_param1_value => p_check_object
+                                              , p_param2 => '@schema@'
+                                              , p_param2_value => p_schema_name
+                                              , p_description => p_test_desc
+                                              )
+        ;
+      END IF;
+    END IF;
+    RETURN l_template_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_exists_f_msg', 'Build related object exists result message');
+      RAISE;
+  END get_exists_f_msg;
+
   FUNCTION get_match_msg( p_match_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                         , p_match_data IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                         , p_test_desc  IN VARCHAR2 DEFAULT NULL

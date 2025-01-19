@@ -241,31 +241,31 @@ INSERT INTO otap_config
   ('TEMPLATE_REPORT_TOTAL', 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- generic exists template
--- @type@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
--- @object@ represents the simple object name, package functions and procedures use GENERIC_SUB_TEMPLATE_EXISTS
--- @schema@ represents the schema of the object
+-- @type@ represents the object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the simple object name without schema. Columns or package functions/procedures use TEMPLATE_EXISTSX.
+-- @schema@ represents the schema of the object.
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
   ('TEMPLATE_EXISTS', '@type@ @object@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- extended exists template
--- @type@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
--- @object@ represents the leading object name like package or table name
--- @subobject@ represents the related subobject name like column or package function or procedure name
--- @schema@ represents the schema of the object
+-- @type@ represents the object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the leading object name like package or table name.
+-- @subobject@ represents the related subobject name like column or package function/procedure name.
+-- @schema@ represents the schema of the object.
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
   ('TEMPLATE_EXISTSX', '@type@ @object@.@subobject@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
--- generic constraint exists template
+-- generic constraint exists template.
 -- @ctype@ represents the constraint type as defined in otap labels.
--- @type@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
+-- @type@ represents the contraint type as defined in the database, see OTAP_IDENTIFIERS_V.
 -- @cname@ represents the constraint name if available.
--- @otype@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
--- @object@ represents the simple object name, package functions and procedures use GENERIC_SUB_TEMPLATE_EXISTS
--- @schema@ represents the schema of the object
+-- @otype@ represents the related object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the related object name usually table. Columns use TEMPLATE_EXISTS_CX.
+-- @schema@ represents the schema of the object.
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
@@ -273,16 +273,39 @@ INSERT INTO otap_config
 ;
 -- generic constraint exists template
 -- @ctype@ represents the constraint type as defined in otap labels.
--- @type@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
+-- @type@ represents the contraint type as defined in the database, see OTAP_IDENTIFIERS_V.
 -- @cname@ represents the constraint name if available.
--- @otype@ represents the object type as defined in the database, see ALL_OBJECTS object_type.
--- @object@ represents the simple object name, package functions and procedures use GENERIC_SUB_TEMPLATE_EXISTS
--- @subobject@ represents the related subobject name like column or package function or procedure name
--- @schema@ represents the schema of the object
+-- @otype@ represents the related object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the related object name usually table. Columns use TEMPLATE_EXISTS_CX.
+-- @subobject@ represents the related subobject name like column or package function/procedure name.
+-- @schema@ represents the schema of the object.
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
   ('TEMPLATE_EXISTS_CX', '@ctype@ @type@ @cname@ for @otype@ @object@.@subobject@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+-- generic exists for template
+-- @type@ represents the object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @name@ represents the name of the object checked if available.
+-- @otype@ represents the related object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the simple object name, package functions and procedures use TEMPLATE_EXISTS_FX.
+-- @schema@ represents the schema of the object.
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  VALUES
+  ('TEMPLATE_EXISTS_F', '@type@ @name@ for @otype@ @object@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+-- generic exists for template
+-- @type@ represents the object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @name@ represents the name of the object checked if available.
+-- @otype@ represents the related object type as defined in the database, see OTAP_IDENTIFIERS_V.
+-- @object@ represents the simple object name, package functions and procedures use TEMPLATE_EXISTS_FX.
+-- @subobject@ represents the related subobject name like column or package function/procedure name.
+-- @schema@ represents the schema of the object.
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  VALUES
+  ('TEMPLATE_EXISTS_FX', '@type@ @name@ for @otype@ @object@.@subobject@ exists check (@schema@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- generic match template
 -- @type@ represents the match object type as defined in the matching function (BOOLEAN, VARCHAR2, NUMBER, DATE).

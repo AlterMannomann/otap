@@ -446,7 +446,7 @@ AS
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
-  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  * @return The test result as text.
   */
   FUNCTION has_ref_constraint( p_table_name      IN VARCHAR2
                              , p_constraint_type IN VARCHAR2 DEFAULT 'R'
@@ -478,7 +478,7 @@ AS
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   *
-  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  * @return The test result as text.
   */
   FUNCTION has_not_null_constraint( p_table_name      IN VARCHAR2
                                   , p_column_name     IN VARCHAR2
@@ -487,6 +487,38 @@ AS
                                   , p_description     IN VARCHAR2 DEFAULT NULL
                                   , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                                   )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.has_index
+  * Checks if a given index exists. You may specify table name or index name. Both values NULL will lead to test failed.
+  *
+  * @param p_table_name Mandatory if index name is NULL. The table name of the table that owns the index.
+  * @param p_column_name Optional. The column name used in the index. Case sensitive.
+  * @param p_index_name Mandatory if table name is NULL. The index name to check. Case sensitive.
+  * @param p_index_type Optional. The index type of the index to check. Not case sensitive.
+  * @param p_table_type Optional. The table type of the index to check. Not case sensitive.
+  * @param p_uniqueness Optional. The uniqueness of the index to check. Not case sensitive.
+  * @param p_tablespace_name Optional. The tablespace name used by the index to check. Case sensitive.
+  * @param p_partitioned Optional. The partitioned state of the index to check. Not case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_index( p_table_name      IN VARCHAR2
+                    , p_column_name     IN VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN VARCHAR2 DEFAULT NULL
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
     RETURN VARCHAR2
   ;
 
