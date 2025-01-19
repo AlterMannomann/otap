@@ -538,5 +538,272 @@ AS
       RAISE;
   END has_object;
 
+  FUNCTION has_constraint( p_table_name      IN            VARCHAR2
+                         , o_errors             OUT NOCOPY VARCHAR2
+                         , p_constraint_type IN            VARCHAR2 DEFAULT 'C'
+                         , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                         , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                         , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_constraint';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_constraint  INTEGER;
+    l_constraint_type CHAR(1 CHAR);
+    l_table_name      VARCHAR2(128 CHAR);
+    l_column_name     VARCHAR2(128 CHAR);
+    l_constraint_name VARCHAR2(128 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_table_name      := otap_string.reduce(p_table_name, 128);
+    l_column_name     := otap_string.reduce(p_column_name, 128);
+    l_constraint_name := otap_string.reduce(p_constraint, 128);
+    l_constraint_type := otap_string.reduce(UPPER(p_constraint_type), 1);
+    IF     l_table_name        IS NOT NULL
+       AND LENGTH(l_table_name) > 0
+       AND l_constraint_type   IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_constraint
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner           = dcc.owner
+         AND dco.constraint_name = dcc.constraint_name
+         AND dco.table_name      = dcc.table_name
+       WHERE dco.owner           = l_schema_to_use
+         AND dco.table_name      = l_table_name
+         AND dcc.column_name     = NVL(l_column_name, dcc.column_name)
+         AND dco.constraint_name = NVL(l_constraint_name, dco.constraint_name)
+         AND dco.constraint_type = l_constraint_type
+      ;
+      -- we may find more than one entry for combined primary keys
+      l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+    ELSE
+      -- missing mandatory table name
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+                                                CASE
+                                                  WHEN l_constraint_type NOT IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
+                                                  THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ') '
+                                                END
+      ;
+      otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_constraint;
+
+  FUNCTION has_ref_constraint( p_table_name      IN            VARCHAR2
+                             , o_errors             OUT NOCOPY VARCHAR2
+                             , p_constraint_type IN            VARCHAR2 DEFAULT 'R'
+                             , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                             , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                             , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                             , p_r_table_name    IN            VARCHAR2 DEFAULT NULL
+                             , p_r_column_name   IN            VARCHAR2 DEFAULT NULL
+                             , p_r_constraint    IN            VARCHAR2 DEFAULT NULL
+                             , p_r_schema        IN            VARCHAR2 DEFAULT NULL
+                             , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                             )
+    RETURN INTEGER
+  IS
+    l_script            VARCHAR2(1024 CHAR)    := 'otap_schema.has_ref_constraint';
+    l_test_passed       INTEGER;
+    l_expected          INTEGER;
+    l_has_constraint    INTEGER;
+    l_constraint_type   CHAR(1 CHAR);
+    l_table_name        VARCHAR2(128 CHAR);
+    l_column_name       VARCHAR2(128 CHAR);
+    l_constraint_name   VARCHAR2(128 CHAR);
+    l_schema_to_use     VARCHAR2(128 CHAR);
+    l_r_table_name      VARCHAR2(128 CHAR);
+    l_r_column_name     VARCHAR2(128 CHAR);
+    l_r_constraint_name VARCHAR2(128 CHAR);
+    l_r_schema          VARCHAR2(128 CHAR);
+    l_errors            VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors            := NULL;
+    l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected          := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_table_name        := otap_string.reduce(p_table_name, 128);
+    l_column_name       := otap_string.reduce(p_column_name, 128);
+    l_constraint_name   := otap_string.reduce(p_constraint, 128);
+    l_r_table_name      := otap_string.reduce(p_r_table_name, 128);
+    l_r_column_name     := otap_string.reduce(p_r_column_name, 128);
+    l_r_constraint_name := otap_string.reduce(p_r_constraint, 128);
+    l_r_schema          := otap_string.reduce(p_r_schema, 128);
+    l_constraint_type   := otap_string.reduce(UPPER(p_constraint_type), 1);
+    IF     l_table_name        IS NOT NULL
+       AND LENGTH(l_table_name) > 0
+       AND l_constraint_type   IN ('R', 'F')
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_constraint
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner           = dcc.owner
+         AND dco.constraint_name = dcc.constraint_name
+         AND dco.table_name      = dcc.table_name
+        LEFT OUTER JOIN dba_cons_columns dcr
+          ON dco.r_owner            = dcr.owner
+         AND dco.r_constraint_name  = dcr.constraint_name
+       WHERE dco.owner              = l_schema_to_use
+         AND dco.table_name         = l_table_name
+         AND dcc.column_name        = NVL(l_column_name, dcc.column_name)
+         AND dco.constraint_name    = NVL(l_constraint_name, dco.constraint_name)
+         AND dco.r_owner            = NVL(l_r_schema, dco.r_owner)
+         AND dco.r_constraint_name  = NVL(l_r_constraint_name, dco.r_constraint_name)
+         AND dcr.table_name         = NVL(l_r_table_name, dcr.table_name)
+         AND dcr.column_name        = NVL(l_r_column_name, dcr.column_name)
+         AND dco.constraint_type    = l_constraint_type
+      ;
+      -- we may find more than one entry for combined primary keys
+      l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+    ELSE
+      -- missing mandatory table name
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+                                                CASE
+                                                  WHEN l_constraint_type NOT IN ('R', 'F')
+                                                  THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ')'
+                                                END
+      ;
+      otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_ref_constraint;
+
+  FUNCTION has_not_null_constraint( p_table_name      IN            VARCHAR2
+                                  , p_column_name     IN            VARCHAR2
+                                  , o_errors             OUT NOCOPY VARCHAR2
+                                  , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                                  , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                  , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                                  )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_not_null_constraint';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_constraint  INTEGER;
+    l_constraint_type CHAR(1 CHAR);
+    l_table_name      VARCHAR2(128 CHAR);
+    l_column_name     VARCHAR2(128 CHAR);
+    l_constraint_name VARCHAR2(128 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_table_name      := otap_string.reduce(p_table_name, 128);
+    l_column_name     := otap_string.reduce(p_column_name, 128);
+    l_constraint_name := otap_string.reduce(p_constraint, 128);
+    l_constraint_type := 'C';
+    IF     l_table_name         IS NOT NULL
+       AND LENGTH(l_table_name)  > 0
+       AND l_column_name        IS NOT NULL
+       AND LENGTH(l_column_name) > 0
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_constraint
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner                                                   = dcc.owner
+         AND dco.constraint_name                                         = dcc.constraint_name
+         AND dco.table_name                                              = dcc.table_name
+       WHERE dco.owner                                                   = l_schema_to_use
+         AND dco.table_name                                              = l_table_name
+         AND dcc.column_name                                             = l_column_name
+         AND INSTR(UPPER(dco.search_condition_vc), UPPER(l_column_name)) > 0
+         AND INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+                                       , 4000)
+                  , 'IS NOT NULL'
+                  )                                                      > 0
+         AND dco.constraint_name                                         = NVL(l_constraint_name, dco.constraint_name)
+         AND dco.constraint_type                                         = l_constraint_type
+      ;
+      -- we may find more than one entry for combined primary keys
+      l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+    ELSE
+      -- missing mandatory table name
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+                                                CASE WHEN l_column_name IS NULL THEN 'p_column_name(NULL) ' END
+      ;
+      otap_log.log(l_errors, l_script, 'Table name or column name NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_not_null_constraint;
+
 END;
 /

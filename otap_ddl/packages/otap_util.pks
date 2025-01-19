@@ -27,6 +27,9 @@ AS
   CFG_TEMPLATE_ERRORS               CONSTANT CHAR(15)   := 'TEMPLATE_ERRORS';
   CFG_TEMPLATE_ERROR_DETAILS        CONSTANT CHAR(22)   := 'TEMPLATE_ERROR_DETAILS';
   CFG_TEMPLATE_EXISTS               CONSTANT CHAR(15)   := 'TEMPLATE_EXISTS';
+  CFG_TEMPLATE_EXISTSX              CONSTANT CHAR(16)   := 'TEMPLATE_EXISTSX';
+  CFG_TEMPLATE_EXISTS_C             CONSTANT CHAR(17)   := 'TEMPLATE_EXISTS_C';
+  CFG_TEMPLATE_EXISTS_CX            CONSTANT CHAR(18)   := 'TEMPLATE_EXISTS_CX';
   CFG_TEMPLATE_GROUP                CONSTANT CHAR(14)   := 'TEMPLATE_GROUP';
   CFG_TEMPLATE_MATCH                CONSTANT CHAR(14)   := 'TEMPLATE_MATCH';
   CFG_TEMPLATE_NO_DATA              CONSTANT CHAR(16)   := 'TEMPLATE_NO_DATA';
@@ -36,7 +39,6 @@ AS
   CFG_TEMPLATE_SET                  CONSTANT CHAR(12)   := 'TEMPLATE_SET';
   CFG_TEMPLATE_SUMMARY              CONSTANT CHAR(16)   := 'TEMPLATE_SUMMARY';
   CFG_TEMPLATE_TEST_NAME            CONSTANT CHAR(18)   := 'TEMPLATE_TEST_NAME';
-  CFG_TEMPLATE_XEXISTS              CONSTANT CHAR(16)   := 'TEMPLATE_XEXISTS';
   CFG_TEXT_FALSE                    CONSTANT CHAR(10)   := 'TEXT_FALSE';
   CFG_TEXT_FALSE_NO                 CONSTANT CHAR(13)   := 'TEXT_FALSE_NO';
   CFG_TEXT_REPORT_END               CONSTANT CHAR(15)   := 'TEXT_REPORT_END';
@@ -55,64 +57,76 @@ AS
   CFG_TEXT_TRUE_YES                 CONSTANT CHAR(13)   := 'TEXT_TRUE_YES';
 
   -- extra labels for schema object types
-  CFG_LABEL_BOOLEAN                 CONSTANT CHAR(13)   := 'LABEL_BOOLEAN';
-  CFG_LABEL_CLUSTER                 CONSTANT CHAR(13)   := 'LABEL_CLUSTER';
-  CFG_LABEL_COLUMN                  CONSTANT CHAR(12)   := 'LABEL_COLUMN';
-  CFG_LABEL_CONSTRAINT              CONSTANT CHAR(16)   := 'LABEL_CONSTRAINT';
-  CFG_LABEL_CONSUMER_GROUP          CONSTANT CHAR(20)   := 'LABEL_CONSUMER_GROUP';
-  CFG_LABEL_CONTEXT                 CONSTANT CHAR(13)   := 'LABEL_CONTEXT';
-  CFG_LABEL_CREDENTIAL              CONSTANT CHAR(16)   := 'LABEL_CREDENTIAL';
-  CFG_LABEL_DATE                    CONSTANT CHAR(10)   := 'LABEL_DATE';
-  CFG_LABEL_DESTINATION             CONSTANT CHAR(17)   := 'LABEL_DESTINATION';
-  CFG_LABEL_DIMENSION               CONSTANT CHAR(15)   := 'LABEL_DIMENSION';
-  CFG_LABEL_DIRECTORY               CONSTANT CHAR(15)   := 'LABEL_DIRECTORY';
-  CFG_LABEL_DOMAIN                  CONSTANT CHAR(12)   := 'LABEL_DOMAIN';
-  CFG_LABEL_EDITION                 CONSTANT CHAR(13)   := 'LABEL_EDITION';
-  CFG_LABEL_EVALUATION_CONTEXT      CONSTANT CHAR(24)   := 'LABEL_EVALUATION_CONTEXT';
-  CFG_LABEL_FUNCTION                CONSTANT CHAR(14)   := 'LABEL_FUNCTION';
-  CFG_LABEL_INDEX                   CONSTANT CHAR(11)   := 'LABEL_INDEX';
-  CFG_LABEL_INDEXTYPE               CONSTANT CHAR(15)   := 'LABEL_INDEXTYPE';
-  CFG_LABEL_INDEX_PARTITION         CONSTANT CHAR(21)   := 'LABEL_INDEX_PARTITION';
-  CFG_LABEL_INDEX_SUBPARTITION      CONSTANT CHAR(24)   := 'LABEL_INDEX_SUBPARTITION';
-  CFG_LABEL_JAVA_CLASS              CONSTANT CHAR(16)   := 'LABEL_JAVA_CLASS';
-  CFG_LABEL_JAVA_DATA               CONSTANT CHAR(15)   := 'LABEL_JAVA_DATA';
-  CFG_LABEL_JAVA_RESOURCE           CONSTANT CHAR(19)   := 'LABEL_JAVA_RESOURCE';
-  CFG_LABEL_JAVA_SOURCE             CONSTANT CHAR(17)   := 'LABEL_JAVA_SOURCE';
-  CFG_LABEL_JOB                     CONSTANT CHAR(9)    := 'LABEL_JOB';
-  CFG_LABEL_JOB_CLASS               CONSTANT CHAR(15)   := 'LABEL_JOB_CLASS';
-  CFG_LABEL_LIBRARY                 CONSTANT CHAR(13)   := 'LABEL_LIBRARY';
-  CFG_LABEL_LOB                     CONSTANT CHAR(9)    := 'LABEL_LOB';
-  CFG_LABEL_LOB_PARTITION           CONSTANT CHAR(19)   := 'LABEL_LOB_PARTITION';
-  CFG_LABEL_MATERIALIZED_VIEW       CONSTANT CHAR(23)   := 'LABEL_MATERIALIZED_VIEW';
-  CFG_LABEL_MLE_LANGUAGE            CONSTANT CHAR(18)   := 'LABEL_MLE_LANGUAGE';
-  CFG_LABEL_NUMBER                  CONSTANT CHAR(12)   := 'LABEL_NUMBER';
-  CFG_LABEL_OPERATOR                CONSTANT CHAR(14)   := 'LABEL_OPERATOR';
-  CFG_LABEL_PACKAGE                 CONSTANT CHAR(13)   := 'LABEL_PACKAGE';
-  CFG_LABEL_PACKAGE_BODY            CONSTANT CHAR(18)   := 'LABEL_PACKAGE_BODY';
-  CFG_LABEL_PROCEDURE               CONSTANT CHAR(15)   := 'LABEL_PROCEDURE';
-  CFG_LABEL_PROGRAM                 CONSTANT CHAR(13)   := 'LABEL_PROGRAM';
-  CFG_LABEL_QUEUE                   CONSTANT CHAR(11)   := 'LABEL_QUEUE';
-  CFG_LABEL_RESOURCE_PLAN           CONSTANT CHAR(19)   := 'LABEL_RESOURCE_PLAN';
-  CFG_LABEL_ROLE                    CONSTANT CHAR(10)   := 'LABEL_ROLE';
-  CFG_LABEL_RULE                    CONSTANT CHAR(10)   := 'LABEL_RULE';
-  CFG_LABEL_RULE_SET                CONSTANT CHAR(14)   := 'LABEL_RULE_SET';
-  CFG_LABEL_SCHEDULE                CONSTANT CHAR(14)   := 'LABEL_SCHEDULE';
-  CFG_LABEL_SCHEDULER_GROUP         CONSTANT CHAR(21)   := 'LABEL_SCHEDULER_GROUP';
-  CFG_LABEL_SEQUENCE                CONSTANT CHAR(14)   := 'LABEL_SEQUENCE';
-  CFG_LABEL_SYNONYM                 CONSTANT CHAR(13)   := 'LABEL_SYNONYM';
-  CFG_LABEL_TABLE                   CONSTANT CHAR(11)   := 'LABEL_TABLE';
-  CFG_LABEL_TABLE_PARTITION         CONSTANT CHAR(21)   := 'LABEL_TABLE_PARTITION';
-  CFG_LABEL_TABLE_SUBPARTITION      CONSTANT CHAR(24)   := 'LABEL_TABLE_SUBPARTITION';
-  CFG_LABEL_TRIGGER                 CONSTANT CHAR(13)   := 'LABEL_TRIGGER';
-  CFG_LABEL_TYPE                    CONSTANT CHAR(10)   := 'LABEL_TYPE';
-  CFG_LABEL_TYPE_BODY               CONSTANT CHAR(15)   := 'LABEL_TYPE_BODY';
-  CFG_LABEL_UNDEFINED               CONSTANT CHAR(15)   := 'LABEL_UNDEFINED';
-  CFG_LABEL_UNIFIED_AUDIT_POLICY    CONSTANT CHAR(26)   := 'LABEL_UNIFIED_AUDIT_POLICY';
-  CFG_LABEL_USER                    CONSTANT CHAR(10)   := 'LABEL_USER';
-  CFG_LABEL_VARCHAR2                CONSTANT CHAR(14)   := 'LABEL_VARCHAR2';
-  CFG_LABEL_VIEW                    CONSTANT CHAR(10)   := 'LABEL_VIEW';
-  CFG_LABEL_WINDOW                  CONSTANT CHAR(12)   := 'LABEL_WINDOW';
-  CFG_LABEL_XML_SCHEMA              CONSTANT CHAR(16)   := 'LABEL_XML_SCHEMA';
+  CFG_LABEL_BOOLEAN                    CONSTANT CHAR(13)   := 'LABEL_BOOLEAN';
+  CFG_LABEL_CHECK                      CONSTANT CHAR(11)   := 'LABEL_CHECK';
+  CFG_LABEL_CLUSTER                    CONSTANT CHAR(13)   := 'LABEL_CLUSTER';
+  CFG_LABEL_COLUMN                     CONSTANT CHAR(12)   := 'LABEL_COLUMN';
+  CFG_LABEL_CONSTRAINT                 CONSTANT CHAR(16)   := 'LABEL_CONSTRAINT';
+  CFG_LABEL_CONSUMER_GROUP             CONSTANT CHAR(20)   := 'LABEL_CONSUMER_GROUP';
+  CFG_LABEL_CONTEXT                    CONSTANT CHAR(13)   := 'LABEL_CONTEXT';
+  CFG_LABEL_CREDENTIAL                 CONSTANT CHAR(16)   := 'LABEL_CREDENTIAL';
+  CFG_LABEL_DATE                       CONSTANT CHAR(10)   := 'LABEL_DATE';
+  CFG_LABEL_DESTINATION                CONSTANT CHAR(17)   := 'LABEL_DESTINATION';
+  CFG_LABEL_DIMENSION                  CONSTANT CHAR(15)   := 'LABEL_DIMENSION';
+  CFG_LABEL_DIRECTORY                  CONSTANT CHAR(15)   := 'LABEL_DIRECTORY';
+  CFG_LABEL_DOMAIN                     CONSTANT CHAR(12)   := 'LABEL_DOMAIN';
+  CFG_LABEL_EDITION                    CONSTANT CHAR(13)   := 'LABEL_EDITION';
+  CFG_LABEL_EVALUATION_CONTEXT         CONSTANT CHAR(24)   := 'LABEL_EVALUATION_CONTEXT';
+  CFG_LABEL_FOREIGN_KEY                CONSTANT CHAR(17)   := 'LABEL_FOREIGN_KEY';
+  CFG_LABEL_FUNCTION                   CONSTANT CHAR(14)   := 'LABEL_FUNCTION';
+  CFG_LABEL_HASH                       CONSTANT CHAR(10)   := 'LABEL_HASH';
+  CFG_LABEL_INDEX                      CONSTANT CHAR(11)   := 'LABEL_INDEX';
+  CFG_LABEL_INDEXTYPE                  CONSTANT CHAR(15)   := 'LABEL_INDEXTYPE';
+  CFG_LABEL_INDEX_PARTITION            CONSTANT CHAR(21)   := 'LABEL_INDEX_PARTITION';
+  CFG_LABEL_INDEX_SUBPARTITION         CONSTANT CHAR(24)   := 'LABEL_INDEX_SUBPARTITION';
+  CFG_LABEL_INVALID_CONSTRAINT_TYPE    CONSTANT CHAR(29)   := 'LABEL_INVALID_CONSTRAINT_TYPE';
+  CFG_LABEL_JAVA_CLASS                 CONSTANT CHAR(16)   := 'LABEL_JAVA_CLASS';
+  CFG_LABEL_JAVA_DATA                  CONSTANT CHAR(15)   := 'LABEL_JAVA_DATA';
+  CFG_LABEL_JAVA_RESOURCE              CONSTANT CHAR(19)   := 'LABEL_JAVA_RESOURCE';
+  CFG_LABEL_JAVA_SOURCE                CONSTANT CHAR(17)   := 'LABEL_JAVA_SOURCE';
+  CFG_LABEL_JOB                        CONSTANT CHAR(9)    := 'LABEL_JOB';
+  CFG_LABEL_JOB_CLASS                  CONSTANT CHAR(15)   := 'LABEL_JOB_CLASS';
+  CFG_LABEL_LIBRARY                    CONSTANT CHAR(13)   := 'LABEL_LIBRARY';
+  CFG_LABEL_LOB                        CONSTANT CHAR(9)    := 'LABEL_LOB';
+  CFG_LABEL_LOB_PARTITION              CONSTANT CHAR(19)   := 'LABEL_LOB_PARTITION';
+  CFG_LABEL_MATERIALIZED_VIEW          CONSTANT CHAR(23)   := 'LABEL_MATERIALIZED_VIEW';
+  CFG_LABEL_MLE_LANGUAGE               CONSTANT CHAR(18)   := 'LABEL_MLE_LANGUAGE';
+  CFG_LABEL_NOT_NULL                   CONSTANT CHAR(14)   := 'LABEL_NOT_NULL';
+  CFG_LABEL_NULL                       CONSTANT CHAR(10)   := 'LABEL_NULL';
+  CFG_LABEL_NUMBER                     CONSTANT CHAR(12)   := 'LABEL_NUMBER';
+  CFG_LABEL_OPERATOR                   CONSTANT CHAR(14)   := 'LABEL_OPERATOR';
+  CFG_LABEL_PACKAGE                    CONSTANT CHAR(13)   := 'LABEL_PACKAGE';
+  CFG_LABEL_PACKAGE_BODY               CONSTANT CHAR(18)   := 'LABEL_PACKAGE_BODY';
+  CFG_LABEL_PRIMARY_KEY                CONSTANT CHAR(17)   := 'LABEL_PRIMARY_KEY';
+  CFG_LABEL_PROCEDURE                  CONSTANT CHAR(15)   := 'LABEL_PROCEDURE';
+  CFG_LABEL_PROGRAM                    CONSTANT CHAR(13)   := 'LABEL_PROGRAM';
+  CFG_LABEL_QUEUE                      CONSTANT CHAR(11)   := 'LABEL_QUEUE';
+  CFG_LABEL_REF_COLUMN                 CONSTANT CHAR(16)   := 'LABEL_REF_COLUMN';
+  CFG_LABEL_RESOURCE_PLAN              CONSTANT CHAR(19)   := 'LABEL_RESOURCE_PLAN';
+  CFG_LABEL_ROLE                       CONSTANT CHAR(10)   := 'LABEL_ROLE';
+  CFG_LABEL_RULE                       CONSTANT CHAR(10)   := 'LABEL_RULE';
+  CFG_LABEL_RULE_SET                   CONSTANT CHAR(14)   := 'LABEL_RULE_SET';
+  CFG_LABEL_SCHEDULE                   CONSTANT CHAR(14)   := 'LABEL_SCHEDULE';
+  CFG_LABEL_SCHEDULER_GROUP            CONSTANT CHAR(21)   := 'LABEL_SCHEDULER_GROUP';
+  CFG_LABEL_SEQUENCE                   CONSTANT CHAR(14)   := 'LABEL_SEQUENCE';
+  CFG_LABEL_SUPPLEMENTAL_LOGGGING      CONSTANT CHAR(27)   := 'LABEL_SUPPLEMENTAL_LOGGGING';
+  CFG_LABEL_SYNONYM                    CONSTANT CHAR(13)   := 'LABEL_SYNONYM';
+  CFG_LABEL_TABLE                      CONSTANT CHAR(11)   := 'LABEL_TABLE';
+  CFG_LABEL_TABLE_PARTITION            CONSTANT CHAR(21)   := 'LABEL_TABLE_PARTITION';
+  CFG_LABEL_TABLE_SUBPARTITION         CONSTANT CHAR(24)   := 'LABEL_TABLE_SUBPARTITION';
+  CFG_LABEL_TRIGGER                    CONSTANT CHAR(13)   := 'LABEL_TRIGGER';
+  CFG_LABEL_TYPE                       CONSTANT CHAR(10)   := 'LABEL_TYPE';
+  CFG_LABEL_TYPE_BODY                  CONSTANT CHAR(15)   := 'LABEL_TYPE_BODY';
+  CFG_LABEL_UNDEFINED                  CONSTANT CHAR(15)   := 'LABEL_UNDEFINED';
+  CFG_LABEL_UNIFIED_AUDIT_POLICY       CONSTANT CHAR(26)   := 'LABEL_UNIFIED_AUDIT_POLICY';
+  CFG_LABEL_UNIQUE_KEY                 CONSTANT CHAR(16)   := 'LABEL_UNIQUE_KEY';
+  CFG_LABEL_USER                       CONSTANT CHAR(10)   := 'LABEL_USER';
+  CFG_LABEL_VARCHAR2                   CONSTANT CHAR(14)   := 'LABEL_VARCHAR2';
+  CFG_LABEL_VIEW                       CONSTANT CHAR(10)   := 'LABEL_VIEW';
+  CFG_LABEL_VIEW_CHECK                 CONSTANT CHAR(16)   := 'LABEL_VIEW_CHECK';
+  CFG_LABEL_VIEW_READONLY              CONSTANT CHAR(19)   := 'LABEL_VIEW_READONLY';
+  CFG_LABEL_WINDOW                     CONSTANT CHAR(12)   := 'LABEL_WINDOW';
+  CFG_LABEL_XML_SCHEMA                 CONSTANT CHAR(16)   := 'LABEL_XML_SCHEMA';
 
   /** FUNCTION otap_util.is_number
   * Checks if a VARCHAR2 can be converted to a number and back. No format options supported.
@@ -279,6 +293,18 @@ AS
     RETURN VARCHAR
   ;
 
+  /** FUNCTION otap_util.constraint_type_to_label
+  * Translate the char constraint type representation of ALL_CONSTRAINTS into a otap label used in
+  * OTAP_IDENTIFIERS_V. Will NOT distinguish between NOT NULL check constraint and other check constraints.
+  *
+  * @param p_constraint_type The constraint type as used in ALL_CONSTRAINTS.
+  *
+  * @return The text representation as defined in OTAP_IDENTIFIERS_V for the given constraint type or INVALID_CONSTRAINT_TYPE label on errors.
+  */
+  FUNCTION constraint_type_to_label(p_constraint_type IN VARCHAR2 DEFAULT 'C')
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_util.build_msg
   * Builds a message from a template identifier. Fetches the template and fills the given
   * variables in p_param1-5 with the given value, if the parameters are filled. Type has
@@ -303,6 +329,8 @@ AS
   * @param p_param4_value The substitution value for the 4th variable name. Parameter ignored if not given. Optional.
   * @param p_param5 The 5th variable name in @variable@ notation. If @type@ ignored. Optional.
   * @param p_param5_value The substitution value for the 5th variable name. Parameter ignored if not given. Optional.
+  * @param p_param6n The 6th variable name in @variable@ notation. If @type@ ignored. Optional. Supports NULL values.
+  * @param p_param6n_value The substitution value for the 6th variable name. Optional. Supports NULL values.
   * @param p_description A template overwrite. Will return the given description instead of the template. Optional.
   *
   * @return The message build from template, overwritten by description or an error message.
@@ -319,6 +347,8 @@ AS
                     , p_param4_value  IN VARCHAR2 DEFAULT NULL
                     , p_param5        IN VARCHAR2 DEFAULT NULL
                     , p_param5_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param6n       IN VARCHAR2 DEFAULT NULL
+                    , p_param6n_value IN VARCHAR2 DEFAULT NULL
                     , p_description   IN VARCHAR2 DEFAULT NULL
                     )
     RETURN VARCHAR2

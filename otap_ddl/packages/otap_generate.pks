@@ -221,13 +221,11 @@ AS
                    , o_name            OUT NOCOPY  VARCHAR2
                    )
   ;
-
+  -- utility functions
   PROCEDURE set_gen_type(p_gen_type IN VARCHAR2);
-
   FUNCTION get_gen_type
     RETURN VARCHAR2
   ;
-
   FUNCTION get_code_prefix
     RETURN VARCHAR2
   ;
@@ -240,7 +238,7 @@ AS
   FUNCTION get_code_pad
     RETURN VARCHAR
   ;
-
+  -- header
   FUNCTION build_script_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
                               , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                               , p_object_type   IN VARCHAR2 DEFAULT NULL
@@ -251,7 +249,6 @@ AS
                               )
     RETURN otap_view_result_tbl PIPELINED
   ;
-
   FUNCTION build_function_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
                                 , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                                 , p_object_type   IN VARCHAR2 DEFAULT NULL
@@ -262,7 +259,6 @@ AS
                                 )
     RETURN otap_view_result_tbl PIPELINED
   ;
-
   FUNCTION build_procedure_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
                                  , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                                  , p_object_type   IN VARCHAR2 DEFAULT NULL
@@ -273,7 +269,6 @@ AS
                                  )
     RETURN otap_view_result_tbl PIPELINED
   ;
-
   FUNCTION get_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
                      , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                      , p_object_type   IN VARCHAR2 DEFAULT NULL
@@ -284,7 +279,6 @@ AS
                      )
     RETURN otap_view_result_tbl PIPELINED
   ;
-
   -- footer
   FUNCTION build_script_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
     RETURN otap_view_result_tbl PIPELINED
@@ -298,7 +292,6 @@ AS
   FUNCTION get_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
     RETURN otap_view_result_tbl PIPELINED
   ;
-
 
 END;
 /

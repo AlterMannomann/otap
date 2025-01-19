@@ -325,6 +325,29 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_report.get_exists_c_msg
+  * Builds a user message for the schema constraint exist test function based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_table_name The name of the table tested for constraint existance.
+  * @param p_schema_name The schema of the object tested.
+  * @param p_cons_type The constraint type as label of the constraint that was tested. See otap_util.CFG_LABEL constants.
+  * @param p_column Optional column specification for the constraint. If set, TEMPLATE_CXEXISTS is used.
+  * @param p_constraint Optional constraint name.
+  * @param p_test_desc The test description of the related test if any.
+  *
+  * @return The formatted and reduced exists test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_exists_c_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_cons_type   IN VARCHAR2 DEFAULT NULL
+                           , p_column      IN VARCHAR2 DEFAULT NULL
+                           , p_constraint  IN VARCHAR2 DEFAULT NULL
+                           , p_test_desc   IN VARCHAR2 DEFAULT NULL
+                           )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_report.get_match_msg
   * Builds a user message for the logic compare test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.

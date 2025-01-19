@@ -406,6 +406,54 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.has_constraint
+  * @see otap_schema.has_constraint and otap_test.has_constraint
+  */
+  FUNCTION has_constraint( p_table_name      IN            VARCHAR2
+                         , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                         , p_constraint_type IN            VARCHAR2     DEFAULT 'C'
+                         , p_column_name     IN            VARCHAR2     DEFAULT NULL
+                         , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                         , p_schema          IN            VARCHAR2     DEFAULT NULL
+                         , p_description     IN            VARCHAR2     DEFAULT NULL
+                         , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_ref_constraint
+  * @see otap_schema.has_ref_constraint and otap_test.has_ref_constraint
+  */
+  FUNCTION has_ref_constraint( p_table_name      IN            VARCHAR2
+                             , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                             , p_constraint_type IN            VARCHAR2     DEFAULT 'R'
+                             , p_column_name     IN            VARCHAR2     DEFAULT NULL
+                             , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                             , p_schema          IN            VARCHAR2     DEFAULT NULL
+                             , p_r_table_name    IN            VARCHAR2     DEFAULT NULL
+                             , p_r_column_name   IN            VARCHAR2     DEFAULT NULL
+                             , p_r_constraint    IN            VARCHAR2     DEFAULT NULL
+                             , p_r_schema        IN            VARCHAR2     DEFAULT NULL
+                             , p_description     IN            VARCHAR2     DEFAULT NULL
+                             , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                             )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_not_null_constraint
+  * @see otap_schema.has_not_null_constraint and otap_test.has_not_null_constraint
+  */
+  FUNCTION has_not_null_constraint( p_table_name      IN            VARCHAR2
+                                  , p_column_name     IN            VARCHAR2
+                                  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                  , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                                  , p_schema          IN            VARCHAR2     DEFAULT NULL
+                                  , p_description     IN            VARCHAR2     DEFAULT NULL
+                                  , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                                  )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.ok
   * @see otap_logic.ok and otap_test.ok
   */
