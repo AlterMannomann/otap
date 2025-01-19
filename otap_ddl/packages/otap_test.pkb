@@ -449,6 +449,111 @@ AS
       RAISE;
   END has_object;
 
+  FUNCTION has_constraint( p_table_name      IN VARCHAR2
+                         , p_constraint_type IN VARCHAR2 DEFAULT 'C'
+                         , p_column_name     IN VARCHAR2 DEFAULT NULL
+                         , p_constraint      IN VARCHAR2 DEFAULT NULL
+                         , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         , p_description     IN VARCHAR2 DEFAULT NULL
+                         , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_constraint( p_table_name
+                                        , session_record
+                                        , p_constraint_type
+                                        , p_column_name
+                                        , p_constraint
+                                        , p_schema
+                                        , p_description
+                                        , p_expected_result
+                                        )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_constraint', 'l_message := otap_api.has_constraint( p_table_name, ...');
+      END IF;
+      RAISE;
+  END has_constraint;
+
+  FUNCTION has_ref_constraint( p_table_name      IN VARCHAR2
+                             , p_constraint_type IN VARCHAR2 DEFAULT 'R'
+                             , p_column_name     IN VARCHAR2 DEFAULT NULL
+                             , p_constraint      IN VARCHAR2 DEFAULT NULL
+                             , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                             , p_r_table_name    IN VARCHAR2 DEFAULT NULL
+                             , p_r_column_name   IN VARCHAR2 DEFAULT NULL
+                             , p_r_constraint    IN VARCHAR2 DEFAULT NULL
+                             , p_r_schema        IN VARCHAR2 DEFAULT NULL
+                             , p_description     IN VARCHAR2 DEFAULT NULL
+                             , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                             )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_ref_constraint( p_table_name
+                                            , session_record
+                                            , p_constraint_type
+                                            , p_column_name
+                                            , p_constraint
+                                            , p_schema
+                                            , p_r_table_name
+                                            , p_r_column_name
+                                            , p_r_constraint
+                                            , p_r_schema
+                                            , p_description
+                                            , p_expected_result
+                                            )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_ref_constraint', 'l_message := otap_api.has_ref_constraint( p_table_name, ...');
+      END IF;
+      RAISE;
+  END has_ref_constraint;
+
+  FUNCTION has_not_null_constraint( p_table_name      IN VARCHAR2
+                                  , p_column_name     IN VARCHAR2
+                                  , p_constraint      IN VARCHAR2 DEFAULT NULL
+                                  , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                  , p_description     IN VARCHAR2 DEFAULT NULL
+                                  , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                                  )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_not_null_constraint( p_table_name
+                                                 , p_column_name
+                                                 , session_record
+                                                 , p_constraint
+                                                 , p_schema
+                                                 , p_description
+                                                 , p_expected_result
+                                                 )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_not_null_constraint', 'l_message := otap_api.has_not_null_constraint( p_table_name, ...');
+      END IF;
+      RAISE;
+  END has_not_null_constraint;
+
   FUNCTION ok( p_boolean         IN     BOOLEAN
              , p_description     IN     VARCHAR2 DEFAULT NULL
              , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED

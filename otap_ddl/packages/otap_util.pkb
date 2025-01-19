@@ -509,6 +509,46 @@ AS
       RAISE;
   END test_result_to_text;
 
+  FUNCTION constraint_type_to_label(p_constraint_type IN VARCHAR2 DEFAULT 'C')
+    RETURN VARCHAR2
+  IS
+    l_label VARCHAR2(128 CHAR);
+  BEGIN
+    l_label := CASE UPPER(p_constraint_type)
+                 WHEN 'P'
+                 THEN otap_util.CFG_LABEL_PRIMARY_KEY
+                 WHEN 'U'
+                 THEN otap_util.CFG_LABEL_UNIQUE_KEY
+                 WHEN 'R'
+                 THEN otap_util.CFG_LABEL_FOREIGN_KEY
+                 WHEN 'V'
+                 THEN otap_util.CFG_LABEL_VIEW_CHECK
+                 WHEN 'O'
+                 THEN otap_util.CFG_LABEL_VIEW_READONLY
+                 WHEN 'F'
+                 THEN otap_util.CFG_LABEL_REF_COLUMN
+                 WHEN 'H'
+                 THEN otap_util.CFG_LABEL_HASH
+                 WHEN 'S'
+                 THEN otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING
+                 WHEN 'C'
+                 THEN otap_util.CFG_LABEL_CHECK
+                 ELSE NULL
+               END
+    ;
+    IF l_label IS NULL
+    THEN
+      -- log error
+      otap_log.log('Invalid constraint type', 'otap_util.constraint_type_to_label', 'Given:' || NVL(p_constraint_type, 'NULL'));
+      l_label := otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE;
+    END IF;
+    RETURN l_label;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.constraint_type_to_label', 'Translate constraint type to label id');
+      RAISE;
+  END constraint_type_to_label;
+
   FUNCTION build_msg( p_cfg_template  IN VARCHAR2
                     , p_type_label    IN VARCHAR2 DEFAULT NULL
                     , p_param1        IN VARCHAR2 DEFAULT NULL
@@ -521,6 +561,8 @@ AS
                     , p_param4_value  IN VARCHAR2 DEFAULT NULL
                     , p_param5        IN VARCHAR2 DEFAULT NULL
                     , p_param5_value  IN VARCHAR2 DEFAULT NULL
+                    , p_param6n       IN VARCHAR2 DEFAULT NULL
+                    , p_param6n_value IN VARCHAR2 DEFAULT NULL
                     , p_description   IN VARCHAR2 DEFAULT NULL
                     )
     RETURN VARCHAR2
@@ -625,10 +667,22 @@ AS
                 otap_log.log('Value without variable name: ' || p_param5_value || ' or invalid parameter: ' || p_param5, l_script);
               END IF;
             END IF;
+            -- allow NULL value for replace
+            IF     p_param6n                   IS NOT NULL
+               AND REGEXP_COUNT(p_param6n, '@') = 2
+            THEN
+              -- replace, may work, may not
+              l_text_result := REPLACE(l_text_result, p_param6n, p_param6n_value);
+            ELSE
+              -- ignore, log error
+              otap_log.log('Invalid parameter: ' || p_param6n, l_script);
+            END IF;
           END IF;
         END IF;
       END IF;
     END IF;
+    -- remove duplicate space chars
+    l_text_result := otap_string.flatten(l_text_result, 4000);
     RETURN l_text_result;
   EXCEPTION
     WHEN OTHERS THEN

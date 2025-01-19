@@ -1452,6 +1452,226 @@ AS
     RETURN l_return;
   END has_object;
 
+  FUNCTION has_constraint( p_table_name      IN            VARCHAR2
+                         , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                         , p_constraint_type IN            VARCHAR2     DEFAULT 'C'
+                         , p_column_name     IN            VARCHAR2     DEFAULT NULL
+                         , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                         , p_schema          IN            VARCHAR2     DEFAULT NULL
+                         , p_description     IN            VARCHAR2     DEFAULT NULL
+                         , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_constraint';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_type_label       VARCHAR2(128 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce( otap_report.get_exists_c_msg( p_table_name => p_table_name
+                                                                    , p_schema_name => l_schema
+                                                                    , p_cons_type => otap_util.constraint_type_to_label(p_constraint_type)
+                                                                    , p_column => p_column_name
+                                                                    , p_constraint => p_constraint
+                                                                    , p_test_desc => p_description
+                                                                    )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_schema.has_constraint( p_table_name
+                                              , l_errors
+                                              , p_constraint_type
+                                              , p_column_name
+                                              , p_constraint
+                                              , l_schema
+                                              , p_expected_result
+                                              )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_constraint;
+
+  FUNCTION has_ref_constraint( p_table_name      IN            VARCHAR2
+                             , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                             , p_constraint_type IN            VARCHAR2     DEFAULT 'R'
+                             , p_column_name     IN            VARCHAR2     DEFAULT NULL
+                             , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                             , p_schema          IN            VARCHAR2     DEFAULT NULL
+                             , p_r_table_name    IN            VARCHAR2     DEFAULT NULL
+                             , p_r_column_name   IN            VARCHAR2     DEFAULT NULL
+                             , p_r_constraint    IN            VARCHAR2     DEFAULT NULL
+                             , p_r_schema        IN            VARCHAR2     DEFAULT NULL
+                             , p_description     IN            VARCHAR2     DEFAULT NULL
+                             , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                             )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_ref_constraint';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_type_label       VARCHAR2(128 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce( otap_report.get_exists_c_msg( p_table_name => p_table_name
+                                                                    , p_schema_name => l_schema
+                                                                    , p_cons_type => CASE
+                                                                                       WHEN UPPER(p_constraint_type) IN ('R', 'F')
+                                                                                       THEN otap_util.constraint_type_to_label(p_constraint_type)
+                                                                                       ELSE otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE
+                                                                                     END
+                                                                    , p_column => p_column_name
+                                                                    , p_constraint => p_constraint
+                                                                    , p_test_desc => p_description
+                                                                    )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_schema.has_ref_constraint( p_table_name
+                                                  , l_errors
+                                                  , p_constraint_type
+                                                  , p_column_name
+                                                  , p_constraint
+                                                  , l_schema
+                                                  , p_r_table_name
+                                                  , p_r_column_name
+                                                  , p_r_constraint
+                                                  , p_r_schema
+                                                  , p_expected_result
+                                                  )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_ref_constraint;
+
+  FUNCTION has_not_null_constraint( p_table_name      IN            VARCHAR2
+                                  , p_column_name     IN            VARCHAR2
+                                  , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                                  , p_constraint      IN            VARCHAR2     DEFAULT NULL
+                                  , p_schema          IN            VARCHAR2     DEFAULT NULL
+                                  , p_description     IN            VARCHAR2     DEFAULT NULL
+                                  , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                                  )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.has_not_null_constraint';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_type_label       VARCHAR2(128 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_schema := TRIM(NVL(p_schema, o_otap_session.db_schema));
+        l_desc   := otap_string.reduce( otap_report.get_exists_c_msg( p_table_name => p_table_name
+                                                                    , p_schema_name => l_schema
+                                                                    , p_cons_type => otap_util.CFG_LABEL_NOT_NULL
+                                                                    , p_column => p_column_name
+                                                                    , p_constraint => p_constraint
+                                                                    , p_test_desc => p_description
+                                                                    )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_schema.has_not_null_constraint( p_table_name
+                                                       , p_column_name
+                                                       , l_errors
+                                                       , p_constraint
+                                                       , l_schema
+                                                       , p_expected_result
+                                                       )
+        ;
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END has_not_null_constraint;
+
   FUNCTION ok( p_boolean         IN            BOOLEAN
              , o_otap_session    IN OUT NOCOPY OTAP_SESSION
              , p_description     IN            VARCHAR2     DEFAULT NULL

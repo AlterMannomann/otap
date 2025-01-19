@@ -502,7 +502,7 @@ AS
     RETURN VARCHAR2
   IS
   BEGIN
-    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_XEXISTS);
+    RETURN otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTSX);
   END get_template_xexists;
 
   FUNCTION get_text_false

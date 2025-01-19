@@ -10,6 +10,9 @@ Description of the test options available with package otap_test. For a detailed
 - [has_procedure](#function-otap_schemahas_procedure)
 - [has_trigger](#function-otap_testhas_trigger)
 - [has_object](#function-otap_schemahas_object)
+- [has_constraint](#function-otap_testhas_constraint)
+- [has_ref_constraint](#function-otap_testhas_ref_constraint)
+- [has_not_null_constraint](#function-otap_testhas_not_null_constraint)
 - [ok](#function-otap_testok)
 - [is_eq](#function-otap_testis_eq)
 - [match_regex](#function-otap_testmatch_regex)
@@ -282,6 +285,107 @@ Examples:
                                     , p_description => 'My description'
                                     , p_expected_result => otap.otap_constants.get_otap_num_test_passed
                                     ) FROM dual;
+
+## FUNCTION otap_test.has_constraint
+Checks if a given table has a constraint of the given type. Optional you can specify column and constraint name.
+
+Supported constraint types:
+- **C** - Check constraint on a table
+- **P** - Primary key
+- **U** - Unique key
+- **R** - Referential integrity - use has_ref_constraint for more options
+- **V** - With check option, on a view
+- **O** - With read only, on a view
+- **H** - Hash expression
+- **F** - Constraint that involves a REF column - use has_ref_constraint for more options
+- *S* is not supported, could not find or create an example to examine. SUPPLEMENTAL LOG clause only reflects in CDEF$ and CCOL$.
+
+Parameter:
+- *p_table_name* Mandatory. The table to be checked for constraint, take as is. Case sensitive. Missing value will cause test to fail.
+- *p_constraint_type* Mandatory. A valid constraint type. Not case sensitive. Wrong values will cause the test to fail.
+- *p_column_name* Optional. The column that is part of the constraint. Case sensitive.
+- *p_constraint* Optional. The name of the constraint. Case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_constraint('MY_TABLE', 'P') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_constraint( p_table_name => 'MY_TABLE'
+                                        , p_constraint_type => 'P'
+                                        , p_column_name => 'MY_PK_COLUMN'
+                                        , p_constraint => 'MY_TABLE_PK'
+                                        , p_schema => 'MY_SCHEMA'
+                                        , p_description => 'My description'
+                                        , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                        ) FROM dual;
+
+## FUNCTION otap_test.has_ref_constraint
+Checks if a given table has a reference constraint. You may also use has_constraint. But if you want to check the referenced owner, constraint, column and table, you have to use this function.
+
+Parameter:
+- *p_table_name* Mandatory. The table to be checked for the reference constraint, take as is. Case sensitive.
+- *p_constraint_type* Mandatory. A valid ref constraint type. Not case sensitive. Only 'R' and 'F' allowed, 'R' on invalid or empty values.
+- *p_column_name* Optional. The column that is part of the reference constraint. Case sensitive.
+- *p_constraint* Optional. The name of the reference constraint. Case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_r_table_name* Optional. The referenced table of the reference constraint, take as is. Case sensitive.
+- *p_r_column_name* Optional. The referenced column that is part of the reference constraint. Case sensitive.
+- *p_r_constraint* Optional. The name of the referenced constraint by the reference constraint. Case sensitive.
+- *p_r_schema* Optional. The reference schema of the constraint. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_ref_constraint('MY_TABLE', 'R') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_ref_constraint( p_table_name => 'MY_TABLE'
+                                            , p_constraint_type => 'R'
+                                            , p_column_name => 'MY_FK_COLUMN'
+                                            , p_constraint => 'MY_TABLE_FK'
+                                            , p_schema => 'MY_SCHEMA'
+                                            , p_r_table_name => 'MY_OTHER_TABLE'
+                                            , p_r_column_name => 'MY_ID_COLUMN'
+                                            , p_r_constraint => 'MY_OTHER_TABLE_PK'
+                                            , p_r_schema => 'MY_SCHEMA'
+                                            , p_description => 'My description'
+                                            , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                            ) FROM dual;
+
+## FUNCTION otap_test.has_not_null_constraint
+Checks if a given table column has a not null check constraint. Optional you can specify the constraint name. NOT NULL constraint is somewhat special as it is recommended for inline creation, which generates system constraint names. You are also free to create it outbound. Therefore in most cases the constraint name is not defined or may change on recreation. Also NULLABLE may not reflect an existing outbound NOT NULL constraint. This function checks also the definition, which has the generated format: "COLUMN_NAME" IS NOT NULL. Any outbund declaration will probably look different. Therefore the term "IS NOT NULL" and the column name is searched after UPPER conversion of SEARCH_CONDITION_VC. Will not work for search conditions > 4000 char.
+
+Parameter:
+- *p_table_name* Mandatory. The table to be checked for NOT NULL constraint, take as is. Case sensitive. Missing value will cause test to fail.
+- *p_column_name* Mandator. The column that is checked for the NOT NULL constraint. Case sensitive.
+- *p_constraint* Optional. The name of the constraint. Case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_not_null_constraint('MY_TABLE', 'MY_COLUMN') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_not_null_constraint( p_table_name => 'MY_TABLE'
+                                                 , p_column_name => 'MY_COLUMN'
+                                                 , p_constraint => 'MY_NOT_NULL_CONSTRAINT'
+                                                 , p_schema => 'MY_SCHEMA'
+                                                 , p_description => 'My description'
+                                                 , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                                 ) FROM dual;
 
 ## FUNCTION otap_test.ok
 Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED. It is recommended to use a description as generated text does not contain details on the the test condition.

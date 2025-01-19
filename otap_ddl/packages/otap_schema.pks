@@ -144,7 +144,7 @@ AS
   ;
 
   /** FUNCTION otap_schema.has_object
-  * Checks if a given database object exists.
+  * Checks if a given database object exists in DBA_OBJECTS.
   *
   * @param p_object_name The name of the object, take as is. Case sensitive.
   * @param p_object_type The object type of the given object. Mandatory. Object must be unique identifiable, otherwise test will result in undefined. Not case sensitive.
@@ -160,6 +160,100 @@ AS
                      , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                      , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                      )
+    RETURN INTEGER
+  ;
+
+  /** FUNCTION otap_schema.has_constraint
+  * Checks if a given table has a constraint of the given type. Optional you can specify column and constraint name.
+  * Supported constraint types:
+  * C - Check constraint on a table
+  * P - Primary key
+  * U - Unique key
+  * R - Referential integrity - use has_ref_constraint for more options
+  * V - With check option, on a view
+  * O - With read only, on a view
+  * H - Hash expression
+  * F - Constraint that involves a REF column - use has_ref_constraint for more options
+  * S is not supported, could not find or create an example to examine. SUPPLEMENTAL LOG clause only reflects in CDEF$ and CCOL$.
+  *
+  * @param p_table_name Mandatory. The table to be checked for constraint, take as is. Case sensitive. Missing value will cause test to fail.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_constraint_type Mandatory. A valid constraint type. Not case sensitive. Wrong values will cause the test to fail.
+  * @param p_column_name Optional. The column that is part of the constraint. Case sensitive.
+  * @param p_constraint Optional. The name of the constraint. Case sensitive.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_constraint( p_table_name      IN            VARCHAR2
+                         , o_errors             OUT NOCOPY VARCHAR2
+                         , p_constraint_type IN            VARCHAR2 DEFAULT 'C'
+                         , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                         , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                         , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         )
+    RETURN INTEGER
+  ;
+
+  /** FUNCTION otap_schema.has_ref_constraint
+  * Checks if a given table has a reference constraint. You may also use has_constraint. But if you want to check the
+  * referenced owner, constraint, column and table, you have to use this function.
+  *
+  * @param p_table_name Mandatory. The table to be checked for the reference constraint, take as is. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_constraint_type Mandatory. A valid ref constraint type. Not case sensitive. Only 'R' and 'F' allowed, 'R' on invalid or empty values.
+  * @param p_column_name Optional. The column that is part of the reference constraint. Case sensitive.
+  * @param p_constraint Optional. The name of the reference constraint. Case sensitive.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_r_table_name Optional. The referenced table of the reference constraint, take as is. Case sensitive.
+  * @param p_r_column_name Optional. The referenced column that is part of the reference constraint. Case sensitive.
+  * @param p_r_constraint Optional. The name of the referenced constraint by the reference constraint. Case sensitive.
+  * @param p_r_schema Optional. The reference schema of the constraint. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_ref_constraint( p_table_name      IN            VARCHAR2
+                             , o_errors             OUT NOCOPY VARCHAR2
+                             , p_constraint_type IN            VARCHAR2 DEFAULT 'R'
+                             , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                             , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                             , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                             , p_r_table_name    IN            VARCHAR2 DEFAULT NULL
+                             , p_r_column_name   IN            VARCHAR2 DEFAULT NULL
+                             , p_r_constraint    IN            VARCHAR2 DEFAULT NULL
+                             , p_r_schema        IN            VARCHAR2 DEFAULT NULL
+                             , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                             )
+    RETURN INTEGER
+  ;
+
+  /** FUNCTION otap_schema.has_not_null_constraint
+  * Checks if a given table column has a not null check constraint. Optional you can specify the constraint name. NOT NULL constraint is
+  * somewhat special as it is recommended for inline creation, which generates system constraint names. You are also free to create it
+  * outbound. Therefore in most cases the constraint name is not defined or may change on recreation. Also NULLABLE may not reflect an
+  * existing outbound NOT NULL constraint. This function checks also the definition, which has the generated format: "COLUMN_NAME" IS NOT NULL.
+  * Any outbund declaration will probably look different. Therefore the term "IS NOT NULL" and the column name is searched after UPPER conversion
+  * of SEARCH_CONDITION_VC. Will not work for search conditions > 4000 char.
+  *
+  * @param p_table_name Mandatory. The table to be checked for NOT NULL constraint, take as is. Case sensitive. Missing value will cause test to fail.
+  * @param p_column_name Mandator. The column that is checked for the NOT NULL constraint. Case sensitive.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_constraint Optional. The name of the constraint. Case sensitive.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION has_not_null_constraint( p_table_name      IN            VARCHAR2
+                                  , p_column_name     IN            VARCHAR2
+                                  , o_errors             OUT NOCOPY VARCHAR2
+                                  , p_constraint      IN            VARCHAR2 DEFAULT NULL
+                                  , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                  , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                                  )
     RETURN INTEGER
   ;
 

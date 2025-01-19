@@ -504,7 +504,7 @@ AS
   BEGIN
     IF p_sub_object IS NOT NULL
     THEN
-      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_XEXISTS
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTSX
                                             , p_type_label => p_object_type
                                             , p_param1 => '@object@'
                                             , p_param1_value => p_object_name
@@ -532,6 +532,62 @@ AS
       otap_log.log(SQLERRM, 'otap_report.get_exists_msg', 'Build exists result message');
       RAISE;
   END get_exists_msg;
+
+  FUNCTION get_exists_c_msg( p_table_name  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_cons_type   IN VARCHAR2 DEFAULT NULL
+                           , p_column      IN VARCHAR2 DEFAULT NULL
+                           , p_constraint  IN VARCHAR2 DEFAULT NULL
+                           , p_test_desc   IN VARCHAR2 DEFAULT NULL
+                           )
+    RETURN VARCHAR2
+  IS
+    l_template_text VARCHAR2(32767 CHAR);
+    -- '@ctype@ @type@ @cname@ for @otype@ @object@ exists check (@schema@)'
+    -- '@ctype@ @type@ @cname@ for @otype@ @object@.@subobject@ exists check (@schema@)'
+  BEGIN
+    IF p_column IS NOT NULL
+    THEN
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_CX
+                                            , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
+                                            , p_param1 => '@object@'
+                                            , p_param1_value => p_table_name
+                                            , p_param2 => '@schema@'
+                                            , p_param2_value => p_schema_name
+                                            , p_param3 => '@subobject@'
+                                            , p_param3_value => p_column
+                                            , p_param4 => '@ctype@'
+                                            , p_param4_value => otap_util.get_config_value(p_cons_type)
+                                            , p_param5 => '@otype@'
+                                            , p_param5_value => otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN)
+                                            , p_param6n => '@cname@'
+                                            , p_param6n_value => p_constraint
+                                            , p_description => p_test_desc
+                                            )
+      ;
+    ELSE
+      l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_C
+                                            , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
+                                            , p_param1 => '@object@'
+                                            , p_param1_value => p_table_name
+                                            , p_param2 => '@schema@'
+                                            , p_param2_value => p_schema_name
+                                            , p_param3 => '@ctype@'
+                                            , p_param3_value => otap_util.get_config_value(p_cons_type)
+                                            , p_param4 => '@otype@'
+                                            , p_param4_value => otap_util.get_config_value(otap_util.CFG_LABEL_TABLE)
+                                            , p_param6n => '@cname@'
+                                            , p_param6n_value => p_constraint
+                                            , p_description => p_test_desc
+                                            )
+      ;
+    END IF;
+    RETURN l_template_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_exists_c_msg', 'Build constraint exists result message');
+      RAISE;
+  END get_exists_c_msg;
 
   FUNCTION get_match_msg( p_match_type IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                         , p_match_data IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA

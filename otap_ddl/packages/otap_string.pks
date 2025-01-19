@@ -43,7 +43,8 @@ AS
   /** FUNCTION otap_string.flatten
   * Basic string flattening and cutting to a given size. Does not trim the result.
   * Limited to PLSQL string size. On using defaults return a NULL string. Can be used
-  * to remove addition white space chars like space, tab, line feed and others.
+  * to remove white space chars like more than one space, tab, line feed and others and
+  * replace them with a single space.
   *
   * @param p_string The string to flatten and cut to the given size.
   * @param p_size The maximum length for the result string.

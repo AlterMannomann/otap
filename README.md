@@ -2,11 +2,13 @@
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 ### Current changes
+- Add new schema test functions
 - Moved generate access to otap_test.
 - Fixed LIKE issue in generate, LIKE option only valid for the base objects, depending objects like columns and functions are not limited by given LIKE option.
 - otap can now grant the otap user role to others
 ### Next steps
 - Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
+- Extend otap_generate, include new functions
 - Extend otap_schema (has_type, is_object_valid ...)
 - Enhance documentation
 ### Current state
@@ -17,6 +19,9 @@ Pre-alpha, basically stable with following tests (package otap_test):
 - has_procedure
 - has_trigger
 - has_object
+- has_constraint
+- has_ref_constraint
+- has_not_null_constraint
 - ok (boolean compare check)
 - is_eq (VARCHAR2, NUMBER and DATE compare check including NULL checks, see [documentation](./otap_ddl/packages/otap_test.md))
 - match_regex (regular expression check on strings)

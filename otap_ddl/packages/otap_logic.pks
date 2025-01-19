@@ -65,7 +65,7 @@ AS
   /** FUNCTION otap_logic.match_regex
   * Checks given data of type VARCHAR2 against an Oracle REGEX expression. Uses REGEXP_LIKE.
   * ATTENTION Oracle REGEX implementation is not standard. Unix regex which work like charm take hours to implement in
-  * Oracle REGEX to work as desired. Test your expression well with Oracle before using it.
+  * Oracle REGEX to work as desired. Test your expression well with Oracle before using it. Keep it simple to get it work.
   *
   * Easiest way to check is SELECT COUNT(*) FROM dual WHERE regexp_like('your string', 'your regex', 'regex param');
   * Should result in 1 if successful checked. You may want to prepare a with block with different string to pass them
