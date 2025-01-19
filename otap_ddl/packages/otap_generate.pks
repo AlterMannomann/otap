@@ -292,6 +292,16 @@ AS
   FUNCTION get_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
     RETURN otap_view_result_tbl PIPELINED
   ;
+  -- development helper
+  -- determines if a column of a system table or view is NULLABLE, checks the values
+  -- and determines the NVL to use for compares on the column. Provides the column
+  -- name or the expression for the column name, e.g. table_name or NVL(table_name, 'n/a').
+  -- owner of given table is always SYS.
+  FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
+                              , p_column_name IN VARCHAR2
+                              )
+    RETURN VARCHAR2
+  ;
 
 END;
 /

@@ -454,6 +454,25 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.has_index
+  * @see otap_schema.has_index and otap_test.has_index
+  */
+  FUNCTION has_index( p_table_name      IN            VARCHAR2
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN            VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN            VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN            VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN            VARCHAR2 DEFAULT NULL
+                    , p_schema          IN            VARCHAR2 DEFAULT NULL
+                    , p_description     IN            VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.ok
   * @see otap_logic.ok and otap_test.ok
   */

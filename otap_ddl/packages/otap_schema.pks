@@ -256,8 +256,24 @@ AS
                                   )
     RETURN INTEGER
   ;
-/*
-  -- table name guaranteed, column can be null, index not in dba_ind_columns
+
+  /** FUNCTION otap_schema.has_index
+  * Checks if a given index exists. You may specify table name or index name. Both values NULL will lead to test failed.
+  *
+  * @param p_table_name Mandatory if index name is NULL. The table name of the table that owns the index.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_column_name Optional. The column name used in the index. Case sensitive.
+  * @param p_index_name Mandatory if table name is NULL. The index name to check. Case sensitive.
+  * @param p_index_type Optional. The index type of the index to check. Not case sensitive.
+  * @param p_table_type Optional. The table type of the index to check. Not case sensitive.
+  * @param p_uniqueness Optional. The uniqueness of the index to check. Not case sensitive.
+  * @param p_tablespace_name Optional. The tablespace name used by the index to check. Case sensitive.
+  * @param p_partitioned Optional. The partitioned state of the index to check. Not case sensitive.
+  * @param p_schema The schema to use. If NULL current schema is used. Case sensitive.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
   FUNCTION has_index( p_table_name      IN            VARCHAR2
                     , o_errors             OUT NOCOPY VARCHAR2
                     , p_column_name     IN            VARCHAR2 DEFAULT NULL
@@ -267,12 +283,11 @@ AS
                     , p_uniqueness      IN            VARCHAR2 DEFAULT NULL
                     , p_tablespace_name IN            VARCHAR2 DEFAULT NULL
                     , p_partitioned     IN            VARCHAR2 DEFAULT NULL
-                    , p_last_analyzed   IN            DATE     DEFAULT NULL
                     , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                     , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     )
     RETURN INTEGER
   ;
-*/
+
 END;
 /

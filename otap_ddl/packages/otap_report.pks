@@ -348,6 +348,31 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_report.get_exists_f_msg
+  * Builds a user message for the schema exist test functions with a related object, based on given values from template. Will always
+  * reduce the string. No report formatting options only template handling.
+  *
+  * @param p_schema_name The schema of the object tested.
+  * @param p_check_object The name of the object tested for existance.
+  * @param p_check_type The object type as label of the object that was tested. See otap_util.CFG_LABEL constants.
+  * @param p_rel_object_type The object type as label of the related object. See otap_util.CFG_LABEL constants.
+  * @param p_rel_object The related object name.
+  * @param p_rel_subobject Optional related subobject. If set, TEMPLATE_EXISTS_FX is used.
+  * @param p_test_desc The test description of the related test if any.
+  *
+  * @return The formatted and reduced exists test message. Restricted to 4000 chars.
+  */
+  FUNCTION get_exists_f_msg( p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           , p_check_object    IN VARCHAR2 DEFAULT NULL
+                           , p_check_type      IN VARCHAR2 DEFAULT NULL
+                           , p_rel_object_type IN VARCHAR2 DEFAULT NULL
+                           , p_rel_object      IN VARCHAR2 DEFAULT NULL
+                           , p_rel_subobject   IN VARCHAR2 DEFAULT NULL
+                           , p_test_desc       IN VARCHAR2 DEFAULT NULL
+                           )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_report.get_match_msg
   * Builds a user message for the logic compare test function based on given values from template. Will always
   * reduce the string. No report formatting options only template handling.

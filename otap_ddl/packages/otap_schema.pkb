@@ -3,7 +3,7 @@
 -- Not allowed to be used as AI training material without explicite permission.
 CREATE OR REPLACE PACKAGE BODY otap_schema
 AS
-
+  -- internal functions
   FUNCTION count_chk( p_count   IN            INTEGER
                     , o_errors  IN OUT NOCOPY VARCHAR2
                     , p_caller  IN            VARCHAR2
@@ -128,12 +128,12 @@ AS
        WHERE owner                              = l_schema_to_use
          AND table_name                         = l_table_name
          AND column_name                        = l_column_name
-         AND data_type                          = NVL(UPPER(p_data_type), data_type)
+         AND NVL(data_type, 'n/a')              = NVL(UPPER(p_data_type), NVL(data_type, 'n/a'))
          AND data_length                        = NVL(p_data_length, data_length)
-         AND nullable                           = UPPER(NVL(p_nullable, nullable))
+         AND NVL(nullable, 'n/a')               = NVL(UPPER(p_nullable), NVL(nullable, 'n/a'))
          AND NVL(data_precision, -1)            = NVL(p_data_precision, NVL(data_precision, -1))
          AND NVL(data_scale, -1)                = NVL(p_data_scale, NVL(data_scale, -1))
-         AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, TRIM(NVL(data_default_vc, 'n/a'))))
+         AND TRIM(NVL(data_default_vc, 'n/a'))  = NVL(TRIM(p_data_default), TRIM(NVL(data_default_vc, 'n/a')))
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_column, l_errors, l_script);
@@ -206,6 +206,7 @@ AS
       SELECT COUNT(*)
         INTO l_has_package
         FROM dba_objects
+             -- surprisingly nullable columns
        WHERE owner       = l_schema_to_use
          AND object_name = l_package_name
          AND object_type = l_package_type
@@ -346,10 +347,10 @@ AS
       SELECT COUNT(*)
         INTO l_has_procedure
         FROM prc
-       WHERE procedure_name           = l_procedure_name
-         AND procedure_type           = l_procedure_type
-         AND NVL(return_type, 'n/a')  = NVL(l_return_type, NVL(return_type, 'n/a'))
-         AND NVL(package_name, 'n/a') = NVL(l_package_name, NVL(package_name, 'n/a'))
+       WHERE procedure_name             = l_procedure_name
+         AND procedure_type             = l_procedure_type
+         AND NVL(return_type, 'n/a')    = NVL(l_return_type, NVL(return_type, 'n/a'))
+         AND NVL(package_name, 'n/a')   = NVL(l_package_name, NVL(package_name, 'n/a'))
       ;
       -- we may find more than 1 entry, if function or procedure has same name but different signature
       l_test_passed := CASE WHEN l_has_procedure = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
@@ -583,7 +584,7 @@ AS
        WHERE dco.owner                        = l_schema_to_use
          AND dco.table_name                   = l_table_name
          AND NVL(dcc.column_name, 'n/a')      = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
-         AND NVL(dco.constraint_name, 'n/a')  = NVL(l_constraint_name, NVL(dco.constraint_name, 'n/a'))
+         AND dco.constraint_name              = NVL(l_constraint_name, dco.constraint_name)
          AND dco.constraint_type              = l_constraint_type
       ;
       -- we may find more than one entry for combined primary keys
@@ -804,6 +805,103 @@ AS
       END IF;
       RAISE;
   END has_not_null_constraint;
+
+  FUNCTION has_index( p_table_name      IN            VARCHAR2
+                    , o_errors             OUT NOCOPY VARCHAR2
+                    , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                    , p_index_name      IN            VARCHAR2 DEFAULT NULL
+                    , p_index_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_table_type      IN            VARCHAR2 DEFAULT NULL
+                    , p_uniqueness      IN            VARCHAR2 DEFAULT NULL
+                    , p_tablespace_name IN            VARCHAR2 DEFAULT NULL
+                    , p_partitioned     IN            VARCHAR2 DEFAULT NULL
+                    , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_index';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_index       INTEGER;
+    l_table_name      VARCHAR2(128 CHAR);
+    l_column_name     VARCHAR2(128 CHAR);
+    l_index_name      VARCHAR2(128 CHAR);
+    l_index_type      VARCHAR2(27 CHAR);
+    l_table_type      VARCHAR2(11 CHAR);
+    l_uniqueness      VARCHAR2(9 CHAR);
+    l_tablespace_name VARCHAR2(30 CHAR);
+    l_partitioned     VARCHAR2(3 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_table_name      := otap_string.reduce(p_table_name, 128);
+    l_column_name     := otap_string.reduce(p_column_name, 128);
+    l_index_name      := otap_string.reduce(p_index_name, 128);
+    l_index_type      := otap_string.reduce(UPPER(p_index_type), 27);
+    l_table_type      := otap_string.reduce(UPPER(p_table_type), 11);
+    l_uniqueness      := otap_string.reduce(UPPER(p_uniqueness), 9);
+    l_tablespace_name := otap_string.reduce(p_tablespace_name, 30);
+    l_partitioned     := otap_string.reduce(UPPER(p_partitioned), 3);
+    IF    (    l_table_name        IS NOT NULL
+           AND LENGTH(l_table_name) > 0
+          )
+       OR (    l_index_name        IS NOT NULL
+           AND LENGTH(l_index_name) > 0
+          )
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_index
+        FROM dba_indexes dix
+        LEFT OUTER JOIN dba_ind_columns dic
+          ON dix.owner       = dic.index_owner
+         AND dix.index_name  = dic.index_name
+         AND dix.table_owner = dic.table_owner
+         AND dix.table_name  = dic.table_name
+       WHERE dix.owner                       = l_schema_to_use
+         AND dix.index_name                  = NVL(l_index_name, dix.index_name)
+         AND dix.table_name                  = NVL(l_table_name, dix.table_name)
+         AND NVL(dic.column_name, 'n/a')     = NVL(l_column_name, NVL(dic.column_name, 'n/a'))
+         AND NVL(dix.index_type, 'n/a')      = NVL(l_index_type, NVL(dix.index_type, 'n/a'))
+         AND NVL(dix.table_type, 'n/a')      = NVL(l_table_type, NVL(dix.table_type, 'n/a'))
+         AND NVL(dix.uniqueness, 'n/a')      = NVL(l_uniqueness, NVL(dix.uniqueness, 'n/a'))
+         AND NVL(dix.tablespace_name, 'n/a') = NVL(l_tablespace_name, NVL(dix.tablespace_name, 'n/a'))
+         AND NVL(dix.partitioned, 'n/a')     = NVL(l_partitioned, NVL(dix.partitioned, 'n/a'))
+      ;
+      -- we may find more than one entry for index columns
+      l_test_passed := CASE WHEN l_has_index = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+    ELSE
+      -- table name or index name missing
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_table_name AND p_index_name NULL';
+      otap_log.log(l_errors, l_script, 'Table name and index name NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_index;
 
 END;
 /
