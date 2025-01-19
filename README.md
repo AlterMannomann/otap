@@ -2,6 +2,7 @@
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 ### Current changes
+- Fix search conditions for schema functions in some NULL situations
 - Add new schema test functions
 - Moved generate access to otap_test.
 - Fixed LIKE issue in generate, LIKE option only valid for the base objects, depending objects like columns and functions are not limited by given LIKE option.
@@ -14,7 +15,6 @@ Recommended to fully reinstall otap schema after updates. Currently only update 
 - Integrate schema setup into dba setup for one step installation
 ### Current state
 Pre-alpha, basically stable with following tests (package otap_test):
-- search conditions for schema functions still lack in different cases, fix is in work
 - has_table
 - has_column
 - has_package

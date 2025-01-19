@@ -128,12 +128,12 @@ AS
        WHERE owner                              = l_schema_to_use
          AND table_name                         = l_table_name
          AND column_name                        = l_column_name
-         AND data_type                          = UPPER(NVL(p_data_type, data_type))
+         AND data_type                          = NVL(UPPER(p_data_type), data_type)
          AND data_length                        = NVL(p_data_length, data_length)
          AND nullable                           = UPPER(NVL(p_nullable, nullable))
          AND NVL(data_precision, -1)            = NVL(p_data_precision, NVL(data_precision, -1))
          AND NVL(data_scale, -1)                = NVL(p_data_scale, NVL(data_scale, -1))
-         AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, NVL(data_default_vc, 'n/a')))
+         AND TRIM(NVL(data_default_vc, 'n/a'))  = TRIM(NVL(p_data_default, TRIM(NVL(data_default_vc, 'n/a'))))
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_column, l_errors, l_script);
@@ -428,12 +428,12 @@ AS
       SELECT COUNT(*)
         INTO l_has_trigger
         FROM dba_triggers
-       WHERE owner                  = l_schema_to_use
-         AND trigger_name           = l_trigger_name
-         AND trigger_type           = NVL(l_trigger_type, trigger_type)
-         AND triggering_event       = NVL(l_trigger_event, triggering_event)
-         AND table_owner            = NVL(l_table_owner, table_owner)
-         AND NVL(table_name, 'n/a') = NVL(l_table_name, NVL(table_name, 'n/a'))
+       WHERE owner                        = l_schema_to_use
+         AND trigger_name                 = l_trigger_name
+         AND NVL(trigger_type, 'n/a')     = NVL(l_trigger_type, NVL(trigger_type, 'n/a'))
+         AND NVL(triggering_event, 'n/a') = NVL(l_trigger_event, NVL(triggering_event, 'n/a'))
+         AND NVL(table_owner, 'n/a')      = NVL(l_table_owner, NVL(table_owner, 'n/a'))
+         AND NVL(table_name, 'n/a')       = NVL(l_table_name, NVL(table_name, 'n/a'))
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
@@ -577,14 +577,14 @@ AS
         INTO l_has_constraint
         FROM dba_constraints dco
         LEFT OUTER JOIN dba_cons_columns dcc
-          ON dco.owner           = dcc.owner
-         AND dco.constraint_name = dcc.constraint_name
-         AND dco.table_name      = dcc.table_name
-       WHERE dco.owner           = l_schema_to_use
-         AND dco.table_name      = l_table_name
-         AND dcc.column_name     = NVL(l_column_name, dcc.column_name)
-         AND dco.constraint_name = NVL(l_constraint_name, dco.constraint_name)
-         AND dco.constraint_type = l_constraint_type
+          ON dco.owner                        = dcc.owner
+         AND dco.constraint_name              = dcc.constraint_name
+         AND dco.table_name                   = dcc.table_name
+       WHERE dco.owner                        = l_schema_to_use
+         AND dco.table_name                   = l_table_name
+         AND NVL(dcc.column_name, 'n/a')      = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+         AND NVL(dco.constraint_name, 'n/a')  = NVL(l_constraint_name, NVL(dco.constraint_name, 'n/a'))
+         AND dco.constraint_type              = l_constraint_type
       ;
       -- we may find more than one entry for combined primary keys
       l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
@@ -675,17 +675,17 @@ AS
          AND dco.constraint_name = dcc.constraint_name
          AND dco.table_name      = dcc.table_name
         LEFT OUTER JOIN dba_cons_columns dcr
-          ON dco.r_owner            = dcr.owner
-         AND dco.r_constraint_name  = dcr.constraint_name
-       WHERE dco.owner              = l_schema_to_use
-         AND dco.table_name         = l_table_name
-         AND dcc.column_name        = NVL(l_column_name, dcc.column_name)
-         AND dco.constraint_name    = NVL(l_constraint_name, dco.constraint_name)
-         AND dco.r_owner            = NVL(l_r_schema, dco.r_owner)
-         AND dco.r_constraint_name  = NVL(l_r_constraint_name, dco.r_constraint_name)
-         AND dcr.table_name         = NVL(l_r_table_name, dcr.table_name)
-         AND dcr.column_name        = NVL(l_r_column_name, dcr.column_name)
-         AND dco.constraint_type    = l_constraint_type
+          ON dco.r_owner                        = dcr.owner
+         AND dco.r_constraint_name              = dcr.constraint_name
+       WHERE dco.owner                          = l_schema_to_use
+         AND dco.table_name                     = l_table_name
+         AND NVL(dcc.column_name, 'n/a')        = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+         AND dco.constraint_name                = NVL(l_constraint_name, dco.constraint_name)
+         AND NVL(dco.r_owner, 'n/a')            = NVL(l_r_schema, NVL(dco.r_owner, 'n/a'))
+         AND NVL(dco.r_constraint_name, 'n/a')  = NVL(l_r_constraint_name, NVL(dco.r_constraint_name, 'n/a'))
+         AND NVL(dcr.table_name, 'n/a')         = NVL(l_r_table_name, NVL(dcr.table_name, 'n/a'))
+         AND NVL(dcr.column_name, 'n/a')        = NVL(l_r_column_name, NVL(dcr.column_name, 'n/a'))
+         AND dco.constraint_type                = l_constraint_type
       ;
       -- we may find more than one entry for combined primary keys
       l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
