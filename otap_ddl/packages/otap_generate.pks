@@ -59,6 +59,22 @@ AS
     RETURN otap_view_result_tbl PIPELINED
   ;
 
+  /** FUNCTION otap_generate.constraint_tests
+  * Generates the test scripts for constraints. Even if system objects are excluded, the generator will create
+  * tests for system generated NOT NULL constraints, using all parameters apart the constraint name. Provides
+  * group (constraints) and name (constraint table name) management. Limited to line size 4000 but not to rows,
+  * like DBMS_OUTPUT. It is up to you how you spool the content to files.
+  *
+  FUNCTION constraint_tests( p_like_constraints IN VARCHAR2 DEFAULT '%'
+                           , p_schema           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                           , p_title_prefix     IN VARCHAR2 DEFAULT NULL
+                           , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                           , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                           )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+  */
+
   /** FUNCTION otap_generate.trigger_tests
   * Generates the test scripts for the trigger of the given schema with the current available
   * otap schema functions. Provides group (trigger) and name (table trigger, non table trigger) management.
@@ -296,9 +312,10 @@ AS
   -- determines if a column of a system table or view is NULLABLE, checks the values
   -- and determines the NVL to use for compares on the column. Provides the column
   -- name or the expression for the column name, e.g. table_name or NVL(table_name, 'n/a').
-  -- owner of given table is always SYS.
+  -- owner of given table is always SYS. Message type is either NVL (0) or variable declaration (1).
   FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
                               , p_column_name IN VARCHAR2
+                              , p_msg_type    IN NUMBER   DEFAULT 0
                               )
     RETURN VARCHAR2
   ;

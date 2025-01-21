@@ -595,6 +595,189 @@ AS
       RAISE;
   END has_index;
 
+  FUNCTION has_type( p_type_name       IN VARCHAR2
+                   , p_typecode        IN VARCHAR2 DEFAULT NULL
+                   , p_attributes      IN NUMBER   DEFAULT NULL
+                   , p_methods         IN NUMBER   DEFAULT NULL
+                   , p_predefined      IN VARCHAR2 DEFAULT NULL
+                   , p_incomplete      IN VARCHAR2 DEFAULT NULL
+                   , p_final           IN VARCHAR2 DEFAULT NULL
+                   , p_persistable     IN VARCHAR2 DEFAULT NULL
+                   , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                   , p_description     IN VARCHAR2 DEFAULT NULL
+                   , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_type( p_type_name
+                                  , session_record
+                                  , p_typecode
+                                  , p_attributes
+                                  , p_methods
+                                  , p_predefined
+                                  , p_incomplete
+                                  , p_final
+                                  , p_persistable
+                                  , p_schema
+                                  , p_description
+                                  , p_expected_result
+                                  )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_type', 'l_message := otap_api.has_type( p_type_name, ...');
+      END IF;
+      RAISE;
+  END has_type;
+
+  FUNCTION has_sequence( p_sequence_name   IN VARCHAR2
+                       , p_table_name      IN VARCHAR2 DEFAULT NULL
+                       , p_column_name     IN VARCHAR2 DEFAULT NULL
+                       , p_min_value       IN NUMBER   DEFAULT NULL
+                       , p_max_value       IN NUMBER   DEFAULT NULL
+                       , p_increment_by    IN NUMBER   DEFAULT NULL
+                       , p_cycle_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_order_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_cache_size      IN NUMBER   DEFAULT NULL
+                       , p_scale_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_extend_flag     IN VARCHAR2 DEFAULT NULL
+                       , p_sharded_flag    IN VARCHAR2 DEFAULT NULL
+                       , p_session_flag    IN VARCHAR2 DEFAULT NULL
+                       , p_keep_value      IN VARCHAR2 DEFAULT NULL
+                       , p_table_owner     IN VARCHAR2 DEFAULT NULL
+                       , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                       , p_description     IN VARCHAR2 DEFAULT NULL
+                       , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                       )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_sequence( p_sequence_name
+                                      , session_record
+                                      , p_table_name
+                                      , p_column_name
+                                      , p_min_value
+                                      , p_max_value
+                                      , p_increment_by
+                                      , p_cycle_flag
+                                      , p_order_flag
+                                      , p_cache_size
+                                      , p_scale_flag
+                                      , p_extend_flag
+                                      , p_sharded_flag
+                                      , p_session_flag
+                                      , p_keep_value
+                                      , p_table_owner
+                                      , p_schema
+                                      , p_description
+                                      , p_expected_result
+                                      )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_sequence', 'l_message := otap_api.has_sequence( p_sequence_name, ...');
+      END IF;
+      RAISE;
+  END has_sequence;
+
+  FUNCTION has_scheduler_job( p_job_name        IN VARCHAR2
+                            , p_job_style       IN VARCHAR2 DEFAULT NULL
+                            , p_job_type        IN VARCHAR2 DEFAULT NULL
+                            , p_job_action      IN VARCHAR2 DEFAULT NULL
+                            , p_schedule_type   IN VARCHAR2 DEFAULT NULL
+                            , p_repeat_interval IN VARCHAR2 DEFAULT NULL
+                            , p_job_class       IN VARCHAR2 DEFAULT NULL
+                            , p_logging_level   IN VARCHAR2 DEFAULT NULL
+                            , p_store_output    IN VARCHAR2 DEFAULT NULL
+                            , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                            , p_description     IN VARCHAR2 DEFAULT NULL
+                            , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                            )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_scheduler_job( p_job_name
+                                           , session_record
+                                           , p_job_style
+                                           , p_job_type
+                                           , p_job_action
+                                           , p_schedule_type
+                                           , p_repeat_interval
+                                           , p_job_class
+                                           , p_logging_level
+                                           , p_store_output
+                                           , p_schema
+                                           , p_description
+                                           , p_expected_result
+                                           )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_scheduler_job', 'l_message := otap_api.has_scheduler_job( p_job_name, ...');
+      END IF;
+      RAISE;
+  END has_scheduler_job;
+
+  FUNCTION has_user( p_username              IN VARCHAR2
+                   , p_account_status        IN VARCHAR2 DEFAULT NULL
+                   , p_default_tablespace    IN VARCHAR2 DEFAULT NULL
+                   , p_temporary_tablespace  IN VARCHAR2 DEFAULT NULL
+                   , p_local_temp_tablespace IN VARCHAR2 DEFAULT NULL
+                   , p_profile               IN VARCHAR2 DEFAULT NULL
+                   , p_password_versions     IN VARCHAR2 DEFAULT NULL
+                   , p_authentication_type   IN VARCHAR2 DEFAULT NULL
+                   , p_proxy_only_connect    IN VARCHAR2 DEFAULT NULL
+                   , p_protected             IN VARCHAR2 DEFAULT NULL
+                   , p_read_only             IN VARCHAR2 DEFAULT NULL
+                   , p_description           IN VARCHAR2 DEFAULT NULL
+                   , p_expected_result       IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.has_user( p_username
+                                  , session_record
+                                  , p_account_status
+                                  , p_default_tablespace
+                                  , p_temporary_tablespace
+                                  , p_local_temp_tablespace
+                                  , p_profile
+                                  , p_password_versions
+                                  , p_authentication_type
+                                  , p_proxy_only_connect
+                                  , p_protected
+                                  , p_read_only
+                                  , p_description
+                                  , p_expected_result
+                                  )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.has_user', 'l_message := otap_api.has_user( p_username, ...');
+      END IF;
+      RAISE;
+  END has_user;
 
   FUNCTION ok( p_boolean         IN     BOOLEAN
              , p_description     IN     VARCHAR2 DEFAULT NULL

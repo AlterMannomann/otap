@@ -365,6 +365,16 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
   l_output := l_output || 'DBA_IND_COLUMNS, ';
+  -- dba_tab_identity_cols
+  l_statement := 'GRANT SELECT ON dba_tab_identity_cols TO &OTAP_USER.';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || 'DBA_TAB_IDENTITY_COLS, '; || l_lf;
+  --
+  l_statement := 'GRANT SELECT ON gv_$instance TO &OTAP_USER.';
+  DBMS_OUTPUT.PUT_LINE(l_statement || ';');
+  EXECUTE IMMEDIATE l_statement;
+  l_output := l_output || '  GV$INSTANCE, ';
   -- final
   l_statement := 'GRANT SELECT ON v_$reserved_words TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');

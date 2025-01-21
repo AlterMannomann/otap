@@ -2,16 +2,15 @@
 # UNDER CONSTRUCTION
 Recommended to fully reinstall otap schema after updates. Currently only update support for DBA install.
 ### Current changes
-- Add has_index and minor fixes
-- Fix search conditions for schema functions in some NULL situations
 - Add new schema test functions
+- Fix search conditions for schema functions in some NULL situations
 - Moved generate access to otap_test.
 option.
 - otap can now grant the otap user role to others
 ### Next steps
 - Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
 - Extend otap_generate, include new functions
-- Extend otap_schema (has_type, is_object_valid ...)
+- Extend otap_schema (is_object_valid ...) and optional parameters of existing functions
 - Enhance documentation
 - Integrate schema setup into dba setup for one step installation
 ### Current state
@@ -26,6 +25,10 @@ Pre-alpha, basically stable with following tests (package otap_test):
 - has_ref_constraint
 - has_not_null_constraint
 - has_index
+- has_type
+- has_sequence
+- has_scheduler_job
+- has_user
 - ok (boolean compare check)
 - is_eq (VARCHAR2, NUMBER and DATE compare check including NULL checks, see [documentation](./otap_ddl/packages/otap_test.md))
 - match_regex (regular expression check on strings)
