@@ -18,6 +18,7 @@ AS
                                                                                                                         , 'BOOLEAN'
                                                                                                                         , 'DATE'
                                                                                                                         , 'NULL'
+                                                                                                                        , 'DATABASE'
                                                                                                                         )
                   UNION ALL
                         -- add reserved words that are a combination of more than one word for constraint types
@@ -42,6 +43,9 @@ AS
                  SELECT CAST('SUPPLEMENTAL LOGGGING' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- S
                   UNION ALL
                  SELECT CAST('INVALID CONSTRAINT TYPE' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- S
+                   -- scheduler job to differentiate from database job
+                  UNION ALL
+                 SELECT CAST('SCHEDULER JOB' AS VARCHAR2(128 CHAR)) AS object_type FROM dual
                 )
   SELECT object_type                                                            AS oracle_type
        , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier

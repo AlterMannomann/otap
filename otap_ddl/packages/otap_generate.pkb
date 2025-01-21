@@ -1659,6 +1659,7 @@ AS
 
   FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
                               , p_column_name IN VARCHAR2
+                              , p_msg_type    IN NUMBER   DEFAULT 0
                               )
     RETURN VARCHAR2
   IS
@@ -1702,61 +1703,67 @@ AS
            AND column_name  = l_dba_col
            AND data_type   IN ('VARCHAR2', 'DATE', 'NUMBER')
         ;
-        IF l_nullable = 'N'
+        IF NVL(p_msg_type, 0) = 0
         THEN
-          l_return := LOWER(l_dba_col) || ' -- not nullable';
-          -- determine valid NULL substition
-          IF l_data_type = 'VARCHAR2'
+          IF l_nullable = 'N'
           THEN
-            l_return    := l_return || ' (' || TRIM(TO_CHAR(l_char_len)) || ' chars)';
-            l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := l_return || CASE WHEN l_count = 0 THEN ' n/a valid substitute' ELSE ' n/a not working as substitute' END;
-          ELSIF l_data_type = 'NUMBER'
-          THEN
-            -- verify -1 is usable
-            l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := l_return || CASE WHEN l_count >= 0 THEN ' -1 valid substitute' ELSE ' -1 not working as substitute' END;
+            l_return := LOWER(l_dba_col) || ' -- not nullable';
+            -- determine valid NULL substition
+            IF l_data_type = 'VARCHAR2'
+            THEN
+              l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := l_return || CASE WHEN l_count = 0 THEN ' n/a valid substitute' ELSE ' n/a not working as substitute' END;
+            ELSIF l_data_type = 'NUMBER'
+            THEN
+              -- verify -1 is usable
+              l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := l_return || CASE WHEN l_count >= 0 THEN ' -1 valid substitute' ELSE ' -1 not working as substitute' END;
+            ELSE
+              -- verify 01.01.1900 is usable
+              l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := l_return || CASE WHEN l_count = 0 THEN ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') valid substitute' ELSE ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') not working as substitute' END;
+            END IF;
           ELSE
-            -- verify 01.01.1900 is usable
-            l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := l_return || CASE WHEN l_count = 0 THEN ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') valid substitute' ELSE ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') not working as substitute' END;
+            -- determine valid NULL substition
+            IF l_data_type = 'VARCHAR2'
+            THEN
+              -- verify n/a is not used in the given field for the given table and column
+              l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := 'NVL(' || LOWER(l_dba_col) || ', ''n/a'')';
+              IF l_count != 0
+              THEN
+                l_return := l_return || ' -- n/a not save, substitute the value by a value that is not contained in the column';
+              END IF;
+            ELSIF l_data_type = 'NUMBER'
+            THEN
+              -- verify -1 is usable
+              l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := 'NVL(' || LOWER(l_dba_col) || ', -1)';
+              IF l_count < 0
+              THEN
+                l_return := l_return || ' -- -1 not save, substitute the value by a value that is not contained in the column';
+              END IF;
+            ELSE
+              -- verify 01.01.1900 is usable
+              l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
+              EXECUTE IMMEDIATE l_statement INTO l_count;
+              l_return := 'NVL(' || LOWER(l_dba_col) || ', TO_DATE(''01.01.1900'', ''DD.MM.YYYY''))';
+              IF l_count != 0
+              THEN
+                l_return := l_return || ' -- 01.01.1900 not save, substitute the value by a value that is not contained in the column';
+              END IF;
+            END IF;
           END IF;
         ELSE
-          -- determine valid NULL substition
-          IF l_data_type = 'VARCHAR2'
-          THEN
-            -- verify n/a is not used in the given field for the given table and column
-            l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := 'NVL(' || LOWER(l_dba_col) || ', ''n/a'')';
-            l_return    := l_return || ' (' || TRIM(TO_CHAR(l_char_len)) || ' chars)';
-            IF l_count != 0
-            THEN
-              l_return := l_return || ' -- n/a not save, substitute the value by a value that is not contained in the column';
-            END IF;
-          ELSIF l_data_type = 'NUMBER'
-          THEN
-            -- verify -1 is usable
-            l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := 'NVL(' || LOWER(l_dba_col) || ', -1)';
-            IF l_count < 0
-            THEN
-              l_return := l_return || ' -- -1 not save, substitute the value by a value that is not contained in the column';
-            END IF;
-          ELSE
-            -- verify 01.01.1900 is usable
-            l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
-            EXECUTE IMMEDIATE l_statement INTO l_count;
-            l_return := 'NVL(' || LOWER(l_dba_col) || ', TO_DATE(''01.01.1900'', ''DD.MM.YYYY''))';
-            IF l_count != 0
-            THEN
-              l_return := l_return || ' -- 01.01.1900 not save, substitute the value by a value that is not contained in the column';
-            END IF;
-          END IF;
+          -- variable declaration
+          l_return := 'l_' || LOWER(l_dba_col) || ' ' || l_data_type ||
+                      CASE WHEN l_data_type = 'VARCHAR2' THEN '(' || TRIM(TO_CHAR(l_char_len)) || ' CHAR)' END || ';'
+          ;
         END IF;
       END IF;
     ELSE

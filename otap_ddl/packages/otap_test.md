@@ -14,6 +14,10 @@ Description of the test options available with package otap_test. For a detailed
 - [has_ref_constraint](#function-otap_testhas_ref_constraint)
 - [has_not_null_constraint](#function-otap_testhas_not_null_constraint)
 - [has_index](#function-otap_testhas_index)
+- [has_type](#function-otap_testhas_type)
+- [has_sequence](#function-otap_testhas_sequence)
+- [has_scheduler_job](#function-otap_testhas_scheduler_job)
+- [has_user](#function-otap_testhas_user)
 - [ok](#function-otap_testok)
 - [is_eq](#function-otap_testis_eq)
 - [match_regex](#function-otap_testmatch_regex)
@@ -424,6 +428,172 @@ Examples:
                                    , p_description => 'My description'
                                    , p_expected_result => otap.otap_constants.get_otap_num_test_passed
                                    ) FROM dual;
+
+## FUNCTION otap_test.has_type
+Checks if a given type exists. The type code (e.g. OBJECT, COLLECTION) is shown as sub object in the exist message.
+
+Parameter:
+- *p_type_name* Mandatory. The name of the type to check. Case sensitive.
+- *p_typecode* Optional. The typecode like OBJECT of the type to check. Not case sensitive.
+- *p_attributes* Optional. The number of type attributes to check.
+- *p_methods* Optional. The number of type methods to check.
+- *p_predefined* Optional. The predefined state of the type to check. Not case sensitive.
+- *p_incomplete* Optional. The incomplete state of the type to check. Not case sensitive.
+- *p_final* Optional. The final state of the type to check. Not case sensitive.
+- *p_persistable* Optional. The persistable state of the type to check. Not case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_type('MY_OBJECT') FROM dual;
+    SELECT otap.otap_test.has_type('MY_OBJECT', 'OBJECT') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_type( p_type_name => 'MY_OBJECT'
+                                  , p_typecode => 'OBJECT'
+                                  , p_attributes => 5
+                                  , p_methods => 2
+                                  , p_predefined => 'NO'
+                                  , p_incomplete => 'NO'
+                                  , p_final => 'YES'
+                                  , p_persistable => 'YES'
+                                  , p_schema => 'MY_SCHEMA'
+                                  , p_description => 'My description'
+                                  , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                  ) FROM dual;
+
+## FUNCTION otap_test.has_sequence
+Checks if a given sequence exists. It can be identified either by the sequence name or the table and column name. If sequence name is NULL, table AND column name must be given to identify the sequence. In case the table owner differs from the sequence owner, the table owner can be specified. If not specified, the normal schema logic takes place.
+
+Parameter:
+- *p_sequence_name* Mandatory if not table and column name are given. The name of the sequence to check. Case sensitive.
+- *p_table_name* Mandatory if sequence name is not given. The table name with the identity column that uses the sequence to check. Case sensitive.
+- *p_column_name* Mandatory if sequence name is not given. The identity column name that uses the sequence to check. Case sensitive.
+- *p_min_value* Optional. The minimum value attribute of the sequence to check.
+- *p_max_value* Optional. The maximum value attribute of the sequence to check.
+- *p_increment_by* Optional. The increment of the sequence to check.
+- *p_cycle_flag* Optional. The cycle flag of the sequence to check. Not case sensitive.
+- *p_order_flag* Optional. The order flag of the sequence to check. Not case sensitive.
+- *p_cache_size* Optional. The cache size of the sequence to check.
+- *p_scale_flag* Optional. The scale flag of the sequence to check. Not case sensitive.
+- *p_extend_flag* Optional. The extend flag of the sequence to check. Not case sensitive.
+- *p_sharded_flag* Optional. The sharded flag of the sequence to check. Not case sensitive.
+- *p_session_flag* Optional. The session flag of the sequence to check. Not case sensitive.
+- *p_keep_value* Optional. The keep value flag of the sequence to check. Not case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_sequence('MY_SEQUENCE') FROM dual;
+    SELECT otap.otap_test.has_sequence(NULL, 'MY_TABLE', 'MY_ID_COLUMN') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_sequence( p_sequence_name => 'MY_SEQUENCE'
+                                      , p_table_name => 'MY_TABLE'
+                                      , p_column_name => 'MY_ID_COLUMN'
+                                      , p_min_value => 1
+                                      , p_max_value => 9999999999999999999999999999
+                                      , p_increment_by => 1
+                                      , p_cycle_flag => 'Y'
+                                      , p_order_flag => 'N'
+                                      , p_cache_size => 0
+                                      , p_scale_flag => 'N'
+                                      , p_extend_flag => 'N'
+                                      , p_sharded_flag => 'N'
+                                      , p_session_flag => 'N'
+                                      , p_keep_value => 'N'
+                                      , p_table_owner => 'MY_TABLE_OWNER'
+                                      , p_schema => 'MY_SCHEMA'
+                                      , p_description => 'My description'
+                                      , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                      ) FROM dual;
+
+
+## FUNCTION otap_test.has_scheduler_job
+Checks basically if a given scheduler job exists.
+
+Parameter:
+- *p_job_name* Mandatory. The name of the scheduler job to check. Case sensitive.
+- *p_job_style* Optional. The job style of the scheduler job to check. Not case sensitive.
+- *p_job_type* Optional. The job type of the scheduler job to check. Not case sensitive.
+- *p_job_action* Optional. The job action of the scheduler job to check. Compares code with UPPER and flatten. Not case sensitive.
+- *p_schedule_type* Optional. The schedule type of the scheduler job to check. Not case sensitive.
+- *p_repeat_interval* Optional. The repeat interval of the scheduler job to check. Not case sensitive.
+- *p_job_class* Optional. The job class of the scheduler job to check. Not case sensitive.
+- *p_logging_level* Optional. The logging level indicator of the scheduler job to check. Not case sensitive.
+- *p_store_output* Optional. The store output indicator of the scheduler job to check. Not case sensitive.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_scheduler_job('MY_SCHEDULER_JOB') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_scheduler_job( p_job_name => 'MY_SCHEDULER_JOB'
+                                           , p_job_style => 'REGULAR'
+                                           , p_job_type => 'PLSQL_BLOCK'
+                                           , p_job_action => 'start_my_job;'
+                                           , p_schedule_type => 'CALENDAR'
+                                           , p_repeat_interval => 'FREQ=WEEKLY;BYTIME=230000;BYDAY=MON,TUE,WED,THU,FRI'
+                                           , p_job_class => 'DEFAULT_JOB_CLASS'
+                                           , p_logging_level => 'FULL'
+                                           , p_store_output => 'TRUE'
+                                           , p_schema => 'MY_SCHEMA'
+                                           , p_description => 'My description'
+                                           , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                           ) FROM dual;
+
+## FUNCTION otap_test.has_user
+Checks basically if a given user exists.
+
+Parameter:
+- *p_username* Mandatory. The name of the database user to check. Case sensitive.
+- *p_account_status* Optional. The account status of the database user to check. Not case sensitive.
+- *p_default_tablespace* Optional. The default tablespace of the database user to check. Case sensitive.
+- *p_temporary_tablespace* Optional. The temporary tablespace of the database user to check. Case sensitive.
+- *p_local_temp_tablespace* Optional. The local temporary tablespace of the database user to check. Case sensitive.
+- *p_profile* Optional. The profile setting of the database user to check. Not case sensitive.
+- *p_password_versions* Optional. The password versions if any defined of the database user to check. Case sensitive.
+- *p_authentication_type* Optional. The authentication type of the database user to check. Not case sensitive.
+- *p_proxy_only_connect* Optional. The proxy only connect indicator of the database user to check. Not case sensitive.
+- *p_protected* Optional. The protected state indicator of the database user to check. Not case sensitive.
+- *p_read_only* Optional. The read only state indicator of the database user to check. Not case sensitive.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+
+*Return* The test result as text.
+
+Examples:
+
+    -- simple primary key check assuming executed while your test schema is active
+    SELECT otap.otap_test.has_user('MY_USER') FROM dual;
+    -- all parameter
+    SELECT otap.otap_test.has_user( p_username => 'MY_USER'
+                                  , p_account_status => 'OPEN'
+                                  , p_default_tablespace => 'MY_TABLESPACE'
+                                  , p_temporary_tablespace => 'TEMP'
+                                  , p_local_temp_tablespace => 'TEMP'
+                                  , p_profile => 'DEFAULT'
+                                  , p_password_versions => '11G 12C'
+                                  , p_authentication_type => 'PASSWORD'
+                                  , p_proxy_only_connect => 'N'
+                                  , p_protected => 'NO'
+                                  , p_read_only => 'NO'
+                                  , p_description => 'My description'
+                                  , p_expected_result => otap.otap_constants.get_otap_num_test_passed
+                                  ) FROM dual;
 
 ## FUNCTION otap_test.ok
 Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED. It is recommended to use a description as generated text does not contain details on the the test condition.

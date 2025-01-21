@@ -903,5 +903,394 @@ AS
       RAISE;
   END has_index;
 
+  FUNCTION has_type( p_type_name       IN            VARCHAR2
+                   , o_errors             OUT NOCOPY VARCHAR2
+                   , p_typecode        IN            VARCHAR2 DEFAULT NULL
+                   , p_attributes      IN            NUMBER   DEFAULT NULL
+                   , p_methods         IN            NUMBER   DEFAULT NULL
+                   , p_predefined      IN            VARCHAR2 DEFAULT NULL
+                   , p_incomplete      IN            VARCHAR2 DEFAULT NULL
+                   , p_final           IN            VARCHAR2 DEFAULT NULL
+                   , p_persistable     IN            VARCHAR2 DEFAULT NULL
+                   , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                   , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_type';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_type        INTEGER;
+    l_type_name       VARCHAR2(128 CHAR);
+    l_typecode        VARCHAR2(128 CHAR);
+    l_predefined      VARCHAR2(3 CHAR);
+    l_incomplete      VARCHAR2(3 CHAR);
+    l_final           VARCHAR2(3 CHAR);
+    l_persistable     VARCHAR2(3 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_type_name       := otap_string.reduce(p_type_name, 128);
+    l_typecode        := otap_string.reduce(UPPER(p_typecode), 128);
+    l_predefined      := otap_string.reduce(UPPER(p_predefined), 3);
+    l_incomplete      := otap_string.reduce(UPPER(p_incomplete), 3);
+    l_final           := otap_string.reduce(UPPER(p_final), 3);
+    l_persistable     := otap_string.reduce(UPPER(p_persistable), 3);
+    IF     l_type_name        IS NOT NULL
+       AND LENGTH(l_type_name) > 0
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_type
+        FROM dba_types
+       WHERE owner                   = l_schema_to_use
+         AND type_name               = l_type_name
+         AND NVL(typecode, 'n/a')    = NVL(l_typecode, NVL(typecode, 'n/a'))
+         AND NVL(attributes, -1)     = NVL(p_attributes, NVL(attributes, -1))
+         AND NVL(methods, -1)        = NVL(p_methods, NVL(methods, -1))
+         AND NVL(predefined, 'n/a')  = NVL(l_predefined, NVL(predefined, 'n/a'))
+         AND NVL(incomplete, 'n/a')  = NVL(l_incomplete, NVL(incomplete, 'n/a'))
+         AND NVL(final, 'n/a')       = NVL(l_final, NVL(final, 'n/a'))
+         AND NVL(persistable, 'n/a') = NVL(l_persistable, NVL(persistable, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_type, l_errors, l_script);
+    ELSE
+      -- type name missing
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_type_name(NULL)';
+      otap_log.log(l_errors, l_script, 'Type name NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_type;
+
+  FUNCTION has_sequence( p_sequence_name   IN            VARCHAR2
+                       , o_errors             OUT NOCOPY VARCHAR2
+                       , p_table_name      IN            VARCHAR2 DEFAULT NULL
+                       , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                       , p_min_value       IN            NUMBER   DEFAULT NULL
+                       , p_max_value       IN            NUMBER   DEFAULT NULL
+                       , p_increment_by    IN            NUMBER   DEFAULT NULL
+                       , p_cycle_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_order_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_cache_size      IN            NUMBER   DEFAULT NULL
+                       , p_scale_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_extend_flag     IN            VARCHAR2 DEFAULT NULL
+                       , p_sharded_flag    IN            VARCHAR2 DEFAULT NULL
+                       , p_session_flag    IN            VARCHAR2 DEFAULT NULL
+                       , p_keep_value      IN            VARCHAR2 DEFAULT NULL
+                       , p_table_owner     IN            VARCHAR2 DEFAULT NULL
+                       , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                       , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                       )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_sequence';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_sequence    INTEGER;
+    l_sequence_name   VARCHAR2(128 CHAR);
+    l_table_name      VARCHAR2(128 CHAR);
+    l_column_name     VARCHAR2(128 CHAR);
+    l_table_owner     VARCHAR2(128 CHAR);
+    l_cycle_flag      VARCHAR2(1 CHAR);
+    l_order_flag      VARCHAR2(1 CHAR);
+    l_scale_flag      VARCHAR2(1 CHAR);
+    l_extend_flag     VARCHAR2(1 CHAR);
+    l_sharded_flag    VARCHAR2(1 CHAR);
+    l_session_flag    VARCHAR2(1 CHAR);
+    l_keep_value      VARCHAR2(1 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_sequence_name   := otap_string.reduce(p_sequence_name, 128);
+    l_table_name      := otap_string.reduce(p_table_name, 128);
+    l_column_name     := otap_string.reduce(p_column_name, 128);
+    l_table_owner     := otap_string.reduce(p_table_owner, 128);
+    l_cycle_flag      := otap_string.reduce(UPPER(p_cycle_flag), 1);
+    l_order_flag      := otap_string.reduce(UPPER(p_order_flag), 1);
+    l_scale_flag      := otap_string.reduce(UPPER(p_scale_flag), 1);
+    l_extend_flag     := otap_string.reduce(UPPER(p_extend_flag), 1);
+    l_sharded_flag    := otap_string.reduce(UPPER(p_sharded_flag), 1);
+    l_session_flag    := otap_string.reduce(UPPER(p_session_flag), 1);
+    l_keep_value      := otap_string.reduce(UPPER(p_keep_value), 1);
+    IF    (    l_sequence_name        IS NOT NULL
+           AND LENGTH(l_sequence_name) > 0
+          )
+       OR (    l_table_name         IS NOT NULL
+           AND LENGTH(l_table_name)  > 0
+           AND l_column_name        IS NOT NULL
+           AND LENGTH(l_column_name) > 0
+          )
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_sequence
+        FROM dba_sequences dbs
+        LEFT OUTER JOIN dba_tab_identity_cols dti
+          ON dbs.sequence_name  = dti.sequence_name
+         AND dti.owner = NVL(l_table_owner, l_schema_to_use)
+       WHERE dbs.sequence_owner = l_schema_to_use
+         AND dbs.sequence_name  = NVL(l_sequence_name, dbs.sequence_name)
+         AND NVL(dti.table_name, 'n/a')   = NVL(l_table_name, NVL(dti.table_name, 'n/a'))
+         AND NVL(dti.column_name, 'n/a')  = NVL(l_column_name, NVL(dti.column_name, 'n/a'))
+         AND NVL(cycle_flag, 'n/a')       = NVL(l_cycle_flag, NVL(cycle_flag, 'n/a'))
+         AND NVL(order_flag, 'n/a')       = NVL(l_order_flag, NVL(order_flag, 'n/a'))
+         AND NVL(scale_flag, 'n/a')       = NVL(l_scale_flag, NVL(scale_flag, 'n/a'))
+         AND NVL(extend_flag, 'n/a')      = NVL(l_extend_flag, NVL(extend_flag, 'n/a'))
+         AND NVL(sharded_flag, 'n/a')     = NVL(l_sharded_flag, NVL(sharded_flag, 'n/a'))
+         AND NVL(session_flag, 'n/a')     = NVL(l_session_flag, NVL(session_flag, 'n/a'))
+         AND NVL(keep_value, 'n/a')       = NVL(l_keep_value, NVL(keep_value, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_sequence, l_errors, l_script);
+    ELSE
+      -- either sequence name or table and column name must be
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_sequence_name and (p_table_name or p_column_name) NULL';
+      otap_log.log(l_errors, l_script, 'Sequence name and table or column name is NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_sequence;
+
+  FUNCTION has_scheduler_job( p_job_name        IN            VARCHAR2
+                            , o_errors             OUT NOCOPY VARCHAR2
+                            , p_job_style       IN            VARCHAR2 DEFAULT NULL
+                            , p_job_type        IN            VARCHAR2 DEFAULT NULL
+                            , p_job_action      IN            VARCHAR2 DEFAULT NULL
+                            , p_schedule_type   IN            VARCHAR2 DEFAULT NULL
+                            , p_repeat_interval IN            VARCHAR2 DEFAULT NULL
+                            , p_job_class       IN            VARCHAR2 DEFAULT NULL
+                            , p_logging_level   IN            VARCHAR2 DEFAULT NULL
+                            , p_store_output    IN            VARCHAR2 DEFAULT NULL
+                            , p_schema          IN            VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                            , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                            )
+    RETURN INTEGER
+  IS
+    l_script          VARCHAR2(1024 CHAR)    := 'otap_schema.has_scheduler_job';
+    l_test_passed     INTEGER;
+    l_expected        INTEGER;
+    l_has_job         INTEGER;
+    l_job_name        VARCHAR2(128 CHAR);
+    l_job_style       VARCHAR2(17 CHAR);
+    l_job_type        VARCHAR2(16 CHAR);
+    l_job_action      VARCHAR2(4000 CHAR);
+    l_schedule_type   VARCHAR2(12 CHAR);
+    l_repeat_interval VARCHAR2(4000 CHAR);
+    l_job_class       VARCHAR2(128 CHAR);
+    l_logging_level   VARCHAR2(11 CHAR);
+    l_store_output    VARCHAR2(5 CHAR);
+    l_schema_to_use   VARCHAR2(128 CHAR);
+    l_errors          VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors          := NULL;
+    l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_job_name        := otap_string.reduce(p_job_name, 128);
+    l_job_style       := otap_string.reduce(UPPER(p_job_style), 17);
+    l_job_type        := otap_string.reduce(UPPER(p_job_type), 16);
+    l_job_action      := otap_string.reduce(otap_string.flatten(UPPER(p_job_action), 4000), 4000);
+    l_schedule_type   := otap_string.reduce(UPPER(p_schedule_type), 12);
+    l_repeat_interval := otap_string.reduce(UPPER(p_repeat_interval), 4000);
+    l_job_class       := otap_string.reduce(UPPER(p_job_class), 128);
+    l_logging_level   := otap_string.reduce(UPPER(p_logging_level), 11);
+    l_store_output    := otap_string.reduce(UPPER(p_store_output), 5);
+    IF     l_job_name        IS NOT NULL
+       AND LENGTH(l_job_name) > 0
+    THEN
+      -- schema
+      l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_job
+        FROM dba_scheduler_jobs
+       WHERE owner                                    = l_schema_to_use
+         AND job_name                                 = l_job_name
+         AND NVL(job_style, 'n/a')                    = NVL(l_job_style, NVL(job_style, 'n/a'))
+         AND NVL(job_type, 'n/a')                     = NVL(l_job_type, NVL(job_type, 'n/a'))
+         AND NVL( otap_string.reduce( otap_string.flatten( UPPER(job_action)
+                                                         , 4000
+                                                         )
+                                    , 4000
+                                    )
+                , 'n/a'
+                )                                     = NVL(l_job_action, NVL(otap_string.reduce(otap_string.flatten(UPPER(job_action), 4000), 4000), 'n/a'))
+         AND NVL(schedule_type, 'n/a')                = NVL(l_schedule_type, NVL(schedule_type, 'n/a'))
+         AND NVL(TRIM(UPPER(repeat_interval)), 'n/a') = NVL(l_repeat_interval, NVL(TRIM(UPPER(repeat_interval)), 'n/a'))
+         AND NVL(job_class, 'n/a')                    = NVL(l_job_class, NVL(job_class, 'n/a'))
+         AND NVL(logging_level, 'n/a')                = NVL(l_logging_level, NVL(logging_level, 'n/a'))
+         AND NVL(store_output, 'n/a')                 = NVL(l_store_output, NVL(store_output, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_job, l_errors, l_script);
+    ELSE
+      -- job name must be set
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_job_name(NULL)';
+      otap_log.log(l_errors, l_script, 'Scheduler job name is NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_scheduler_job;
+
+  FUNCTION has_user( p_username              IN            VARCHAR2
+                   , o_errors                   OUT NOCOPY VARCHAR2
+                   , p_account_status        IN            VARCHAR2 DEFAULT NULL
+                   , p_default_tablespace    IN            VARCHAR2 DEFAULT NULL
+                   , p_temporary_tablespace  IN            VARCHAR2 DEFAULT NULL
+                   , p_local_temp_tablespace IN            VARCHAR2 DEFAULT NULL
+                   , p_profile               IN            VARCHAR2 DEFAULT NULL
+                   , p_password_versions     IN            VARCHAR2 DEFAULT NULL
+                   , p_authentication_type   IN            VARCHAR2 DEFAULT NULL
+                   , p_proxy_only_connect    IN            VARCHAR2 DEFAULT NULL
+                   , p_protected             IN            VARCHAR2 DEFAULT NULL
+                   , p_read_only             IN            VARCHAR2 DEFAULT NULL
+                   , p_expected_result       IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN INTEGER
+  IS
+    l_script                VARCHAR2(1024 CHAR)    := 'otap_schema.has_user';
+    l_test_passed           INTEGER;
+    l_expected              INTEGER;
+    l_has_user              INTEGER;
+    l_username              VARCHAR2(128 CHAR);
+    l_account_status        VARCHAR2(32 CHAR);
+    l_default_tablespace    VARCHAR2(30 CHAR);
+    l_temporary_tablespace  VARCHAR2(30 CHAR);
+    l_local_temp_tablespace VARCHAR2(30 CHAR);
+    l_profile               VARCHAR2(128 CHAR);
+    l_password_versions     VARCHAR2(17 CHAR);
+    l_authentication_type   VARCHAR2(8 CHAR);
+    l_proxy_only_connect    VARCHAR2(1 CHAR);
+    l_protected             VARCHAR2(3 CHAR);
+    l_read_only             VARCHAR2(3 CHAR);
+    l_errors                VARCHAR2(32767 CHAR);
+  BEGIN
+    l_errors                := NULL;
+    l_test_passed           := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+    l_expected              := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+    l_username              := otap_string.reduce(p_username, 128);
+    l_account_status        := otap_string.reduce(UPPER(p_account_status), 32);
+    l_default_tablespace    := otap_string.reduce(p_default_tablespace, 30);
+    l_temporary_tablespace  := otap_string.reduce(p_temporary_tablespace, 30);
+    l_local_temp_tablespace := otap_string.reduce(p_local_temp_tablespace, 30);
+    l_profile               := otap_string.reduce(UPPER(p_profile), 128);
+    l_password_versions     := otap_string.reduce(p_password_versions, 17);
+    l_authentication_type   := otap_string.reduce(UPPER(p_authentication_type), 8);
+    l_proxy_only_connect    := otap_string.reduce(UPPER(p_proxy_only_connect), 1);
+    l_protected             := otap_string.reduce(UPPER(p_protected), 3);
+    l_read_only             := otap_string.reduce(UPPER(p_read_only), 3);
+    IF     p_username        IS NOT NULL
+       AND LENGTH(p_username) > 0
+    THEN
+      -- check
+      SELECT COUNT(*)
+        INTO l_has_user
+        FROM dba_users
+       WHERE username                            = l_username
+         AND account_status                      = NVL(l_account_status, account_status)
+         AND default_tablespace                  = NVL(l_default_tablespace, default_tablespace)
+         AND temporary_tablespace                = NVL(l_temporary_tablespace, temporary_tablespace)
+         AND NVL(local_temp_tablespace, 'n/a')   = NVL(l_local_temp_tablespace, NVL(local_temp_tablespace, 'n/a'))
+         AND profile                             = NVL(l_profile, profile)
+         AND TRIM(NVL(password_versions, 'n/a')) = NVL(l_password_versions, TRIM(NVL(password_versions, 'n/a')))
+         AND NVL(authentication_type, 'n/a')     = NVL(l_authentication_type, NVL(authentication_type, 'n/a'))
+         AND NVL(proxy_only_connect, 'n/a')      = NVL(l_proxy_only_connect, NVL(proxy_only_connect, 'n/a'))
+         AND NVL(protected, 'n/a')               = NVL(l_protected, NVL(protected, 'n/a'))
+         AND NVL(read_only, 'n/a')               = NVL(l_read_only, NVL(read_only, 'n/a'))
+      ;
+      -- we should find one or zero entries
+      l_test_passed := count_chk(l_has_user, l_errors, l_script);
+    ELSE
+      -- job name must be set
+      l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_errors            := 'Not allowed: p_username(NULL)';
+      otap_log.log(l_errors, l_script, 'User name is NULL');
+    END IF;
+    -- now decide on the expected result the final state and if errors are returned
+    IF l_test_passed != l_expected
+    THEN
+      o_errors := otap_string.reduce(l_errors, 4000);
+    ELSE
+      -- overwrite states from before, as we fulfill expected
+      l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+      -- overwrite errors expected
+      o_errors := NULL;
+    END IF;
+    RETURN l_test_passed;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END has_user;
+
 END;
 /

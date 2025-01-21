@@ -668,14 +668,16 @@ AS
               END IF;
             END IF;
             -- allow NULL value for replace
-            IF     p_param6n                   IS NOT NULL
-               AND REGEXP_COUNT(p_param6n, '@') = 2
+            IF p_param6n IS NOT NULL
             THEN
-              -- replace, may work, may not
-              l_text_result := REPLACE(l_text_result, p_param6n, p_param6n_value);
-            ELSE
-              -- ignore, log error
-              otap_log.log('Invalid parameter: ' || p_param6n, l_script);
+              IF REGEXP_COUNT(p_param6n, '@') = 2
+              THEN
+                -- replace, may work, may not
+                l_text_result := REPLACE(l_text_result, p_param6n, p_param6n_value);
+              ELSE
+                -- ignore, log error
+                otap_log.log('Invalid parameter p_param6n: ' || p_param6n, l_script);
+              END IF;
             END IF;
           END IF;
         END IF;

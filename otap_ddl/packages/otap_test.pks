@@ -522,6 +522,156 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.has_type
+  * Checks if a given type exists. The type code (e.g. OBJECT, COLLECTION) is shown as sub object in the exist message.
+  *
+  * @param p_type_name Mandatory. The name of the type to check. Case sensitive.
+  * @param p_typecode Optional. The typecode like OBJECT of the type to check. Not case sensitive.
+  * @param p_attributes Optional. The number of type attributes to check.
+  * @param p_methods Optional. The number of type methods to check.
+  * @param p_predefined Optional. The predefined state of the type to check. Not case sensitive.
+  * @param p_incomplete Optional. The incomplete state of the type to check. Not case sensitive.
+  * @param p_final Optional. The final state of the type to check. Not case sensitive.
+  * @param p_persistable Optional. The persistable state of the type to check. Not case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_type( p_type_name       IN VARCHAR2
+                   , p_typecode        IN VARCHAR2 DEFAULT NULL
+                   , p_attributes      IN NUMBER   DEFAULT NULL
+                   , p_methods         IN NUMBER   DEFAULT NULL
+                   , p_predefined      IN VARCHAR2 DEFAULT NULL
+                   , p_incomplete      IN VARCHAR2 DEFAULT NULL
+                   , p_final           IN VARCHAR2 DEFAULT NULL
+                   , p_persistable     IN VARCHAR2 DEFAULT NULL
+                   , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                   , p_description     IN VARCHAR2 DEFAULT NULL
+                   , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.has_sequence
+  * Checks if a given sequence exists. It can be identified either by the sequence name or the table and column name.
+  * If sequence name is NULL, table AND column name must be given to identify the sequence. In case the table owner
+  * differs from the sequence owner, the table owner can be specified. If not specified, the normal schema logic takes
+  * place.
+  *
+  * @param p_sequence_name Mandatory if not table and column name are given. The name of the sequence to check. Case sensitive.
+  * @param p_table_name Mandatory if sequence name is not given. The table name with the identity column that uses the sequence to check. Case sensitive.
+  * @param p_column_name Mandatory if sequence name is not given. The identity column name that uses the sequence to check. Case sensitive.
+  * @param p_min_value Optional. The minimum value attribute of the sequence to check.
+  * @param p_max_value Optional. The maximum value attribute of the sequence to check.
+  * @param p_increment_by Optional. The increment of the sequence to check.
+  * @param p_cycle_flag Optional. The cycle flag of the sequence to check. Not case sensitive.
+  * @param p_order_flag Optional. The order flag of the sequence to check. Not case sensitive.
+  * @param p_cache_size Optional. The cache size of the sequence to check.
+  * @param p_scale_flag Optional. The scale flag of the sequence to check. Not case sensitive.
+  * @param p_extend_flag Optional. The extend flag of the sequence to check. Not case sensitive.
+  * @param p_sharded_flag Optional. The sharded flag of the sequence to check. Not case sensitive.
+  * @param p_session_flag Optional. The session flag of the sequence to check. Not case sensitive.
+  * @param p_keep_value Optional. The keep value flag of the sequence to check. Not case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_sequence( p_sequence_name   IN VARCHAR2
+                       , p_table_name      IN VARCHAR2 DEFAULT NULL
+                       , p_column_name     IN VARCHAR2 DEFAULT NULL
+                       , p_min_value       IN NUMBER   DEFAULT NULL
+                       , p_max_value       IN NUMBER   DEFAULT NULL
+                       , p_increment_by    IN NUMBER   DEFAULT NULL
+                       , p_cycle_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_order_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_cache_size      IN NUMBER   DEFAULT NULL
+                       , p_scale_flag      IN VARCHAR2 DEFAULT NULL
+                       , p_extend_flag     IN VARCHAR2 DEFAULT NULL
+                       , p_sharded_flag    IN VARCHAR2 DEFAULT NULL
+                       , p_session_flag    IN VARCHAR2 DEFAULT NULL
+                       , p_keep_value      IN VARCHAR2 DEFAULT NULL
+                       , p_table_owner     IN VARCHAR2 DEFAULT NULL
+                       , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                       , p_description     IN VARCHAR2 DEFAULT NULL
+                       , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.has_scheduler_job
+  * Checks basically if a given scheduler job exists.
+  *
+  * @param p_job_name Mandatory. The name of the scheduler job to check. Case sensitive.
+  * @param p_job_style Optional. The job style of the scheduler job to check. Not case sensitive.
+  * @param p_job_type Optional. The job type of the scheduler job to check. Not case sensitive.
+  * @param p_job_action Optional. The job action of the scheduler job to check. Compares code with UPPER and flatten. Not case sensitive.
+  * @param p_schedule_type Optional. The schedule type of the scheduler job to check. Not case sensitive.
+  * @param p_repeat_interval Optional. The repeat interval of the scheduler job to check. Not case sensitive.
+  * @param p_job_class Optional. The job class of the scheduler job to check. Not case sensitive.
+  * @param p_logging_level Optional. The logging level indicator of the scheduler job to check. Not case sensitive.
+  * @param p_store_output Optional. The store output indicator of the scheduler job to check. Not case sensitive.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table and constraint must exist in this schema. Case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_scheduler_job( p_job_name        IN VARCHAR2
+                            , p_job_style       IN VARCHAR2 DEFAULT NULL
+                            , p_job_type        IN VARCHAR2 DEFAULT NULL
+                            , p_job_action      IN VARCHAR2 DEFAULT NULL
+                            , p_schedule_type   IN VARCHAR2 DEFAULT NULL
+                            , p_repeat_interval IN VARCHAR2 DEFAULT NULL
+                            , p_job_class       IN VARCHAR2 DEFAULT NULL
+                            , p_logging_level   IN VARCHAR2 DEFAULT NULL
+                            , p_store_output    IN VARCHAR2 DEFAULT NULL
+                            , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                            , p_description     IN VARCHAR2 DEFAULT NULL
+                            , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                            )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.has_user
+  * Checks basically if a given user exists.
+  *
+  * @param p_username Mandatory. The name of the database user to check. Case sensitive.
+  * @param p_account_status Optional. The account status of the database user to check. Not case sensitive.
+  * @param p_default_tablespace Optional. The default tablespace of the database user to check. Case sensitive.
+  * @param p_temporary_tablespace Optional. The temporary tablespace of the database user to check. Case sensitive.
+  * @param p_local_temp_tablespace Optional. The local temporary tablespace of the database user to check. Case sensitive.
+  * @param p_profile Optional. The profile setting of the database user to check. Not case sensitive.
+  * @param p_password_versions Optional. The password versions if any defined of the database user to check. Case sensitive.
+  * @param p_authentication_type Optional. The authentication type of the database user to check. Not case sensitive.
+  * @param p_proxy_only_connect Optional. The proxy only connect indicator of the database user to check. Not case sensitive.
+  * @param p_protected Optional. The protected state indicator of the database user to check. Not case sensitive.
+  * @param p_read_only Optional. The read only state indicator of the database user to check. Not case sensitive.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION has_user( p_username              IN VARCHAR2
+                   , p_account_status        IN VARCHAR2 DEFAULT NULL
+                   , p_default_tablespace    IN VARCHAR2 DEFAULT NULL
+                   , p_temporary_tablespace  IN VARCHAR2 DEFAULT NULL
+                   , p_local_temp_tablespace IN VARCHAR2 DEFAULT NULL
+                   , p_profile               IN VARCHAR2 DEFAULT NULL
+                   , p_password_versions     IN VARCHAR2 DEFAULT NULL
+                   , p_authentication_type   IN VARCHAR2 DEFAULT NULL
+                   , p_proxy_only_connect    IN VARCHAR2 DEFAULT NULL
+                   , p_protected             IN VARCHAR2 DEFAULT NULL
+                   , p_read_only             IN VARCHAR2 DEFAULT NULL
+                   , p_description           IN VARCHAR2 DEFAULT NULL
+                   , p_expected_result       IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_test.ok
   * Checks if a boolean expression result is TRUE. To test for FALSE just set expected result to otap_constants.OTAP_NUM_TEST_FAILED.
   * It is recommended to use a description as generated text does not contain details on the the test condition.

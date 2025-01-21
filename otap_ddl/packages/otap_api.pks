@@ -473,6 +473,93 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.has_type
+  * @see otap_schema.has_type and otap_test.has_type
+  */
+  FUNCTION has_type( p_type_name       IN            VARCHAR2
+                   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                   , p_typecode        IN            VARCHAR2 DEFAULT NULL
+                   , p_attributes      IN            NUMBER   DEFAULT NULL
+                   , p_methods         IN            NUMBER   DEFAULT NULL
+                   , p_predefined      IN            VARCHAR2 DEFAULT NULL
+                   , p_incomplete      IN            VARCHAR2 DEFAULT NULL
+                   , p_final           IN            VARCHAR2 DEFAULT NULL
+                   , p_persistable     IN            VARCHAR2 DEFAULT NULL
+                   , p_schema          IN            VARCHAR2 DEFAULT NULL
+                   , p_description     IN            VARCHAR2 DEFAULT NULL
+                   , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  ;
+
+
+  /** FUNCTION otap_api.has_sequence
+  * @see otap_schema.has_sequence and otap_test.has_sequence
+  */
+  FUNCTION has_sequence( p_sequence_name   IN            VARCHAR2
+                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                       , p_table_name      IN            VARCHAR2 DEFAULT NULL
+                       , p_column_name     IN            VARCHAR2 DEFAULT NULL
+                       , p_min_value       IN            NUMBER   DEFAULT NULL
+                       , p_max_value       IN            NUMBER   DEFAULT NULL
+                       , p_increment_by    IN            NUMBER   DEFAULT NULL
+                       , p_cycle_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_order_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_cache_size      IN            NUMBER   DEFAULT NULL
+                       , p_scale_flag      IN            VARCHAR2 DEFAULT NULL
+                       , p_extend_flag     IN            VARCHAR2 DEFAULT NULL
+                       , p_sharded_flag    IN            VARCHAR2 DEFAULT NULL
+                       , p_session_flag    IN            VARCHAR2 DEFAULT NULL
+                       , p_keep_value      IN            VARCHAR2 DEFAULT NULL
+                       , p_table_owner     IN            VARCHAR2 DEFAULT NULL
+                       , p_schema          IN            VARCHAR2 DEFAULT NULL
+                       , p_description     IN            VARCHAR2 DEFAULT NULL
+                       , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_scheduler_job
+  * @see otap_schema.has_scheduler_job and otap_test.has_scheduler_job
+  */
+  FUNCTION has_scheduler_job( p_job_name        IN            VARCHAR2
+                            , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                            , p_job_style       IN            VARCHAR2 DEFAULT NULL
+                            , p_job_type        IN            VARCHAR2 DEFAULT NULL
+                            , p_job_action      IN            VARCHAR2 DEFAULT NULL
+                            , p_schedule_type   IN            VARCHAR2 DEFAULT NULL
+                            , p_repeat_interval IN            VARCHAR2 DEFAULT NULL
+                            , p_job_class       IN            VARCHAR2 DEFAULT NULL
+                            , p_logging_level   IN            VARCHAR2 DEFAULT NULL
+                            , p_store_output    IN            VARCHAR2 DEFAULT NULL
+                            , p_schema          IN            VARCHAR2 DEFAULT NULL
+                            , p_description     IN            VARCHAR2 DEFAULT NULL
+                            , p_expected_result IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                            )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.has_user
+  * @see otap_schema.has_user and otap_test.has_user
+  */
+  FUNCTION has_user( p_username              IN            VARCHAR2
+                   , o_otap_session          IN OUT NOCOPY OTAP_SESSION
+                   , p_account_status        IN            VARCHAR2 DEFAULT NULL
+                   , p_default_tablespace    IN            VARCHAR2 DEFAULT NULL
+                   , p_temporary_tablespace  IN            VARCHAR2 DEFAULT NULL
+                   , p_local_temp_tablespace IN            VARCHAR2 DEFAULT NULL
+                   , p_profile               IN            VARCHAR2 DEFAULT NULL
+                   , p_password_versions     IN            VARCHAR2 DEFAULT NULL
+                   , p_authentication_type   IN            VARCHAR2 DEFAULT NULL
+                   , p_proxy_only_connect    IN            VARCHAR2 DEFAULT NULL
+                   , p_protected             IN            VARCHAR2 DEFAULT NULL
+                   , p_read_only             IN            VARCHAR2 DEFAULT NULL
+                   , p_description           IN            VARCHAR2 DEFAULT NULL
+                   , p_expected_result       IN            NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                   )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.ok
   * @see otap_logic.ok and otap_test.ok
   */
