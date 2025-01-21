@@ -15,6 +15,9 @@ SET ERRORLOGGING ON
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============INSTALL start==============
 SPOOL logs/otap_update.log
+-- reinstall the materialized view to get all labels
+@@../otap_ddl/views/drop/drop_otap_labels_mv.sql
+@@../otap_ddl/views/otap_labels_mv.sql
 -- independent packages
 @@../otap_ddl/packages/otap_constants.pks
 @@../otap_ddl/packages/otap_constants.pkb
