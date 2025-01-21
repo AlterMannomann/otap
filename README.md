@@ -1,6 +1,6 @@
 ![OtapLogo](https://github.com/user-attachments/assets/b2ffe1ea-b139-43bd-a204-79bed632aa52)
 # UNDER CONSTRUCTION
-You may use the script [otap_package_update.sql](./setup/otap_package_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
+You may use the script [otap_package_update.sql](./setup/otap_package_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
 ### Current changes
 - Add new schema test functions
 - Fix search conditions for schema functions in some NULL situations
