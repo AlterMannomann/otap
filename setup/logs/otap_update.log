@@ -1,3 +1,73 @@
+SQL> -- reinstall the materialized view to get all labels
+SQL> @@../otap_ddl/views/drop/drop_otap_labels_mv.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> DROP MATERIALIZED VIEW otap_labels_mv;
+
+Materialized view dropped.
+
+SQL> @@../otap_ddl/views/otap_labels_mv.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- Internal view for otap labels. Cast to 128 length as config names.
+SQL> -- Materialized to improve performance, if object types change in the database, refresh the view manually.
+SQL> CREATE MATERIALIZED VIEW otap_labels_mv
+  2    REFRESH FORCE ON DEMAND WITH ROWID USING TRUSTED CONSTRAINTS
+  3  AS
+  4  	 WITH grp AS (SELECT CAST(TRIM(object_type) AS VARCHAR2(128 CHAR)) AS object_type FROM dba_objects GROUP BY object_type
+  5  		       UNION ALL
+  6  			     -- add reserved word missing
+  7  		      SELECT CAST(TRIM(keyword) AS VARCHAR2(128 CHAR)) AS object_type FROM v$reserved_words WHERE keyword IN ( 'COLUMN'
+  8  															     , 'USER'
+  9  															     , 'ROLE'
+ 10  															     , 'CONSTRAINT'
+ 11  															     , 'VARCHAR2'
+ 12  															     , 'NUMBER'
+ 13  															     , 'BOOLEAN'
+ 14  															     , 'DATE'
+ 15  															     , 'NULL'
+ 16  															     , 'DATABASE'
+ 17  															     )
+ 18  		       UNION ALL
+ 19  			     -- add reserved words that are a combination of more than one word for constraint types
+ 20  		      SELECT CAST('PRIMARY KEY' AS VARCHAR2(128 CHAR)) AS object_type FROM dual  -- P
+ 21  		       UNION ALL
+ 22  		      SELECT CAST('UNIQUE KEY' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- U
+ 23  		       UNION ALL
+ 24  		      SELECT CAST('FOREIGN KEY' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- R
+ 25  		       UNION ALL
+ 26  		      SELECT CAST('CHECK' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- C generic
+ 27  		       UNION ALL
+ 28  		      SELECT CAST('NOT NULL' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- C special
+ 29  		       UNION ALL
+ 30  		      SELECT CAST('VIEW CHECK' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- V
+ 31  		       UNION ALL
+ 32  		      SELECT CAST('VIEW READONLY' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- O
+ 33  		       UNION ALL
+ 34  		      SELECT CAST('REF COLUMN' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- F
+ 35  		       UNION ALL
+ 36  		      SELECT CAST('HASH' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- H
+ 37  		       UNION ALL
+ 38  		      SELECT CAST('SUPPLEMENTAL LOGGGING' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- S
+ 39  		       UNION ALL
+ 40  		      SELECT CAST('INVALID CONSTRAINT TYPE' AS VARCHAR2(128 CHAR)) AS object_type FROM dual -- S
+ 41  			-- scheduler job to differentiate from database job
+ 42  		       UNION ALL
+ 43  		      SELECT CAST('SCHEDULER JOB' AS VARCHAR2(128 CHAR)) AS object_type FROM dual
+ 44  		     )
+ 45    SELECT object_type							     AS oracle_type
+ 46  	    , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier
+ 47  	    , LOWER(object_type)						     AS otap_label_lower
+ 48  	    , INITCAP(object_type)						     AS otap_label_cap
+ 49  	    , UPPER(object_type)						     AS otap_label_upper
+ 50  	    , object_type							     AS otap_label_source
+ 51  	 FROM grp
+ 52  ;
+
+Materialized view created.
+
 SQL> -- independent packages
 SQL> @@../otap_ddl/packages/otap_constants.pks
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt

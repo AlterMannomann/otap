@@ -192,7 +192,7 @@ AS
     l_fn_name     VARCHAR2(128 CHAR);
   BEGIN
     l_fn_name := otap_generate.prepare(p_title_prefix, p_schema, p_object_type, p_object, l_set, l_group, l_name);
-    l_statement := otap_generate.get_code_pad || TRIM('-- otap GENERATE test scripts ' || l_set || ' ' || l_group || ' ' || l_name);
+    l_statement := otap_generate.get_code_pad || TRIM('-- otap GENERATE function test scripts ' || l_set || ' ' || l_group || ' ' || l_name);
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     IF p_scope IS NOT NULL
     THEN
@@ -241,7 +241,7 @@ AS
     l_fn_name     VARCHAR2(128 CHAR);
   BEGIN
     l_fn_name := otap_generate.prepare(p_title_prefix, p_schema, p_object_type, p_object, l_set, l_group, l_name);
-    l_statement := otap_generate.get_code_pad || TRIM('-- otap GENERATE test scripts ' || l_set || ' ' || l_group || ' ' || l_name);
+    l_statement := otap_generate.get_code_pad || TRIM('-- otap GENERATE procedure test scripts ' || l_set || ' ' || l_group || ' ' || l_name);
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     IF p_scope IS NOT NULL
     THEN
@@ -318,24 +318,28 @@ AS
         FROM TABLE(otap_generate.build_script_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
     ;
   BEGIN
-    IF generation_type = otap_constants.OTAP_GEN_TYPE_FUNCTION
+    -- only if script count > 0
+    IF NVL(p_script_count, 0) > 0
     THEN
-      FOR rec IN cur_fn_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
-      LOOP
-        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-      END LOOP;
-    ELSIF generation_type = otap_constants.OTAP_GEN_TYPE_PROCEDURE
-    THEN
-      FOR rec IN cur_prc_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
-      LOOP
-        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-      END LOOP;
-    ELSE
-      -- all other cases script
-      FOR rec IN cur_scr_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
-      LOOP
-        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-      END LOOP;
+      IF generation_type = otap_constants.OTAP_GEN_TYPE_FUNCTION
+      THEN
+        FOR rec IN cur_fn_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
+        LOOP
+          PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+        END LOOP;
+      ELSIF generation_type = otap_constants.OTAP_GEN_TYPE_PROCEDURE
+      THEN
+        FOR rec IN cur_prc_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
+        LOOP
+          PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+        END LOOP;
+      ELSE
+        -- all other cases script
+        FOR rec IN cur_scr_header(p_title_prefix, p_schema, p_object_type, p_object, p_scope, p_script_count, p_show_header)
+        LOOP
+          PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+        END LOOP;
+      END IF;
     END IF;
     RETURN;
   EXCEPTION
@@ -640,6 +644,418 @@ AS
       RAISE;
   END column_tests;
 
+  FUNCTION constraint_tests( p_table            IN VARCHAR2
+                           , p_like_constraints IN VARCHAR2 DEFAULT '%'
+                           , p_schema           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                           , p_title_prefix     IN VARCHAR2 DEFAULT NULL
+                           , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                           , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                           )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_schema      VARCHAR2(128 CHAR);
+    l_table       VARCHAR2(128 CHAR);
+    l_like        VARCHAR2(256 CHAR);
+    l_test_count  INTEGER;
+    l_pad_par     INTEGER;
+    -- all constraints except ref and not null
+    CURSOR cur_common_constraints( cp_schema IN VARCHAR2
+                                 , cp_table  IN VARCHAR2
+                                 , cp_like   IN VARCHAR2
+                                 , cp_excl   IN NUMBER
+                                 )
+    IS
+      SELECT dco.owner
+           , dco.table_name
+           , dcc.column_name
+           , dco.constraint_name
+           , dco.constraint_type
+           , dco.search_condition_vc
+           , dco.status
+           , dco.deferrable
+           , dco.deferred
+           , dco.validated
+           , dco.generated
+           , dco.index_name
+           , dco.index_owner
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner                        = dcc.owner
+         AND dco.constraint_name              = dcc.constraint_name
+         AND dco.table_name                   = dcc.table_name
+       WHERE dco.owner                        = cp_schema
+         AND dco.table_name                   = cp_table
+         AND dco.constraint_name           LIKE cp_like ESCAPE '\'
+         AND dco.constraint_type         NOT IN ('R', 'F')
+         AND NVL( INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+                                            , 4000)
+                       , 'IS NOT NULL'
+                       )
+                , 0)                          = 0
+         AND NOT otap_string.is_sys_object(dco.constraint_name, cp_excl)
+       ORDER BY dco.constraint_type
+              , dco.constraint_name
+              , dcc.column_name NULLS LAST
+    ;
+    -- all ref constraints
+    CURSOR cur_ref_constraints( cp_schema IN VARCHAR2
+                              , cp_table  IN VARCHAR2
+                              , cp_like   IN VARCHAR2
+                              , cp_excl   IN NUMBER
+                              )
+    IS
+      SELECT dco.owner
+           , dco.table_name
+           , dcc.column_name
+           , dco.constraint_name
+           , dco.constraint_type
+           , dco.search_condition_vc
+           , dco.r_owner
+           , dcr.table_name           AS r_table_name
+           , dcr.column_name          AS r_column_name
+           , dco.r_constraint_name
+           , dco.status
+           , dco.deferrable
+           , dco.deferred
+           , dco.validated
+           , dco.generated
+           , dco.index_name
+           , dco.index_owner
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner                        = dcc.owner
+         AND dco.constraint_name              = dcc.constraint_name
+         AND dco.table_name                   = dcc.table_name
+        LEFT OUTER JOIN dba_cons_columns dcr
+          ON dco.r_owner                      = dcr.owner
+         AND dco.r_constraint_name            = dcr.constraint_name
+       WHERE dco.owner                        = cp_schema
+         AND dco.table_name                   = cp_table
+         AND dco.constraint_name           LIKE cp_like ESCAPE '\'
+         AND dco.constraint_type             IN ('R', 'F')
+         AND NOT otap_string.is_sys_object(dco.constraint_name, cp_excl)
+       ORDER BY dco.constraint_type
+              , dco.constraint_name
+              , dcc.column_name NULLS LAST
+    ;
+    -- all not null constraints
+    CURSOR cur_not_null_constraints( cp_schema IN VARCHAR2
+                                   , cp_table  IN VARCHAR2
+                                   , cp_like   IN VARCHAR2
+                                   , cp_excl   IN NUMBER
+                                   )
+    IS
+      SELECT dco.owner
+           , dco.table_name
+           , dcc.column_name
+           , dco.constraint_name
+           , dco.constraint_type
+           , dco.search_condition_vc
+           , dco.status
+           , dco.deferrable
+           , dco.deferred
+           , dco.validated
+           , dco.generated
+           , dco.index_name
+           , dco.index_owner
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner                        = dcc.owner
+         AND dco.constraint_name              = dcc.constraint_name
+         AND dco.table_name                   = dcc.table_name
+       WHERE dco.owner                        = cp_schema
+         AND dco.table_name                   = cp_table
+         AND dco.constraint_name           LIKE cp_like ESCAPE '\'
+         AND dco.constraint_type              = 'C'
+         AND INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+                                       , 4000)
+                  , 'IS NOT NULL'
+                  )                           > 0
+       ORDER BY dcc.column_name NULLS LAST
+    ;
+    CURSOR cur_header( cp_prefix IN VARCHAR2
+                     , cp_schema IN VARCHAR2
+                     , cp_type   IN VARCHAR2
+                     , cp_object IN VARCHAR2
+                     , cp_scope  IN VARCHAR2
+                     , cp_count  IN NUMBER
+                     , cp_show   IN NUMBER
+                     )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+    ;
+    CURSOR cur_footer(cp_show IN NUMBER)
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_footer(cp_show))
+    ;
+  BEGIN
+    IF p_table IS NOT NULL
+    THEN
+      l_table      := otap_string.reduce(p_table, 128);
+      l_like       := NVL(p_like_constraints, '%');
+      l_schema     := otap_string.reduce(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')), 128);
+      -- get count
+      SELECT COUNT(*)
+        INTO l_test_count
+        FROM dba_constraints dco
+        LEFT OUTER JOIN dba_cons_columns dcc
+          ON dco.owner                        = dcc.owner
+         AND dco.constraint_name              = dcc.constraint_name
+         AND dco.table_name                   = dcc.table_name
+       WHERE dco.owner                        = l_schema
+         AND dco.table_name                   = l_table
+         AND dco.constraint_name           LIKE l_like ESCAPE '\'
+         AND (   INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+                                           , 4000)
+                      , 'IS NOT NULL'
+                      )                         > 0
+              OR NOT otap_string.is_sys_object(dco.constraint_name, p_excl_sysgen)
+             )
+      ;
+      -- get header if needed
+      FOR rec IN cur_header(p_title_prefix, l_schema, 'constraints', l_table, l_like, l_test_count, p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+      l_pad_par := otap_generate.get_code_prefix_len + 24;
+      -- get first common constraints
+      FOR rec IN cur_common_constraints(l_schema, l_table, l_like, p_excl_sysgen)
+      LOOP
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_constraint( p_table_name => ''' || rec.table_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.constraint_type IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_constraint_type => ''' || rec.constraint_type || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.column_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_column_name => ''' || rec.column_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.constraint_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_constraint => ''' || rec.constraint_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_schema => ''' || rec.owner || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      -- then ref constraints
+      l_pad_par := otap_generate.get_code_prefix_len + 28;
+      FOR rec IN cur_ref_constraints(l_schema, l_table, l_like, p_excl_sysgen)
+      LOOP
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_ref_constraint( p_table_name => ''' || rec.table_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.constraint_type IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_constraint_type => ''' || rec.constraint_type || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.column_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_column_name => ''' || rec.column_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.constraint_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_constraint => ''' || rec.constraint_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_schema => ''' || rec.owner || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.r_table_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_r_table_name => ''' || rec.r_table_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.r_column_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_r_column_name => ''' || rec.r_column_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.r_constraint_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_r_constraint => ''' || rec.r_constraint_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.r_owner IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_r_schema => ''' || rec.r_owner || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      -- finally not null constraints
+      l_pad_par := otap_generate.get_code_prefix_len + 33;
+      FOR rec IN cur_not_null_constraints(l_schema, l_table, l_like, p_excl_sysgen)
+      LOOP
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_not_null_constraint( p_table_name => ''' || rec.table_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.column_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_column_name => ''' || rec.column_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_schema => ''' || rec.owner || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      -- add footer if needed
+      FOR rec IN cur_footer(p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END constraint_tests;
+
+  FUNCTION index_tests( p_table         IN VARCHAR2
+                      , p_like_index    IN VARCHAR2 DEFAULT '%'
+                      , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                      , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                      , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                      )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_schema      VARCHAR2(128 CHAR);
+    l_table       VARCHAR2(128 CHAR);
+    l_like        VARCHAR2(256 CHAR);
+    l_test_count  INTEGER;
+    l_pad_par     INTEGER;
+    CURSOR cur_indexes( cp_schema IN VARCHAR2
+                      , cp_table  IN VARCHAR2
+                      , cp_like   IN VARCHAR2
+                      , cp_excl   IN NUMBER
+                      )
+    IS
+      SELECT dix.index_name
+           , dix.table_name
+           , dic.column_name
+           , dix.index_type
+           , dix.table_type
+           , dix.uniqueness
+           , dix.tablespace_name
+           , dix.partitioned
+        FROM dba_indexes dix
+        LEFT OUTER JOIN dba_ind_columns dic
+          ON dix.owner       = dic.index_owner
+         AND dix.index_name  = dic.index_name
+         AND dix.table_owner = dic.table_owner
+         AND dix.table_name  = dic.table_name
+       WHERE dix.owner                       = cp_schema
+         AND dix.table_name                  = cp_table
+         AND dix.index_name               LIKE cp_like ESCAPE '\'
+         AND NOT otap_string.is_sys_object(dix.index_name, cp_excl)
+       ORDER BY dix.index_name
+              , dic.column_name
+    ;
+    CURSOR cur_header( cp_prefix IN VARCHAR2
+                     , cp_schema IN VARCHAR2
+                     , cp_type   IN VARCHAR2
+                     , cp_object IN VARCHAR2
+                     , cp_scope  IN VARCHAR2
+                     , cp_count  IN NUMBER
+                     , cp_show   IN NUMBER
+                     )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+    ;
+    CURSOR cur_footer(cp_show IN NUMBER)
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_footer(cp_show))
+    ;
+  BEGIN
+    IF p_table IS NOT NULL
+    THEN
+      l_table      := otap_string.reduce(p_table, 128);
+      l_like       := NVL(p_like_index, '%');
+      l_schema     := otap_string.reduce(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')), 128);
+      -- get count
+      SELECT COUNT(*)
+        INTO l_test_count
+        FROM dba_indexes dix
+        LEFT OUTER JOIN dba_ind_columns dic
+          ON dix.owner       = dic.index_owner
+         AND dix.index_name  = dic.index_name
+         AND dix.table_owner = dic.table_owner
+         AND dix.table_name  = dic.table_name
+       WHERE dix.owner         = l_schema
+         AND dix.table_name    = l_table
+         AND dix.index_name LIKE l_like ESCAPE '\'
+         AND NOT otap_string.is_sys_object(dix.index_name, p_excl_sysgen)
+      ;
+      -- get header if needed
+      FOR rec IN cur_header(p_title_prefix, l_schema, 'indexes', l_table, l_like, l_test_count, p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+      l_pad_par := otap_generate.get_code_prefix_len + 19;
+      FOR rec IN cur_indexes(l_schema, l_table, l_like, p_excl_sysgen)
+      LOOP
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_index( p_table_name => ''' || rec.table_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.column_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_column_name => ''' || rec.column_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_index_name => ''' || rec.index_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.index_type IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_index_type => ''' || rec.index_type || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.table_type IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_table_type => ''' || rec.table_type || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.uniqueness IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_uniqueness => ''' || rec.uniqueness || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.tablespace_name IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_tablespace_name => ''' || rec.tablespace_name || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.partitioned IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_partitioned => ''' || rec.partitioned || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      -- add footer if needed
+      FOR rec IN cur_footer(p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END index_tests;
+
   FUNCTION table_tests( p_like_table    IN VARCHAR2 DEFAULT '%'
                       , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
@@ -674,6 +1090,26 @@ AS
     IS
       SELECT result_text
         FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, 0, cp_excl))
+    ;
+    CURSOR cur_constraints( cp_schema IN VARCHAR2
+                          , cp_table  IN VARCHAR2
+                          , cp_like   IN VARCHAR2
+                          , cp_prefix IN VARCHAR2
+                          , cp_excl   IN NUMBER
+                          )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.constraint_tests(cp_table, cp_like, cp_schema, cp_prefix, 0, cp_excl))
+    ;
+    CURSOR cur_indexes( cp_schema IN VARCHAR2
+                      , cp_table  IN VARCHAR2
+                      , cp_like   IN VARCHAR2
+                      , cp_prefix IN VARCHAR2
+                      , cp_excl   IN NUMBER
+                      )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.index_tests(cp_table, cp_like, cp_schema, cp_prefix, 0, cp_excl))
     ;
     CURSOR cur_header( cp_prefix IN VARCHAR2
                      , cp_schema IN VARCHAR2
@@ -725,10 +1161,38 @@ AS
                AND NOT otap_string.is_sys_object(dbc.column_name, p_excl_sysgen)
            )
          , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
+         , cnt_indexes AS (SELECT COUNT(*) AS expected_count
+                             FROM dba_indexes dix
+                             LEFT OUTER JOIN dba_ind_columns dic
+                               ON dix.owner       = dic.index_owner
+                              AND dix.index_name  = dic.index_name
+                              AND dix.table_owner = dic.table_owner
+                              AND dix.table_name  = dic.table_name
+                            WHERE dix.owner = l_schema
+                              AND NOT otap_string.is_sys_object(dix.index_name, p_excl_sysgen)
+                          )
+         , cnt_constraints AS (SELECT COUNT(*) AS expected_count
+                                 FROM dba_constraints dco
+                                 LEFT OUTER JOIN dba_cons_columns dcc
+                                   ON dco.owner                        = dcc.owner
+                                  AND dco.constraint_name              = dcc.constraint_name
+                                  AND dco.table_name                   = dcc.table_name
+                                WHERE dco.owner                        = l_schema
+                                  AND (   INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+                                                                    , 4000)
+                                               , 'IS NOT NULL'
+                                               )                         > 0
+                                       OR NOT otap_string.is_sys_object(dco.constraint_name, p_excl_sysgen)
+                                      )
+                              )
          , cnt AS
            (SELECT expected_count, 'BASE' AS info FROM cnt_base
              UNION ALL
             SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
+             UNION ALL
+            SELECT expected_count, 'CONSTRAINTS' AS info FROM cnt_constraints
+             UNION ALL
+            SELECT expected_count, 'INDEXES' AS info FROM cnt_indexes
            )
     SELECT SUM(expected_count) INTO l_test_count FROM cnt;
     -- get header
@@ -754,9 +1218,20 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      -- columns
       FOR colrec IN cur_columns(l_schema, rec.table_name, '%', p_title_prefix, p_excl_sysgen)
       LOOP
         PIPE ROW (otap_view_result_rec(colrec.result_text, NULL));
+      END LOOP;
+      -- constraints
+      FOR consrec IN cur_constraints(l_schema, rec.table_name, '%', p_title_prefix, p_excl_sysgen)
+      LOOP
+        PIPE ROW (otap_view_result_rec(consrec.result_text, NULL));
+      END LOOP;
+      -- indexes
+      FOR consrec IN cur_indexes(l_schema, rec.table_name, '%', p_title_prefix, p_excl_sysgen)
+      LOOP
+        PIPE ROW (otap_view_result_rec(consrec.result_text, NULL));
       END LOOP;
     END LOOP;
     FOR rec IN cur_footer(p_show_header)
@@ -1454,7 +1929,223 @@ AS
       RAISE;
   END view_tests;
 
+  FUNCTION schema_user_test( p_schema        IN VARCHAR2 DEFAULT NULL
+                           , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                           , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                           )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_test_count  INTEGER;
+    l_pad_par     INTEGER;
+    CURSOR cur_user(cp_schema IN VARCHAR2)
+    IS
+      SELECT username
+           , account_status
+           , default_tablespace
+           , temporary_tablespace
+           , local_temp_tablespace
+           , profile
+           , password_versions
+           , authentication_type
+           , proxy_only_connect
+           , protected
+           , read_only
+        FROM dba_users
+       WHERE username = cp_schema
+    ;
+    CURSOR cur_header( cp_prefix IN VARCHAR2
+                     , cp_schema IN VARCHAR2
+                     , cp_type   IN VARCHAR2
+                     , cp_object IN VARCHAR2
+                     , cp_scope  IN VARCHAR2
+                     , cp_count  IN NUMBER
+                     , cp_show   IN NUMBER
+                     )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+    ;
+    CURSOR cur_footer(cp_show IN NUMBER)
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_footer(cp_show))
+    ;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_test_count
+      FROM dba_users
+     WHERE username = p_schema
+    ;
+    -- we expect exactly one user
+    IF l_test_count = 1
+    THEN
+      -- get header
+      FOR rec IN cur_header(p_title_prefix, 'SYS', 'users', NULL, p_schema, l_test_count, p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+      l_pad_par := otap_generate.get_code_prefix_len + 18;
+      -- build group and name row
+      l_statement := otap_generate.get_code_pad || '-- set test group for schema user';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_group(''schema user'')' || otap_generate.get_code_postfix;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_pad || '-- set test name for schema user';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_name(''schema user check'')' || otap_generate.get_code_postfix;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      FOR rec IN cur_user(p_schema)
+      LOOP
+        -- build simple user checks
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_user( p_username => ''' || rec.username || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_account_status => '''|| rec.account_status || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_default_tablespace => '''|| rec.default_tablespace || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_temporary_tablespace => '''|| rec.temporary_tablespace || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.local_temp_tablespace IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_local_temp_tablespace => '''|| rec.local_temp_tablespace || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_profile => '''|| rec.profile || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        IF rec.password_versions IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_password_versions => '''|| TRIM(rec.password_versions) || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.authentication_type IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_authentication_type => '''|| rec.authentication_type || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.proxy_only_connect IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_proxy_only_connect => '''|| rec.proxy_only_connect || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.protected IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_protected => '''|| rec.protected || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        IF rec.read_only IS NOT NULL
+        THEN
+          l_statement := LPAD(' ', l_pad_par, ' ') || ', p_read_only => '''|| rec.read_only || '''';
+          PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        END IF;
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      FOR rec IN cur_footer(p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END schema_user_test;
+
+  FUNCTION related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
+                             , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                             , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                             )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    l_statement   VARCHAR2(4000 CHAR);
+    l_test_count  INTEGER;
+    l_pad_par     INTEGER;
+    CURSOR cur_user(cp_user_list IN VARCHAR2)
+    IS
+        WITH usr_list AS
+             (SELECT TRIM(REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL)) AS username
+                FROM dual
+             CONNECT BY REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL) IS NOT NULL
+             )
+      SELECT username
+        FROM usr_list
+       WHERE username IS NOT NULL
+    ;
+    CURSOR cur_user_cnt(cp_user_list IN VARCHAR2)
+    IS
+        WITH usr_list AS
+             (SELECT TRIM(REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL)) AS username
+                FROM dual
+             CONNECT BY REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL) IS NOT NULL
+             )
+      SELECT COUNT(*) AS user_cnt
+        FROM usr_list
+       WHERE username IS NOT NULL
+    ;
+    CURSOR cur_header( cp_prefix IN VARCHAR2
+                     , cp_schema IN VARCHAR2
+                     , cp_type   IN VARCHAR2
+                     , cp_object IN VARCHAR2
+                     , cp_scope  IN VARCHAR2
+                     , cp_count  IN NUMBER
+                     , cp_show   IN NUMBER
+                     )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+    ;
+    CURSOR cur_footer(cp_show IN NUMBER)
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.get_footer(cp_show))
+    ;
+  BEGIN
+    -- todo scope = list string, schema = SYS, type User
+    IF p_user_list IS NOT NULL
+    THEN
+      -- get count
+      OPEN cur_user_cnt(p_user_list);
+      FETCH cur_user_cnt INTO l_test_count;
+      CLOSE cur_user_cnt;
+      -- get header
+      FOR rec IN cur_header(p_title_prefix, 'SYS', 'Simple user list check', NULL, p_user_list, l_test_count, p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+      l_pad_par := otap_generate.get_code_prefix_len + 18;
+      -- build group and name row
+      l_statement := otap_generate.get_code_pad || '-- set test group for user list';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_group(''users'')' || otap_generate.get_code_postfix;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_pad || '-- set test name for simple user check';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_name(''simple user checks'')' || otap_generate.get_code_postfix;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      FOR rec IN cur_user(p_user_list)
+      LOOP
+        -- build simple user checks
+        l_statement := otap_generate.get_code_prefix || 'otap_test.has_user( p_username => ''' || rec.username || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_account_status => ''OPEN''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+        l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      END LOOP;
+      FOR rec IN cur_footer(p_show_header)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END related_user_tests;
+
   FUNCTION schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                       , p_required_user IN VARCHAR2 DEFAULT NULL
                        , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                        , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
                        , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
@@ -1465,7 +2156,19 @@ AS
     l_schema      VARCHAR2(128 CHAR);
     l_like        VARCHAR2(256 CHAR);
     l_test_count  INTEGER;
+    l_user_count  INTEGER;
     l_pad_par     INTEGER;
+    CURSOR cur_user_cnt(cp_user_list IN VARCHAR2)
+    IS
+        WITH usr_list AS
+             (SELECT TRIM(REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL)) AS username
+                FROM dual
+             CONNECT BY REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL) IS NOT NULL
+             )
+      SELECT COUNT(*) AS user_cnt
+        FROM usr_list
+       WHERE username IS NOT NULL
+    ;
     CURSOR cur_schemas( cp_like IN VARCHAR2
                       , cp_excl IN NUMBER
                       )
@@ -1474,6 +2177,20 @@ AS
         FROM dba_users
        WHERE username LIKE cp_like ESCAPE '\'
          AND NOT otap_string.is_sys_object(username, cp_excl)
+    ;
+    CURSOR cur_related_users( cp_user_list IN VARCHAR2
+                            , cp_prefix    IN VARCHAR2
+                            )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, 0))
+    ;
+    CURSOR cur_schema_user( cp_schema IN VARCHAR2
+                          , cp_prefix IN VARCHAR2
+                          )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, 0))
     ;
     CURSOR cur_tables( cp_like   IN VARCHAR2
                      , cp_schema IN VARCHAR2
@@ -1528,24 +2245,25 @@ AS
       SELECT result_text
         FROM TABLE(otap_generate.get_footer(cp_show))
     ;
-  BEGIN
-    l_like       := NVL(p_like_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
-    l_schema     := otap_string.reduce(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 128);
-    -- get test count, simulate conditions of called test generators
+    CURSOR cur_test_count( cp_excl_sysgen IN NUMBER
+                         , cp_like        IN VARCHAR2
+                         , cp_usr_cnt     IN NUMBER
+                         )
+    IS
        WITH base AS
            (SELECT object_name
                  , object_type
                  , owner
               FROM dba_objects
                    -- user like condition
-             WHERE owner LIKE l_like ESCAPE '\'
+             WHERE owner LIKE cp_like ESCAPE '\'
                    -- currently supported objects
                AND (   object_type   IN ('TABLE', 'FUNCTION', 'PROCEDURE')
                     OR object_type LIKE '%VIEW'
                     OR object_type LIKE 'PACKAGE%'
                    )
                    -- user exclude condition
-               AND NOT otap_string.is_sys_object(object_name, p_excl_sysgen)
+               AND NOT otap_string.is_sys_object(object_name, cp_excl_sysgen)
            )
            -- counter objects
          , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
@@ -1562,7 +2280,7 @@ AS
                    -- exclude pure functions and procedures, already counted by base
                AND base.object_type NOT IN ('FUNCTION', 'PROCEDURE')
                    -- user exclude condition
-             WHERE NOT otap_string.is_sys_object(dbp.procedure_name, p_excl_sysgen)
+             WHERE NOT otap_string.is_sys_object(dbp.procedure_name, cp_excl_sysgen)
            )
          , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
          , cols AS
@@ -1574,7 +2292,7 @@ AS
                 ON dbc.owner      = base.owner
                AND dbc.table_name = base.object_name
                    -- user exclude condition
-             WHERE NOT otap_string.is_sys_object(dbc.column_name, p_excl_sysgen)
+             WHERE NOT otap_string.is_sys_object(dbc.column_name, cp_excl_sysgen)
            )
          , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
            -- table triggers
@@ -1589,7 +2307,7 @@ AS
                AND dbt.base_object_type = base.object_type
              WHERE dbt.table_name     IS NOT NULL
                    -- user exclude condition
-               AND NOT otap_string.is_sys_object(dbt.trigger_name, p_excl_sysgen)
+               AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
            )
          , cnt_trgt AS (SELECT COUNT(*) AS expected_count FROM trgt)
          , trgs AS
@@ -1601,9 +2319,10 @@ AS
                 ON dbt.owner = base.owner
              WHERE dbt.table_name     IS NULL
                    -- user exclude condition
-               AND NOT otap_string.is_sys_object(dbt.trigger_name, p_excl_sysgen)
+               AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
            )
          , cnt_trgs AS (SELECT COUNT(*) AS expected_count FROM trgs)
+         , cnt_schemas AS (SELECT COUNT(*) AS expected_count FROM dba_users WHERE username LIKE cp_like ESCAPE '\')
          , cnt AS
            (SELECT expected_count, 'BASE' AS info FROM cnt_base
              UNION ALL
@@ -1614,15 +2333,44 @@ AS
             SELECT expected_count, 'TABLE TRIGGER' AS info FROM cnt_trgt
              UNION ALL
             SELECT expected_count, 'SCHEMA TRIGGER' AS info FROM cnt_trgs
+             UNION ALL
+            SELECT expected_count, 'SCHEMAS' AS info FROM cnt_schemas
+             UNION ALL
+            SELECT cp_usr_cnt AS expected_count, 'USER TESTS' AS info FROM dual
            )
-    SELECT SUM(expected_count) INTO l_test_count FROM cnt;
+    SELECT SUM(expected_count) AS test_count
+    FROM cnt
+    ;
+  BEGIN
+    l_like       := NVL(p_like_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+    l_schema     := otap_string.reduce(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 128);
+    -- get test count, simulate conditions of called test generators
+    OPEN cur_user_cnt(p_required_user);
+    FETCH cur_user_cnt INTO l_user_count;
+    CLOSE cur_user_cnt;
+    OPEN cur_test_count(p_excl_sysgen, p_like_schema, l_user_count);
+    FETCH cur_test_count INTO l_test_count;
+    CLOSE cur_test_count;
     -- get header
     FOR rec IN cur_header(p_title_prefix, l_schema, 'schemas', NULL, l_like, l_test_count, p_show_header)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
-    l_pad_par := otap_generate.get_code_prefix_len + 20;
+    -- get related users if any
+    IF l_user_count > 0
+    THEN
+      -- build test set
+      l_statement := otap_generate.get_code_pad || '-- set test set for schema';
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''Required users'')' || otap_generate.get_code_postfix;
+      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      FOR rec IN cur_related_users(p_required_user, p_title_prefix)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+    END IF;
     -- get schemas to process
+    l_pad_par := otap_generate.get_code_prefix_len + 20;
     FOR recset IN cur_schemas(l_like, p_excl_sysgen)
     LOOP
       -- build set row
@@ -1630,6 +2378,12 @@ AS
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
       l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''schema ' || recset.username || ''')' || otap_generate.get_code_postfix;
       PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      -- first get the schema check
+      FOR rec IN cur_schema_user(recset.username, p_title_prefix)
+      LOOP
+        PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+      END LOOP;
+      -- now get the schema objects
       FOR rec IN cur_tables('%', recset.username, p_title_prefix, p_excl_sysgen)
       LOOP
         PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
