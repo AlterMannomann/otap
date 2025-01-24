@@ -1,6 +1,6 @@
 ![OtapLogo](https://github.com/user-attachments/assets/b2ffe1ea-b139-43bd-a204-79bed632aa52)
 # Version: otap v1.0.0-alpha.1
-See also releases.
+See also [releases](https://github.com/AlterMannomann/otap/releases).
 # UNDER DEVELOPMENT
 This is currently just an stable alpha version. Beta is on the way.
 
