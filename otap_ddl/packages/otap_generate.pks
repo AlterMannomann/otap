@@ -237,11 +237,71 @@ AS
     RETURN otap_view_result_tbl PIPELINED
   ;
 
-  -- constraint_tests
-  -- index tests
-  -- type tests
-  -- sequence tests
-  -- scheduler job tests
+  /** FUNCTION otap_generate.type_tests
+  * Generates the test scripts for the types of the given schema with the current available
+  * otap schema functions. Provides name (types) management. Limited to line size 4000 but not
+  * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+  *
+  * @param p_like_type The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
+  * @param p_schema The schema to generate the type tests for. Default is current schema.
+  * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+  * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+  * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+  *
+  * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+  */
+  FUNCTION type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+                     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                     )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  /** FUNCTION otap_generate.sequence_tests
+  * Generates the test scripts for the sequences of the given schema with the current available
+  * otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not
+  * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+  *
+  * @param p_like_sequence The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
+  * @param p_schema The schema to generate the sequence tests for. Default is current schema.
+  * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+  * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+  * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+  *
+  * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+  */
+  FUNCTION sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+                         , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                         , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                         , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                         )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  /** FUNCTION otap_generate.sched_job_tests
+  * Generates the test scripts for the scheduler jobs of the given schema with the current available
+  * otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not
+  * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+  *
+  * @param p_like_job The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
+  * @param p_schema The schema to generate the scheduler job tests for. Default is current schema.
+  * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+  * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+  * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+  *
+  * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+  */
+  FUNCTION sched_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
+                          , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                          , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                          , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                          , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                          )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
 
   /** FUNCTION otap_generate.schema_tests
   * Generates the test scripts for the current available otap schema functions.

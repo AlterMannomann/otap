@@ -10798,168 +10798,209 @@ SQL> CREATE OR REPLACE PACKAGE otap_generate
 233  	 RETURN otap_view_result_tbl PIPELINED
 234    ;
 235  
-236    -- constraint_tests
-237    -- index tests
-238    -- type tests
-239    -- sequence tests
-240    -- scheduler job tests
-241  
-242    /** FUNCTION otap_generate.schema_tests
-243    * Generates the test scripts for the current available otap schema functions.
-244    * Provides set, group and name management.  Limited to line size 4000 but not to rows,
-245    * like DBMS_OUTPUT. It is up to you how you spool the content to files.
+236    /** FUNCTION otap_generate.type_tests
+237    * Generates the test scripts for the types of the given schema with the current available
+238    * otap schema functions. Provides name (types) management. Limited to line size 4000 but not
+239    * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+240    *
+241    * @param p_like_type The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
+242    * @param p_schema The schema to generate the type tests for. Default is current schema.
+243    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+244    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+245    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
 246    *
-247    * Including system generated objects is a good idea if your system is stable and you want to
-248    * ensure that no one changed the current state. With CI/CD or during development it is a really bad idea.
-249    *
-250    * There is no best option, some constraints like NOT NULL must be defined inline to count a column as NOT NULL.
-251    * With an additional added constraint, the column will be still marked as NULLABLE. Identity columns are another
-252    * issue, as you cannot define a name for the generated sequence. Make extra tests limited on the system generated
-253    * objects you rely on (like NOT NULL and identity).
-254    *
-255    * @param p_like_schema The LIKE expression for schema names. Default is current schema. % will generate for all schemas in the database, be careful.
-256    * @param p_required_user An optional comma separated list of users required to be checked by the schema test. Will not include the selected schemas. Useful for specific schemas and integration tests.
-257    * @param p_title_prefix An optional title prefix for set, group and test names. Limited to 10 chars.
-258    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-259    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-260    *
-261    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-262    */
-263    FUNCTION schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-264  			    , p_required_user IN VARCHAR2 DEFAULT NULL
-265  			    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-266  			    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-267  			    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-268  			    )
-269  	 RETURN otap_view_result_tbl PIPELINED
-270    ;
-271  
-272    /** FUNCTION otap_generate.prepare
-273    * Maps the schema, object type and object to set, group and name, including the prefix, which prefixes the
-274    * set without delimiter and returns the function/procedure name for this mapping.
-275    *
-276    * If p_object_type is empty, p_object is not used at all and o_name is set to NULL. Only NOT NULL values included.
-277    *
-278    * The prefix gets cutted to max. 10 chars. Set, group and name are reduced to max. 30 chars. Delimiters are removed.
-279    *
-280    * @param p_title_prefix An optional title prefix. For function names cutted to 10 chars.
-281    * @param p_schema The schema to use for set. For function names cutted to 30 chars.
-282    * @param p_object_type The object type to use for group like tables, trigger and so on. For function names cutted to 30 chars.
-283    * @param p_object The object name to use for name. For function names cutted to 30 chars.
-284    * @param o_set The test set from schema and prefix. Limited to 256 chars.
-285    * @param o_group The test group from object type. Limited to 256 chars.
-286    * @param o_name The test name from object name. Limited to 256 chars.
+247    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+248    */
+249    FUNCTION type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+250  			  , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+251  			  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+252  			  , p_show_header   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+253  			  , p_excl_sysgen   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+254  			  )
+255  	 RETURN otap_view_result_tbl PIPELINED
+256    ;
+257  
+258    /** FUNCTION otap_generate.sequence_tests
+259    * Generates the test scripts for the sequences of the given schema with the current available
+260    * otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not
+261    * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+262    *
+263    * @param p_like_sequence The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
+264    * @param p_schema The schema to generate the sequence tests for. Default is current schema.
+265    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+266    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+267    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+268    *
+269    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+270    */
+271    FUNCTION sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+272  			      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+273  			      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
+274  			      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+275  			      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+276  			      )
+277  	 RETURN otap_view_result_tbl PIPELINED
+278    ;
+279  
+280    -- sequence tests
+281    -- scheduler job tests
+282  
+283    /** FUNCTION otap_generate.schema_tests
+284    * Generates the test scripts for the current available otap schema functions.
+285    * Provides set, group and name management.  Limited to line size 4000 but not to rows,
+286    * like DBMS_OUTPUT. It is up to you how you spool the content to files.
 287    *
-288    * @return A valid function/procedure name of pattern test_(p_title_prefix)<o_set>(_<o_group>(_<o_name>)) with maximum length 128.
-289    */
-290    FUNCTION prepare( p_title_prefix IN	       VARCHAR2
-291  		       , p_schema	IN	       VARCHAR2
-292  		       , p_object_type	IN	       VARCHAR2
-293  		       , p_object	IN	       VARCHAR2
-294  		       , o_set		   OUT NOCOPY  VARCHAR2
-295  		       , o_group	   OUT NOCOPY  VARCHAR2
-296  		       , o_name 	   OUT NOCOPY  VARCHAR2
-297  		       )
-298  	 RETURN VARCHAR2
-299    ;
-300  
-301    /** PROCEDURE otap_generate.prepare
-302    * Does the same as the function but does not return a function name.
+288    * Including system generated objects is a good idea if your system is stable and you want to
+289    * ensure that no one changed the current state. With CI/CD or during development it is a really bad idea.
+290    *
+291    * There is no best option, some constraints like NOT NULL must be defined inline to count a column as NOT NULL.
+292    * With an additional added constraint, the column will be still marked as NULLABLE. Identity columns are another
+293    * issue, as you cannot define a name for the generated sequence. Make extra tests limited on the system generated
+294    * objects you rely on (like NOT NULL and identity).
+295    *
+296    * @param p_like_schema The LIKE expression for schema names. Default is current schema. % will generate for all schemas in the database, be careful.
+297    * @param p_required_user An optional comma separated list of users required to be checked by the schema test. Will not include the selected schemas. Useful for specific schemas and integration tests.
+298    * @param p_title_prefix An optional title prefix for set, group and test names. Limited to 10 chars.
+299    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+300    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+301    *
+302    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
 303    */
-304    PROCEDURE prepare( p_title_prefix IN		VARCHAR2
-305  			, p_schema	 IN		VARCHAR2
-306  			, p_object_type  IN		VARCHAR2
-307  			, p_object	 IN		VARCHAR2
-308  			, o_set 	    OUT NOCOPY	VARCHAR2
-309  			, o_group	    OUT NOCOPY	VARCHAR2
-310  			, o_name	    OUT NOCOPY	VARCHAR2
-311  			)
-312    ;
-313    -- utility functions
-314    PROCEDURE set_gen_type(p_gen_type IN VARCHAR2);
-315    FUNCTION get_gen_type
-316  	 RETURN VARCHAR2
-317    ;
-318    FUNCTION get_code_prefix
-319  	 RETURN VARCHAR2
-320    ;
-321    FUNCTION get_code_prefix_len
-322  	 RETURN NUMBER
-323    ;
-324    FUNCTION get_code_postfix
-325  	 RETURN VARCHAR2
-326    ;
-327    FUNCTION get_code_pad
-328  	 RETURN VARCHAR
-329    ;
-330    -- header
-331    FUNCTION build_script_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
-332  				   , p_schema	     IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-333  				   , p_object_type   IN VARCHAR2 DEFAULT NULL
-334  				   , p_object	     IN VARCHAR2 DEFAULT NULL
-335  				   , p_scope	     IN VARCHAR2 DEFAULT '%'
-336  				   , p_script_count  IN NUMBER	 DEFAULT 0
-337  				   , p_show_header   IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TRUE
-338  				   )
-339  	 RETURN otap_view_result_tbl PIPELINED
+304    FUNCTION schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+305  			    , p_required_user IN VARCHAR2 DEFAULT NULL
+306  			    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+307  			    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+308  			    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+309  			    )
+310  	 RETURN otap_view_result_tbl PIPELINED
+311    ;
+312  
+313    /** FUNCTION otap_generate.prepare
+314    * Maps the schema, object type and object to set, group and name, including the prefix, which prefixes the
+315    * set without delimiter and returns the function/procedure name for this mapping.
+316    *
+317    * If p_object_type is empty, p_object is not used at all and o_name is set to NULL. Only NOT NULL values included.
+318    *
+319    * The prefix gets cutted to max. 10 chars. Set, group and name are reduced to max. 30 chars. Delimiters are removed.
+320    *
+321    * @param p_title_prefix An optional title prefix. For function names cutted to 10 chars.
+322    * @param p_schema The schema to use for set. For function names cutted to 30 chars.
+323    * @param p_object_type The object type to use for group like tables, trigger and so on. For function names cutted to 30 chars.
+324    * @param p_object The object name to use for name. For function names cutted to 30 chars.
+325    * @param o_set The test set from schema and prefix. Limited to 256 chars.
+326    * @param o_group The test group from object type. Limited to 256 chars.
+327    * @param o_name The test name from object name. Limited to 256 chars.
+328    *
+329    * @return A valid function/procedure name of pattern test_(p_title_prefix)<o_set>(_<o_group>(_<o_name>)) with maximum length 128.
+330    */
+331    FUNCTION prepare( p_title_prefix IN	       VARCHAR2
+332  		       , p_schema	IN	       VARCHAR2
+333  		       , p_object_type	IN	       VARCHAR2
+334  		       , p_object	IN	       VARCHAR2
+335  		       , o_set		   OUT NOCOPY  VARCHAR2
+336  		       , o_group	   OUT NOCOPY  VARCHAR2
+337  		       , o_name 	   OUT NOCOPY  VARCHAR2
+338  		       )
+339  	 RETURN VARCHAR2
 340    ;
-341    FUNCTION build_function_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
-342  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-343  				     , p_object_type   IN VARCHAR2 DEFAULT NULL
-344  				     , p_object        IN VARCHAR2 DEFAULT NULL
-345  				     , p_scope	       IN VARCHAR2 DEFAULT '%'
-346  				     , p_script_count  IN NUMBER   DEFAULT 0
-347  				     , p_show_header   IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
-348  				     )
-349  	 RETURN otap_view_result_tbl PIPELINED
-350    ;
-351    FUNCTION build_procedure_header( p_title_prefix	IN VARCHAR2 DEFAULT NULL
-352  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-353  				      , p_object_type	IN VARCHAR2 DEFAULT NULL
-354  				      , p_object	IN VARCHAR2 DEFAULT NULL
-355  				      , p_scope 	IN VARCHAR2 DEFAULT '%'
-356  				      , p_script_count	IN NUMBER   DEFAULT 0
-357  				      , p_show_header	IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
-358  				      )
-359  	 RETURN otap_view_result_tbl PIPELINED
-360    ;
-361    FUNCTION get_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
-362  			  , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-363  			  , p_object_type   IN VARCHAR2 DEFAULT NULL
-364  			  , p_object	    IN VARCHAR2 DEFAULT NULL
-365  			  , p_scope	    IN VARCHAR2 DEFAULT '%'
-366  			  , p_script_count  IN NUMBER	DEFAULT 0
-367  			  , p_show_header   IN NUMBER	DEFAULT otap_constants.OTAP_NUM_TRUE
-368  			  )
-369  	 RETURN otap_view_result_tbl PIPELINED
+341  
+342    /** PROCEDURE otap_generate.prepare
+343    * Does the same as the function but does not return a function name.
+344    */
+345    PROCEDURE prepare( p_title_prefix IN		VARCHAR2
+346  			, p_schema	 IN		VARCHAR2
+347  			, p_object_type  IN		VARCHAR2
+348  			, p_object	 IN		VARCHAR2
+349  			, o_set 	    OUT NOCOPY	VARCHAR2
+350  			, o_group	    OUT NOCOPY	VARCHAR2
+351  			, o_name	    OUT NOCOPY	VARCHAR2
+352  			)
+353    ;
+354    -- utility functions
+355    PROCEDURE set_gen_type(p_gen_type IN VARCHAR2);
+356    FUNCTION get_gen_type
+357  	 RETURN VARCHAR2
+358    ;
+359    FUNCTION get_code_prefix
+360  	 RETURN VARCHAR2
+361    ;
+362    FUNCTION get_code_prefix_len
+363  	 RETURN NUMBER
+364    ;
+365    FUNCTION get_code_postfix
+366  	 RETURN VARCHAR2
+367    ;
+368    FUNCTION get_code_pad
+369  	 RETURN VARCHAR
 370    ;
-371    -- footer
-372    FUNCTION build_script_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
-373  	 RETURN otap_view_result_tbl PIPELINED
-374    ;
-375    FUNCTION build_function_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
-376  	 RETURN otap_view_result_tbl PIPELINED
-377    ;
-378    FUNCTION build_procedure_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
-379  	 RETURN otap_view_result_tbl PIPELINED
-380    ;
-381    FUNCTION get_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
-382  	 RETURN otap_view_result_tbl PIPELINED
-383    ;
-384    -- development helper
-385    -- determines if a column of a system table or view is NULLABLE, checks the values
-386    -- and determines the NVL to use for compares on the column. Provides the column
-387    -- name or the expression for the column name, e.g. table_name or NVL(table_name, 'n/a').
-388    -- owner of given table is always SYS. Message type is either NVL (0) or variable declaration (1).
-389    FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
-390  				   , p_column_name IN VARCHAR2
-391  				   , p_msg_type    IN NUMBER   DEFAULT 0
-392  				   )
-393  	 RETURN VARCHAR2
-394    ;
-395  
-396  END;
-397  /
+371    -- header
+372    FUNCTION build_script_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+373  				   , p_schema	     IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+374  				   , p_object_type   IN VARCHAR2 DEFAULT NULL
+375  				   , p_object	     IN VARCHAR2 DEFAULT NULL
+376  				   , p_scope	     IN VARCHAR2 DEFAULT '%'
+377  				   , p_script_count  IN NUMBER	 DEFAULT 0
+378  				   , p_show_header   IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TRUE
+379  				   )
+380  	 RETURN otap_view_result_tbl PIPELINED
+381    ;
+382    FUNCTION build_function_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+383  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+384  				     , p_object_type   IN VARCHAR2 DEFAULT NULL
+385  				     , p_object        IN VARCHAR2 DEFAULT NULL
+386  				     , p_scope	       IN VARCHAR2 DEFAULT '%'
+387  				     , p_script_count  IN NUMBER   DEFAULT 0
+388  				     , p_show_header   IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
+389  				     )
+390  	 RETURN otap_view_result_tbl PIPELINED
+391    ;
+392    FUNCTION build_procedure_header( p_title_prefix	IN VARCHAR2 DEFAULT NULL
+393  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+394  				      , p_object_type	IN VARCHAR2 DEFAULT NULL
+395  				      , p_object	IN VARCHAR2 DEFAULT NULL
+396  				      , p_scope 	IN VARCHAR2 DEFAULT '%'
+397  				      , p_script_count	IN NUMBER   DEFAULT 0
+398  				      , p_show_header	IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
+399  				      )
+400  	 RETURN otap_view_result_tbl PIPELINED
+401    ;
+402    FUNCTION get_header( p_title_prefix  IN VARCHAR2 DEFAULT NULL
+403  			  , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+404  			  , p_object_type   IN VARCHAR2 DEFAULT NULL
+405  			  , p_object	    IN VARCHAR2 DEFAULT NULL
+406  			  , p_scope	    IN VARCHAR2 DEFAULT '%'
+407  			  , p_script_count  IN NUMBER	DEFAULT 0
+408  			  , p_show_header   IN NUMBER	DEFAULT otap_constants.OTAP_NUM_TRUE
+409  			  )
+410  	 RETURN otap_view_result_tbl PIPELINED
+411    ;
+412    -- footer
+413    FUNCTION build_script_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+414  	 RETURN otap_view_result_tbl PIPELINED
+415    ;
+416    FUNCTION build_function_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+417  	 RETURN otap_view_result_tbl PIPELINED
+418    ;
+419    FUNCTION build_procedure_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+420  	 RETURN otap_view_result_tbl PIPELINED
+421    ;
+422    FUNCTION get_footer(p_show_header IN NUMBER DEFAULT otap_constants.OTAP_NUM_TRUE)
+423  	 RETURN otap_view_result_tbl PIPELINED
+424    ;
+425    -- development helper
+426    -- determines if a column of a system table or view is NULLABLE, checks the values
+427    -- and determines the NVL to use for compares on the column. Provides the column
+428    -- name or the expression for the column name, e.g. table_name or NVL(table_name, 'n/a').
+429    -- owner of given table is always SYS. Message type is either NVL (0) or variable declaration (1).
+430    FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
+431  				   , p_column_name IN VARCHAR2
+432  				   , p_msg_type    IN NUMBER   DEFAULT 0
+433  				   )
+434  	 RETURN VARCHAR2
+435    ;
+436  
+437  END;
+438  /
 
 Package created.
 
@@ -13111,390 +13152,728 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_generate
 2141  	    RAISE;
 2142  	END related_user_tests;
 2143  
-2144  	FUNCTION schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-2145  			     , p_required_user IN VARCHAR2 DEFAULT NULL
-2146  			     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-2147  			     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-2148  			     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-2149  			     )
+2144  	FUNCTION type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+2145  			   , p_schema	     IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+2146  			   , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+2147  			   , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2148  			   , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2149  			   )
 2150  	  RETURN otap_view_result_tbl PIPELINED
 2151  	IS
 2152  	  l_statement	VARCHAR2(4000 CHAR);
 2153  	  l_schema	VARCHAR2(128 CHAR);
 2154  	  l_like	VARCHAR2(256 CHAR);
 2155  	  l_test_count	INTEGER;
-2156  	  l_user_count	INTEGER;
-2157  	  l_pad_par	INTEGER;
-2158  	  CURSOR cur_user_cnt(cp_user_list IN VARCHAR2)
-2159  	  IS
-2160  	      WITH usr_list AS
-2161  		   (SELECT TRIM(REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL)) AS username
-2162  		      FROM dual
-2163  		   CONNECT BY REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL) IS NOT NULL
-2164  		   )
-2165  	    SELECT COUNT(*) AS user_cnt
-2166  	      FROM usr_list
-2167  	     WHERE username IS NOT NULL
-2168  	  ;
-2169  	  CURSOR cur_schemas( cp_like IN VARCHAR2
-2170  			    , cp_excl IN NUMBER
-2171  			    )
-2172  	  IS
-2173  	    SELECT username
-2174  	      FROM dba_users
-2175  	     WHERE username LIKE cp_like ESCAPE '\'
-2176  	       AND NOT otap_string.is_sys_object(username, cp_excl)
-2177  	  ;
-2178  	  CURSOR cur_related_users( cp_user_list IN VARCHAR2
-2179  				  , cp_prefix	 IN VARCHAR2
-2180  				  )
-2181  	  IS
-2182  	    SELECT result_text
-2183  	      FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, 0))
-2184  	  ;
-2185  	  CURSOR cur_schema_user( cp_schema IN VARCHAR2
-2186  				, cp_prefix IN VARCHAR2
-2187  				)
-2188  	  IS
-2189  	    SELECT result_text
-2190  	      FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, 0))
-2191  	  ;
-2192  	  CURSOR cur_tables( cp_like   IN VARCHAR2
-2193  			   , cp_schema IN VARCHAR2
-2194  			   , cp_prefix IN VARCHAR2
-2195  			   , cp_excl   IN NUMBER
-2196  			   )
-2197  	  IS
-2198  	    SELECT result_text
-2199  	      FROM TABLE(otap_generate.table_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
-2200  	  ;
-2201  	  CURSOR cur_trigger( cp_like	IN VARCHAR2
-2202  			    , cp_schema IN VARCHAR2
-2203  			    , cp_prefix IN VARCHAR2
-2204  			    , cp_excl	IN NUMBER
-2205  			    )
-2206  	  IS
-2207  	    SELECT result_text
-2208  	      FROM TABLE(otap_generate.trigger_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
-2209  	  ;
-2210  	  CURSOR cur_packages( cp_like	 IN VARCHAR2
-2211  			     , cp_schema IN VARCHAR2
-2212  			     , cp_prefix IN VARCHAR2
-2213  			     , cp_excl	 IN NUMBER
-2214  			     )
-2215  	  IS
-2216  	    SELECT result_text
-2217  	      FROM TABLE(otap_generate.package_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
-2218  	  ;
-2219  	  CURSOR cur_views( cp_like   IN VARCHAR2
-2220  			  , cp_schema IN VARCHAR2
-2221  			  , cp_prefix IN VARCHAR2
-2222  			  , cp_excl   IN NUMBER
-2223  			  )
-2224  	  IS
-2225  	    SELECT result_text
-2226  	      FROM TABLE(otap_generate.view_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
-2227  	  ;
-2228  	  CURSOR cur_header( cp_prefix IN VARCHAR2
-2229  			   , cp_schema IN VARCHAR2
-2230  			   , cp_type   IN VARCHAR2
-2231  			   , cp_object IN VARCHAR2
-2232  			   , cp_scope  IN VARCHAR2
-2233  			   , cp_count  IN NUMBER
-2234  			   , cp_show   IN NUMBER
-2235  			   )
-2236  	  IS
-2237  	    SELECT result_text
-2238  	      FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
-2239  	  ;
-2240  	  CURSOR cur_footer(cp_show IN NUMBER)
-2241  	  IS
-2242  	    SELECT result_text
-2243  	      FROM TABLE(otap_generate.get_footer(cp_show))
-2244  	  ;
-2245  	  CURSOR cur_test_count( cp_excl_sysgen IN NUMBER
-2246  			       , cp_like	IN VARCHAR2
-2247  			       , cp_usr_cnt	IN NUMBER
-2248  			       )
-2249  	  IS
-2250  	     WITH base AS
-2251  		 (SELECT object_name
-2252  		       , object_type
-2253  		       , owner
-2254  		    FROM dba_objects
-2255  			 -- user like condition
-2256  		   WHERE owner LIKE cp_like ESCAPE '\'
-2257  			 -- currently supported objects
-2258  		     AND (   object_type   IN ('TABLE', 'FUNCTION', 'PROCEDURE')
-2259  			  OR object_type LIKE '%VIEW'
-2260  			  OR object_type LIKE 'PACKAGE%'
-2261  			 )
-2262  			 -- user exclude condition
-2263  		     AND NOT otap_string.is_sys_object(object_name, cp_excl_sysgen)
-2264  		 )
-2265  		 -- counter objects
-2266  	       , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
-2267  		 -- depending procedures
-2268  	       , prc AS
-2269  		 (SELECT dbp.procedure_name
-2270  		       , dbp.object_name
-2271  		       , dbp.object_type
-2272  		    FROM dba_procedures dbp
-2273  		   INNER JOIN base
-2274  		      ON dbp.object_name = base.object_name
-2275  		     AND dbp.object_type = base.object_type
-2276  		     AND dbp.owner	 = base.owner
-2277  			 -- exclude pure functions and procedures, already counted by base
-2278  		     AND base.object_type NOT IN ('FUNCTION', 'PROCEDURE')
-2279  			 -- user exclude condition
-2280  		   WHERE NOT otap_string.is_sys_object(dbp.procedure_name, cp_excl_sysgen)
-2281  		 )
-2282  	       , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
-2283  	       , cols AS
-2284  		 (SELECT dbc.owner
-2285  		       , dbc.table_name
-2286  		       , dbc.column_name
-2287  		    FROM dba_tab_columns dbc
-2288  		   INNER JOIN base
-2289  		      ON dbc.owner	= base.owner
-2290  		     AND dbc.table_name = base.object_name
-2291  			 -- user exclude condition
-2292  		   WHERE NOT otap_string.is_sys_object(dbc.column_name, cp_excl_sysgen)
-2293  		 )
-2294  	       , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
-2295  		 -- table triggers
-2296  	       , trgt AS
-2297  		 (SELECT dbt.owner
-2298  		       , dbt.trigger_name
-2299  		       , dbt.table_owner
-2300  		    FROM dba_triggers dbt
-2301  		   INNER JOIN base
-2302  		      ON dbt.table_owner      = base.owner
-2303  		     AND dbt.table_name       = base.object_name
-2304  		     AND dbt.base_object_type = base.object_type
-2305  		   WHERE dbt.table_name     IS NOT NULL
-2306  			 -- user exclude condition
-2307  		     AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
-2308  		 )
-2309  	       , cnt_trgt AS (SELECT COUNT(*) AS expected_count FROM trgt)
-2310  	       , trgs AS
-2311  		 (SELECT dbt.owner
-2312  		       , dbt.trigger_name
-2313  		       , dbt.table_owner
-2314  		    FROM dba_triggers dbt
-2315  		   INNER JOIN base
-2316  		      ON dbt.owner = base.owner
-2317  		   WHERE dbt.table_name     IS NULL
-2318  			 -- user exclude condition
-2319  		     AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
-2320  		 )
-2321  	       , cnt_trgs AS (SELECT COUNT(*) AS expected_count FROM trgs)
-2322  	       , cnt_schemas AS (SELECT COUNT(*) AS expected_count FROM dba_users WHERE username LIKE cp_like ESCAPE '\')
-2323  	       , cnt AS
-2324  		 (SELECT expected_count, 'BASE' AS info FROM cnt_base
-2325  		   UNION ALL
-2326  		  SELECT expected_count, 'PROCEDURES' AS info FROM cnt_prc
-2327  		   UNION ALL
-2328  		  SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
-2329  		   UNION ALL
-2330  		  SELECT expected_count, 'TABLE TRIGGER' AS info FROM cnt_trgt
-2331  		   UNION ALL
-2332  		  SELECT expected_count, 'SCHEMA TRIGGER' AS info FROM cnt_trgs
-2333  		   UNION ALL
-2334  		  SELECT expected_count, 'SCHEMAS' AS info FROM cnt_schemas
-2335  		   UNION ALL
-2336  		  SELECT cp_usr_cnt AS expected_count, 'USER TESTS' AS info FROM dual
-2337  		 )
-2338  	  SELECT SUM(expected_count) AS test_count
-2339  	  FROM cnt
-2340  	  ;
-2341  	BEGIN
-2342  	  l_like       := NVL(p_like_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
-2343  	  l_schema     := otap_string.reduce(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 128);
-2344  	  -- get test count, simulate conditions of called test generators
-2345  	  OPEN cur_user_cnt(p_required_user);
-2346  	  FETCH cur_user_cnt INTO l_user_count;
-2347  	  CLOSE cur_user_cnt;
-2348  	  OPEN cur_test_count(p_excl_sysgen, p_like_schema, l_user_count);
-2349  	  FETCH cur_test_count INTO l_test_count;
-2350  	  CLOSE cur_test_count;
-2351  	  -- get header
-2352  	  FOR rec IN cur_header(p_title_prefix, l_schema, 'schemas', NULL, l_like, l_test_count, p_show_header)
-2353  	  LOOP
-2354  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2355  	  END LOOP;
-2356  	  -- get related users if any
-2357  	  IF l_user_count > 0
-2358  	  THEN
-2359  	    -- build test set
-2360  	    l_statement := otap_generate.get_code_pad || '-- set test set for schema';
-2361  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
-2362  	    l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''Required users'')' || otap_generate.get_code_postfix;
+2156  	  l_pad_par	INTEGER;
+2157  	  CURSOR cur_types( cp_schema IN VARCHAR2
+2158  			  , cp_like   IN VARCHAR2
+2159  			  , cp_excl   IN NUMBER
+2160  			  )
+2161  	  IS
+2162  	    SELECT dbo.owner
+2163  		 , dbo.object_name
+2164  		 , dbo.object_type
+2165  		 , dbt.typecode
+2166  		 , dbt.predefined
+2167  		 , dbt.incomplete
+2168  		 , dbt.attributes
+2169  		 , dbt.methods
+2170  		 , dbt.final
+2171  		 , dbt.instantiable
+2172  		 , dbt.persistable
+2173  	      FROM dba_objects dbo
+2174  	      LEFT OUTER JOIN dba_types dbt
+2175  		ON dbo.owner = dbt.owner
+2176  	       AND dbo.object_name = dbt.type_name
+2177  	     WHERE dbo.owner	      = cp_schema
+2178  	       AND dbo.object_type    = 'TYPE'
+2179  	       AND dbo.object_name LIKE cp_like ESCAPE '\'
+2180  	       AND NOT otap_string.is_sys_object(dbo.object_name, cp_excl)
+2181  	  ;
+2182  	  CURSOR cur_header( cp_prefix IN VARCHAR2
+2183  			   , cp_schema IN VARCHAR2
+2184  			   , cp_type   IN VARCHAR2
+2185  			   , cp_object IN VARCHAR2
+2186  			   , cp_scope  IN VARCHAR2
+2187  			   , cp_count  IN NUMBER
+2188  			   , cp_show   IN NUMBER
+2189  			   )
+2190  	  IS
+2191  	    SELECT result_text
+2192  	      FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+2193  	  ;
+2194  	  CURSOR cur_footer(cp_show IN NUMBER)
+2195  	  IS
+2196  	    SELECT result_text
+2197  	      FROM TABLE(otap_generate.get_footer(cp_show))
+2198  	  ;
+2199  	BEGIN
+2200  	  l_like   := NVL(p_like_type, '%');
+2201  	  l_schema := otap_string.reduce(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')), 128);
+2202  	  -- get count
+2203  	  SELECT COUNT(*)
+2204  	    INTO l_test_count
+2205  	    FROM dba_objects dbo
+2206  	    LEFT OUTER JOIN dba_types dbt
+2207  	      ON dbo.owner = dbt.owner
+2208  	     AND dbo.object_name = dbt.type_name
+2209  	   WHERE dbo.owner	    = l_schema
+2210  	     AND dbo.object_type    = 'TYPE'
+2211  	     AND dbo.object_name LIKE l_like ESCAPE '\'
+2212  	     AND NOT otap_string.is_sys_object(dbo.object_name, p_excl_sysgen)
+2213  	  ;
+2214  	  -- get header
+2215  	  FOR rec IN cur_header(p_title_prefix, l_schema, 'types', NULL, l_like, l_test_count, p_show_header)
+2216  	  LOOP
+2217  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2218  	  END LOOP;
+2219  	  l_pad_par := otap_generate.get_code_prefix_len + 18;
+2220  	  -- build name row
+2221  	  l_statement := otap_generate.get_code_pad || '-- set test name for types';
+2222  	  PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2223  	  l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_name(''types'')' || otap_generate.get_code_postfix;
+2224  	  PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2225  	  FOR rec in cur_types(l_schema, l_like, p_excl_sysgen)
+2226  	  LOOP
+2227  	    l_statement := otap_generate.get_code_prefix || 'otap_test.has_type( p_type_name => ''' || rec.object_name || '''';
+2228  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2229  	    IF rec.typecode IS NOT NULL
+2230  	    THEN
+2231  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_typecode => ''' || rec.typecode || '''';
+2232  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2233  	    END IF;
+2234  	    IF rec.attributes IS NOT NULL
+2235  	    THEN
+2236  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_attributes => ''' || rec.attributes || '''';
+2237  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2238  	    END IF;
+2239  	    IF rec.methods IS NOT NULL
+2240  	    THEN
+2241  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_methods => ''' || rec.methods || '''';
+2242  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2243  	    END IF;
+2244  	    IF rec.predefined IS NOT NULL
+2245  	    THEN
+2246  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_predefined => ''' || rec.predefined || '''';
+2247  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2248  	    END IF;
+2249  	    IF rec.incomplete IS NOT NULL
+2250  	    THEN
+2251  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_incomplete => ''' || rec.incomplete || '''';
+2252  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2253  	    END IF;
+2254  	    IF rec.final IS NOT NULL
+2255  	    THEN
+2256  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_final => ''' || rec.final || '''';
+2257  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2258  	    END IF;
+2259  	    IF rec.persistable IS NOT NULL
+2260  	    THEN
+2261  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_persistable => ''' || rec.persistable || '''';
+2262  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2263  	    END IF;
+2264  	    l_statement := LPAD(' ', l_pad_par, ' ') || ', p_schema => ''' || rec.owner || '''';
+2265  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2266  	    l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+2267  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2268  	  END LOOP;
+2269  	  FOR rec IN cur_footer(p_show_header)
+2270  	  LOOP
+2271  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2272  	  END LOOP;
+2273  	  RETURN;
+2274  	EXCEPTION
+2275  	  WHEN NO_DATA_NEEDED THEN
+2276  	    RAISE;
+2277  	END type_tests;
+2278  
+2279  	FUNCTION sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+2280  			       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+2281  			       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+2282  			       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2283  			       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2284  			       )
+2285  	  RETURN otap_view_result_tbl PIPELINED
+2286  	IS
+2287  	  l_statement	VARCHAR2(4000 CHAR);
+2288  	  l_schema	VARCHAR2(128 CHAR);
+2289  	  l_like	VARCHAR2(256 CHAR);
+2290  	  l_test_count	INTEGER;
+2291  	  l_pad_par	INTEGER;
+2292  	  -- no reduction on system generated, resolve in code
+2293  	  CURSOR cur_sequences( cp_schema IN VARCHAR2
+2294  			      , cp_like   IN VARCHAR2
+2295  			      )
+2296  	  IS
+2297  	    SELECT dbs.sequence_owner
+2298  		 , dbs.sequence_name
+2299  		 , dti.table_name
+2300  		 , dti.column_name
+2301  		 , dbs.min_value
+2302  		 , dbs.max_value
+2303  		 , dbs.increment_by
+2304  		 , dbs.cycle_flag
+2305  		 , dbs.order_flag
+2306  		 , dbs.cache_size
+2307  		 , dbs.scale_flag
+2308  		 , dbs.extend_flag
+2309  		 , dbs.sharded_flag
+2310  		 , dbs.session_flag
+2311  		 , dbs.keep_value
+2312  		 , dti.owner AS table_owner
+2313  	      FROM dba_sequences dbs
+2314  	      LEFT OUTER JOIN dba_tab_identity_cols dti
+2315  		ON dbs.sequence_name  = dti.sequence_name
+2316  	     WHERE dbs.sequence_owner	= cp_schema
+2317  	       AND dbs.sequence_name LIKE cp_like ESCAPE '\'
+2318  	  ;
+2319  	  CURSOR cur_header( cp_prefix IN VARCHAR2
+2320  			   , cp_schema IN VARCHAR2
+2321  			   , cp_type   IN VARCHAR2
+2322  			   , cp_object IN VARCHAR2
+2323  			   , cp_scope  IN VARCHAR2
+2324  			   , cp_count  IN NUMBER
+2325  			   , cp_show   IN NUMBER
+2326  			   )
+2327  	  IS
+2328  	    SELECT result_text
+2329  	      FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+2330  	  ;
+2331  	  CURSOR cur_footer(cp_show IN NUMBER)
+2332  	  IS
+2333  	    SELECT result_text
+2334  	      FROM TABLE(otap_generate.get_footer(cp_show))
+2335  	  ;
+2336  	BEGIN
+2337  	  l_like       := NVL(p_like_sequence, '%');
+2338  	  l_schema     := otap_string.reduce(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')), 128);
+2339  	  -- get count
+2340  	  SELECT COUNT(*)
+2341  	    INTO l_test_count
+2342  	    FROM dba_sequences dbs
+2343  	    LEFT OUTER JOIN dba_tab_identity_cols dti
+2344  	      ON dbs.sequence_name  = dti.sequence_name
+2345  	   WHERE dbs.sequence_owner   = l_schema
+2346  	     AND dbs.sequence_name LIKE l_like ESCAPE '\'
+2347  	  ;
+2348  	  -- get header
+2349  	  FOR rec IN cur_header(p_title_prefix, l_schema, 'sequences', NULL, l_like, l_test_count, p_show_header)
+2350  	  LOOP
+2351  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2352  	  END LOOP;
+2353  	  l_pad_par := otap_generate.get_code_prefix_len + 22;
+2354  	  -- build name row
+2355  	  l_statement := otap_generate.get_code_pad || '-- set test name for sequences';
+2356  	  PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2357  	  l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_name(''sequences'')' || otap_generate.get_code_postfix;
+2358  	  PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2359  	  FOR rec IN cur_sequences(l_schema, l_like)
+2360  	  LOOP
+2361  	    -- start with a parameter not in order but guaranteed
+2362  	    l_statement := otap_generate.get_code_prefix || 'otap_test.has_sequence( p_schema => ''' || rec.sequence_owner || '''';
 2363  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
-2364  	    FOR rec IN cur_related_users(p_required_user, p_title_prefix)
-2365  	    LOOP
-2366  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2367  	    END LOOP;
-2368  	  END IF;
-2369  	  -- get schemas to process
-2370  	  l_pad_par := otap_generate.get_code_prefix_len + 20;
-2371  	  FOR recset IN cur_schemas(l_like, p_excl_sysgen)
-2372  	  LOOP
-2373  	    -- build set row
-2374  	    l_statement := otap_generate.get_code_pad || '-- set test set for schema';
-2375  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
-2376  	    l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''schema ' || recset.username || ''')' || otap_generate.get_code_postfix;
-2377  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
-2378  	    -- first get the schema check
-2379  	    FOR rec IN cur_schema_user(recset.username, p_title_prefix)
-2380  	    LOOP
-2381  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2382  	    END LOOP;
-2383  	    -- now get the schema objects
-2384  	    FOR rec IN cur_tables('%', recset.username, p_title_prefix, p_excl_sysgen)
-2385  	    LOOP
-2386  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2387  	    END LOOP;
-2388  	    FOR rec IN cur_trigger('%', recset.username, p_title_prefix, p_excl_sysgen)
-2389  	    LOOP
-2390  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2391  	    END LOOP;
-2392  	    FOR rec IN cur_packages('%', recset.username, p_title_prefix, p_excl_sysgen)
-2393  	    LOOP
-2394  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2395  	    END LOOP;
-2396  	    FOR rec IN cur_views('%', recset.username, p_title_prefix, p_excl_sysgen)
-2397  	    LOOP
-2398  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2399  	    END LOOP;
-2400  	  END LOOP;
-2401  	  FOR rec IN cur_footer(p_show_header)
-2402  	  LOOP
-2403  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-2404  	  END LOOP;
-2405  	  RETURN;
-2406  	EXCEPTION
-2407  	  WHEN NO_DATA_NEEDED THEN
-2408  	    RAISE;
-2409  	END schema_tests;
-2410  
-2411  	FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
-2412  				    , p_column_name IN VARCHAR2
-2413  				    , p_msg_type    IN NUMBER	DEFAULT 0
-2414  				    )
-2415  	  RETURN VARCHAR2
-2416  	IS
-2417  	  PRAGMA AUTONOMOUS_TRANSACTION;
-2418  	  l_count     INTEGER;
-2419  	  l_data_type sys.dba_tab_columns.data_type%TYPE;
-2420  	  l_nullable  sys.dba_tab_columns.nullable%TYPE;
-2421  	  l_char_len  sys.dba_tab_columns.char_length%TYPE;
-2422  	  l_statement VARCHAR2(32767 CHAR);
-2423  	  l_return    VARCHAR2(4000 CHAR);
-2424  	  l_dba_table VARCHAR2(128 CHAR);
-2425  	  l_dba_col   VARCHAR2(128 CHAR);
-2426  	BEGIN
-2427  	  IF	 p_table_name  IS NOT NULL
-2428  	     AND p_column_name IS NOT NULL
-2429  	  THEN
-2430  	    l_dba_table := otap_string.reduce(UPPER(p_table_name), 128);
-2431  	    l_dba_col	:= otap_string.reduce(UPPER(p_column_name), 128);
-2432  	    SELECT COUNT(*)
-2433  	      INTO l_count
-2434  	      FROM dba_tab_columns
-2435  	     WHERE owner = 'SYS'
-2436  	       AND table_name	= l_dba_table
-2437  	       AND column_name	= l_dba_col
-2438  	       AND data_type   IN ('VARCHAR2', 'DATE', 'NUMBER')
-2439  	    ;
-2440  	    IF l_count = 0
-2441  	    THEN
-2442  	      l_return := 'Invalid column or table name or datatype not supported';
-2443  	    ELSE
-2444  	      -- get column details
-2445  	      SELECT data_type
-2446  		   , nullable
-2447  		   , char_length
-2448  		INTO l_data_type
-2449  		   , l_nullable
-2450  		   , l_char_len
-2451  		FROM dba_tab_columns
-2452  	       WHERE owner = 'SYS'
-2453  		 AND table_name   = l_dba_table
-2454  		 AND column_name  = l_dba_col
-2455  		 AND data_type	 IN ('VARCHAR2', 'DATE', 'NUMBER')
-2456  	      ;
-2457  	      IF NVL(p_msg_type, 0) = 0
-2458  	      THEN
-2459  		IF l_nullable = 'N'
-2460  		THEN
-2461  		  l_return := LOWER(l_dba_col) || ' -- not nullable';
-2462  		  -- determine valid NULL substition
-2463  		  IF l_data_type = 'VARCHAR2'
-2464  		  THEN
-2465  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
-2466  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2467  		    l_return := l_return || CASE WHEN l_count = 0 THEN ' n/a valid substitute' ELSE ' n/a not working as substitute' END;
-2468  		  ELSIF l_data_type = 'NUMBER'
-2469  		  THEN
-2470  		    -- verify -1 is usable
-2471  		    l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
-2472  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2473  		    l_return := l_return || CASE WHEN l_count >= 0 THEN ' -1 valid substitute' ELSE ' -1 not working as substitute' END;
-2474  		  ELSE
-2475  		    -- verify 01.01.1900 is usable
-2476  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
-2477  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2478  		    l_return := l_return || CASE WHEN l_count = 0 THEN ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') valid substitute' ELSE ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') not working as substitute' END;
-2479  		  END IF;
-2480  		ELSE
-2481  		  -- determine valid NULL substition
-2482  		  IF l_data_type = 'VARCHAR2'
-2483  		  THEN
-2484  		    -- verify n/a is not used in the given field for the given table and column
-2485  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
-2486  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2487  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', ''n/a'')';
-2488  		    IF l_count != 0
-2489  		    THEN
-2490  		      l_return := l_return || ' -- n/a not save, substitute the value by a value that is not contained in the column';
-2491  		    END IF;
-2492  		  ELSIF l_data_type = 'NUMBER'
-2493  		  THEN
-2494  		    -- verify -1 is usable
-2495  		    l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
-2496  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2497  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', -1)';
-2498  		    IF l_count < 0
-2499  		    THEN
-2500  		      l_return := l_return || ' -- -1 not save, substitute the value by a value that is not contained in the column';
-2501  		    END IF;
-2502  		  ELSE
-2503  		    -- verify 01.01.1900 is usable
-2504  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
-2505  		    EXECUTE IMMEDIATE l_statement INTO l_count;
-2506  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', TO_DATE(''01.01.1900'', ''DD.MM.YYYY''))';
-2507  		    IF l_count != 0
-2508  		    THEN
-2509  		      l_return := l_return || ' -- 01.01.1900 not save, substitute the value by a value that is not contained in the column';
-2510  		    END IF;
-2511  		  END IF;
-2512  		END IF;
-2513  	      ELSE
-2514  		-- variable declaration
-2515  		l_return := 'l_' || LOWER(l_dba_col) || ' ' || l_data_type ||
-2516  			    CASE WHEN l_data_type = 'VARCHAR2' THEN '(' || TRIM(TO_CHAR(l_char_len)) || ' CHAR)' END || ';'
-2517  		;
-2518  	      END IF;
-2519  	    END IF;
-2520  	  ELSE
-2521  	    l_return := 'Try using NOT NULL values for both parameters';
-2522  	  END IF;
-2523  	  RETURN l_return;
-2524  	END get_dba_col_details;
-2525  
-2526  END;
-2527  /
+2364  	    -- handle system generated identity columns
+2365  	    IF NOT otap_string.is_sys_object(rec.sequence_name, 1)
+2366  	    THEN
+2367  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_sequence_name => ''' || rec.sequence_name || '''';
+2368  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2369  	    END IF;
+2370  	    IF rec.table_name IS NOT NULL
+2371  	    THEN
+2372  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_table_name => ''' || rec.table_name || '''';
+2373  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2374  	    END IF;
+2375  	    IF rec.column_name IS NOT NULL
+2376  	    THEN
+2377  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_column_name => ''' || rec.column_name || '''';
+2378  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2379  	    END IF;
+2380  	    IF rec.min_value IS NOT NULL
+2381  	    THEN
+2382  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_min_value => ' || TRIM(TO_CHAR(rec.min_value));
+2383  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2384  	    END IF;
+2385  	    IF rec.max_value IS NOT NULL
+2386  	    THEN
+2387  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_max_value => ' || TRIM(TO_CHAR(rec.max_value));
+2388  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2389  	    END IF;
+2390  	    IF rec.increment_by IS NOT NULL
+2391  	    THEN
+2392  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_increment_by => ' || TRIM(TO_CHAR(rec.increment_by));
+2393  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2394  	    END IF;
+2395  	    IF rec.cycle_flag IS NOT NULL
+2396  	    THEN
+2397  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_cycle_flag => ''' || rec.cycle_flag || '''';
+2398  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2399  	    END IF;
+2400  	    IF rec.order_flag IS NOT NULL
+2401  	    THEN
+2402  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_order_flag => ''' || rec.order_flag || '''';
+2403  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2404  	    END IF;
+2405  	    IF rec.cache_size IS NOT NULL
+2406  	    THEN
+2407  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_cache_size => ' || TRIM(TO_CHAR(rec.cache_size));
+2408  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2409  	    END IF;
+2410  	    IF rec.scale_flag IS NOT NULL
+2411  	    THEN
+2412  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_scale_flag => ''' || rec.scale_flag || '''';
+2413  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2414  	    END IF;
+2415  	    IF rec.extend_flag IS NOT NULL
+2416  	    THEN
+2417  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_extend_flag => ''' || rec.extend_flag || '''';
+2418  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2419  	    END IF;
+2420  	    IF rec.sharded_flag IS NOT NULL
+2421  	    THEN
+2422  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_sharded_flag => ''' || rec.sharded_flag || '''';
+2423  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2424  	    END IF;
+2425  	    IF rec.session_flag IS NOT NULL
+2426  	    THEN
+2427  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_session_flag => ''' || rec.session_flag || '''';
+2428  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2429  	    END IF;
+2430  	    IF rec.keep_value IS NOT NULL
+2431  	    THEN
+2432  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_keep_value => ''' || rec.keep_value || '''';
+2433  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2434  	    END IF;
+2435  	    IF rec.table_owner IS NOT NULL
+2436  	    THEN
+2437  	      l_statement := LPAD(' ', l_pad_par, ' ') || ', p_table_owner => ''' || rec.table_owner || '''';
+2438  	      PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2439  	    END IF;
+2440  	    l_statement := LPAD(' ', l_pad_par, ' ') || ')' || otap_generate.get_code_postfix;
+2441  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2442  	  END LOOP;
+2443  	  FOR rec IN cur_footer(p_show_header)
+2444  	  LOOP
+2445  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2446  	  END LOOP;
+2447  	  RETURN;
+2448  	EXCEPTION
+2449  	  WHEN NO_DATA_NEEDED THEN
+2450  	    RAISE;
+2451  	END sequence_tests;
+2452  
+2453  	FUNCTION schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+2454  			     , p_required_user IN VARCHAR2 DEFAULT NULL
+2455  			     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+2456  			     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2457  			     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+2458  			     )
+2459  	  RETURN otap_view_result_tbl PIPELINED
+2460  	IS
+2461  	  l_statement	VARCHAR2(4000 CHAR);
+2462  	  l_schema	VARCHAR2(128 CHAR);
+2463  	  l_like	VARCHAR2(256 CHAR);
+2464  	  l_test_count	INTEGER;
+2465  	  l_user_count	INTEGER;
+2466  	  l_pad_par	INTEGER;
+2467  	  CURSOR cur_user_cnt(cp_user_list IN VARCHAR2)
+2468  	  IS
+2469  	      WITH usr_list AS
+2470  		   (SELECT TRIM(REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL)) AS username
+2471  		      FROM dual
+2472  		   CONNECT BY REGEXP_SUBSTR(cp_user_list, '[^,]+', 1, LEVEL) IS NOT NULL
+2473  		   )
+2474  	    SELECT COUNT(*) AS user_cnt
+2475  	      FROM usr_list
+2476  	     WHERE username IS NOT NULL
+2477  	  ;
+2478  	  CURSOR cur_schemas( cp_like IN VARCHAR2
+2479  			    , cp_excl IN NUMBER
+2480  			    )
+2481  	  IS
+2482  	    SELECT username
+2483  	      FROM dba_users
+2484  	     WHERE username LIKE cp_like ESCAPE '\'
+2485  	       AND NOT otap_string.is_sys_object(username, cp_excl)
+2486  	  ;
+2487  	  CURSOR cur_related_users( cp_user_list IN VARCHAR2
+2488  				  , cp_prefix	 IN VARCHAR2
+2489  				  )
+2490  	  IS
+2491  	    SELECT result_text
+2492  	      FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, 0))
+2493  	  ;
+2494  	  CURSOR cur_schema_user( cp_schema IN VARCHAR2
+2495  				, cp_prefix IN VARCHAR2
+2496  				)
+2497  	  IS
+2498  	    SELECT result_text
+2499  	      FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, 0))
+2500  	  ;
+2501  	  CURSOR cur_tables( cp_like   IN VARCHAR2
+2502  			   , cp_schema IN VARCHAR2
+2503  			   , cp_prefix IN VARCHAR2
+2504  			   , cp_excl   IN NUMBER
+2505  			   )
+2506  	  IS
+2507  	    SELECT result_text
+2508  	      FROM TABLE(otap_generate.table_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
+2509  	  ;
+2510  	  CURSOR cur_trigger( cp_like	IN VARCHAR2
+2511  			    , cp_schema IN VARCHAR2
+2512  			    , cp_prefix IN VARCHAR2
+2513  			    , cp_excl	IN NUMBER
+2514  			    )
+2515  	  IS
+2516  	    SELECT result_text
+2517  	      FROM TABLE(otap_generate.trigger_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
+2518  	  ;
+2519  	  CURSOR cur_packages( cp_like	 IN VARCHAR2
+2520  			     , cp_schema IN VARCHAR2
+2521  			     , cp_prefix IN VARCHAR2
+2522  			     , cp_excl	 IN NUMBER
+2523  			     )
+2524  	  IS
+2525  	    SELECT result_text
+2526  	      FROM TABLE(otap_generate.package_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
+2527  	  ;
+2528  	  CURSOR cur_views( cp_like   IN VARCHAR2
+2529  			  , cp_schema IN VARCHAR2
+2530  			  , cp_prefix IN VARCHAR2
+2531  			  , cp_excl   IN NUMBER
+2532  			  )
+2533  	  IS
+2534  	    SELECT result_text
+2535  	      FROM TABLE(otap_generate.view_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
+2536  	  ;
+2537  	  CURSOR cur_types( cp_like   IN VARCHAR2
+2538  			  , cp_schema IN VARCHAR2
+2539  			  , cp_prefix IN VARCHAR2
+2540  			  , cp_excl   IN NUMBER
+2541  			  )
+2542  	  IS
+2543  	    SELECT result_text
+2544  	      FROM TABLE(otap_generate.type_tests(cp_like, cp_schema, p_title_prefix, 0, cp_excl))
+2545  	  ;
+2546  	  CURSOR cur_header( cp_prefix IN VARCHAR2
+2547  			   , cp_schema IN VARCHAR2
+2548  			   , cp_type   IN VARCHAR2
+2549  			   , cp_object IN VARCHAR2
+2550  			   , cp_scope  IN VARCHAR2
+2551  			   , cp_count  IN NUMBER
+2552  			   , cp_show   IN NUMBER
+2553  			   )
+2554  	  IS
+2555  	    SELECT result_text
+2556  	      FROM TABLE(otap_generate.get_header(cp_prefix, cp_schema, cp_type, cp_object, cp_scope, cp_count, cp_show))
+2557  	  ;
+2558  	  CURSOR cur_footer(cp_show IN NUMBER)
+2559  	  IS
+2560  	    SELECT result_text
+2561  	      FROM TABLE(otap_generate.get_footer(cp_show))
+2562  	  ;
+2563  	  CURSOR cur_test_count( cp_excl_sysgen IN NUMBER
+2564  			       , cp_like	IN VARCHAR2
+2565  			       , cp_usr_cnt	IN NUMBER
+2566  			       )
+2567  	  IS
+2568  	     WITH base AS
+2569  		 (SELECT object_name
+2570  		       , object_type
+2571  		       , owner
+2572  		    FROM dba_objects
+2573  			 -- user like condition
+2574  		   WHERE owner LIKE cp_like ESCAPE '\'
+2575  			 -- currently supported objects
+2576  		     AND (   object_type   IN ('TABLE', 'FUNCTION', 'PROCEDURE')
+2577  			  OR object_type LIKE '%VIEW'
+2578  			  OR object_type LIKE 'PACKAGE%'
+2579  			 )
+2580  			 -- user exclude condition
+2581  		     AND NOT otap_string.is_sys_object(object_name, cp_excl_sysgen)
+2582  		 )
+2583  		 -- counter objects
+2584  	       , cnt_base AS (SELECT COUNT(*) AS expected_count FROM base)
+2585  		 -- depending procedures
+2586  	       , prc AS
+2587  		 (SELECT dbp.procedure_name
+2588  		       , dbp.object_name
+2589  		       , dbp.object_type
+2590  		    FROM dba_procedures dbp
+2591  		   INNER JOIN base
+2592  		      ON dbp.object_name = base.object_name
+2593  		     AND dbp.object_type = base.object_type
+2594  		     AND dbp.owner	 = base.owner
+2595  			 -- exclude pure functions and procedures, already counted by base
+2596  		     AND base.object_type NOT IN ('FUNCTION', 'PROCEDURE')
+2597  			 -- user exclude condition
+2598  		   WHERE NOT otap_string.is_sys_object(dbp.procedure_name, cp_excl_sysgen)
+2599  		 )
+2600  	       , cnt_prc AS (SELECT COUNT(*) AS expected_count FROM prc)
+2601  	       , cols AS
+2602  		 (SELECT dbc.owner
+2603  		       , dbc.table_name
+2604  		       , dbc.column_name
+2605  		    FROM dba_tab_columns dbc
+2606  		   INNER JOIN base
+2607  		      ON dbc.owner	= base.owner
+2608  		     AND dbc.table_name = base.object_name
+2609  			 -- user exclude condition
+2610  		   WHERE NOT otap_string.is_sys_object(dbc.column_name, cp_excl_sysgen)
+2611  		 )
+2612  	       , cnt_cols AS (SELECT COUNT(*) AS expected_count FROM cols)
+2613  		 -- table triggers
+2614  	       , trgt AS
+2615  		 (SELECT dbt.owner
+2616  		       , dbt.trigger_name
+2617  		       , dbt.table_owner
+2618  		    FROM dba_triggers dbt
+2619  		   INNER JOIN base
+2620  		      ON dbt.table_owner      = base.owner
+2621  		     AND dbt.table_name       = base.object_name
+2622  		     AND dbt.base_object_type = base.object_type
+2623  		   WHERE dbt.table_name     IS NOT NULL
+2624  			 -- user exclude condition
+2625  		     AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
+2626  		 )
+2627  	       , cnt_trgt AS (SELECT COUNT(*) AS expected_count FROM trgt)
+2628  	       , trgs AS
+2629  		 (SELECT dbt.owner
+2630  		       , dbt.trigger_name
+2631  		       , dbt.table_owner
+2632  		    FROM dba_triggers dbt
+2633  		   INNER JOIN base
+2634  		      ON dbt.owner = base.owner
+2635  		   WHERE dbt.table_name     IS NULL
+2636  			 -- user exclude condition
+2637  		     AND NOT otap_string.is_sys_object(dbt.trigger_name, cp_excl_sysgen)
+2638  		 )
+2639  	       , cnt_trgs AS (SELECT COUNT(*) AS expected_count FROM trgs)
+2640  	       , cnt_schemas AS (SELECT COUNT(*) AS expected_count FROM dba_users WHERE username LIKE cp_like ESCAPE '\')
+2641  	       , cnt_types AS (SELECT COUNT(*) AS expected_count
+2642  				 FROM dba_objects dbo
+2643  				 LEFT OUTER JOIN dba_types dbt
+2644  				   ON dbo.owner = dbt.owner
+2645  				  AND dbo.object_name = dbt.type_name
+2646  				WHERE dbo.owner       LIKE cp_like ESCAPE '\'
+2647  				  AND dbo.object_type	 = 'TYPE'
+2648  				  AND NOT otap_string.is_sys_object(dbo.object_name, cp_excl_sysgen)
+2649  			      )
+2650  	       , cnt AS
+2651  		 (SELECT expected_count, 'BASE' AS info FROM cnt_base
+2652  		   UNION ALL
+2653  		  SELECT expected_count, 'PROCEDURES' AS info FROM cnt_prc
+2654  		   UNION ALL
+2655  		  SELECT expected_count, 'COLUMNS' AS info FROM cnt_cols
+2656  		   UNION ALL
+2657  		  SELECT expected_count, 'TABLE TRIGGER' AS info FROM cnt_trgt
+2658  		   UNION ALL
+2659  		  SELECT expected_count, 'SCHEMA TRIGGER' AS info FROM cnt_trgs
+2660  		   UNION ALL
+2661  		  SELECT expected_count, 'SCHEMAS' AS info FROM cnt_schemas
+2662  		   UNION ALL
+2663  		  SELECT expected_count, 'TYPES' AS info FROM cnt_types
+2664  		   UNION ALL
+2665  		  SELECT cp_usr_cnt AS expected_count, 'USER TESTS' AS info FROM dual
+2666  		 )
+2667  	  SELECT SUM(expected_count) AS test_count
+2668  	  FROM cnt
+2669  	  ;
+2670  	BEGIN
+2671  	  l_like       := NVL(p_like_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+2672  	  l_schema     := otap_string.reduce(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 128);
+2673  	  -- get test count, simulate conditions of called test generators
+2674  	  OPEN cur_user_cnt(p_required_user);
+2675  	  FETCH cur_user_cnt INTO l_user_count;
+2676  	  CLOSE cur_user_cnt;
+2677  	  OPEN cur_test_count(p_excl_sysgen, p_like_schema, l_user_count);
+2678  	  FETCH cur_test_count INTO l_test_count;
+2679  	  CLOSE cur_test_count;
+2680  	  -- get header
+2681  	  FOR rec IN cur_header(p_title_prefix, l_schema, 'schemas', NULL, l_like, l_test_count, p_show_header)
+2682  	  LOOP
+2683  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2684  	  END LOOP;
+2685  	  -- get related users if any
+2686  	  IF l_user_count > 0
+2687  	  THEN
+2688  	    -- build test set
+2689  	    l_statement := otap_generate.get_code_pad || '-- set test set for schema';
+2690  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2691  	    l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''Required users'')' || otap_generate.get_code_postfix;
+2692  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2693  	    FOR rec IN cur_related_users(p_required_user, p_title_prefix)
+2694  	    LOOP
+2695  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2696  	    END LOOP;
+2697  	  END IF;
+2698  	  -- get schemas to process
+2699  	  l_pad_par := otap_generate.get_code_prefix_len + 20;
+2700  	  FOR recset IN cur_schemas(l_like, p_excl_sysgen)
+2701  	  LOOP
+2702  	    -- build set row
+2703  	    l_statement := otap_generate.get_code_pad || '-- set test set for schema';
+2704  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2705  	    l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_set(''schema ' || recset.username || ''')' || otap_generate.get_code_postfix;
+2706  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2707  	    -- first get the schema check
+2708  	    FOR rec IN cur_schema_user(recset.username, p_title_prefix)
+2709  	    LOOP
+2710  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2711  	    END LOOP;
+2712  	    -- now get the schema objects
+2713  	    FOR rec IN cur_tables('%', recset.username, p_title_prefix, p_excl_sysgen)
+2714  	    LOOP
+2715  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2716  	    END LOOP;
+2717  	    FOR rec IN cur_trigger('%', recset.username, p_title_prefix, p_excl_sysgen)
+2718  	    LOOP
+2719  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2720  	    END LOOP;
+2721  	    FOR rec IN cur_packages('%', recset.username, p_title_prefix, p_excl_sysgen)
+2722  	    LOOP
+2723  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2724  	    END LOOP;
+2725  	    FOR rec IN cur_views('%', recset.username, p_title_prefix, p_excl_sysgen)
+2726  	    LOOP
+2727  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2728  	    END LOOP;
+2729  	    -- set group name for types and other not specialy treated objects
+2730  	    l_statement := otap_generate.get_code_pad || '-- set test group for remaining object';
+2731  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2732  	    l_statement := otap_generate.get_code_prefix || 'otap_test.set_test_group(''other objects'')' || otap_generate.get_code_postfix;
+2733  	    PIPE ROW (otap_view_result_rec(l_statement, NULL));
+2734  	    FOR rec IN cur_types('%', recset.username, p_title_prefix, p_excl_sysgen)
+2735  	    LOOP
+2736  	      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2737  	    END LOOP;
+2738  	  END LOOP;
+2739  	  FOR rec IN cur_footer(p_show_header)
+2740  	  LOOP
+2741  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+2742  	  END LOOP;
+2743  	  RETURN;
+2744  	EXCEPTION
+2745  	  WHEN NO_DATA_NEEDED THEN
+2746  	    RAISE;
+2747  	END schema_tests;
+2748  
+2749  	FUNCTION get_dba_col_details( p_table_name  IN VARCHAR2
+2750  				    , p_column_name IN VARCHAR2
+2751  				    , p_msg_type    IN NUMBER	DEFAULT 0
+2752  				    )
+2753  	  RETURN VARCHAR2
+2754  	IS
+2755  	  PRAGMA AUTONOMOUS_TRANSACTION;
+2756  	  l_count     INTEGER;
+2757  	  l_data_type sys.dba_tab_columns.data_type%TYPE;
+2758  	  l_nullable  sys.dba_tab_columns.nullable%TYPE;
+2759  	  l_char_len  sys.dba_tab_columns.char_length%TYPE;
+2760  	  l_statement VARCHAR2(32767 CHAR);
+2761  	  l_return    VARCHAR2(4000 CHAR);
+2762  	  l_dba_table VARCHAR2(128 CHAR);
+2763  	  l_dba_col   VARCHAR2(128 CHAR);
+2764  	BEGIN
+2765  	  IF	 p_table_name  IS NOT NULL
+2766  	     AND p_column_name IS NOT NULL
+2767  	  THEN
+2768  	    l_dba_table := otap_string.reduce(UPPER(p_table_name), 128);
+2769  	    l_dba_col	:= otap_string.reduce(UPPER(p_column_name), 128);
+2770  	    SELECT COUNT(*)
+2771  	      INTO l_count
+2772  	      FROM dba_tab_columns
+2773  	     WHERE owner = 'SYS'
+2774  	       AND table_name	= l_dba_table
+2775  	       AND column_name	= l_dba_col
+2776  	       AND data_type   IN ('VARCHAR2', 'DATE', 'NUMBER')
+2777  	    ;
+2778  	    IF l_count = 0
+2779  	    THEN
+2780  	      l_return := 'Invalid column or table name or datatype not supported';
+2781  	    ELSE
+2782  	      -- get column details
+2783  	      SELECT data_type
+2784  		   , nullable
+2785  		   , char_length
+2786  		INTO l_data_type
+2787  		   , l_nullable
+2788  		   , l_char_len
+2789  		FROM dba_tab_columns
+2790  	       WHERE owner = 'SYS'
+2791  		 AND table_name   = l_dba_table
+2792  		 AND column_name  = l_dba_col
+2793  		 AND data_type	 IN ('VARCHAR2', 'DATE', 'NUMBER')
+2794  	      ;
+2795  	      IF NVL(p_msg_type, 0) = 0
+2796  	      THEN
+2797  		IF l_nullable = 'N'
+2798  		THEN
+2799  		  l_return := LOWER(l_dba_col) || ' -- not nullable';
+2800  		  -- determine valid NULL substition
+2801  		  IF l_data_type = 'VARCHAR2'
+2802  		  THEN
+2803  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
+2804  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2805  		    l_return := l_return || CASE WHEN l_count = 0 THEN ' n/a valid substitute' ELSE ' n/a not working as substitute' END;
+2806  		  ELSIF l_data_type = 'NUMBER'
+2807  		  THEN
+2808  		    -- verify -1 is usable
+2809  		    l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
+2810  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2811  		    l_return := l_return || CASE WHEN l_count >= 0 THEN ' -1 valid substitute' ELSE ' -1 not working as substitute' END;
+2812  		  ELSE
+2813  		    -- verify 01.01.1900 is usable
+2814  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
+2815  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2816  		    l_return := l_return || CASE WHEN l_count = 0 THEN ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') valid substitute' ELSE ' TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') not working as substitute' END;
+2817  		  END IF;
+2818  		ELSE
+2819  		  -- determine valid NULL substition
+2820  		  IF l_data_type = 'VARCHAR2'
+2821  		  THEN
+2822  		    -- verify n/a is not used in the given field for the given table and column
+2823  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = ''n/a'' AND ' || l_dba_col || ' IS NOT NULL';
+2824  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2825  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', ''n/a'')';
+2826  		    IF l_count != 0
+2827  		    THEN
+2828  		      l_return := l_return || ' -- n/a not save, substitute the value by a value that is not contained in the column';
+2829  		    END IF;
+2830  		  ELSIF l_data_type = 'NUMBER'
+2831  		  THEN
+2832  		    -- verify -1 is usable
+2833  		    l_statement := 'SELECT MIN(' || l_dba_col || ') FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' IS NOT NULL';
+2834  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2835  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', -1)';
+2836  		    IF l_count < 0
+2837  		    THEN
+2838  		      l_return := l_return || ' -- -1 not save, substitute the value by a value that is not contained in the column';
+2839  		    END IF;
+2840  		  ELSE
+2841  		    -- verify 01.01.1900 is usable
+2842  		    l_statement := 'SELECT COUNT(*) FROM ' || l_dba_table || ' WHERE ' || l_dba_col || ' = TO_DATE(''01.01.1900'', ''DD.MM.YYYY'') AND ' || l_dba_col || ' IS NOT NULL';
+2843  		    EXECUTE IMMEDIATE l_statement INTO l_count;
+2844  		    l_return := 'NVL(' || LOWER(l_dba_col) || ', TO_DATE(''01.01.1900'', ''DD.MM.YYYY''))';
+2845  		    IF l_count != 0
+2846  		    THEN
+2847  		      l_return := l_return || ' -- 01.01.1900 not save, substitute the value by a value that is not contained in the column';
+2848  		    END IF;
+2849  		  END IF;
+2850  		END IF;
+2851  	      ELSE
+2852  		-- variable declaration
+2853  		l_return := 'l_' || LOWER(l_dba_col) || ' ' || l_data_type ||
+2854  			    CASE WHEN l_data_type = 'VARCHAR2' THEN '(' || TRIM(TO_CHAR(l_char_len)) || ' CHAR)' END || ';'
+2855  		;
+2856  	      END IF;
+2857  	    END IF;
+2858  	  ELSE
+2859  	    l_return := 'Try using NOT NULL values for both parameters';
+2860  	  END IF;
+2861  	  RETURN l_return;
+2862  	END get_dba_col_details;
+2863  
+2864  END;
+2865  /
 
 Package body created.
 
@@ -14558,8 +14937,52 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 1042  	  RETURN otap_view_result_tbl PIPELINED
 1043  	;
 1044  
-1045  END;
-1046  /
+1045  	/** FUNCTION otap_test.generate_type_tests
+1046  	* Generates the test scripts for the types of the given schema with the current available
+1047  	* otap schema functions. Provides name (types) management. Limited to line size 4000 but not
+1048  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1049  	*
+1050  	* @param p_like_type The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
+1051  	* @param p_schema The schema to generate the type tests for. Default is current schema.
+1052  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1053  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1054  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1055  	*
+1056  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1057  	*/
+1058  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+1059  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1060  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1061  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1062  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1063  				    )
+1064  	  RETURN otap_view_result_tbl PIPELINED
+1065  	;
+1066  
+1067  	/** FUNCTION otap_test.generate_sequence_tests
+1068  	* Generates the test scripts for the sequences of the given schema with the current available
+1069  	* otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not
+1070  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1071  	*
+1072  	* @param p_like_sequence The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
+1073  	* @param p_schema The schema to generate the sequence tests for. Default is current schema.
+1074  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1075  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1076  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1077  	*
+1078  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1079  	*/
+1080  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+1081  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1082  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1083  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1084  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1085  					)
+1086  	  RETURN otap_view_result_tbl PIPELINED
+1087  	;
+1088  
+1089  END;
+1090  /
 
 Package created.
 
@@ -15849,8 +16272,66 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 1274  	    RAISE;
 1275  	END generate_index_tests;
 1276  
-1277  END;
-1278  /
+1277  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+1278  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1279  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1280  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1281  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1282  				    )
+1283  	  RETURN otap_view_result_tbl PIPELINED
+1284  	IS
+1285  	  CURSOR cur_tests( cp_like    IN VARCHAR2
+1286  			  , cp_schema  IN VARCHAR2
+1287  			  , cp_prefix  IN VARCHAR2
+1288  			  , cp_show    IN NUMBER
+1289  			  , cp_excl    IN NUMBER
+1290  			  )
+1291  	  IS
+1292  	    SELECT result_text
+1293  	      FROM TABLE(otap_generate.type_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1294  	  ;
+1295  	BEGIN
+1296  	  FOR rec IN cur_tests(p_like_type, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1297  	  LOOP
+1298  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1299  	  END LOOP;
+1300  	  RETURN;
+1301  	EXCEPTION
+1302  	  WHEN NO_DATA_NEEDED THEN
+1303  	    RAISE;
+1304  	END generate_type_tests;
+1305  
+1306  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+1307  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1308  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1309  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1310  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1311  					)
+1312  	  RETURN otap_view_result_tbl PIPELINED
+1313  	IS
+1314  	  CURSOR cur_tests( cp_like    IN VARCHAR2
+1315  			  , cp_schema  IN VARCHAR2
+1316  			  , cp_prefix  IN VARCHAR2
+1317  			  , cp_show    IN NUMBER
+1318  			  , cp_excl    IN NUMBER
+1319  			  )
+1320  	  IS
+1321  	    SELECT result_text
+1322  	      FROM TABLE(otap_generate.sequence_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1323  	  ;
+1324  	BEGIN
+1325  	  FOR rec IN cur_tests(p_like_sequence, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1326  	  LOOP
+1327  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1328  	  END LOOP;
+1329  	  RETURN;
+1330  	EXCEPTION
+1331  	  WHEN NO_DATA_NEEDED THEN
+1332  	    RAISE;
+1333  	END generate_sequence_tests;
+1334  
+1335  END;
+1336  /
 
 Package body created.
 

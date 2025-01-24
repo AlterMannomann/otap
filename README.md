@@ -1,16 +1,19 @@
 ![OtapLogo](https://github.com/user-attachments/assets/b2ffe1ea-b139-43bd-a204-79bed632aa52)
-# UNDER CONSTRUCTION
+# Version: otap v1.0.0-alpha.1
+See also releases.
+# UNDER DEVELOPMENT
+This is currently just an stable alpha version. Beta is on the way.
+
 You may use the script [otap_package_update.sql](./setup/otap_package_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
 ### Current changes
+- Generate fully integrated with current state
 - Add new schema test functions
 - Fix search conditions for schema functions in some NULL situations
 - Moved generate access to otap_test.
 option.
 - otap can now grant the otap user role to others
 ### Next steps
-- Provide generate options PROCEDURE and FUNCTION which can be stored, used and automatically run from a testing schema
-- Extend otap_generate, include new functions
-- Extend otap_schema (is_object_valid ...) and optional parameters of existing functions
+- Test otap functionality with otap and enhance functionality as needed
 - Enhance documentation
 - Integrate schema setup into dba setup for one step installation
 ### Current state
