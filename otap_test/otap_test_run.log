@@ -1,6 +1,6 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 390
+SQL> SELECT otap_test.init_test( p_test_count => 459
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 390
+Expected tests: 459
 Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-21 02:24:28
+Test start: 2025-01-24 02:48:57
 
 
 1 row selected.
@@ -706,11 +706,123 @@ Current test set: schema OTAP
 
 1 row selected.
 
+SQL> -- otap GENERATE test scripts SYS users
+SQL> -- LIKE scope: OTAP
+SQL> -- set test group for schema user
+SQL> SELECT otap_test.set_test_group('schema user') FROM dual;
+Current test group: schema user
+
+1 row selected.
+
+SQL> -- set test name for schema user
+SQL> SELECT otap_test.set_test_name('schema user check') FROM dual;
+Current test: schema user check
+
+1 row selected.
+
+SQL> SELECT otap_test.has_user( p_username => 'OTAP'
+  2  			      , p_account_status => 'OPEN'
+  3  			      , p_default_tablespace => 'OTAP_TABLESPACE'
+  4  			      , p_temporary_tablespace => 'TEMP'
+  5  			      , p_local_temp_tablespace => 'TEMP'
+  6  			      , p_profile => 'DEFAULT'
+  7  			      , p_password_versions => '11G 12C'
+  8  			      , p_authentication_type => 'PASSWORD'
+  9  			      , p_proxy_only_connect => 'N'
+ 10  			      , p_protected => 'NO'
+ 11  			      , p_read_only => 'NO'
+ 12  			      ) FROM dual;
+Passed user OTAP exists check (SYS)
+
+1 row selected.
+
 SQL> -- otap GENERATE test scripts OTAP tables
 SQL> -- LIKE scope: %
 SQL> -- set test group for tables
 SQL> SELECT otap_test.set_test_group('tables') FROM dual;
 Current test group: tables
+
+1 row selected.
+
+SQL> -- set test name for table
+SQL> SELECT otap_test.set_test_name('table SPERRORLOG') FROM dual;
+Current test: table SPERRORLOG
+
+1 row selected.
+
+SQL> SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
+  2  			       , p_schema => 'OTAP'
+  3  			       ) FROM dual;
+Passed table SPERRORLOG exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP columns SPERRORLOG
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'USERNAME'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 1024
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column SPERRORLOG.USERNAME exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'TIMESTAMP'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'TIMESTAMP(6)'
+  5  				, p_data_length => 11
+  6  				, p_data_scale => 6
+  7  				, p_nullable => 'Y'
+  8  				) FROM dual;
+Passed column SPERRORLOG.TIMESTAMP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'SCRIPT'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'CLOB'
+  5  				, p_data_length => 4000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column SPERRORLOG.SCRIPT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'IDENTIFIER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 1024
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column SPERRORLOG.IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'MESSAGE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'CLOB'
+  5  				, p_data_length => 4000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column SPERRORLOG.MESSAGE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
+  2  				, p_column_name => 'STATEMENT'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'CLOB'
+  5  				, p_data_length => 4000
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column SPERRORLOG.STATEMENT exists check (OTAP)
 
 1 row selected.
 
@@ -865,6 +977,151 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_CONFIG.CONFIG_DESCRIPTION exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP constraints OTAP_CONFIG
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_CONFIG'
+  2  				    , p_constraint_type => 'C'
+  3  				    , p_column_name => 'CONFIG_MAX_LENGTH'
+  4  				    , p_constraint => 'OTAP_CONFIG_CHK_MAX_LENGTH'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed check constraint OTAP_CONFIG_CHK_MAX_LENGTH for column OTAP_CONFIG.CONFIG_MAX_LENGTH exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_CONFIG'
+  2  				    , p_constraint_type => 'C'
+  3  				    , p_column_name => 'TRANSLATABLE'
+  4  				    , p_constraint => 'OTAP_CONFIG_CHK_TRANSLATABLE'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed check constraint OTAP_CONFIG_CHK_TRANSLATABLE for column OTAP_CONFIG.TRANSLATABLE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_CONFIG'
+  2  				    , p_constraint_type => 'C'
+  3  				    , p_column_name => 'CONFIG_TYPE'
+  4  				    , p_constraint => 'OTAP_CONFIG_CHK_TYPE'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed check constraint OTAP_CONFIG_CHK_TYPE for column OTAP_CONFIG.CONFIG_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_CONFIG'
+  2  				    , p_constraint_type => 'P'
+  3  				    , p_column_name => 'CONFIG_NAME'
+  4  				    , p_constraint => 'OTAP_CONFIG_PK'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed primary key constraint OTAP_CONFIG_PK for column OTAP_CONFIG.CONFIG_NAME exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CONFIG_MAX_LENGTH'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CONFIG_MAX_LENGTH exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CONFIG_NAME'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CONFIG_NAME exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CONFIG_TYPE'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CONFIG_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CONFIG_VALUE'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CONFIG_VALUE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CREATED'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CREATED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CREATED_BY'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CREATED_BY exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'CREATED_BY_OS'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.CREATED_BY_OS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'TRANSLATABLE'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.TRANSLATABLE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'UPDATED'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.UPDATED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'UPDATED_BY'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.UPDATED_BY exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_CONFIG'
+  2  					     , p_column_name => 'UPDATED_BY_OS'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_CONFIG.UPDATED_BY_OS exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP indexes OTAP_CONFIG
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_CONFIG'
+  2  			       , p_column_name => 'CONFIG_NAME'
+  3  			       , p_index_name => 'OTAP_CONFIG_PK'
+  4  			       , p_index_type => 'NORMAL'
+  5  			       , p_table_type => 'TABLE'
+  6  			       , p_uniqueness => 'UNIQUE'
+  7  			       , p_tablespace_name => 'OTAP_TABLESPACE'
+  8  			       , p_partitioned => 'NO'
+  9  			       ) FROM dual;
+Passed index OTAP_CONFIG_PK for table OTAP_CONFIG.CONFIG_NAME exists check (OTAP)
 
 1 row selected.
 
@@ -1087,6 +1344,188 @@ Passed column OTAP_RESULTS.TEST_ERRORS exists check (OTAP)
 
 1 row selected.
 
+SQL> -- otap GENERATE test scripts OTAP constraints OTAP_RESULTS
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_RESULTS'
+  2  				    , p_constraint_type => 'C'
+  3  				    , p_column_name => 'TEST_PASSED'
+  4  				    , p_constraint => 'OTAP_RESULTS_CHK_TEST_PASSED'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed check constraint OTAP_RESULTS_CHK_TEST_PASSED for column OTAP_RESULTS.TEST_PASSED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_RESULTS'
+  2  				    , p_constraint_type => 'C'
+  3  				    , p_column_name => 'TO_DELETE'
+  4  				    , p_constraint => 'OTAP_RESULTS_CHK_TO_DELETE'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed check constraint OTAP_RESULTS_CHK_TO_DELETE for column OTAP_RESULTS.TO_DELETE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_RESULTS'
+  2  				    , p_constraint_type => 'P'
+  3  				    , p_column_name => 'TEST_RUN_DATE'
+  4  				    , p_constraint => 'OTAP_RESULTS_PK'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed primary key constraint OTAP_RESULTS_PK for column OTAP_RESULTS.TEST_RUN_DATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_RESULTS'
+  2  				    , p_constraint_type => 'P'
+  3  				    , p_column_name => 'TEST_RUN_ID'
+  4  				    , p_constraint => 'OTAP_RESULTS_PK'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed primary key constraint OTAP_RESULTS_PK for column OTAP_RESULTS.TEST_RUN_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'DB_SCHEMA'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.DB_SCHEMA exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'DB_USER'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.DB_USER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_DESC'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_DESC exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_END'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_END exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_EXECUTOR'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_EXECUTOR exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_GROUP'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_GROUP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_NAME'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_NAME exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_PASSED'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_PASSED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_RUN_DATE'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_RUN_DATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_RUN_ID'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_RUN_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_SESSION_ID'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_SESSION_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_SET'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_SET exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TEST_START'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TEST_START exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_RESULTS'
+  2  					     , p_column_name => 'TO_DELETE'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_RESULTS.TO_DELETE exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP indexes OTAP_RESULTS
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_RESULTS'
+  2  			       , p_column_name => 'TEST_RUN_DATE'
+  3  			       , p_index_name => 'OTAP_RESULTS_PK'
+  4  			       , p_index_type => 'NORMAL'
+  5  			       , p_table_type => 'TABLE'
+  6  			       , p_uniqueness => 'UNIQUE'
+  7  			       , p_tablespace_name => 'OTAP_TABLESPACE'
+  8  			       , p_partitioned => 'NO'
+  9  			       ) FROM dual;
+Passed index OTAP_RESULTS_PK for table OTAP_RESULTS.TEST_RUN_DATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_RESULTS'
+  2  			       , p_column_name => 'TEST_RUN_ID'
+  3  			       , p_index_name => 'OTAP_RESULTS_PK'
+  4  			       , p_index_type => 'NORMAL'
+  5  			       , p_table_type => 'TABLE'
+  6  			       , p_uniqueness => 'UNIQUE'
+  7  			       , p_tablespace_name => 'OTAP_TABLESPACE'
+  8  			       , p_partitioned => 'NO'
+  9  			       ) FROM dual;
+Passed index OTAP_RESULTS_PK for table OTAP_RESULTS.TEST_RUN_ID exists check (OTAP)
+
+1 row selected.
+
 SQL> -- set test name for table
 SQL> SELECT otap_test.set_test_name('table OTAP_TRANSLATE') FROM dual;
 Current test: table OTAP_TRANSLATE
@@ -1204,6 +1643,128 @@ Passed column OTAP_TRANSLATE.UPDATED_BY_OS exists check (OTAP)
 
 1 row selected.
 
+SQL> -- otap GENERATE test scripts OTAP constraints OTAP_TRANSLATE
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  				    , p_constraint_type => 'P'
+  3  				    , p_column_name => 'LANGUAGE_ID'
+  4  				    , p_constraint => 'OTAP_TRANSLATE_PK'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed primary key constraint OTAP_TRANSLATE_PK for column OTAP_TRANSLATE.LANGUAGE_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  				    , p_constraint_type => 'P'
+  3  				    , p_column_name => 'OTAP_IDENTIFIER'
+  4  				    , p_constraint => 'OTAP_TRANSLATE_PK'
+  5  				    , p_schema => 'OTAP'
+  6  				    ) FROM dual;
+Passed primary key constraint OTAP_TRANSLATE_PK for column OTAP_TRANSLATE.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'CREATED'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.CREATED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'CREATED_BY'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.CREATED_BY exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'CREATED_BY_OS'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.CREATED_BY_OS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'LABEL_TEXT'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.LABEL_TEXT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'LANGUAGE_ID'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.LANGUAGE_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'OTAP_IDENTIFIER'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'UPDATED'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.UPDATED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'UPDATED_BY'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.UPDATED_BY exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_not_null_constraint( p_table_name => 'OTAP_TRANSLATE'
+  2  					     , p_column_name => 'UPDATED_BY_OS'
+  3  					     , p_schema => 'OTAP'
+  4  					     ) FROM dual;
+Passed not null constraint for column OTAP_TRANSLATE.UPDATED_BY_OS exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP indexes OTAP_TRANSLATE
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_TRANSLATE'
+  2  			       , p_column_name => 'LANGUAGE_ID'
+  3  			       , p_index_name => 'OTAP_TRANSLATE_PK'
+  4  			       , p_index_type => 'NORMAL'
+  5  			       , p_table_type => 'TABLE'
+  6  			       , p_uniqueness => 'UNIQUE'
+  7  			       , p_tablespace_name => 'OTAP_TABLESPACE'
+  8  			       , p_partitioned => 'NO'
+  9  			       ) FROM dual;
+Passed index OTAP_TRANSLATE_PK for table OTAP_TRANSLATE.LANGUAGE_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_TRANSLATE'
+  2  			       , p_column_name => 'OTAP_IDENTIFIER'
+  3  			       , p_index_name => 'OTAP_TRANSLATE_PK'
+  4  			       , p_index_type => 'NORMAL'
+  5  			       , p_table_type => 'TABLE'
+  6  			       , p_uniqueness => 'UNIQUE'
+  7  			       , p_tablespace_name => 'OTAP_TABLESPACE'
+  8  			       , p_partitioned => 'NO'
+  9  			       ) FROM dual;
+Passed index OTAP_TRANSLATE_PK for table OTAP_TRANSLATE.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
 SQL> -- set test name for table
 SQL> SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
 Current test: table OTAP_LABELS_MV
@@ -1282,88 +1843,6 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for table
-SQL> SELECT otap_test.set_test_name('table SPERRORLOG') FROM dual;
-Current test: table SPERRORLOG
-
-1 row selected.
-
-SQL> SELECT otap_test.has_table( p_table_name => 'SPERRORLOG'
-  2  			       , p_schema => 'OTAP'
-  3  			       ) FROM dual;
-Passed table SPERRORLOG exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP columns SPERRORLOG
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'USERNAME'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 1024
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column SPERRORLOG.USERNAME exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'TIMESTAMP'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'TIMESTAMP(6)'
-  5  				, p_data_length => 11
-  6  				, p_data_scale => 6
-  7  				, p_nullable => 'Y'
-  8  				) FROM dual;
-Passed column SPERRORLOG.TIMESTAMP exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'SCRIPT'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'CLOB'
-  5  				, p_data_length => 4000
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column SPERRORLOG.SCRIPT exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'IDENTIFIER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 1024
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column SPERRORLOG.IDENTIFIER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'MESSAGE'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'CLOB'
-  5  				, p_data_length => 4000
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column SPERRORLOG.MESSAGE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
-  2  				, p_column_name => 'STATEMENT'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'CLOB'
-  5  				, p_data_length => 4000
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column SPERRORLOG.STATEMENT exists check (OTAP)
 
 1 row selected.
 
@@ -3138,6 +3617,16 @@ Passed function OTAP_TEST.HAS_SCHEDULER_JOB exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEDULER_JOB_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_SCHEDULER_JOB_TESTS exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_USER'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3274,6 +3763,66 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_VIEW_TESTS'
   5  				   , p_return_type => 'TABLE'
   6  				   ) FROM dual;
 Passed function OTAP_TEST.GENERATE_VIEW_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEMA_USER_TEST'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_SCHEMA_USER_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_RELATED_USER_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_RELATED_USER_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_CONSTRAINT_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_CONSTRAINT_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_INDEX_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_INDEX_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_TYPE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_TYPE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SEQUENCE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_SEQUENCE_TESTS exists check (OTAP)
 
 1 row selected.
 
@@ -3519,6 +4068,26 @@ Passed function OTAP_GENERATE.TABLE_TESTS exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CONSTRAINT_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.CONSTRAINT_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'INDEX_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.INDEX_TESTS exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TRIGGER_TESTS'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3556,6 +4125,56 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VIEW_TESTS'
   5  				   , p_return_type => 'TABLE'
   6  				   ) FROM dual;
 Passed function OTAP_GENERATE.VIEW_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_USER_TEST'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SCHEMA_USER_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'RELATED_USER_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.RELATED_USER_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TYPE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.TYPE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SEQUENCE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SEQUENCE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHED_JOB_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SCHED_JOB_TESTS exists check (OTAP)
 
 1 row selected.
 
@@ -4246,11 +4865,138 @@ Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
 
 1 row selected.
 
+SQL> -- set test group for remaining object
+SQL> SELECT otap_test.set_test_group('other objects') FROM dual;
+Current test group: other objects
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP types
+SQL> -- LIKE scope: %
+SQL> -- set test name for types
+SQL> SELECT otap_test.set_test_name('types') FROM dual;
+Current test: types
+
+1 row selected.
+
+SQL> SELECT otap_test.has_type( p_type_name => 'OTAP_SESSION'
+  2  			      , p_typecode => 'OBJECT'
+  3  			      , p_attributes => '16'
+  4  			      , p_methods => '0'
+  5  			      , p_predefined => 'NO'
+  6  			      , p_incomplete => 'NO'
+  7  			      , p_final => 'YES'
+  8  			      , p_persistable => 'YES'
+  9  			      , p_schema => 'OTAP'
+ 10  			      ) FROM dual;
+Passed type OTAP_SESSION.OBJECT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_type( p_type_name => 'OTAP_VIEW_RESULT_REC'
+  2  			      , p_typecode => 'OBJECT'
+  3  			      , p_attributes => '2'
+  4  			      , p_methods => '0'
+  5  			      , p_predefined => 'NO'
+  6  			      , p_incomplete => 'NO'
+  7  			      , p_final => 'YES'
+  8  			      , p_persistable => 'YES'
+  9  			      , p_schema => 'OTAP'
+ 10  			      ) FROM dual;
+Passed type OTAP_VIEW_RESULT_REC.OBJECT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_type( p_type_name => 'OTAP_VIEW_RESULT_TBL'
+  2  			      , p_typecode => 'COLLECTION'
+  3  			      , p_attributes => '0'
+  4  			      , p_methods => '0'
+  5  			      , p_predefined => 'NO'
+  6  			      , p_incomplete => 'NO'
+  7  			      , p_final => 'YES'
+  8  			      , p_persistable => 'YES'
+  9  			      , p_schema => 'OTAP'
+ 10  			      ) FROM dual;
+Passed type OTAP_VIEW_RESULT_TBL.COLLECTION exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP sequences
+SQL> -- LIKE scope: %
+SQL> -- set test name for sequences
+SQL> SELECT otap_test.set_test_name('sequences') FROM dual;
+Current test: sequences
+
+1 row selected.
+
+SQL> SELECT otap_test.has_sequence( p_schema => 'OTAP'
+  2  				  , p_table_name => 'OTAP_RESULTS'
+  3  				  , p_column_name => 'TEST_RUN_ID'
+  4  				  , p_min_value => 1
+  5  				  , p_max_value => 9999999999999999999999999999
+  6  				  , p_increment_by => 1
+  7  				  , p_cycle_flag => 'Y'
+  8  				  , p_order_flag => 'N'
+  9  				  , p_cache_size => 0
+ 10  				  , p_scale_flag => 'N'
+ 11  				  , p_extend_flag => 'N'
+ 12  				  , p_sharded_flag => 'N'
+ 13  				  , p_session_flag => 'N'
+ 14  				  , p_keep_value => 'N'
+ 15  				  , p_table_owner => 'OTAP'
+ 16  				  ) FROM dual;
+SELECT otap_test.has_sequence( p_schema => 'OTAP'
+       *
+ERROR at line 1:
+ORA-06553: PLS-306: wrong number or types of arguments in call to 'HAS_SEQUENCE'
+Help: https://docs.oracle.com/error-help/db/ora-06553/
+
+
+SQL> SELECT otap_test.has_sequence( p_schema => 'OTAP'
+  2  				  , p_sequence_name => 'OTAP_TEST_SESSION_SEQ'
+  3  				  , p_min_value => 1
+  4  				  , p_max_value => 9999999999999999999999999999
+  5  				  , p_increment_by => 1
+  6  				  , p_cycle_flag => 'Y'
+  7  				  , p_order_flag => 'N'
+  8  				  , p_cache_size => 0
+  9  				  , p_scale_flag => 'N'
+ 10  				  , p_extend_flag => 'N'
+ 11  				  , p_sharded_flag => 'N'
+ 12  				  , p_session_flag => 'N'
+ 13  				  , p_keep_value => 'N'
+ 14  				  ) FROM dual;
+Passed sequence OTAP_TEST_SESSION_SEQ exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP scheduler jobs
+SQL> -- LIKE scope: %
+SQL> -- set test name for scheduler jobs
+SQL> SELECT otap_test.set_test_name('scheduler jobs') FROM dual;
+Current test: scheduler jobs
+
+1 row selected.
+
+SQL> SELECT otap_test.has_scheduler_job( p_job_name => 'OTAP_MAINTENANCE'
+  2  				       , p_job_style => 'REGULAR'
+  3  				       , p_job_type => 'PLSQL_BLOCK'
+  4  				       , p_job_action => 'otap_util.result_cleanup;'
+  5  				       , p_schedule_type => 'CALENDAR'
+  6  				       , p_repeat_interval => 'FREQ=WEEKLY;BYTIME=230000;BYDAY=MON,TUE,WED,THU,FRI'
+  7  				       , p_job_class => 'DEFAULT_JOB_CLASS'
+  8  				       , p_logging_level => 'FULL'
+  9  				       , p_store_output => 'TRUE'
+ 10  				       ) FROM dual;
+Passed scheduler job OTAP_MAINTENANCE exists check (OTAP)
+
+1 row selected.
+
 SQL> --@@functionality/otap_functionality_master.sql
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 5 tests: 390 from 390 errors: 0 run time: +000000000 00:00:24.000000000 started: 2025-01-21 02:24:28
+Summary id: 5 tests: 459 from 459 errors: 0 run time: +000000000 00:00:29.000000000 started: 2025-01-24 02:48:57
 Current test settings
 Test session id: 6
 Test set: OTAP test set
@@ -4266,7 +5012,7 @@ Name precedence: Yes
 Include packages: No
 Persist: No
 Current view id: 5
-Test start: 2025-01-21 02:24:52
+Test start: 2025-01-24 02:49:26
 
 
 1 row selected.

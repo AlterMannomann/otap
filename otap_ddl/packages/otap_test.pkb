@@ -959,6 +959,7 @@ AS
   END generate_type;
 
   FUNCTION generate_schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                , p_required_user IN VARCHAR2 DEFAULT NULL
                                 , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                                 , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
                                 , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
@@ -966,16 +967,17 @@ AS
     RETURN otap_view_result_tbl PIPELINED
   IS
     CURSOR cur_tests( cp_like   IN VARCHAR2
+                    , cp_users  IN VARCHAR2
                     , cp_prefix IN VARCHAR2
                     , cp_show   IN NUMBER
                     , cp_excl   IN NUMBER
                     )
     IS
       SELECT result_text
-        FROM TABLE(otap_generate.schema_tests(cp_like, cp_prefix, cp_show, cp_excl))
+        FROM TABLE(otap_generate.schema_tests(cp_like, cp_users, cp_prefix, cp_show, cp_excl))
     ;
   BEGIN
-    FOR rec IN cur_tests(p_like_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    FOR rec IN cur_tests(p_like_schema, p_required_user, p_title_prefix, p_show_header, p_excl_sysgen)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
@@ -1163,13 +1165,204 @@ AS
       RAISE;
   END generate_view_tests;
 
-  -- debug function
-  FUNCTION get_session_var
-    RETURN OTAP_SESSION
+  FUNCTION generate_schema_user_test( p_schema        IN VARCHAR2 DEFAULT NULL
+                                    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                    )
+    RETURN otap_view_result_tbl PIPELINED
   IS
+    CURSOR cur_tests( cp_schema   IN VARCHAR2
+                    , cp_prefix   IN VARCHAR2
+                    , cp_show     IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, cp_show))
+    ;
   BEGIN
-    RETURN session_record;
-  END get_session_var;
+    FOR rec IN cur_tests(p_schema, p_title_prefix, p_show_header)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_schema_user_test;
+
+  FUNCTION generate_related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
+                                      , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                      , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                      )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_user_list IN VARCHAR2
+                    , cp_prefix    IN VARCHAR2
+                    , cp_show      IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, cp_show))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_user_list, p_title_prefix, p_show_header)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_related_user_tests;
+
+  FUNCTION generate_constraint_tests( p_table            IN VARCHAR2
+                                    , p_like_constraints IN VARCHAR2 DEFAULT '%'
+                                    , p_schema           IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                    , p_title_prefix     IN VARCHAR2 DEFAULT NULL
+                                    , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                    , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                    )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_table   IN VARCHAR2
+                    , cp_like    IN VARCHAR2
+                    , cp_schema  IN VARCHAR2
+                    , cp_prefix  IN VARCHAR2
+                    , cp_show    IN NUMBER
+                    , cp_excl    IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.constraint_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_table, p_like_constraints, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_constraint_tests;
+
+  FUNCTION generate_index_tests( p_table         IN VARCHAR2
+                               , p_like_index    IN VARCHAR2 DEFAULT '%'
+                               , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                               , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                               , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                               , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                               )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_table   IN VARCHAR2
+                    , cp_like    IN VARCHAR2
+                    , cp_schema  IN VARCHAR2
+                    , cp_prefix  IN VARCHAR2
+                    , cp_show    IN NUMBER
+                    , cp_excl    IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.index_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_table, p_like_index, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_index_tests;
+
+  FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+                              , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                              , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                              , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                              , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                              )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_like    IN VARCHAR2
+                    , cp_schema  IN VARCHAR2
+                    , cp_prefix  IN VARCHAR2
+                    , cp_show    IN NUMBER
+                    , cp_excl    IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.type_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_like_type, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_type_tests;
+
+  FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+                                  , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                  , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                  , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                  )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_like    IN VARCHAR2
+                    , cp_schema  IN VARCHAR2
+                    , cp_prefix  IN VARCHAR2
+                    , cp_show    IN NUMBER
+                    , cp_excl    IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.sequence_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_like_sequence, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_sequence_tests;
+
+  FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
+                                       , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                       , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                       , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                       )
+    RETURN otap_view_result_tbl PIPELINED
+  IS
+    CURSOR cur_tests( cp_like    IN VARCHAR2
+                    , cp_schema  IN VARCHAR2
+                    , cp_prefix  IN VARCHAR2
+                    , cp_show    IN NUMBER
+                    , cp_excl    IN NUMBER
+                    )
+    IS
+      SELECT result_text
+        FROM TABLE(otap_generate.sched_job_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+    ;
+  BEGIN
+    FOR rec IN cur_tests(p_like_job, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+    LOOP
+      PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+    END LOOP;
+    RETURN;
+  EXCEPTION
+    WHEN NO_DATA_NEEDED THEN
+      RAISE;
+  END generate_scheduler_job_tests;
 
 END;
 /
