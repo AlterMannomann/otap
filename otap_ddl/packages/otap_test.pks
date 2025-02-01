@@ -636,28 +636,6 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_test.generate_scheduler_job_tests
-  * Generates the test scripts for the scheduler jobs of the given schema with the current available
-  * otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not
-  * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-  *
-  * @param p_like_job The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
-  * @param p_schema The schema to generate the scheduler job tests for. Default is current schema.
-  * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-  * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-  * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-  *
-  * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-  */
-  FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
-                                       , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-                                       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-                                       , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-                                       , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-                                       )
-    RETURN otap_view_result_tbl PIPELINED
-  ;
-
   /** FUNCTION otap_test.has_user
   * Checks basically if a given user exists.
   *
@@ -701,12 +679,14 @@ AS
   * @param p_boolean The result of a boolean expression to check.
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
   * @return The test result as text.
   */
-  FUNCTION ok( p_boolean         IN     BOOLEAN
-             , p_description     IN     VARCHAR2 DEFAULT NULL
-             , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION ok( p_boolean         IN BOOLEAN
+             , p_description     IN VARCHAR2 DEFAULT NULL
+             , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
              )
     RETURN VARCHAR2
   ;
@@ -727,27 +707,31 @@ AS
   * @param p_want The expected data. Must have the same datatype as p_have.
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
   * @return The test result as text.
   */
-  FUNCTION is_eq( p_have            IN     VARCHAR2
-                , p_want            IN     VARCHAR2
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN VARCHAR2
+                , p_want            IN VARCHAR2
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   ;
-  FUNCTION is_eq( p_have            IN     NUMBER
-                , p_want            IN     NUMBER
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN NUMBER
+                , p_want            IN NUMBER
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   ;
-  FUNCTION is_eq( p_have            IN     DATE
-                , p_want            IN     DATE
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN DATE
+                , p_want            IN DATE
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   ;
@@ -766,34 +750,105 @@ AS
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_param Parameter for REGEXP_LIKE. 'i' is case insensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
   * @return The test result as text.
   */
-  FUNCTION match_regex( p_have            IN     VARCHAR2
-                      , p_regex           IN     VARCHAR2
-                      , p_description     IN     VARCHAR2 DEFAULT NULL
-                      , p_param           IN     VARCHAR2 DEFAULT NULL
-                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION match_regex( p_have            IN VARCHAR2
+                      , p_regex           IN VARCHAR2
+                      , p_description     IN VARCHAR2 DEFAULT NULL
+                      , p_param           IN VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                       )
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_test.match_like
+  /** FUNCTION otap_test.alike
   * Checks given data of type VARCHAR2 against an Oracle LIKE expression. LIKE is currently more reliable and easier
   * to use than Oracle REGEX implementation. But also much more limited.
   *
   * @param p_have The data to check.
   * @param p_like A valid Oracle like expression that p_have must match.
+  * @param p_case_sensitive Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
   * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
   * @return The test result as text.
   */
-  FUNCTION match_like( p_have            IN     VARCHAR2
-                     , p_like            IN     VARCHAR2
-                     , p_description     IN     VARCHAR2 DEFAULT NULL
-                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-                     )
+  FUNCTION alike( p_have            IN VARCHAR2
+                , p_like            IN VARCHAR2
+                , p_case_sensitive  IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.throws_ok
+  * Checks if a given statement or code block throws the expected error message. The expected error message must match
+  * the SQLERRM returned from exception thrown. Use throws_match or throws_like if only parts of the error message must
+  * match. If the statement starts with SELECT it is executed as is, without caring for returned columns or rows and ignoring
+  * any given header definition. The header definition is a code block for the declare section defining variables that may be
+  * needed by called functions or procedures. It is only used if the statement does not start with SELECT and if the declaration
+  * block can be executed with a NULL procedure without throwing exceptions.
+  *
+  * Function comes in two flavors, comparing SQLERRM as VARCHAR2 or the error code SQLCODE as number. It can also be used to check
+  * if a statement does not cause any exception by switching the expected result to otap_constants.OTAP_NUM_TEST_FAILED.
+  *
+  * SQL statements (SELECT, UPDATE, DELETE) MUST NOT have a trailing semicolon. otap will try to detect and remove it, but may fail.
+  * Semicolon in dynamically executed SQL statements will cause an unexpected exception.
+  *
+  * Functions and procedures MUST have a trailing semicolon, especially if more than one command is executed in the block.
+  *
+  * Syntax errors will most likely cause a different exception as the expected one and fail the test. This is especially important if
+  * you switch the expected test result. otap expects in this case, that the statement could be executed without any exception.
+  *
+  * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+  * @param p_sqlerrm Mandatory. The exact case sensitive expected error message as returned by SQLERRM after a provoked exception.
+  * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+  *
+  * Examples (english messages)
+  * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', 'ORA-01476: divisor is equal to zero') AS test_result FROM dual;
+  * SELECT otap_test.throws_ok('l_return := 1/0;', 'ORA-01476: divisor is equal to zero', 'l_return NUMBER;') AS test_result FROM dual;
+  *
+  * @return The test result as text.
+  */
+  FUNCTION throws_ok( p_statement       IN VARCHAR2
+                    , p_sqlerrm         IN VARCHAR2
+                    , p_header_def      IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.throws_ok
+  * Flavor error code SQLCODE as number. Same behavior as flavor error message. Be aware that some Oracle error codes are group error codes where
+  * the error message differs depending on the exact error cause.
+  *
+  * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+  * @param p_sqlcode Mandatory. The exact expected error code as returned by SQLCODE after a provoked exception.
+  * @param o_error Error information, if any, on the test executed.
+  * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+  *
+  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  */
+  FUNCTION throws_ok( p_statement       IN VARCHAR2
+                    , p_sqlcode         IN NUMBER
+                    , p_header_def      IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    )
     RETURN VARCHAR2
   ;
 
@@ -1001,6 +1056,28 @@ AS
                                     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
                                     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
                                     )
+    RETURN otap_view_result_tbl PIPELINED
+  ;
+
+  /** FUNCTION otap_test.generate_scheduler_job_tests
+  * Generates the test scripts for the scheduler jobs of the given schema with the current available
+  * otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not
+  * to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+  *
+  * @param p_like_job The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
+  * @param p_schema The schema to generate the scheduler job tests for. Default is current schema.
+  * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+  * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+  * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+  *
+  * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+  */
+  FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
+                                       , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+                                       , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                       , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+                                       )
     RETURN otap_view_result_tbl PIPELINED
   ;
 

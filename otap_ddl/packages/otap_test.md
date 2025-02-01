@@ -21,7 +21,7 @@ Description of the test options available with package otap_test. For a detailed
 - [ok](#function-otap_testok)
 - [is_eq](#function-otap_testis_eq)
 - [match_regex](#function-otap_testmatch_regex)
-- [match_like](#function-otap_testmatch_like)
+- [alike](#function-otap_testalike)
 - [current_summary](#function-otap_testcurrent_summary)
 - [set_test_name](#function-otap_testset_test_name)
 - [set_test_group](#function-otap_testset_test_group)
@@ -660,11 +660,7 @@ Examples:
                                ) FROM my_table WHERE id = 1;
 
 ## FUNCTION otap_test.match_regex
-Checks given data of type VARCHAR2 against an Oracle REGEX expression. Uses REGEXP_LIKE. **ATTENTION** Oracle REGEX implementation is not standard. Unix regex which work like charm take hours to implement in Oracle REGEX to work as desired. Test your expression well with Oracle before using it.
-
-Easiest way to check is
-
-    SELECT COUNT(*) FROM dual WHERE regexp_like('your string', 'your regex', 'regex param');
+Checks given data of type VARCHAR2 against an Oracle REGEX expression. Uses REGEXP_LIKE. **ATTENTION** Oracle REGEX implementation is not standard. Unix regex which work like charm take hours to implement in Oracle REGEX to work as desired. Test your expression well with Oracle before using it. As MATCHES is a reserved word this is the equivalent of matches, imatches, doesnt_match and doesnt_imatch.
 
 Should result in 1 if successful checked. You may want to prepare a with block with different string to pass them through the regular expression.
 
@@ -684,12 +680,13 @@ Examples:
     -- case insensitive
     SELECT otap.otap_test.match_regex('acggacccdaad', '^[ACGD]*$', NULL, 'i') FROM dual;
 
-## FUNCTION otap_test.match_like
-Checks given data of type VARCHAR2 against an Oracle LIKE expression. LIKE is currently more reliable and easier to use than Oracle REGEX implementation. But also much more limited.
+## FUNCTION otap_test.alike
+Checks given data of type VARCHAR2 against an Oracle LIKE expression. LIKE is currently more reliable and easier to use than Oracle REGEX implementation. But also much more limited. This is the equivalent of alike, ialike, unalike, inialike.
 
 Parameter:
 - *p_have* The data to check.
 - *p_like* A valid Oracle like expression that p_have must match.
+- *p_case_sensitive* Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
 
@@ -698,7 +695,7 @@ Parameter:
 Examples:
 
     -- simple LIKE check, must start with MY
-    SELECT otap.otap_test.match_like('MY_TABLE', 'MY%') FROM dual;
+    SELECT otap.otap_test.alike('MY_TABLE', 'MY%') FROM dual;
 
 ## FUNCTION otap_test.current_summary
 Returns a string with a current summary of the test session. Session id, run time, tests executed and test in error.

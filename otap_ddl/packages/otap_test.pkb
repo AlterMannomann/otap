@@ -779,9 +779,10 @@ AS
       RAISE;
   END has_user;
 
-  FUNCTION ok( p_boolean         IN     BOOLEAN
-             , p_description     IN     VARCHAR2 DEFAULT NULL
-             , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION ok( p_boolean         IN BOOLEAN
+             , p_description     IN VARCHAR2 DEFAULT NULL
+             , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
              )
     RETURN VARCHAR2
   IS
@@ -792,6 +793,7 @@ AS
                             , session_record
                             , p_description
                             , p_expected_result
+                            , p_schema
                             )
     ;
     RETURN l_message;
@@ -804,10 +806,11 @@ AS
       RAISE;
   END ok;
 
-  FUNCTION is_eq( p_have            IN     VARCHAR2
-                , p_want            IN     VARCHAR2
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN VARCHAR2
+                , p_want            IN VARCHAR2
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   IS
@@ -819,6 +822,7 @@ AS
                                , session_record
                                , p_description
                                , p_expected_result
+                               , p_schema
                                )
     ;
     RETURN l_message;
@@ -831,10 +835,11 @@ AS
       RAISE;
   END is_eq;
 
-  FUNCTION is_eq( p_have            IN     NUMBER
-                , p_want            IN     NUMBER
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN NUMBER
+                , p_want            IN NUMBER
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   IS
@@ -846,6 +851,7 @@ AS
                                , session_record
                                , p_description
                                , p_expected_result
+                               , p_schema
                                )
     ;
     RETURN l_message;
@@ -858,10 +864,11 @@ AS
       RAISE;
   END is_eq;
 
-  FUNCTION is_eq( p_have            IN     DATE
-                , p_want            IN     DATE
-                , p_description     IN     VARCHAR2 DEFAULT NULL
-                , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION is_eq( p_have            IN DATE
+                , p_want            IN DATE
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                 )
     RETURN VARCHAR2
   IS
@@ -873,6 +880,7 @@ AS
                                , session_record
                                , p_description
                                , p_expected_result
+                               , p_schema
                                )
     ;
     RETURN l_message;
@@ -885,11 +893,12 @@ AS
       RAISE;
   END is_eq;
 
-  FUNCTION match_regex( p_have            IN     VARCHAR2
-                      , p_regex           IN     VARCHAR2
-                      , p_description     IN     VARCHAR2 DEFAULT NULL
-                      , p_param           IN     VARCHAR2 DEFAULT NULL
-                      , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+  FUNCTION match_regex( p_have            IN VARCHAR2
+                      , p_regex           IN VARCHAR2
+                      , p_description     IN VARCHAR2 DEFAULT NULL
+                      , p_param           IN VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                       )
     RETURN VARCHAR2
   IS
@@ -902,6 +911,7 @@ AS
                                      , p_description
                                      , p_param
                                      , p_expected_result
+                                     , p_schema
                                      )
     ;
     RETURN l_message;
@@ -914,33 +924,98 @@ AS
       RAISE;
   END match_regex;
 
-  FUNCTION match_like( p_have            IN     VARCHAR2
-                     , p_like            IN     VARCHAR2
-                     , p_description     IN     VARCHAR2 DEFAULT NULL
-                     , p_expected_result IN     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-                     )
+  FUNCTION alike( p_have            IN VARCHAR2
+                , p_like            IN VARCHAR2
+                , p_case_sensitive  IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+                , p_description     IN VARCHAR2 DEFAULT NULL
+                , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                )
     RETURN VARCHAR2
   IS
     l_message VARCHAR2(4000 CHAR);
   BEGIN
     otap_api.validate_otap(session_record);
-    l_message := otap_api.match_like( p_have
-                                    , p_like
-                                    , session_record
-                                    , p_description
-                                    , p_expected_result
-                                    )
+    l_message := otap_api.alike( p_have
+                               , p_like
+                               , session_record
+                               , p_case_sensitive
+                               , p_description
+                               , p_expected_result
+                               , p_schema
+                               )
     ;
     RETURN l_message;
   EXCEPTION
     WHEN OTHERS THEN
       IF SQLCODE != -20099
       THEN
-        otap_log.log(SQLERRM, 'otap_test.match_like', 'l_message := otap_api.match_like( p_have, ...');
+        otap_log.log(SQLERRM, 'otap_test.alike', 'l_message := otap_api.alike( p_have, ...');
       END IF;
       RAISE;
-  END match_like;
+  END alike;
 
+  FUNCTION throws_ok( p_statement       IN VARCHAR2
+                    , p_sqlerrm         IN VARCHAR2
+                    , p_header_def      IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.throws_ok( p_statement
+                                   , p_sqlerrm
+                                   , session_record
+                                   , p_header_def
+                                   , p_description
+                                   , p_expected_result
+                                   , p_schema
+                                   )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.throws_ok', 'l_message := otap_api.throws_ok( p_statement, ...');
+      END IF;
+      RAISE;
+  END throws_ok;
+
+  FUNCTION throws_ok( p_statement       IN VARCHAR2
+                    , p_sqlcode         IN NUMBER
+                    , p_header_def      IN VARCHAR2 DEFAULT NULL
+                    , p_description     IN VARCHAR2 DEFAULT NULL
+                    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                    )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.throws_ok( p_statement
+                                   , p_sqlcode
+                                   , session_record
+                                   , p_header_def
+                                   , p_description
+                                   , p_expected_result
+                                   , p_schema
+                                   )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.throws_ok', 'l_message := otap_api.throws_ok( p_statement, ...');
+      END IF;
+      RAISE;
+  END throws_ok;
 
   -- generate functions
   PROCEDURE generate_set_type(p_gen_type IN VARCHAR2)

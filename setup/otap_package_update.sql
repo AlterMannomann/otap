@@ -44,6 +44,8 @@ SPOOL logs/otap_update.log
 @@../otap_ddl/packages/otap_generate.pkb
 @@../otap_ddl/packages/otap_test.pks
 @@../otap_ddl/packages/otap_test.pkb
+-- recompile invalidated objects by package recreates
+EXEC DBMS_UTILITY.COMPILE_SCHEMA(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), FALSE);
 -- ==============INSTALL end==============
 @@util/log_silent.sql
 -- check errors and display them, if so

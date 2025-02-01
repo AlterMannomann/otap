@@ -35,7 +35,7 @@ Pre-alpha, basically stable with following tests (package otap_test):
 - ok (boolean compare check)
 - is_eq (VARCHAR2, NUMBER and DATE compare check including NULL checks, see [documentation](./otap_ddl/packages/otap_test.md))
 - match_regex (regular expression check on strings)
-- match_like (LIKE expression check on strings)
+- alike (LIKE expression check on strings)
 - result view: otap_latest_test_results_v
 
 Every function supports different optional parameters (not complete in sense of available object options) to narrow the exist check. If exist check fails this does not necessarily mean the object does not exist at all. It just doesn't exist in the specified way for the test. Exist function do not check for the reason currently. Every test has to pass two steps, the test it self and no errors by wrong usage or internal problems. Result shows the test result itself in the report, Setup shows any errors either caused by usage or otap itself.

@@ -18,7 +18,7 @@ AS
   /*====================================== start package constants used by otap ======================================*/
 
   -- the following constants have get functions that can be used in SQL selects
-  OTAP_INTERNAL_VERSION_NR CONSTANT CHAR(14)            := 'v1.0.0-alpha.1';
+  OTAP_INTERNAL_VERSION_NR CONSTANT CHAR(14)            := 'v1.0.0-beta.1';
   OTAP_INTERNAL_NAME       CONSTANT CHAR(38)            := 'otap - Oracle Test Automation Protocol';
   OTAP_INTERNAL_COPYRIGHT1 CONSTANT CHAR(80)            := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
   OTAP_INTERNAL_COPYRIGHT2 CONSTANT CHAR(54)            := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';

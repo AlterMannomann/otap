@@ -2082,6 +2082,7 @@ AS
              , o_otap_session    IN OUT NOCOPY OTAP_SESSION
              , p_description     IN            VARCHAR2     DEFAULT NULL
              , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+             , p_schema          IN            VARCHAR2     DEFAULT NULL
              )
     RETURN VARCHAR2
   IS
@@ -2096,6 +2097,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2136,6 +2138,7 @@ AS
                 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                 , p_description     IN            VARCHAR2      DEFAULT NULL
                 , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN            VARCHAR2      DEFAULT NULL
                 )
     RETURN VARCHAR2
   IS
@@ -2150,6 +2153,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2190,6 +2194,7 @@ AS
                 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                 , p_description     IN            VARCHAR2      DEFAULT NULL
                 , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN            VARCHAR2      DEFAULT NULL
                 )
     RETURN VARCHAR2
   IS
@@ -2204,6 +2209,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2244,6 +2250,7 @@ AS
                 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                 , p_description     IN            VARCHAR2      DEFAULT NULL
                 , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN            VARCHAR2      DEFAULT NULL
                 )
     RETURN VARCHAR2
   IS
@@ -2258,6 +2265,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2299,6 +2307,7 @@ AS
                       , p_description     IN            VARCHAR2      DEFAULT NULL
                       , p_param           IN            VARCHAR2      DEFAULT NULL
                       , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2      DEFAULT NULL
                       )
     RETURN VARCHAR2
   IS
@@ -2313,6 +2322,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2331,7 +2341,7 @@ AS
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
         l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function DATE');
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
       -- write result
       l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
@@ -2340,7 +2350,7 @@ AS
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
         l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function DATE');
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
         -- try again
         l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
@@ -2348,15 +2358,17 @@ AS
     RETURN l_return;
   END match_regex;
 
-  FUNCTION match_like( p_have            IN            VARCHAR2
-                     , p_like            IN            VARCHAR2
-                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                     , p_description     IN            VARCHAR2      DEFAULT NULL
-                     , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-                     )
+  FUNCTION alike( p_have            IN            VARCHAR2
+                , p_like            IN            VARCHAR2
+                , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                , p_case_sensitive  IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_FALSE
+                , p_description     IN            VARCHAR2      DEFAULT NULL
+                , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                , p_schema          IN            VARCHAR2      DEFAULT NULL
+                )
     RETURN VARCHAR2
   IS
-    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.match_like';
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.alike';
     l_start            TIMESTAMP;
     l_result           INTEGER;
     l_return           VARCHAR2(4000 CHAR);
@@ -2367,6 +2379,7 @@ AS
     l_start  := SYSTIMESTAMP;
     -- default return
     l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
     -- own begin-end for the transaction after the function
     BEGIN
       -- own begin-end block for the function itself and prepare
@@ -2379,13 +2392,13 @@ AS
                                       )
         ;
         -- call function
-        l_result := otap_logic.match_like(p_have, p_like, l_errors, p_expected_result);
+        l_result := otap_logic.alike(p_have, p_like, l_errors, p_case_sensitive, p_expected_result);
       EXCEPTION
         WHEN OTHERS THEN
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
         l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function DATE');
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
       END;
       -- write result
       l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
@@ -2394,13 +2407,127 @@ AS
         -- consume error
         l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
         l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
-        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function DATE');
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
         -- try again
         l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
     END;
     -- return result or let exception happen
     RETURN l_return;
-  END match_like;
+  END alike;
+
+  FUNCTION throws_ok( p_statement       IN            VARCHAR2
+                    , p_sqlerrm         IN            VARCHAR2
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_header_def      IN            VARCHAR2      DEFAULT NULL
+                    , p_description     IN            VARCHAR2      DEFAULT NULL
+                    , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN            VARCHAR2      DEFAULT NULL
+                    )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.throws_ok';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_desc   := otap_string.reduce( otap_report.get_match_msg( p_match_type => otap_util.CFG_LABEL_EXCEPTION
+                                                                 , p_match_data => NVL(p_sqlerrm, otap_constants.OTAP_INTERNAL_NA)
+                                                                 , p_test_desc => p_description
+                                                                 )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_logic.throws_ok(p_statement, p_sqlerrm, l_errors, p_header_def, p_expected_result);
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function error message');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function error message');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END throws_ok;
+
+  FUNCTION throws_ok( p_statement       IN            VARCHAR2
+                    , p_sqlcode         IN            NUMBER
+                    , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                    , p_header_def      IN            VARCHAR2      DEFAULT NULL
+                    , p_description     IN            VARCHAR2      DEFAULT NULL
+                    , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN            VARCHAR2      DEFAULT NULL
+                    )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.throws_ok';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+    -- own begin-end for the transaction after the function
+    BEGIN
+      -- own begin-end block for the function itself and prepare
+      BEGIN
+        l_desc   := otap_string.reduce( otap_report.get_match_msg( p_match_type => otap_util.CFG_LABEL_EXCEPTION
+                                                                 , p_match_data => NVL(TRIM(TO_CHAR(p_sqlcode)), otap_constants.OTAP_INTERNAL_NA)
+                                                                 , p_test_desc => p_description
+                                                                 )
+                                      , 256
+                                      )
+        ;
+        -- call function
+        l_result := otap_logic.throws_ok(p_statement, p_sqlcode, l_errors, p_header_def, p_expected_result);
+      EXCEPTION
+        WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function error code');
+      END;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function error code');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END throws_ok;
 
 END;
 /

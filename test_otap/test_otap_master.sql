@@ -28,9 +28,9 @@ SELECT otap_test.init_test( p_test_count => 459
 ;
 
 -- call directory master scripts
-@@functionality/otap_testing_master.sql
-@@schema/otap_schema_master.sql
---@@functionality/otap_functionality_master.sql
+@@test_functionality/test_basics/test_basic_master.sql
+@@test_schema/test_schema_master.sql
+--@@functionality/test_main/test_main_master.sql
 
 -- finish test
 SELECT otap_test.finish_test FROM dual;

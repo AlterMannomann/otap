@@ -46,6 +46,9 @@ AS
                    -- scheduler job to differentiate from database job
                   UNION ALL
                  SELECT CAST('SCHEDULER JOB' AS VARCHAR2(128 CHAR)) AS object_type FROM dual
+                   -- exception for logic matches on exceptions
+                  UNION ALL
+                 SELECT CAST('EXCEPTION' AS VARCHAR2(128 CHAR)) AS object_type FROM dual
                 )
   SELECT object_type                                                            AS oracle_type
        , CAST('LABEL_' || REPLACE(object_type, ' ', '_') AS VARCHAR2(128 CHAR)) AS otap_identifier
