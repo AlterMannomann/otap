@@ -22,6 +22,9 @@ Description of the test options available with package otap_test. For a detailed
 - [is_eq](#function-otap_testis_eq)
 - [match_regex](#function-otap_testmatch_regex)
 - [alike](#function-otap_testalike)
+- [throws_ok](#function-otap_testthrows_ok)
+- [throws_matches](#function-otap_testthrows_matches)
+- [throws_like](#function-otap_testthrows_like)
 - [current_summary](#function-otap_testcurrent_summary)
 - [set_test_name](#function-otap_testset_test_name)
 - [set_test_group](#function-otap_testset_test_group)
@@ -602,6 +605,7 @@ Parameter:
 - *p_boolean* The result of a boolean expression to check.
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 
 *Return* The test result as text.
 
@@ -628,6 +632,7 @@ Parameter:
 - *p_want* The expected data. Must have the same datatype as p_have.
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 
 *Return* The test result as text.
 
@@ -670,6 +675,7 @@ Parameter:
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_param* Parameter for REGEXP_LIKE. 'i' is case insensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 
 *Return* The test result as text.
 
@@ -689,6 +695,7 @@ Parameter:
 - *p_case_sensitive* Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
 - *p_description* The test description if any. If not given, a description is generated, see template.
 - *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 
 *Return* The test result as text.
 
@@ -696,6 +703,80 @@ Examples:
 
     -- simple LIKE check, must start with MY
     SELECT otap.otap_test.alike('MY_TABLE', 'MY%') FROM dual;
+
+## FUNCTION otap_test.throws_ok
+Checks if a given statement or code block throws the expected error message. The expected error message must match the SQLERRM returned from exception thrown. Use throws_match or throws_like if only parts of the error message must match. If the statement starts with SELECT it is executed as is, without caring for returned columns or rows and ignoring any given header definition. The header definition is a code block for the declare section defining variables that may be needed by called functions or procedures. It is only used if the statement does not start with SELECT and if the declaration block can be executed with a NULL procedure without throwing exceptions.
+
+Function comes in two flavors, comparing SQLERRM as VARCHAR2 or the error code SQLCODE as number. It can also be used to check if a statement does not cause any exception by switching the expected result to otap_constants.OTAP_NUM_TEST_FAILED.
+
+SQL statements (SELECT, UPDATE, DELETE) MUST NOT have a trailing semicolon. otap will try to detect and remove it, but may fail. Semicolon in dynamically executed SQL statements will cause an unexpected exception.
+
+Functions and procedures MUST have a trailing semicolon, especially if more than one command is executed in the block.
+
+Syntax errors will most likely cause a different exception as the expected one and fail the test. This is especially important if you switch the expected test result. otap expects in this case, that the statement could be executed without any exception.
+
+- *p_statement* Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+- *p_sqlerrm* Mandatory. The exact case sensitive expected error message as returned by SQLERRM after a provoked exception.
+- *p_header_def* Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+
+*Return* The test result as text.
+
+Examples (english messages):
+
+    SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', 'ORA-01476: divisor is equal to zero') AS test_result FROM dual;
+    SELECT otap_test.throws_ok('l_return := 1/0;', 'ORA-01476: divisor is equal to zero', 'l_return NUMBER;') AS test_result FROM dual;
+
+Flavor error code SQLCODE as number. Same behavior as flavor error message. Be aware that some Oracle error codes are group error codes where the error message differs depending on the exact error cause.
+
+- *p_statement* Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+- *p_sqlcode* Mandatory. The exact expected error code as returned by SQLCODE after a provoked exception.
+- *p_header_def* Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+
+*Return* The test result as text.
+
+Example:
+
+    SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', -1476) AS test_result FROM dual;
+
+## FUNCTION otap_test.throws_matches
+Same as otap_test.throws_ok apart from using Oracle REGEXP to identify the error message.
+
+- *p_statement* Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+- *p_regex_sqlerrm* Mandatory. The regular expression to match the expected error message as returned by SQLERRM after a provoked exception.
+- *p_param* Optional valid parameter for REGEXP_LIKE. 'i' means case insensitive. Parameters are case sensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
+- *p_header_def* Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+
+*Return* The test result as text.
+
+Example (english message):
+
+    SELECT otap_test.throws_matches('SELECT 1/0 FROM dual', '.*-01476: divisor is equal to zero.*') FROM dual;
+
+## FUNCTION otap_test.throws_like
+Same as otap_test.throws_ok apart from using Oracle LIKE to identify the error message.
+
+- *p_statement* Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+- *p_like_sqlerrm* Mandatory. The LIKE expression to match the expected error message as returned by SQLERRM after a provoked exception.
+- *p_case_sensitive* Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
+- *p_header_def* Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+- *p_description* The test description if any. If not given, a description is generated, see template.
+- *p_expected_result* The expected test result as number. Default is test passed. See otap_constants.
+- *p_schema* A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+
+*Return* The test result as text.
+
+Example (english message)
+
+    SELECT otap_test.throws_like('SELECT 1/0 FROM dual', '%-01476: divisor is equal to zero%') FROM dual;
 
 ## FUNCTION otap_test.current_summary
 Returns a string with a current summary of the test session. Session id, run time, tests executed and test in error.

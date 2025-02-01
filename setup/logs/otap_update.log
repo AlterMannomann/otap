@@ -8266,26 +8266,56 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
 632    FUNCTION throws_ok( p_statement	     IN 	   VARCHAR2
 633  			 , p_sqlerrm	     IN 	   VARCHAR2
 634  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-635  			 , p_header_def      IN 	   VARCHAR2	 DEFAULT NULL
-636  			 , p_description     IN 	   VARCHAR2	 DEFAULT NULL
-637  			 , p_expected_result IN 	   NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-638  			 , p_schema	     IN 	   VARCHAR2	 DEFAULT NULL
+635  			 , p_header_def      IN 	   VARCHAR2	DEFAULT NULL
+636  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+637  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+638  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
 639  			 )
 640  	 RETURN VARCHAR2
 641    ;
 642    FUNCTION throws_ok( p_statement	     IN 	   VARCHAR2
 643  			 , p_sqlcode	     IN 	   NUMBER
 644  			 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-645  			 , p_header_def      IN 	   VARCHAR2	 DEFAULT NULL
-646  			 , p_description     IN 	   VARCHAR2	 DEFAULT NULL
-647  			 , p_expected_result IN 	   NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-648  			 , p_schema	     IN 	   VARCHAR2	 DEFAULT NULL
+645  			 , p_header_def      IN 	   VARCHAR2	DEFAULT NULL
+646  			 , p_description     IN 	   VARCHAR2	DEFAULT NULL
+647  			 , p_expected_result IN 	   NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+648  			 , p_schema	     IN 	   VARCHAR2	DEFAULT NULL
 649  			 )
 650  	 RETURN VARCHAR2
 651    ;
 652  
-653  END;
-654  /
+653    /** FUNCTION otap_api.throws_matches
+654    * @see otap_logic.throws_matches and otap_test.throws_matches
+655    */
+656    FUNCTION throws_matches( p_statement	  IN		VARCHAR2
+657  			      , p_regex_sqlerrm   IN		VARCHAR2
+658  			      , o_otap_session	  IN OUT NOCOPY OTAP_SESSION
+659  			      , p_param 	  IN		VARCHAR2     DEFAULT NULL
+660  			      , p_header_def	  IN		VARCHAR2     DEFAULT NULL
+661  			      , p_description	  IN		VARCHAR2     DEFAULT NULL
+662  			      , p_expected_result IN		NUMBER	     DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+663  			      , p_schema	  IN		VARCHAR2     DEFAULT NULL
+664  			      )
+665  	 RETURN VARCHAR2
+666    ;
+667  
+668    /** FUNCTION otap_logic.throws_like
+669    * @see otap_logic.throws_like and otap_test.throws_like
+670    */
+671    FUNCTION throws_like( p_statement       IN	     VARCHAR2
+672  			   , p_like_sqlerrm    IN	     VARCHAR2
+673  			   , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+674  			   , p_case_sensitive  IN	     NUMBER	  DEFAULT otap_constants.OTAP_NUM_FALSE
+675  			   , p_header_def      IN	     VARCHAR2	  DEFAULT NULL
+676  			   , p_description     IN	     VARCHAR2	  DEFAULT NULL
+677  			   , p_expected_result IN	     NUMBER	  DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+678  			   , p_schema	       IN	     VARCHAR2	  DEFAULT NULL
+679  			   )
+680  	 RETURN VARCHAR2
+681    ;
+682  
+683  END;
+684  /
 
 Package created.
 
@@ -10821,8 +10851,124 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 2526  	  RETURN l_return;
 2527  	END throws_ok;
 2528  
-2529  END;
-2530  /
+2529  	FUNCTION throws_matches( p_statement	   IN		 VARCHAR2
+2530  			       , p_regex_sqlerrm   IN		 VARCHAR2
+2531  			       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+2532  			       , p_param	   IN		 VARCHAR2     DEFAULT NULL
+2533  			       , p_header_def	   IN		 VARCHAR2     DEFAULT NULL
+2534  			       , p_description	   IN		 VARCHAR2     DEFAULT NULL
+2535  			       , p_expected_result IN		 NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+2536  			       , p_schema	   IN		 VARCHAR2     DEFAULT NULL
+2537  			       )
+2538  	  RETURN VARCHAR2
+2539  	IS
+2540  	  l_script	     VARCHAR2(1024 CHAR)		  := 'otap_api.throws_matches';
+2541  	  l_start	     TIMESTAMP;
+2542  	  l_result	     INTEGER;
+2543  	  l_return	     VARCHAR2(4000 CHAR);
+2544  	  l_errors	     otap_results.test_errors%TYPE;
+2545  	  l_schema	     otap_results.db_schema%TYPE;
+2546  	  l_desc	     otap_results.test_desc%TYPE;
+2547  	BEGIN
+2548  	  l_start  := SYSTIMESTAMP;
+2549  	  -- default return
+2550  	  l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+2551  	  l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+2552  	  -- own begin-end for the transaction after the function
+2553  	  BEGIN
+2554  	    -- own begin-end block for the function itself and prepare
+2555  	    BEGIN
+2556  	      l_desc   := otap_string.reduce( otap_report.get_match_msg( p_match_type => otap_util.CFG_LABEL_EXCEPTION
+2557  								       , p_match_data => NVL(p_regex_sqlerrm, otap_constants.OTAP_INTERNAL_NA)
+2558  								       , p_test_desc => p_description
+2559  								       )
+2560  					    , 256
+2561  					    )
+2562  	      ;
+2563  	      -- call function
+2564  	      l_result := otap_logic.throws_matches(p_statement, p_regex_sqlerrm, l_errors, p_param, p_header_def, p_expected_result);
+2565  	    EXCEPTION
+2566  	      WHEN OTHERS THEN
+2567  	      -- consume error
+2568  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+2569  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+2570  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+2571  	    END;
+2572  	    -- write result
+2573  	    l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+2574  	  EXCEPTION
+2575  	    WHEN OTHERS THEN
+2576  	      -- consume error
+2577  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+2578  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+2579  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+2580  	      -- try again
+2581  	      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+2582  	  END;
+2583  	  -- return result or let exception happen
+2584  	  RETURN l_return;
+2585  	END throws_matches;
+2586  
+2587  	FUNCTION throws_like( p_statement	IN	      VARCHAR2
+2588  			    , p_like_sqlerrm	IN	      VARCHAR2
+2589  			    , o_otap_session	IN OUT NOCOPY OTAP_SESSION
+2590  			    , p_case_sensitive	IN	      NUMBER	   DEFAULT otap_constants.OTAP_NUM_FALSE
+2591  			    , p_header_def	IN	      VARCHAR2	   DEFAULT NULL
+2592  			    , p_description	IN	      VARCHAR2	   DEFAULT NULL
+2593  			    , p_expected_result IN	      NUMBER	   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+2594  			    , p_schema		IN	      VARCHAR2	   DEFAULT NULL
+2595  			    )
+2596  	  RETURN VARCHAR2
+2597  	IS
+2598  	  l_script	     VARCHAR2(1024 CHAR)		  := 'otap_api.throws_like';
+2599  	  l_start	     TIMESTAMP;
+2600  	  l_result	     INTEGER;
+2601  	  l_return	     VARCHAR2(4000 CHAR);
+2602  	  l_errors	     otap_results.test_errors%TYPE;
+2603  	  l_schema	     otap_results.db_schema%TYPE;
+2604  	  l_desc	     otap_results.test_desc%TYPE;
+2605  	BEGIN
+2606  	  l_start  := SYSTIMESTAMP;
+2607  	  -- default return
+2608  	  l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+2609  	  l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+2610  	  -- own begin-end for the transaction after the function
+2611  	  BEGIN
+2612  	    -- own begin-end block for the function itself and prepare
+2613  	    BEGIN
+2614  	      l_desc   := otap_string.reduce( otap_report.get_match_msg( p_match_type => otap_util.CFG_LABEL_EXCEPTION
+2615  								       , p_match_data => NVL(p_like_sqlerrm, otap_constants.OTAP_INTERNAL_NA)
+2616  								       , p_test_desc => p_description
+2617  								       )
+2618  					    , 256
+2619  					    )
+2620  	      ;
+2621  	      -- call function
+2622  	      l_result := otap_logic.throws_like(p_statement, p_like_sqlerrm, l_errors, p_case_sensitive, p_header_def, p_expected_result);
+2623  	    EXCEPTION
+2624  	      WHEN OTHERS THEN
+2625  	      -- consume error
+2626  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+2627  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+2628  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+2629  	    END;
+2630  	    -- write result
+2631  	    l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+2632  	  EXCEPTION
+2633  	    WHEN OTHERS THEN
+2634  	      -- consume error
+2635  	      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+2636  	      l_errors := otap_string.reduce('Internal error ' || l_script || ': ' || SQLERRM, 4000);
+2637  	      otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+2638  	      -- try again
+2639  	      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+2640  	  END;
+2641  	  -- return result or let exception happen
+2642  	  RETURN l_return;
+2643  	END throws_like;
+2644  
+2645  END;
+2646  /
 
 Package body created.
 
@@ -15166,11 +15312,11 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 806    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
 807    * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 808    *
-809    * Examples (english messages)
-810    * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', 'ORA-01476: divisor is equal to zero') AS test_result FROM dual;
-811    * SELECT otap_test.throws_ok('l_return := 1/0;', 'ORA-01476: divisor is equal to zero', 'l_return NUMBER;') AS test_result FROM dual;
-812    *
-813    * @return The test result as text.
+809    * @return The test result as text.
+810    *
+811    * Examples (english messages)
+812    * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', 'ORA-01476: divisor is equal to zero') AS test_result FROM dual;
+813    * SELECT otap_test.throws_ok('l_return := 1/0;', 'ORA-01476: divisor is equal to zero', 'l_return NUMBER;') AS test_result FROM dual;
 814    */
 815    FUNCTION throws_ok( p_statement	     IN VARCHAR2
 816  			 , p_sqlerrm	     IN VARCHAR2
@@ -15188,365 +15334,419 @@ SQL> CREATE OR REPLACE PACKAGE otap_test
 828    *
 829    * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
 830    * @param p_sqlcode Mandatory. The exact expected error code as returned by SQLCODE after a provoked exception.
-831    * @param o_error Error information, if any, on the test executed.
-832    * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+831    * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+832    * @param p_description The test description if any. If not given, a description is generated, see template.
 833    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
 834    * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
 835    *
-836    * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
-837    */
-838    FUNCTION throws_ok( p_statement	     IN VARCHAR2
-839  			 , p_sqlcode	     IN NUMBER
-840  			 , p_header_def      IN VARCHAR2 DEFAULT NULL
-841  			 , p_description     IN VARCHAR2 DEFAULT NULL
-842  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-843  			 , p_schema	     IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-844  			 )
-845  	 RETURN VARCHAR2
-846    ;
-847  
-848    -- generate functionality, all generate functions only require the otap user role as they operate on meta data
-849  
-850    /** PROCEDURE otap_test.generate_set_type
-851    * Sets the generation type. Default is script (S). Options are procedure (P) or function (F).
-852    * Fallback on errors is script. This setting is only valid within the current session.
+836    * @return The test result as text.
+837    *
+838    * Example
+839    * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', -1476) AS test_result FROM dual;
+840    */
+841    FUNCTION throws_ok( p_statement	     IN VARCHAR2
+842  			 , p_sqlcode	     IN NUMBER
+843  			 , p_header_def      IN VARCHAR2 DEFAULT NULL
+844  			 , p_description     IN VARCHAR2 DEFAULT NULL
+845  			 , p_expected_result IN NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+846  			 , p_schema	     IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+847  			 )
+848  	 RETURN VARCHAR2
+849    ;
+850  
+851    /** FUNCTION otap_test.throws_matches
+852    * Same as otap_test.throws_ok apart from using Oracle REGEXP to identify the error message.
 853    *
-854    * @param p_gen_type A valid generation type. See otap_constants.OTAP_GEN_TYPE_ variables.
-855    */
-856    PROCEDURE generate_set_type(p_gen_type IN VARCHAR2);
-857  
-858    /** FUNCTION otap_test.generate_type
-859    * @return The current active generation type for the current session.
-860    */
-861    FUNCTION generate_type
-862  	 RETURN VARCHAR2
-863    ;
-864  
-865    /** FUNCTION otap_test.generate_schema_tests
-866    * Generates the test scripts for the current available otap schema functions using by default the current
-867    * schema. Test set gets defined as schema, group represents the object types, like tables, triggers and so on.
-868    * No translation provided. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you
-869    * spool the content to files.
-870    *
-871    * Including system generated objects is a good idea if your system is stable and you want to ensure that no one
-872    * changed the current state. With CI/CD or during development, when objects get recreated, it is a really bad idea.
-873    * Excluded by default are objects beginning with SYS_ for system generated object or containing $ or # chars, which
-874    * may occur anywhere in the name of system objects.
-875    *
-876    * There is no best option, some constraints like NOT NULL must be defined inline to count a column as NOT NULL.
-877    * With an additional added constraint, the column will be still marked as NULLABLE. Identity columns are another
-878    * issue, as you cannot define a name for the generated sequence. Make extra tests limited on the system generated
-879    * objects you rely on (like NOT NULL and identity).
+854    * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+855    * @param p_regex_sqlerrm Mandatory. The regular expression to match the expected error message as returned by SQLERRM after a provoked exception.
+856    * @param p_param Optional valid parameter for REGEXP_LIKE. 'i' means case insensitive. Parameters are case sensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
+857    * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+858    * @param p_description The test description if any. If not given, a description is generated, see template.
+859    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+860    * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+861    *
+862    * @return The test result as text.
+863    *
+864    * Example (english message)
+865    * SELECT otap_test.throws_matches('SELECT 1/0 FROM dual', '.*-01476: divisor is equal to zero.*') FROM dual;
+866    */
+867    FUNCTION throws_matches( p_statement	  IN VARCHAR2
+868  			      , p_regex_sqlerrm   IN VARCHAR2
+869  			      , p_param 	  IN VARCHAR2 DEFAULT NULL
+870  			      , p_header_def	  IN VARCHAR2 DEFAULT NULL
+871  			      , p_description	  IN VARCHAR2 DEFAULT NULL
+872  			      , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+873  			      , p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+874  			      )
+875  	 RETURN VARCHAR2
+876    ;
+877  
+878    /** FUNCTION otap_test.throws_like
+879    * Same as otap_test.throws_ok apart from using Oracle LIKE to identify the error message.
 880    *
-881    * @param p_like_schema The LIKE expression for schema names. Default is current schema. % will generate for all schemas in the database, be careful. Underlying objects are not limited. Case sensitive.
-882    * @param p_required_user An optional comma separated list of users required to be checked by the schema test. Will not include the selected schemas. Useful for specific schemas and integration tests.
-883    * @param p_title_prefix An optional title prefix for set, group and test names. Limited to 10 chars. Will be added without delimiter to the processed schema.
-884    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-885    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
-886    *
-887    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-888    */
-889    FUNCTION generate_schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-890  				     , p_required_user IN VARCHAR2 DEFAULT NULL
-891  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-892  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-893  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-894  				     )
-895  	 RETURN otap_view_result_tbl PIPELINED
-896    ;
-897  
-898    /** FUNCTION otap_test.generate_table_tests
-899    * Generates the test scripts for the tables of the given schema with the current available
-900    * otap schema functions. Provides set (schema), group (tables) and name (table name) management.
-901    * Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
-902    * you spool the content to files.
-903    *
-904    * @param p_like_table The LIKE expression for tables names for the given schema. Default is %, all tables. Underlying objects like columns are not limited. Case sensitive.
-905    * @param p_schema Mandatory. The schema to generate the table tests for. Default is current schema.
-906    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars. Will be added without delimiter to the test set created.
-907    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-908    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
-909    *
-910    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-911    */
-912    FUNCTION generate_table_tests( p_like_table    IN VARCHAR2 DEFAULT '%'
-913  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-914  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-915  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-916  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-917  				    )
-918  	 RETURN otap_view_result_tbl PIPELINED
-919    ;
-920  
-921    /** FUNCTION otap_test.generate_column_tests
-922    * Generates the test scripts for the columns of a given table and schema with the current available
-923    * otap schema functions. Provides set (schema), group (tables) and name (table name) management. Limited
-924    * to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-925    *
-926    * @param p_table Mandatory. The table name to get column tests for. Case sensitive.
-927    * @param p_like_column The LIKE expression for column names for the given schema and table. Can also be a specific column name. Default is %, all columns. Underlying objects are not limited. Case sensitive.
-928    * @param p_schema Mandatory. The schema to generate the column tests for. Default is current schema.
-929    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-930    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-931    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
-932    *
-933    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-934    */
-935    FUNCTION generate_column_tests( p_table	       IN VARCHAR2
-936  				     , p_like_column   IN VARCHAR2 DEFAULT '%'
-937  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-938  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-939  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-940  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-941  				     )
-942  	 RETURN otap_view_result_tbl PIPELINED
-943    ;
-944  
-945    /** FUNCTION otap_test.generate_trigger_tests
-946    * Generates the test scripts for the trigger of the given schema with the current available otap schema functions.
-947    * Provides set (schema), group (triggers) and name (table trigger, non table trigger) management. Limited to line
-948    * size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-949    *
-950    * @param p_like_trigger The like expression for the trigger to generate tests for the given schema. Can also be a specific trigger name. Default is %, all trigger. Underlying objects are not limited. Case sensitive.
-951    * @param p_schema The schema to generate the trigger tests for. Default is current schema.
-952    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-953    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-954    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
-955    *
-956    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-957    */
-958    FUNCTION generate_trigger_tests( p_like_trigger	IN VARCHAR2 DEFAULT '%'
-959  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-960  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
-961  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-962  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-963  				      )
-964  	 RETURN otap_view_result_tbl PIPELINED
-965    ;
-966  
-967    /** FUNCTION otap_test.generate_package_tests
-968    * Generates the test scripts for the packages of the given schema with the current available
-969    * otap schema functions. Provides set (schema), group (package) and name (package function and procedures) management.
-970    * Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
-971    * you spool the content to files.
-972    *
-973    * @param p_like_package The like expression for the package to generate tests for the given schema. Can also be a specific package name. Default is %, all packages. Underlying objects are not limited. Case sensitive.
-974    * @param p_schema The schema to generate the package tests for. Default is current schema.
-975    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-976    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-977    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
-978    *
-979    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-980    */
-981    FUNCTION generate_package_tests( p_like_package	IN VARCHAR2 DEFAULT '%'
-982  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-983  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
-984  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-985  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-986  				      )
-987  	 RETURN otap_view_result_tbl PIPELINED
-988    ;
-989  
-990    /** FUNCTION otap_test.generate_procedure_tests
-991    * Generates the test scripts for the procedures and functions, including packages. with the current available
-992    * otap schema functions. Provides set (schema), group (procedures) and names (function, procedure, package type) management.
-993    * Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-994    *
-995    * @param p_like_procedure The like expression for the procedure (function, procedure, package type) to generate tests for the given schema. Can also be a specific procedure name. Default is %, all procedures. Underlying objects are not limited. Case sensitive.
-996    * @param p_package_name Optional. Package name for the functions and procedures. Case sensitive.
-997    * @param p_schema The schema to generate the package tests for. Default is current schema.
-998    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-999    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1000  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1001  	*
-1002  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1003  	*/
-1004  	FUNCTION generate_procedure_tests( p_like_procedure IN VARCHAR2 DEFAULT '%'
-1005  					 , p_package_name   IN VARCHAR	DEFAULT NULL
-1006  					 , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1007  					 , p_title_prefix   IN VARCHAR2 DEFAULT NULL
-1008  					 , p_show_header    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1009  					 , p_excl_sysgen    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1010  					 )
-1011  	  RETURN otap_view_result_tbl PIPELINED
-1012  	;
-1013  
-1014  	/** FUNCTION otap_test.generate_view_tests
-1015  	* Generates the test scripts for the views of the given schema with the current available otap schema functions.
-1016  	* Provides set (schema), group (views) and name (view name) management. Limited to line size 4000 but not to rows,
-1017  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1018  	*
-1019  	* @param p_like_view The like expression for the views to generate tests for the given schema. Can also be a specific view name. Default is %, all views. Underlying objects are not limited. Case sensitive.
-1020  	* @param p_schema The schema to generate the view tests for. Default is current schema.
-1021  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1022  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1023  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1024  	*
-1025  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1026  	*/
-1027  	FUNCTION generate_view_tests( p_like_view     IN VARCHAR2 DEFAULT '%'
-1028  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1029  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1030  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1031  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1032  				    )
-1033  	  RETURN otap_view_result_tbl PIPELINED
-1034  	;
-1035  
-1036  	/** FUNCTION otap_test.generate_schema_user_test
-1037  	* Generates the test script for the schema user processed.
-1038  	* Provides group (users) and name (simple user checks) management.
-1039  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
-1040  	* you spool the content to files.
-1041  	*
-1042  	* @param p_schema The schema to generate the user test for.
-1043  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1044  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1045  	*
-1046  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1047  	*/
-1048  	FUNCTION generate_schema_user_test( p_schema	    IN VARCHAR2 DEFAULT NULL
-1049  					  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1050  					  , p_show_header   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1051  					  )
-1052  	  RETURN otap_view_result_tbl PIPELINED
-1053  	;
-1054  
-1055  	/** FUNCTION otap_test.generate_scheduler_job_tests
-1056  	* Generates the test scripts for the scheduler jobs of the given schema with the current available
-1057  	* otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not
-1058  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1059  	*
-1060  	* @param p_like_job The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
-1061  	* @param p_schema The schema to generate the scheduler job tests for. Default is current schema.
-1062  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1063  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1064  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1065  	*
-1066  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1067  	*/
-1068  	FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
-1069  					     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1070  					     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1071  					     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1072  					     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1073  					     )
-1074  	  RETURN otap_view_result_tbl PIPELINED
-1075  	;
-1076  
-1077  	/** FUNCTION otap_test.generate_related_user_tests
-1078  	* Generates the simple test scripts for a user list to be processed. User names will only be checked for user name and open account status.
-1079  	* Provides group (schema user) and name (schema user check) management.
-1080  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
-1081  	* you spool the content to files.
-1082  	*
-1083  	* @param p_user_list The comma separated user list to generate the simple user tests for.
-1084  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1085  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1086  	*
-1087  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1088  	*/
-1089  	FUNCTION generate_related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
-1090  					    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1091  					    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1092  					    )
-1093  	  RETURN otap_view_result_tbl PIPELINED
-1094  	;
-1095  
-1096  	/** FUNCTION otap_test.generate_constraint_tests
-1097  	* Generates the test scripts for the constraints of a given table. Even if system objects are excluded, the generator will create
-1098  	* tests for system generated NOT NULL constraints, using all parameters apart the constraint name. Provides
-1099  	* group (constraints) and name (constraint type) management. Limited to line size 4000 but not to rows,
-1100  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1101  	*
-1102  	* @param p_table Mandatory. The table name to get constraint tests for. Case sensitive.
-1103  	* @param p_like_constraints The like expression for the constraints to generate tests for. Can also be a specific constraint name. Case sensitive.
-1104  	* @param p_schema The schema to generate the constraint tests for. Default is current schema.
-1105  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1106  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1107  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1108  	*
-1109  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1110  	*/
-1111  	FUNCTION generate_constraint_tests( p_table	       IN VARCHAR2
-1112  					  , p_like_constraints IN VARCHAR2 DEFAULT '%'
-1113  					  , p_schema	       IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1114  					  , p_title_prefix     IN VARCHAR2 DEFAULT NULL
-1115  					  , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1116  					  , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1117  					  )
-1118  	  RETURN otap_view_result_tbl PIPELINED
-1119  	;
-1120  
-1121  	/** FUNCTION otap_test.generate_index_tests
-1122  	* Generates the test scripts for the indexes of a given table. Limited to line size 4000 but not to rows,
-1123  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1124  	*
-1125  	* @param p_table Mandatory. The table name to get index tests for. Case sensitive.
-1126  	* @param p_like_index The like expression for the indexes to generate tests for. Can also be a specific index name. Case sensitive.
-1127  	* @param p_schema The schema to generate the index tests for. Default is current schema.
-1128  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1129  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1130  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1131  	*
-1132  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1133  	*/
-1134  	FUNCTION generate_index_tests( p_table	       IN VARCHAR2
-1135  				     , p_like_index    IN VARCHAR2 DEFAULT '%'
-1136  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1137  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1138  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1139  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1140  				     )
-1141  	  RETURN otap_view_result_tbl PIPELINED
-1142  	;
-1143  
-1144  	/** FUNCTION otap_test.generate_type_tests
-1145  	* Generates the test scripts for the types of the given schema with the current available
-1146  	* otap schema functions. Provides name (types) management. Limited to line size 4000 but not
-1147  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1148  	*
-1149  	* @param p_like_type The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
-1150  	* @param p_schema The schema to generate the type tests for. Default is current schema.
-1151  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1152  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1153  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1154  	*
-1155  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1156  	*/
-1157  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
-1158  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1159  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1160  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1161  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1162  				    )
-1163  	  RETURN otap_view_result_tbl PIPELINED
-1164  	;
-1165  
-1166  	/** FUNCTION otap_test.generate_sequence_tests
-1167  	* Generates the test scripts for the sequences of the given schema with the current available
-1168  	* otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not
-1169  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
-1170  	*
-1171  	* @param p_like_sequence The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
-1172  	* @param p_schema The schema to generate the sequence tests for. Default is current schema.
-1173  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
-1174  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
-1175  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
-1176  	*
-1177  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
-1178  	*/
-1179  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
-1180  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1181  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1182  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1183  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1184  					)
-1185  	  RETURN otap_view_result_tbl PIPELINED
-1186  	;
-1187  
-1188  END;
-1189  /
+881    * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+882    * @param p_like_sqlerrm Mandatory. The LIKE expression to match the expected error message as returned by SQLERRM after a provoked exception.
+883    * @param p_case_sensitive Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
+884    * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+885    * @param p_description The test description if any. If not given, a description is generated, see template.
+886    * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+887    * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+888    *
+889    * @return The test result as text.
+890    */
+891    FUNCTION throws_like( p_statement       IN VARCHAR2
+892  			   , p_like_sqlerrm    IN VARCHAR2
+893  			   , p_case_sensitive  IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+894  			   , p_header_def      IN VARCHAR2 DEFAULT NULL
+895  			   , p_description     IN VARCHAR2 DEFAULT NULL
+896  			   , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+897  			   , p_schema	       IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+898  			   )
+899  	 RETURN VARCHAR2
+900    ;
+901  
+902    -- generate functionality, all generate functions only require the otap user role as they operate on meta data
+903  
+904    /** PROCEDURE otap_test.generate_set_type
+905    * Sets the generation type. Default is script (S). Options are procedure (P) or function (F).
+906    * Fallback on errors is script. This setting is only valid within the current session.
+907    *
+908    * @param p_gen_type A valid generation type. See otap_constants.OTAP_GEN_TYPE_ variables.
+909    */
+910    PROCEDURE generate_set_type(p_gen_type IN VARCHAR2);
+911  
+912    /** FUNCTION otap_test.generate_type
+913    * @return The current active generation type for the current session.
+914    */
+915    FUNCTION generate_type
+916  	 RETURN VARCHAR2
+917    ;
+918  
+919    /** FUNCTION otap_test.generate_schema_tests
+920    * Generates the test scripts for the current available otap schema functions using by default the current
+921    * schema. Test set gets defined as schema, group represents the object types, like tables, triggers and so on.
+922    * No translation provided. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you
+923    * spool the content to files.
+924    *
+925    * Including system generated objects is a good idea if your system is stable and you want to ensure that no one
+926    * changed the current state. With CI/CD or during development, when objects get recreated, it is a really bad idea.
+927    * Excluded by default are objects beginning with SYS_ for system generated object or containing $ or # chars, which
+928    * may occur anywhere in the name of system objects.
+929    *
+930    * There is no best option, some constraints like NOT NULL must be defined inline to count a column as NOT NULL.
+931    * With an additional added constraint, the column will be still marked as NULLABLE. Identity columns are another
+932    * issue, as you cannot define a name for the generated sequence. Make extra tests limited on the system generated
+933    * objects you rely on (like NOT NULL and identity).
+934    *
+935    * @param p_like_schema The LIKE expression for schema names. Default is current schema. % will generate for all schemas in the database, be careful. Underlying objects are not limited. Case sensitive.
+936    * @param p_required_user An optional comma separated list of users required to be checked by the schema test. Will not include the selected schemas. Useful for specific schemas and integration tests.
+937    * @param p_title_prefix An optional title prefix for set, group and test names. Limited to 10 chars. Will be added without delimiter to the processed schema.
+938    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+939    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
+940    *
+941    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+942    */
+943    FUNCTION generate_schema_tests( p_like_schema   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+944  				     , p_required_user IN VARCHAR2 DEFAULT NULL
+945  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+946  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+947  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+948  				     )
+949  	 RETURN otap_view_result_tbl PIPELINED
+950    ;
+951  
+952    /** FUNCTION otap_test.generate_table_tests
+953    * Generates the test scripts for the tables of the given schema with the current available
+954    * otap schema functions. Provides set (schema), group (tables) and name (table name) management.
+955    * Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
+956    * you spool the content to files.
+957    *
+958    * @param p_like_table The LIKE expression for tables names for the given schema. Default is %, all tables. Underlying objects like columns are not limited. Case sensitive.
+959    * @param p_schema Mandatory. The schema to generate the table tests for. Default is current schema.
+960    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars. Will be added without delimiter to the test set created.
+961    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+962    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
+963    *
+964    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+965    */
+966    FUNCTION generate_table_tests( p_like_table    IN VARCHAR2 DEFAULT '%'
+967  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+968  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+969  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+970  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+971  				    )
+972  	 RETURN otap_view_result_tbl PIPELINED
+973    ;
+974  
+975    /** FUNCTION otap_test.generate_column_tests
+976    * Generates the test scripts for the columns of a given table and schema with the current available
+977    * otap schema functions. Provides set (schema), group (tables) and name (table name) management. Limited
+978    * to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+979    *
+980    * @param p_table Mandatory. The table name to get column tests for. Case sensitive.
+981    * @param p_like_column The LIKE expression for column names for the given schema and table. Can also be a specific column name. Default is %, all columns. Underlying objects are not limited. Case sensitive.
+982    * @param p_schema Mandatory. The schema to generate the column tests for. Default is current schema.
+983    * @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+984    * @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+985    * @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
+986    *
+987    * @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+988    */
+989    FUNCTION generate_column_tests( p_table	       IN VARCHAR2
+990  				     , p_like_column   IN VARCHAR2 DEFAULT '%'
+991  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+992  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+993  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+994  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+995  				     )
+996  	 RETURN otap_view_result_tbl PIPELINED
+997    ;
+998  
+999    /** FUNCTION otap_test.generate_trigger_tests
+1000  	* Generates the test scripts for the trigger of the given schema with the current available otap schema functions.
+1001  	* Provides set (schema), group (triggers) and name (table trigger, non table trigger) management. Limited to line
+1002  	* size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1003  	*
+1004  	* @param p_like_trigger The like expression for the trigger to generate tests for the given schema. Can also be a specific trigger name. Default is %, all trigger. Underlying objects are not limited. Case sensitive.
+1005  	* @param p_schema The schema to generate the trigger tests for. Default is current schema.
+1006  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1007  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1008  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
+1009  	*
+1010  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1011  	*/
+1012  	FUNCTION generate_trigger_tests( p_like_trigger  IN VARCHAR2 DEFAULT '%'
+1013  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1014  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1015  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1016  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1017  				       )
+1018  	  RETURN otap_view_result_tbl PIPELINED
+1019  	;
+1020  
+1021  	/** FUNCTION otap_test.generate_package_tests
+1022  	* Generates the test scripts for the packages of the given schema with the current available
+1023  	* otap schema functions. Provides set (schema), group (package) and name (package function and procedures) management.
+1024  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
+1025  	* you spool the content to files.
+1026  	*
+1027  	* @param p_like_package The like expression for the package to generate tests for the given schema. Can also be a specific package name. Default is %, all packages. Underlying objects are not limited. Case sensitive.
+1028  	* @param p_schema The schema to generate the package tests for. Default is current schema.
+1029  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1030  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1031  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_, # or $. Default 1 will ignore system generated objects, otherwise included.
+1032  	*
+1033  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1034  	*/
+1035  	FUNCTION generate_package_tests( p_like_package  IN VARCHAR2 DEFAULT '%'
+1036  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1037  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1038  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1039  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1040  				       )
+1041  	  RETURN otap_view_result_tbl PIPELINED
+1042  	;
+1043  
+1044  	/** FUNCTION otap_test.generate_procedure_tests
+1045  	* Generates the test scripts for the procedures and functions, including packages. with the current available
+1046  	* otap schema functions. Provides set (schema), group (procedures) and names (function, procedure, package type) management.
+1047  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1048  	*
+1049  	* @param p_like_procedure The like expression for the procedure (function, procedure, package type) to generate tests for the given schema. Can also be a specific procedure name. Default is %, all procedures. Underlying objects are not limited. Case sensitive.
+1050  	* @param p_package_name Optional. Package name for the functions and procedures. Case sensitive.
+1051  	* @param p_schema The schema to generate the package tests for. Default is current schema.
+1052  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1053  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1054  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1055  	*
+1056  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1057  	*/
+1058  	FUNCTION generate_procedure_tests( p_like_procedure IN VARCHAR2 DEFAULT '%'
+1059  					 , p_package_name   IN VARCHAR	DEFAULT NULL
+1060  					 , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1061  					 , p_title_prefix   IN VARCHAR2 DEFAULT NULL
+1062  					 , p_show_header    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1063  					 , p_excl_sysgen    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1064  					 )
+1065  	  RETURN otap_view_result_tbl PIPELINED
+1066  	;
+1067  
+1068  	/** FUNCTION otap_test.generate_view_tests
+1069  	* Generates the test scripts for the views of the given schema with the current available otap schema functions.
+1070  	* Provides set (schema), group (views) and name (view name) management. Limited to line size 4000 but not to rows,
+1071  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1072  	*
+1073  	* @param p_like_view The like expression for the views to generate tests for the given schema. Can also be a specific view name. Default is %, all views. Underlying objects are not limited. Case sensitive.
+1074  	* @param p_schema The schema to generate the view tests for. Default is current schema.
+1075  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1076  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1077  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1078  	*
+1079  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1080  	*/
+1081  	FUNCTION generate_view_tests( p_like_view     IN VARCHAR2 DEFAULT '%'
+1082  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1083  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1084  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1085  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1086  				    )
+1087  	  RETURN otap_view_result_tbl PIPELINED
+1088  	;
+1089  
+1090  	/** FUNCTION otap_test.generate_schema_user_test
+1091  	* Generates the test script for the schema user processed.
+1092  	* Provides group (users) and name (simple user checks) management.
+1093  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
+1094  	* you spool the content to files.
+1095  	*
+1096  	* @param p_schema The schema to generate the user test for.
+1097  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1098  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1099  	*
+1100  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1101  	*/
+1102  	FUNCTION generate_schema_user_test( p_schema	    IN VARCHAR2 DEFAULT NULL
+1103  					  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1104  					  , p_show_header   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1105  					  )
+1106  	  RETURN otap_view_result_tbl PIPELINED
+1107  	;
+1108  
+1109  	/** FUNCTION otap_test.generate_scheduler_job_tests
+1110  	* Generates the test scripts for the scheduler jobs of the given schema with the current available
+1111  	* otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not
+1112  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1113  	*
+1114  	* @param p_like_job The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
+1115  	* @param p_schema The schema to generate the scheduler job tests for. Default is current schema.
+1116  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1117  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1118  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1119  	*
+1120  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1121  	*/
+1122  	FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
+1123  					     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1124  					     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1125  					     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1126  					     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1127  					     )
+1128  	  RETURN otap_view_result_tbl PIPELINED
+1129  	;
+1130  
+1131  	/** FUNCTION otap_test.generate_related_user_tests
+1132  	* Generates the simple test scripts for a user list to be processed. User names will only be checked for user name and open account status.
+1133  	* Provides group (schema user) and name (schema user check) management.
+1134  	* Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how
+1135  	* you spool the content to files.
+1136  	*
+1137  	* @param p_user_list The comma separated user list to generate the simple user tests for.
+1138  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1139  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1140  	*
+1141  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1142  	*/
+1143  	FUNCTION generate_related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
+1144  					    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1145  					    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1146  					    )
+1147  	  RETURN otap_view_result_tbl PIPELINED
+1148  	;
+1149  
+1150  	/** FUNCTION otap_test.generate_constraint_tests
+1151  	* Generates the test scripts for the constraints of a given table. Even if system objects are excluded, the generator will create
+1152  	* tests for system generated NOT NULL constraints, using all parameters apart the constraint name. Provides
+1153  	* group (constraints) and name (constraint type) management. Limited to line size 4000 but not to rows,
+1154  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1155  	*
+1156  	* @param p_table Mandatory. The table name to get constraint tests for. Case sensitive.
+1157  	* @param p_like_constraints The like expression for the constraints to generate tests for. Can also be a specific constraint name. Case sensitive.
+1158  	* @param p_schema The schema to generate the constraint tests for. Default is current schema.
+1159  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1160  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1161  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1162  	*
+1163  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1164  	*/
+1165  	FUNCTION generate_constraint_tests( p_table	       IN VARCHAR2
+1166  					  , p_like_constraints IN VARCHAR2 DEFAULT '%'
+1167  					  , p_schema	       IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1168  					  , p_title_prefix     IN VARCHAR2 DEFAULT NULL
+1169  					  , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1170  					  , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1171  					  )
+1172  	  RETURN otap_view_result_tbl PIPELINED
+1173  	;
+1174  
+1175  	/** FUNCTION otap_test.generate_index_tests
+1176  	* Generates the test scripts for the indexes of a given table. Limited to line size 4000 but not to rows,
+1177  	* like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1178  	*
+1179  	* @param p_table Mandatory. The table name to get index tests for. Case sensitive.
+1180  	* @param p_like_index The like expression for the indexes to generate tests for. Can also be a specific index name. Case sensitive.
+1181  	* @param p_schema The schema to generate the index tests for. Default is current schema.
+1182  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1183  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1184  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1185  	*
+1186  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1187  	*/
+1188  	FUNCTION generate_index_tests( p_table	       IN VARCHAR2
+1189  				     , p_like_index    IN VARCHAR2 DEFAULT '%'
+1190  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1191  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1192  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1193  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1194  				     )
+1195  	  RETURN otap_view_result_tbl PIPELINED
+1196  	;
+1197  
+1198  	/** FUNCTION otap_test.generate_type_tests
+1199  	* Generates the test scripts for the types of the given schema with the current available
+1200  	* otap schema functions. Provides name (types) management. Limited to line size 4000 but not
+1201  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1202  	*
+1203  	* @param p_like_type The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
+1204  	* @param p_schema The schema to generate the type tests for. Default is current schema.
+1205  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1206  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1207  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1208  	*
+1209  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1210  	*/
+1211  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+1212  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1213  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1214  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1215  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1216  				    )
+1217  	  RETURN otap_view_result_tbl PIPELINED
+1218  	;
+1219  
+1220  	/** FUNCTION otap_test.generate_sequence_tests
+1221  	* Generates the test scripts for the sequences of the given schema with the current available
+1222  	* otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not
+1223  	* to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+1224  	*
+1225  	* @param p_like_sequence The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
+1226  	* @param p_schema The schema to generate the sequence tests for. Default is current schema.
+1227  	* @param p_title_prefix An optional title prefix for group and test names. Limited to 10 chars.
+1228  	* @param p_show_header Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+1229  	* @param p_excl_sysgen Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+1230  	*
+1231  	* @return An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+1232  	*/
+1233  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+1234  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1235  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1236  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1237  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1238  					)
+1239  	  RETURN otap_view_result_tbl PIPELINED
+1240  	;
+1241  
+1242  END;
+1243  /
 
 Package created.
 
@@ -16576,430 +16776,496 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_test
 1014  	    RAISE;
 1015  	END throws_ok;
 1016  
-1017  	-- generate functions
-1018  	PROCEDURE generate_set_type(p_gen_type IN VARCHAR2)
-1019  	IS
-1020  	BEGIN
-1021  	  otap_generate.set_gen_type(p_gen_type);
-1022  	END generate_set_type;
-1023  
-1024  	FUNCTION generate_type
+1017  	FUNCTION throws_matches( p_statement	   IN VARCHAR2
+1018  			       , p_regex_sqlerrm   IN VARCHAR2
+1019  			       , p_param	   IN VARCHAR2 DEFAULT NULL
+1020  			       , p_header_def	   IN VARCHAR2 DEFAULT NULL
+1021  			       , p_description	   IN VARCHAR2 DEFAULT NULL
+1022  			       , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1023  			       , p_schema	   IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1024  			       )
 1025  	  RETURN VARCHAR2
 1026  	IS
-1027  	  l_return VARCHAR2(1);
+1027  	  l_message VARCHAR2(4000 CHAR);
 1028  	BEGIN
-1029  	  l_return := otap_generate.get_gen_type;
-1030  	  RETURN l_return;
-1031  	END generate_type;
-1032  
-1033  	FUNCTION generate_schema_tests( p_like_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1034  				      , p_required_user IN VARCHAR2 DEFAULT NULL
-1035  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
-1036  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1037  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1038  				      )
-1039  	  RETURN otap_view_result_tbl PIPELINED
-1040  	IS
-1041  	  CURSOR cur_tests( cp_like   IN VARCHAR2
-1042  			  , cp_users  IN VARCHAR2
-1043  			  , cp_prefix IN VARCHAR2
-1044  			  , cp_show   IN NUMBER
-1045  			  , cp_excl   IN NUMBER
-1046  			  )
-1047  	  IS
-1048  	    SELECT result_text
-1049  	      FROM TABLE(otap_generate.schema_tests(cp_like, cp_users, cp_prefix, cp_show, cp_excl))
-1050  	  ;
-1051  	BEGIN
-1052  	  FOR rec IN cur_tests(p_like_schema, p_required_user, p_title_prefix, p_show_header, p_excl_sysgen)
-1053  	  LOOP
-1054  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1055  	  END LOOP;
-1056  	  RETURN;
-1057  	EXCEPTION
-1058  	  WHEN NO_DATA_NEEDED THEN
-1059  	    RAISE;
-1060  	END generate_schema_tests;
-1061  
-1062  	FUNCTION generate_table_tests( p_like_table    IN VARCHAR2 DEFAULT '%'
-1063  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1064  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1065  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1066  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1067  				     )
-1068  	  RETURN otap_view_result_tbl PIPELINED
-1069  	IS
-1070  	  CURSOR cur_tests( cp_like   IN VARCHAR2
-1071  			  , cp_schema IN VARCHAR2
-1072  			  , cp_prefix IN VARCHAR2
-1073  			  , cp_show   IN NUMBER
-1074  			  , cp_excl   IN NUMBER
-1075  			  )
-1076  	  IS
-1077  	    SELECT result_text
-1078  	      FROM TABLE(otap_generate.table_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1079  	  ;
-1080  	BEGIN
-1081  	  FOR rec IN cur_tests(p_like_table, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1082  	  LOOP
-1083  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1084  	  END LOOP;
-1085  	  RETURN;
-1086  	EXCEPTION
-1087  	  WHEN NO_DATA_NEEDED THEN
-1088  	    RAISE;
-1089  	END generate_table_tests;
-1090  
-1091  	FUNCTION generate_column_tests( p_table 	IN VARCHAR2
-1092  				      , p_like_column	IN VARCHAR2 DEFAULT '%'
-1093  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1094  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
-1095  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1096  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1097  				      )
-1098  	  RETURN otap_view_result_tbl PIPELINED
-1099  	IS
-1100  	  CURSOR cur_tests( cp_table  IN VARCHAR2
-1101  			  , cp_like   IN VARCHAR2
-1102  			  , cp_schema IN VARCHAR2
-1103  			  , cp_prefix IN VARCHAR2
-1104  			  , cp_show   IN NUMBER
-1105  			  , cp_excl   IN NUMBER
-1106  			  )
-1107  	  IS
-1108  	    SELECT result_text
-1109  	      FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1110  	  ;
-1111  	BEGIN
-1112  	  FOR rec IN cur_tests(p_table, p_like_column, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1113  	  LOOP
-1114  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1115  	  END LOOP;
-1116  	  RETURN;
-1117  	EXCEPTION
-1118  	  WHEN NO_DATA_NEEDED THEN
-1119  	    RAISE;
-1120  	END generate_column_tests;
-1121  
-1122  	FUNCTION generate_trigger_tests( p_like_trigger  IN VARCHAR2 DEFAULT '%'
-1123  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1124  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1125  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1126  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1127  				       )
-1128  	  RETURN otap_view_result_tbl PIPELINED
-1129  	IS
-1130  	  CURSOR cur_tests( cp_like   IN VARCHAR2
-1131  			  , cp_schema IN VARCHAR2
-1132  			  , cp_prefix IN VARCHAR2
-1133  			  , cp_show   IN NUMBER
-1134  			  , cp_excl   IN NUMBER
-1135  			  )
-1136  	  IS
-1137  	    SELECT result_text
-1138  	      FROM TABLE(otap_generate.trigger_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1139  	  ;
-1140  	BEGIN
-1141  	  FOR rec IN cur_tests(p_like_trigger, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1142  	  LOOP
-1143  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1144  	  END LOOP;
-1145  	  RETURN;
-1146  	EXCEPTION
-1147  	  WHEN NO_DATA_NEEDED THEN
-1148  	    RAISE;
-1149  	END generate_trigger_tests;
-1150  
-1151  	FUNCTION generate_package_tests( p_like_package  IN VARCHAR2 DEFAULT '%'
-1152  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1153  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1154  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1155  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1156  				       )
-1157  	  RETURN otap_view_result_tbl PIPELINED
-1158  	IS
-1159  	  CURSOR cur_tests( cp_like   IN VARCHAR2
-1160  			  , cp_schema IN VARCHAR2
-1161  			  , cp_prefix IN VARCHAR2
-1162  			  , cp_show   IN NUMBER
-1163  			  , cp_excl   IN NUMBER
-1164  			  )
-1165  	  IS
-1166  	    SELECT result_text
-1167  	      FROM TABLE(otap_generate.package_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1168  	  ;
-1169  	BEGIN
-1170  	  FOR rec IN cur_tests(p_like_package, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1171  	  LOOP
-1172  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1173  	  END LOOP;
-1174  	  RETURN;
-1175  	EXCEPTION
-1176  	  WHEN NO_DATA_NEEDED THEN
-1177  	    RAISE;
-1178  	END generate_package_tests;
-1179  
-1180  	FUNCTION generate_procedure_tests( p_like_procedure IN VARCHAR2 DEFAULT '%'
-1181  					 , p_package_name   IN VARCHAR	DEFAULT NULL
-1182  					 , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1183  					 , p_title_prefix   IN VARCHAR2 DEFAULT NULL
-1184  					 , p_show_header    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1185  					 , p_excl_sysgen    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1186  					 )
-1187  	  RETURN otap_view_result_tbl PIPELINED
-1188  	IS
-1189  	  CURSOR cur_tests( cp_like	IN VARCHAR2
-1190  			  , cp_package	IN VARCHAR2
-1191  			  , cp_schema	IN VARCHAR2
-1192  			  , cp_prefix	IN VARCHAR2
-1193  			  , cp_show	IN NUMBER
-1194  			  , cp_excl	IN NUMBER
-1195  			  )
-1196  	  IS
-1197  	    SELECT result_text
-1198  	      FROM TABLE(otap_generate.procedure_tests(cp_like, cp_package, cp_schema, cp_prefix, cp_show, cp_excl))
-1199  	  ;
-1200  	BEGIN
-1201  	  FOR rec IN cur_tests(p_like_procedure, p_package_name, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1202  	  LOOP
-1203  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1204  	  END LOOP;
-1205  	  RETURN;
-1206  	EXCEPTION
-1207  	  WHEN NO_DATA_NEEDED THEN
-1208  	    RAISE;
-1209  	END generate_procedure_tests;
-1210  
-1211  	FUNCTION generate_view_tests( p_like_view     IN VARCHAR2 DEFAULT '%'
-1212  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1213  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1214  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1215  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1216  				    )
-1217  	  RETURN otap_view_result_tbl PIPELINED
-1218  	IS
-1219  	  CURSOR cur_tests( cp_like	IN VARCHAR2
-1220  			  , cp_schema	IN VARCHAR2
-1221  			  , cp_prefix	IN VARCHAR2
-1222  			  , cp_show	IN NUMBER
-1223  			  , cp_excl	IN NUMBER
-1224  			  )
-1225  	  IS
-1226  	    SELECT result_text
-1227  	      FROM TABLE(otap_generate.view_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1228  	  ;
-1229  	BEGIN
-1230  	  FOR rec IN cur_tests(p_like_view, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1231  	  LOOP
-1232  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1233  	  END LOOP;
-1234  	  RETURN;
-1235  	EXCEPTION
-1236  	  WHEN NO_DATA_NEEDED THEN
-1237  	    RAISE;
-1238  	END generate_view_tests;
-1239  
-1240  	FUNCTION generate_schema_user_test( p_schema	    IN VARCHAR2 DEFAULT NULL
-1241  					  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1242  					  , p_show_header   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
-1243  					  )
-1244  	  RETURN otap_view_result_tbl PIPELINED
-1245  	IS
-1246  	  CURSOR cur_tests( cp_schema	IN VARCHAR2
-1247  			  , cp_prefix	IN VARCHAR2
-1248  			  , cp_show	IN NUMBER
-1249  			  )
-1250  	  IS
-1251  	    SELECT result_text
-1252  	      FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, cp_show))
-1253  	  ;
-1254  	BEGIN
-1255  	  FOR rec IN cur_tests(p_schema, p_title_prefix, p_show_header)
-1256  	  LOOP
-1257  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1258  	  END LOOP;
-1259  	  RETURN;
-1260  	EXCEPTION
-1261  	  WHEN NO_DATA_NEEDED THEN
-1262  	    RAISE;
-1263  	END generate_schema_user_test;
-1264  
-1265  	FUNCTION generate_related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
-1266  					    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1267  					    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1268  					    )
-1269  	  RETURN otap_view_result_tbl PIPELINED
-1270  	IS
-1271  	  CURSOR cur_tests( cp_user_list IN VARCHAR2
-1272  			  , cp_prefix	 IN VARCHAR2
-1273  			  , cp_show	 IN NUMBER
-1274  			  )
-1275  	  IS
-1276  	    SELECT result_text
-1277  	      FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, cp_show))
-1278  	  ;
-1279  	BEGIN
-1280  	  FOR rec IN cur_tests(p_user_list, p_title_prefix, p_show_header)
-1281  	  LOOP
-1282  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1283  	  END LOOP;
-1284  	  RETURN;
-1285  	EXCEPTION
-1286  	  WHEN NO_DATA_NEEDED THEN
-1287  	    RAISE;
-1288  	END generate_related_user_tests;
-1289  
-1290  	FUNCTION generate_constraint_tests( p_table	       IN VARCHAR2
-1291  					  , p_like_constraints IN VARCHAR2 DEFAULT '%'
-1292  					  , p_schema	       IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1293  					  , p_title_prefix     IN VARCHAR2 DEFAULT NULL
-1294  					  , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1295  					  , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1296  					  )
-1297  	  RETURN otap_view_result_tbl PIPELINED
-1298  	IS
-1299  	  CURSOR cur_tests( cp_table   IN VARCHAR2
-1300  			  , cp_like    IN VARCHAR2
-1301  			  , cp_schema  IN VARCHAR2
-1302  			  , cp_prefix  IN VARCHAR2
-1303  			  , cp_show    IN NUMBER
-1304  			  , cp_excl    IN NUMBER
-1305  			  )
-1306  	  IS
-1307  	    SELECT result_text
-1308  	      FROM TABLE(otap_generate.constraint_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1309  	  ;
-1310  	BEGIN
-1311  	  FOR rec IN cur_tests(p_table, p_like_constraints, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1312  	  LOOP
-1313  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1314  	  END LOOP;
-1315  	  RETURN;
-1316  	EXCEPTION
-1317  	  WHEN NO_DATA_NEEDED THEN
-1318  	    RAISE;
-1319  	END generate_constraint_tests;
-1320  
-1321  	FUNCTION generate_index_tests( p_table	       IN VARCHAR2
-1322  				     , p_like_index    IN VARCHAR2 DEFAULT '%'
-1323  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1324  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1325  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1326  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1327  				     )
-1328  	  RETURN otap_view_result_tbl PIPELINED
-1329  	IS
-1330  	  CURSOR cur_tests( cp_table   IN VARCHAR2
-1331  			  , cp_like    IN VARCHAR2
-1332  			  , cp_schema  IN VARCHAR2
-1333  			  , cp_prefix  IN VARCHAR2
-1334  			  , cp_show    IN NUMBER
-1335  			  , cp_excl    IN NUMBER
-1336  			  )
-1337  	  IS
-1338  	    SELECT result_text
-1339  	      FROM TABLE(otap_generate.index_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1340  	  ;
-1341  	BEGIN
-1342  	  FOR rec IN cur_tests(p_table, p_like_index, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1343  	  LOOP
-1344  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1345  	  END LOOP;
-1346  	  RETURN;
-1347  	EXCEPTION
-1348  	  WHEN NO_DATA_NEEDED THEN
-1349  	    RAISE;
-1350  	END generate_index_tests;
-1351  
-1352  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
-1353  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1354  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1355  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1356  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1357  				    )
-1358  	  RETURN otap_view_result_tbl PIPELINED
-1359  	IS
-1360  	  CURSOR cur_tests( cp_like    IN VARCHAR2
-1361  			  , cp_schema  IN VARCHAR2
-1362  			  , cp_prefix  IN VARCHAR2
-1363  			  , cp_show    IN NUMBER
-1364  			  , cp_excl    IN NUMBER
-1365  			  )
-1366  	  IS
-1367  	    SELECT result_text
-1368  	      FROM TABLE(otap_generate.type_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1369  	  ;
-1370  	BEGIN
-1371  	  FOR rec IN cur_tests(p_like_type, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1372  	  LOOP
-1373  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1374  	  END LOOP;
-1375  	  RETURN;
-1376  	EXCEPTION
-1377  	  WHEN NO_DATA_NEEDED THEN
-1378  	    RAISE;
-1379  	END generate_type_tests;
-1380  
-1381  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
-1382  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1383  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1384  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1385  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1386  					)
-1387  	  RETURN otap_view_result_tbl PIPELINED
-1388  	IS
-1389  	  CURSOR cur_tests( cp_like    IN VARCHAR2
-1390  			  , cp_schema  IN VARCHAR2
-1391  			  , cp_prefix  IN VARCHAR2
-1392  			  , cp_show    IN NUMBER
-1393  			  , cp_excl    IN NUMBER
-1394  			  )
-1395  	  IS
-1396  	    SELECT result_text
-1397  	      FROM TABLE(otap_generate.sequence_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1398  	  ;
-1399  	BEGIN
-1400  	  FOR rec IN cur_tests(p_like_sequence, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1401  	  LOOP
-1402  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1403  	  END LOOP;
-1404  	  RETURN;
-1405  	EXCEPTION
-1406  	  WHEN NO_DATA_NEEDED THEN
-1407  	    RAISE;
-1408  	END generate_sequence_tests;
-1409  
-1410  	FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
-1411  					     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1412  					     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
-1413  					     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1414  					     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
-1415  					     )
-1416  	  RETURN otap_view_result_tbl PIPELINED
-1417  	IS
-1418  	  CURSOR cur_tests( cp_like    IN VARCHAR2
-1419  			  , cp_schema  IN VARCHAR2
-1420  			  , cp_prefix  IN VARCHAR2
-1421  			  , cp_show    IN NUMBER
-1422  			  , cp_excl    IN NUMBER
-1423  			  )
-1424  	  IS
-1425  	    SELECT result_text
-1426  	      FROM TABLE(otap_generate.sched_job_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
-1427  	  ;
-1428  	BEGIN
-1429  	  FOR rec IN cur_tests(p_like_job, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
-1430  	  LOOP
-1431  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
-1432  	  END LOOP;
-1433  	  RETURN;
-1434  	EXCEPTION
-1435  	  WHEN NO_DATA_NEEDED THEN
-1436  	    RAISE;
-1437  	END generate_scheduler_job_tests;
-1438  
-1439  END;
-1440  /
+1029  	  otap_api.validate_otap(session_record);
+1030  	  l_message := otap_api.throws_matches( p_statement
+1031  					      , p_regex_sqlerrm
+1032  					      , session_record
+1033  					      , p_param
+1034  					      , p_header_def
+1035  					      , p_description
+1036  					      , p_expected_result
+1037  					      , p_schema
+1038  					      )
+1039  	  ;
+1040  	  RETURN l_message;
+1041  	EXCEPTION
+1042  	  WHEN OTHERS THEN
+1043  	    IF SQLCODE != -20099
+1044  	    THEN
+1045  	      otap_log.log(SQLERRM, 'otap_test.throws_matches', 'l_message := otap_api.throws_matches( p_statement, ...');
+1046  	    END IF;
+1047  	    RAISE;
+1048  	END throws_matches;
+1049  
+1050  	FUNCTION throws_like( p_statement	IN VARCHAR2
+1051  			    , p_like_sqlerrm	IN VARCHAR2
+1052  			    , p_case_sensitive	IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+1053  			    , p_header_def	IN VARCHAR2 DEFAULT NULL
+1054  			    , p_description	IN VARCHAR2 DEFAULT NULL
+1055  			    , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1056  			    , p_schema		IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1057  			    )
+1058  	  RETURN VARCHAR2
+1059  	IS
+1060  	  l_message VARCHAR2(4000 CHAR);
+1061  	BEGIN
+1062  	  otap_api.validate_otap(session_record);
+1063  	  l_message := otap_api.throws_like( p_statement
+1064  					   , p_like_sqlerrm
+1065  					   , session_record
+1066  					   , p_case_sensitive
+1067  					   , p_header_def
+1068  					   , p_description
+1069  					   , p_expected_result
+1070  					   , p_schema
+1071  					   )
+1072  	  ;
+1073  	  RETURN l_message;
+1074  	EXCEPTION
+1075  	  WHEN OTHERS THEN
+1076  	    IF SQLCODE != -20099
+1077  	    THEN
+1078  	      otap_log.log(SQLERRM, 'otap_test.throws_like', 'l_message := otap_api.throws_like( p_statement, ...');
+1079  	    END IF;
+1080  	    RAISE;
+1081  	END throws_like;
+1082  
+1083  	-- generate functions
+1084  	PROCEDURE generate_set_type(p_gen_type IN VARCHAR2)
+1085  	IS
+1086  	BEGIN
+1087  	  otap_generate.set_gen_type(p_gen_type);
+1088  	END generate_set_type;
+1089  
+1090  	FUNCTION generate_type
+1091  	  RETURN VARCHAR2
+1092  	IS
+1093  	  l_return VARCHAR2(1);
+1094  	BEGIN
+1095  	  l_return := otap_generate.get_gen_type;
+1096  	  RETURN l_return;
+1097  	END generate_type;
+1098  
+1099  	FUNCTION generate_schema_tests( p_like_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1100  				      , p_required_user IN VARCHAR2 DEFAULT NULL
+1101  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
+1102  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1103  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1104  				      )
+1105  	  RETURN otap_view_result_tbl PIPELINED
+1106  	IS
+1107  	  CURSOR cur_tests( cp_like   IN VARCHAR2
+1108  			  , cp_users  IN VARCHAR2
+1109  			  , cp_prefix IN VARCHAR2
+1110  			  , cp_show   IN NUMBER
+1111  			  , cp_excl   IN NUMBER
+1112  			  )
+1113  	  IS
+1114  	    SELECT result_text
+1115  	      FROM TABLE(otap_generate.schema_tests(cp_like, cp_users, cp_prefix, cp_show, cp_excl))
+1116  	  ;
+1117  	BEGIN
+1118  	  FOR rec IN cur_tests(p_like_schema, p_required_user, p_title_prefix, p_show_header, p_excl_sysgen)
+1119  	  LOOP
+1120  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1121  	  END LOOP;
+1122  	  RETURN;
+1123  	EXCEPTION
+1124  	  WHEN NO_DATA_NEEDED THEN
+1125  	    RAISE;
+1126  	END generate_schema_tests;
+1127  
+1128  	FUNCTION generate_table_tests( p_like_table    IN VARCHAR2 DEFAULT '%'
+1129  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1130  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1131  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1132  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1133  				     )
+1134  	  RETURN otap_view_result_tbl PIPELINED
+1135  	IS
+1136  	  CURSOR cur_tests( cp_like   IN VARCHAR2
+1137  			  , cp_schema IN VARCHAR2
+1138  			  , cp_prefix IN VARCHAR2
+1139  			  , cp_show   IN NUMBER
+1140  			  , cp_excl   IN NUMBER
+1141  			  )
+1142  	  IS
+1143  	    SELECT result_text
+1144  	      FROM TABLE(otap_generate.table_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1145  	  ;
+1146  	BEGIN
+1147  	  FOR rec IN cur_tests(p_like_table, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1148  	  LOOP
+1149  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1150  	  END LOOP;
+1151  	  RETURN;
+1152  	EXCEPTION
+1153  	  WHEN NO_DATA_NEEDED THEN
+1154  	    RAISE;
+1155  	END generate_table_tests;
+1156  
+1157  	FUNCTION generate_column_tests( p_table 	IN VARCHAR2
+1158  				      , p_like_column	IN VARCHAR2 DEFAULT '%'
+1159  				      , p_schema	IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1160  				      , p_title_prefix	IN VARCHAR2 DEFAULT NULL
+1161  				      , p_show_header	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1162  				      , p_excl_sysgen	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1163  				      )
+1164  	  RETURN otap_view_result_tbl PIPELINED
+1165  	IS
+1166  	  CURSOR cur_tests( cp_table  IN VARCHAR2
+1167  			  , cp_like   IN VARCHAR2
+1168  			  , cp_schema IN VARCHAR2
+1169  			  , cp_prefix IN VARCHAR2
+1170  			  , cp_show   IN NUMBER
+1171  			  , cp_excl   IN NUMBER
+1172  			  )
+1173  	  IS
+1174  	    SELECT result_text
+1175  	      FROM TABLE(otap_generate.column_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1176  	  ;
+1177  	BEGIN
+1178  	  FOR rec IN cur_tests(p_table, p_like_column, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1179  	  LOOP
+1180  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1181  	  END LOOP;
+1182  	  RETURN;
+1183  	EXCEPTION
+1184  	  WHEN NO_DATA_NEEDED THEN
+1185  	    RAISE;
+1186  	END generate_column_tests;
+1187  
+1188  	FUNCTION generate_trigger_tests( p_like_trigger  IN VARCHAR2 DEFAULT '%'
+1189  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1190  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1191  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1192  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1193  				       )
+1194  	  RETURN otap_view_result_tbl PIPELINED
+1195  	IS
+1196  	  CURSOR cur_tests( cp_like   IN VARCHAR2
+1197  			  , cp_schema IN VARCHAR2
+1198  			  , cp_prefix IN VARCHAR2
+1199  			  , cp_show   IN NUMBER
+1200  			  , cp_excl   IN NUMBER
+1201  			  )
+1202  	  IS
+1203  	    SELECT result_text
+1204  	      FROM TABLE(otap_generate.trigger_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1205  	  ;
+1206  	BEGIN
+1207  	  FOR rec IN cur_tests(p_like_trigger, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1208  	  LOOP
+1209  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1210  	  END LOOP;
+1211  	  RETURN;
+1212  	EXCEPTION
+1213  	  WHEN NO_DATA_NEEDED THEN
+1214  	    RAISE;
+1215  	END generate_trigger_tests;
+1216  
+1217  	FUNCTION generate_package_tests( p_like_package  IN VARCHAR2 DEFAULT '%'
+1218  				       , p_schema	 IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1219  				       , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1220  				       , p_show_header	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1221  				       , p_excl_sysgen	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1222  				       )
+1223  	  RETURN otap_view_result_tbl PIPELINED
+1224  	IS
+1225  	  CURSOR cur_tests( cp_like   IN VARCHAR2
+1226  			  , cp_schema IN VARCHAR2
+1227  			  , cp_prefix IN VARCHAR2
+1228  			  , cp_show   IN NUMBER
+1229  			  , cp_excl   IN NUMBER
+1230  			  )
+1231  	  IS
+1232  	    SELECT result_text
+1233  	      FROM TABLE(otap_generate.package_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1234  	  ;
+1235  	BEGIN
+1236  	  FOR rec IN cur_tests(p_like_package, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1237  	  LOOP
+1238  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1239  	  END LOOP;
+1240  	  RETURN;
+1241  	EXCEPTION
+1242  	  WHEN NO_DATA_NEEDED THEN
+1243  	    RAISE;
+1244  	END generate_package_tests;
+1245  
+1246  	FUNCTION generate_procedure_tests( p_like_procedure IN VARCHAR2 DEFAULT '%'
+1247  					 , p_package_name   IN VARCHAR	DEFAULT NULL
+1248  					 , p_schema	    IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1249  					 , p_title_prefix   IN VARCHAR2 DEFAULT NULL
+1250  					 , p_show_header    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1251  					 , p_excl_sysgen    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1252  					 )
+1253  	  RETURN otap_view_result_tbl PIPELINED
+1254  	IS
+1255  	  CURSOR cur_tests( cp_like	IN VARCHAR2
+1256  			  , cp_package	IN VARCHAR2
+1257  			  , cp_schema	IN VARCHAR2
+1258  			  , cp_prefix	IN VARCHAR2
+1259  			  , cp_show	IN NUMBER
+1260  			  , cp_excl	IN NUMBER
+1261  			  )
+1262  	  IS
+1263  	    SELECT result_text
+1264  	      FROM TABLE(otap_generate.procedure_tests(cp_like, cp_package, cp_schema, cp_prefix, cp_show, cp_excl))
+1265  	  ;
+1266  	BEGIN
+1267  	  FOR rec IN cur_tests(p_like_procedure, p_package_name, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1268  	  LOOP
+1269  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1270  	  END LOOP;
+1271  	  RETURN;
+1272  	EXCEPTION
+1273  	  WHEN NO_DATA_NEEDED THEN
+1274  	    RAISE;
+1275  	END generate_procedure_tests;
+1276  
+1277  	FUNCTION generate_view_tests( p_like_view     IN VARCHAR2 DEFAULT '%'
+1278  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1279  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1280  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1281  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1282  				    )
+1283  	  RETURN otap_view_result_tbl PIPELINED
+1284  	IS
+1285  	  CURSOR cur_tests( cp_like	IN VARCHAR2
+1286  			  , cp_schema	IN VARCHAR2
+1287  			  , cp_prefix	IN VARCHAR2
+1288  			  , cp_show	IN NUMBER
+1289  			  , cp_excl	IN NUMBER
+1290  			  )
+1291  	  IS
+1292  	    SELECT result_text
+1293  	      FROM TABLE(otap_generate.view_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1294  	  ;
+1295  	BEGIN
+1296  	  FOR rec IN cur_tests(p_like_view, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1297  	  LOOP
+1298  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1299  	  END LOOP;
+1300  	  RETURN;
+1301  	EXCEPTION
+1302  	  WHEN NO_DATA_NEEDED THEN
+1303  	    RAISE;
+1304  	END generate_view_tests;
+1305  
+1306  	FUNCTION generate_schema_user_test( p_schema	    IN VARCHAR2 DEFAULT NULL
+1307  					  , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1308  					  , p_show_header   IN INTEGER	DEFAULT otap_constants.OTAP_NUM_TRUE
+1309  					  )
+1310  	  RETURN otap_view_result_tbl PIPELINED
+1311  	IS
+1312  	  CURSOR cur_tests( cp_schema	IN VARCHAR2
+1313  			  , cp_prefix	IN VARCHAR2
+1314  			  , cp_show	IN NUMBER
+1315  			  )
+1316  	  IS
+1317  	    SELECT result_text
+1318  	      FROM TABLE(otap_generate.schema_user_test(cp_schema, cp_prefix, cp_show))
+1319  	  ;
+1320  	BEGIN
+1321  	  FOR rec IN cur_tests(p_schema, p_title_prefix, p_show_header)
+1322  	  LOOP
+1323  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1324  	  END LOOP;
+1325  	  RETURN;
+1326  	EXCEPTION
+1327  	  WHEN NO_DATA_NEEDED THEN
+1328  	    RAISE;
+1329  	END generate_schema_user_test;
+1330  
+1331  	FUNCTION generate_related_user_tests( p_user_list     IN VARCHAR2 DEFAULT NULL
+1332  					    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1333  					    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1334  					    )
+1335  	  RETURN otap_view_result_tbl PIPELINED
+1336  	IS
+1337  	  CURSOR cur_tests( cp_user_list IN VARCHAR2
+1338  			  , cp_prefix	 IN VARCHAR2
+1339  			  , cp_show	 IN NUMBER
+1340  			  )
+1341  	  IS
+1342  	    SELECT result_text
+1343  	      FROM TABLE(otap_generate.related_user_tests(cp_user_list, cp_prefix, cp_show))
+1344  	  ;
+1345  	BEGIN
+1346  	  FOR rec IN cur_tests(p_user_list, p_title_prefix, p_show_header)
+1347  	  LOOP
+1348  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1349  	  END LOOP;
+1350  	  RETURN;
+1351  	EXCEPTION
+1352  	  WHEN NO_DATA_NEEDED THEN
+1353  	    RAISE;
+1354  	END generate_related_user_tests;
+1355  
+1356  	FUNCTION generate_constraint_tests( p_table	       IN VARCHAR2
+1357  					  , p_like_constraints IN VARCHAR2 DEFAULT '%'
+1358  					  , p_schema	       IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1359  					  , p_title_prefix     IN VARCHAR2 DEFAULT NULL
+1360  					  , p_show_header      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1361  					  , p_excl_sysgen      IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1362  					  )
+1363  	  RETURN otap_view_result_tbl PIPELINED
+1364  	IS
+1365  	  CURSOR cur_tests( cp_table   IN VARCHAR2
+1366  			  , cp_like    IN VARCHAR2
+1367  			  , cp_schema  IN VARCHAR2
+1368  			  , cp_prefix  IN VARCHAR2
+1369  			  , cp_show    IN NUMBER
+1370  			  , cp_excl    IN NUMBER
+1371  			  )
+1372  	  IS
+1373  	    SELECT result_text
+1374  	      FROM TABLE(otap_generate.constraint_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1375  	  ;
+1376  	BEGIN
+1377  	  FOR rec IN cur_tests(p_table, p_like_constraints, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1378  	  LOOP
+1379  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1380  	  END LOOP;
+1381  	  RETURN;
+1382  	EXCEPTION
+1383  	  WHEN NO_DATA_NEEDED THEN
+1384  	    RAISE;
+1385  	END generate_constraint_tests;
+1386  
+1387  	FUNCTION generate_index_tests( p_table	       IN VARCHAR2
+1388  				     , p_like_index    IN VARCHAR2 DEFAULT '%'
+1389  				     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1390  				     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1391  				     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1392  				     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1393  				     )
+1394  	  RETURN otap_view_result_tbl PIPELINED
+1395  	IS
+1396  	  CURSOR cur_tests( cp_table   IN VARCHAR2
+1397  			  , cp_like    IN VARCHAR2
+1398  			  , cp_schema  IN VARCHAR2
+1399  			  , cp_prefix  IN VARCHAR2
+1400  			  , cp_show    IN NUMBER
+1401  			  , cp_excl    IN NUMBER
+1402  			  )
+1403  	  IS
+1404  	    SELECT result_text
+1405  	      FROM TABLE(otap_generate.index_tests(cp_table, cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1406  	  ;
+1407  	BEGIN
+1408  	  FOR rec IN cur_tests(p_table, p_like_index, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1409  	  LOOP
+1410  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1411  	  END LOOP;
+1412  	  RETURN;
+1413  	EXCEPTION
+1414  	  WHEN NO_DATA_NEEDED THEN
+1415  	    RAISE;
+1416  	END generate_index_tests;
+1417  
+1418  	FUNCTION generate_type_tests( p_like_type     IN VARCHAR2 DEFAULT '%'
+1419  				    , p_schema	      IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1420  				    , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1421  				    , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1422  				    , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1423  				    )
+1424  	  RETURN otap_view_result_tbl PIPELINED
+1425  	IS
+1426  	  CURSOR cur_tests( cp_like    IN VARCHAR2
+1427  			  , cp_schema  IN VARCHAR2
+1428  			  , cp_prefix  IN VARCHAR2
+1429  			  , cp_show    IN NUMBER
+1430  			  , cp_excl    IN NUMBER
+1431  			  )
+1432  	  IS
+1433  	    SELECT result_text
+1434  	      FROM TABLE(otap_generate.type_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1435  	  ;
+1436  	BEGIN
+1437  	  FOR rec IN cur_tests(p_like_type, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1438  	  LOOP
+1439  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1440  	  END LOOP;
+1441  	  RETURN;
+1442  	EXCEPTION
+1443  	  WHEN NO_DATA_NEEDED THEN
+1444  	    RAISE;
+1445  	END generate_type_tests;
+1446  
+1447  	FUNCTION generate_sequence_tests( p_like_sequence IN VARCHAR2 DEFAULT '%'
+1448  					, p_schema	  IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1449  					, p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1450  					, p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1451  					, p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1452  					)
+1453  	  RETURN otap_view_result_tbl PIPELINED
+1454  	IS
+1455  	  CURSOR cur_tests( cp_like    IN VARCHAR2
+1456  			  , cp_schema  IN VARCHAR2
+1457  			  , cp_prefix  IN VARCHAR2
+1458  			  , cp_show    IN NUMBER
+1459  			  , cp_excl    IN NUMBER
+1460  			  )
+1461  	  IS
+1462  	    SELECT result_text
+1463  	      FROM TABLE(otap_generate.sequence_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1464  	  ;
+1465  	BEGIN
+1466  	  FOR rec IN cur_tests(p_like_sequence, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1467  	  LOOP
+1468  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1469  	  END LOOP;
+1470  	  RETURN;
+1471  	EXCEPTION
+1472  	  WHEN NO_DATA_NEEDED THEN
+1473  	    RAISE;
+1474  	END generate_sequence_tests;
+1475  
+1476  	FUNCTION generate_scheduler_job_tests( p_like_job      IN VARCHAR2 DEFAULT '%'
+1477  					     , p_schema        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1478  					     , p_title_prefix  IN VARCHAR2 DEFAULT NULL
+1479  					     , p_show_header   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1480  					     , p_excl_sysgen   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_TRUE
+1481  					     )
+1482  	  RETURN otap_view_result_tbl PIPELINED
+1483  	IS
+1484  	  CURSOR cur_tests( cp_like    IN VARCHAR2
+1485  			  , cp_schema  IN VARCHAR2
+1486  			  , cp_prefix  IN VARCHAR2
+1487  			  , cp_show    IN NUMBER
+1488  			  , cp_excl    IN NUMBER
+1489  			  )
+1490  	  IS
+1491  	    SELECT result_text
+1492  	      FROM TABLE(otap_generate.sched_job_tests(cp_like, cp_schema, cp_prefix, cp_show, cp_excl))
+1493  	  ;
+1494  	BEGIN
+1495  	  FOR rec IN cur_tests(p_like_job, p_schema, p_title_prefix, p_show_header, p_excl_sysgen)
+1496  	  LOOP
+1497  	    PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
+1498  	  END LOOP;
+1499  	  RETURN;
+1500  	EXCEPTION
+1501  	  WHEN NO_DATA_NEEDED THEN
+1502  	    RAISE;
+1503  	END generate_scheduler_job_tests;
+1504  
+1505  END;
+1506  /
 
 Package body created.
 

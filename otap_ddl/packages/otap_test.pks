@@ -813,11 +813,11 @@ AS
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
+  * @return The test result as text.
+  *
   * Examples (english messages)
   * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', 'ORA-01476: divisor is equal to zero') AS test_result FROM dual;
   * SELECT otap_test.throws_ok('l_return := 1/0;', 'ORA-01476: divisor is equal to zero', 'l_return NUMBER;') AS test_result FROM dual;
-  *
-  * @return The test result as text.
   */
   FUNCTION throws_ok( p_statement       IN VARCHAR2
                     , p_sqlerrm         IN VARCHAR2
@@ -835,12 +835,15 @@ AS
   *
   * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
   * @param p_sqlcode Mandatory. The exact expected error code as returned by SQLCODE after a provoked exception.
-  * @param o_error Error information, if any, on the test executed.
   * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
   * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
   * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
   *
-  * @return The test result as number, either otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED or otap_constants.OTAP_NUM_TEST_UNDEFINED.
+  * @return The test result as text.
+  *
+  * Example
+  * SELECT otap_test.throws_ok('SELECT 1/0 FROM dual', -1476) AS test_result FROM dual;
   */
   FUNCTION throws_ok( p_statement       IN VARCHAR2
                     , p_sqlcode         IN NUMBER
@@ -849,6 +852,60 @@ AS
                     , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                     , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                     )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.throws_matches
+  * Same as otap_test.throws_ok apart from using Oracle REGEXP to identify the error message.
+  *
+  * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+  * @param p_regex_sqlerrm Mandatory. The regular expression to match the expected error message as returned by SQLERRM after a provoked exception.
+  * @param p_param Optional valid parameter for REGEXP_LIKE. 'i' means case insensitive. Parameters are case sensitive. See Oracle documentation for details, https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19.
+  * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+  *
+  * @return The test result as text.
+  *
+  * Example (english message)
+  * SELECT otap_test.throws_matches('SELECT 1/0 FROM dual', '.*-01476: divisor is equal to zero.*') FROM dual;
+  */
+  FUNCTION throws_matches( p_statement       IN VARCHAR2
+                         , p_regex_sqlerrm   IN VARCHAR2
+                         , p_param           IN VARCHAR2 DEFAULT NULL
+                         , p_header_def      IN VARCHAR2 DEFAULT NULL
+                         , p_description     IN VARCHAR2 DEFAULT NULL
+                         , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.throws_like
+  * Same as otap_test.throws_ok apart from using Oracle LIKE to identify the error message.
+  *
+  * @param p_statement Mandatory. The statement as string to execute. Can be a select statement or function/procedure call. No need to proovide a begin end block. Syntax should be checked or will cause unexpected exceptions.
+  * @param p_like_sqlerrm Mandatory. The LIKE expression to match the expected error message as returned by SQLERRM after a provoked exception.
+  * @param p_case_sensitive Optional defines that the compared result is handled as case sensitive, if set to otap_constants.OTAP_NUM_TRUE.
+  * @param p_header_def Optional valid header definition (test result is undefined if header is not valid) for function or procedure tests to support OUT and return variables.
+  * @param p_description The test description if any. If not given, a description is generated, see template.
+  * @param p_expected_result The expected test result as number. Default is test passed. See otap_constants.
+  * @param p_schema A schema override of the current test session if needed, taken as is. Compares are not clearly associated to a schema. Case sensitive.
+  *
+  * @return The test result as text.
+  *
+  * Example (english message)
+  * SELECT otap_test.throws_like('SELECT 1/0 FROM dual', '%-01476: divisor is equal to zero%') FROM dual;
+  */
+  FUNCTION throws_like( p_statement       IN VARCHAR2
+                      , p_like_sqlerrm    IN VARCHAR2
+                      , p_case_sensitive  IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+                      , p_header_def      IN VARCHAR2 DEFAULT NULL
+                      , p_description     IN VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      )
     RETURN VARCHAR2
   ;
 

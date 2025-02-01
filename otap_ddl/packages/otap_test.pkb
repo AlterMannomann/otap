@@ -1017,6 +1017,72 @@ AS
       RAISE;
   END throws_ok;
 
+  FUNCTION throws_matches( p_statement       IN VARCHAR2
+                         , p_regex_sqlerrm   IN VARCHAR2
+                         , p_param           IN VARCHAR2 DEFAULT NULL
+                         , p_header_def      IN VARCHAR2 DEFAULT NULL
+                         , p_description     IN VARCHAR2 DEFAULT NULL
+                         , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                         )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.throws_matches( p_statement
+                                        , p_regex_sqlerrm
+                                        , session_record
+                                        , p_param
+                                        , p_header_def
+                                        , p_description
+                                        , p_expected_result
+                                        , p_schema
+                                        )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.throws_matches', 'l_message := otap_api.throws_matches( p_statement, ...');
+      END IF;
+      RAISE;
+  END throws_matches;
+
+  FUNCTION throws_like( p_statement       IN VARCHAR2
+                      , p_like_sqlerrm    IN VARCHAR2
+                      , p_case_sensitive  IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
+                      , p_header_def      IN VARCHAR2 DEFAULT NULL
+                      , p_description     IN VARCHAR2 DEFAULT NULL
+                      , p_expected_result IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                      )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.throws_like( p_statement
+                                     , p_like_sqlerrm
+                                     , session_record
+                                     , p_case_sensitive
+                                     , p_header_def
+                                     , p_description
+                                     , p_expected_result
+                                     , p_schema
+                                     )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.throws_like', 'l_message := otap_api.throws_like( p_statement, ...');
+      END IF;
+      RAISE;
+  END throws_like;
+
   -- generate functions
   PROCEDURE generate_set_type(p_gen_type IN VARCHAR2)
   IS

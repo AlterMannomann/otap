@@ -637,21 +637,51 @@ AS
   FUNCTION throws_ok( p_statement       IN            VARCHAR2
                     , p_sqlerrm         IN            VARCHAR2
                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                    , p_header_def      IN            VARCHAR2      DEFAULT NULL
-                    , p_description     IN            VARCHAR2      DEFAULT NULL
-                    , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-                    , p_schema          IN            VARCHAR2      DEFAULT NULL
+                    , p_header_def      IN            VARCHAR2     DEFAULT NULL
+                    , p_description     IN            VARCHAR2     DEFAULT NULL
+                    , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN            VARCHAR2     DEFAULT NULL
                     )
     RETURN VARCHAR2
   ;
   FUNCTION throws_ok( p_statement       IN            VARCHAR2
                     , p_sqlcode         IN            NUMBER
                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                    , p_header_def      IN            VARCHAR2      DEFAULT NULL
-                    , p_description     IN            VARCHAR2      DEFAULT NULL
-                    , p_expected_result IN            NUMBER        DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-                    , p_schema          IN            VARCHAR2      DEFAULT NULL
+                    , p_header_def      IN            VARCHAR2     DEFAULT NULL
+                    , p_description     IN            VARCHAR2     DEFAULT NULL
+                    , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                    , p_schema          IN            VARCHAR2     DEFAULT NULL
                     )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.throws_matches
+  * @see otap_logic.throws_matches and otap_test.throws_matches
+  */
+  FUNCTION throws_matches( p_statement       IN            VARCHAR2
+                         , p_regex_sqlerrm   IN            VARCHAR2
+                         , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                         , p_param           IN            VARCHAR2     DEFAULT NULL
+                         , p_header_def      IN            VARCHAR2     DEFAULT NULL
+                         , p_description     IN            VARCHAR2     DEFAULT NULL
+                         , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                         , p_schema          IN            VARCHAR2     DEFAULT NULL
+                         )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_logic.throws_like
+  * @see otap_logic.throws_like and otap_test.throws_like
+  */
+  FUNCTION throws_like( p_statement       IN            VARCHAR2
+                      , p_like_sqlerrm    IN            VARCHAR2
+                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                      , p_case_sensitive  IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_FALSE
+                      , p_header_def      IN            VARCHAR2     DEFAULT NULL
+                      , p_description     IN            VARCHAR2     DEFAULT NULL
+                      , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+                      , p_schema          IN            VARCHAR2     DEFAULT NULL
+                      )
     RETURN VARCHAR2
   ;
 
