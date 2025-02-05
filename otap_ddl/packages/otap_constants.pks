@@ -18,7 +18,7 @@ AS
   /*====================================== start package constants used by otap ======================================*/
 
   -- the following constants have get functions that can be used in SQL selects
-  OTAP_INTERNAL_VERSION_NR CONSTANT CHAR(14)            := 'v1.0.0-beta.1';
+  OTAP_INTERNAL_VERSION_NR CONSTANT CHAR(13)            := 'v1.0.0-beta.1';
   OTAP_INTERNAL_NAME       CONSTANT CHAR(38)            := 'otap - Oracle Test Automation Protocol';
   OTAP_INTERNAL_COPYRIGHT1 CONSTANT CHAR(80)            := '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt';
   OTAP_INTERNAL_COPYRIGHT2 CONSTANT CHAR(54)            := 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1';
@@ -88,7 +88,7 @@ AS
   OTAP_FALLBACK_DEFAULT_TEST_SET      CONSTANT CHAR(13)       := 'OTAP test set';
   OTAP_FALLBACK_DEFAULT_TEST_GROUP    CONSTANT CHAR(15)       := 'OTAP test group';
   OTAP_FALLBACK_DEFAULT_TEST_NAME     CONSTANT CHAR(14)       := 'OTAP test name';
-  OTAP_FALLBACK_DEFAULT_LANGUAGE      CONSTANT CHAR(3)        := 'en';
+  OTAP_FALLBACK_DEFAULT_LANGUAGE      CONSTANT CHAR(2)        := 'en';
   OTAP_FALLBACK_LAYOUT_DEFAULT        CONSTANT CHAR(1)        := 'M';
   OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT CONSTANT CHAR(1)        := 'L';
   OTAP_FALLBACK_LABEL_DEFAULT         CONSTANT CHAR(1)        := 'L';

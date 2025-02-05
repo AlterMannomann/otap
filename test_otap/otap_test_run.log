@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 459
+SQL> SELECT otap_test.init_test( p_test_count => 553
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 5
+Test session id: 15
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15,39 +15,31 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 459
+Expected tests: 553
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 5
-Test start: 2025-01-24 02:48:57
+Current view id: 15
+Test start: 2025-02-05 18:45:30
 
 
 1 row selected.
 
 SQL> 
 SQL> -- call directory master scripts
-SQL> @@functionality/otap_testing_master.sql
+SQL> @@test_functionality/test_basics/test_basic_master.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
 SQL> 
-SQL> -- sets the test set name and calls the test group scripts
-SQL> 
-SQL> SELECT otap_test.set_test_set('OTAP functionality') FROM dual;
-Current test set: OTAP functionality
+SQL> SELECT otap_test.set_test_set('OTAP basic functionality') FROM dual;
+Current test set: OTAP basic functionality
 
 1 row selected.
 
-SQL> @@functionality/test_functions/otap_test_function_master.sql
-SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
-SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
-SQL> -- Not allowed to be used as AI training material without explicite permission.
-SQL> 
 SQL> -- sets group name and calls the scripts that set the test name and execute the tests for this name
-SQL> 
-SQL> SELECT otap_test.set_test_group('OTAP test functions') FROM dual;
-Current test group: OTAP test functions
+SQL> SELECT otap_test.set_test_group('OTAP basic test functions') FROM dual;
+Current test group: OTAP basic test functions
 
 1 row selected.
 
@@ -689,7 +681,7 @@ Passed trigger OTAP_CONFIG_INS_TRG exists check (OTAP)
 
 1 row selected.
 
-SQL> @@schema/otap_schema_master.sql
+SQL> @@test_schema/test_schema_master.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
@@ -2336,6 +2328,16 @@ Passed function OTAP_REPORT.GET_GROUP_TEXT exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_SEPARATOR_LINE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_REPORT'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_REPORT.GET_SEPARATOR_LINE exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_NAME_TEXT'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2363,16 +2365,6 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_COUNT_DESC'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_REPORT.GET_COUNT_DESC exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_SEPARATOR_LINE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_REPORT'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_REPORT.GET_SEPARATOR_LINE exists check (OTAP)
 
 1 row selected.
 
@@ -2439,6 +2431,16 @@ Passed package body OTAP_OBJECTS exists check (OTAP)
 
 SQL> -- otap GENERATE test scripts OTAP procedures
 SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_GROUP'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_OBJECTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_VERIFY'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'PROCEDURE'
@@ -2485,16 +2487,6 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_SET exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_GROUP'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_OBJECTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
 
 1 row selected.
 
@@ -2682,6 +2674,16 @@ Passed function OTAP_SCHEMA.HAS_TABLE exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_SCHEMA'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_SCHEMA.HAS_TRIGGER exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_COLUMN'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2709,16 +2711,6 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_PROCEDURE'
   5  				   , p_return_type => 'NUMBER'
   6  				   ) FROM dual;
 Passed function OTAP_SCHEMA.HAS_PROCEDURE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_SCHEMA'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_SCHEMA.HAS_TRIGGER exists check (OTAP)
 
 1 row selected.
 
@@ -3224,6 +3216,16 @@ Passed function OTAP_API.HAS_OBJECT exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.HAS_INDEX exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_CONSTRAINT'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3254,16 +3256,6 @@ Passed function OTAP_API.HAS_NOT_NULL_CONSTRAINT exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_API.HAS_INDEX exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TYPE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3281,6 +3273,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_SEQUENCE'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_API.HAS_SEQUENCE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.IS_EQ exists check (OTAP)
 
 1 row selected.
 
@@ -3314,16 +3316,6 @@ Passed function OTAP_API.OK exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_API.IS_EQ exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3334,13 +3326,43 @@ Passed function OTAP_API.MATCH_REGEX exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'ALIKE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
   4  				   , p_package_name => 'OTAP_API'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
-Passed function OTAP_API.MATCH_LIKE exists check (OTAP)
+Passed function OTAP_API.ALIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_OK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.THROWS_OK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.THROWS_LIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.THROWS_MATCHES exists check (OTAP)
 
 1 row selected.
 
@@ -3617,16 +3639,6 @@ Passed function OTAP_TEST.HAS_SCHEDULER_JOB exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEDULER_JOB_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_TEST'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_TEST.GENERATE_SCHEDULER_JOB_TESTS exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_USER'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3667,13 +3679,43 @@ Passed function OTAP_TEST.MATCH_REGEX exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'ALIKE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
   4  				   , p_package_name => 'OTAP_TEST'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
-Passed function OTAP_TEST.MATCH_LIKE exists check (OTAP)
+Passed function OTAP_TEST.ALIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_OK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.THROWS_OK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.THROWS_MATCHES exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.THROWS_LIKE exists check (OTAP)
 
 1 row selected.
 
@@ -3773,6 +3815,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEMA_USER_T
   5  				   , p_return_type => 'TABLE'
   6  				   ) FROM dual;
 Passed function OTAP_TEST.GENERATE_SCHEMA_USER_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GENERATE_SCHEDULER_JOB_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.GENERATE_SCHEDULER_JOB_TESTS exists check (OTAP)
 
 1 row selected.
 
@@ -4634,13 +4686,73 @@ Passed function OTAP_LOGIC.MATCH_REGEX exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_LIKE'
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'ALIKE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
   4  				   , p_package_name => 'OTAP_LOGIC'
   5  				   , p_return_type => 'NUMBER'
   6  				   ) FROM dual;
-Passed function OTAP_LOGIC.MATCH_LIKE exists check (OTAP)
+Passed function OTAP_LOGIC.ALIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_OK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_OK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_MATCHES exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_LIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CHECK_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.CHECK_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_BLOCK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.GET_TEST_BLOCK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_EXCEPTION'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.HAS_EXCEPTION exists check (OTAP)
 
 1 row selected.
 
@@ -4992,13 +5104,170 @@ Passed scheduler job OTAP_MAINTENANCE exists check (OTAP)
 
 1 row selected.
 
-SQL> --@@functionality/otap_functionality_master.sql
+SQL> @@test_functionality/test_main/test_main_master.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- set only test set
+SQL> SELECT otap_test.set_test_set('OTAP main functionality') FROM dual;
+Current test set: OTAP main functionality
+
+1 row selected.
+
+SQL> -- call script sections
+SQL> -- basic packages
+SQL> SELECT otap_test.set_test_group('OTAP basic package functionality') FROM dual;
+Current test group: OTAP basic package functionality
+
+1 row selected.
+
+SQL> @@otap_constants.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> -- read setup configuration as written by DBA setup, path relative to setup caller
+SQL> @@../setup/otap_setup_def.sql
+SQL> -- generated by DBA setup, do not edit this file manually
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> 
+SQL> DEFINE OTAP_USER="OTAP"
+SQL> DEFINE OTAP_TABLESPACE="OTAP_TABLESPACE"
+SQL> DEFINE OTAP_ROLE="OTAP_USER"
+SQL> DEFINE ROLE_CREATOR="SYS"
+SQL> 
+SQL> -- sets the test name and calls the tests for this test name
+SQL> -- basic schema tests already done
+SQL> SELECT otap_test.set_test_name('Verify otap_constants functionality') FROM dual;
+Current test: Verify otap_constants functionality
+
+1 row selected.
+
+SQL> -- to verify package constants we use a anonymous PLSQL block
+SQL> -- to not overload DBMS_OUTPUT only minimal summary output
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return VARCHAR2(4000);
+  3  BEGIN
+  4    -- this setting has to be adjusted with every version
+  5    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_VERSION_NR, 'v1.0.0-beta.1', 'Check internal version number');
+  6    -- stable constants
+  7    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_NAME, 'otap - Oracle Test Automation Protocol', 'Check internal name');
+  8    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_COPYRIGHT1, '(C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt', 'Check copyright line 1');
+  9    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_COPYRIGHT2, 'and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1', 'Check copyright line 2');
+ 10    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_COPYRIGHT3, 'Not allowed to be used as AI training material without explicite permission.', 'Check copyright line 3');
+ 11    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_USER_ROLE, '&OTAP_ROLE', 'Check otap role');
+ 12    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_SCHEMA, '&OTAP_USER', 'Check otap user');
+ 13    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_TABLESPACE, '&OTAP_TABLESPACE', 'Check otap tablespace');
+ 14    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_TRUE, 1, 'Check numeric true definition');
+ 15    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_FALSE, 0, 'Check numeric false definition');
+ 16    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_TEST_PASSED, 1, 'Check test passed definition');
+ 17    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_TEST_FAILED, -1, 'Check test failed definition');
+ 18    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_TEST_UNDEFINED, 0, 'Check test undefined definition');
+ 19    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 80, 'Check minimum report fill length');
+ 20    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 4000, 'Check maximum report fill length');
+ 21    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_DELIMITER, '_', 'Check default otap delimiter');
+ 22    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_ERROR, 'OTAP_ERROR', 'Check default otap error identifier');
+ 23    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_NA, 'N/A', 'Check default otap n/a identifier');
+ 24    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_VAR, '@', 'Check otap variable identifier');
+ 25    l_return := otap_test.is_eq(otap_constants.OTAP_CONFIG_TYPE_NUMBER, 'NUMBER', 'Check otap config number type');
+ 26    l_return := otap_test.is_eq(otap_constants.OTAP_CONFIG_TYPE_CHAR, 'CHAR', 'Check otap config character type');
+ 27    l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_LF, CHR(10), 'Check default otap LF');
+ 28    l_return := otap_test.is_eq(otap_constants.OTAP_NUM_PREFIX_MAX_SIZE, 4, 'Check maximum otap prefix length');
+ 29    l_return := otap_test.is_eq(otap_constants.OTAP_LAYOUT_RIGHT, 'R', 'Check otap layout identifier right');
+ 30    l_return := otap_test.is_eq(otap_constants.OTAP_LAYOUT_MIDDLE, 'M', 'Check otap layout identifier center');
+ 31    l_return := otap_test.is_eq(otap_constants.OTAP_LAYOUT_LEFT, 'L', 'Check otap layout identifier left');
+ 32    l_return := otap_test.is_eq(otap_constants.OTAP_LABEL_UPPER, 'U', 'Check otap format identifier UPPER');
+ 33    l_return := otap_test.is_eq(otap_constants.OTAP_LABEL_LOWER, 'L', 'Check otap format identifier lower');
+ 34    l_return := otap_test.is_eq(otap_constants.OTAP_LABEL_INIT_CAP, 'I', 'Check otap format identifier Initial Capitals');
+ 35    l_return := otap_test.is_eq(otap_constants.OTAP_TYPE_VAR, '@type@', 'Check otap type variable');
+ 36    l_return := otap_test.is_eq(otap_constants.OTAP_GEN_TYPE_SCRIPT, 'S', 'Check otap script identifier');
+ 37    l_return := otap_test.is_eq(otap_constants.OTAP_GEN_TYPE_FUNCTION, 'F', 'Check otap function identifier');
+ 38    l_return := otap_test.is_eq(otap_constants.OTAP_GEN_TYPE_PROCEDURE, 'P', 'Check otap procedure identifier');
+ 39    l_return := otap_test.is_eq(otap_constants.OTAP_CFG_DEBUG_MODE, 'DEBUG_MODE', 'Check otap debug mode identifier');
+ 40    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_BORDER, 5, 'Check otap fallback border size');
+ 41    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_BORDER_MIN, 2, 'Check otap fallback minimum border size');
+ 42    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_BORDER_MAX, 10, 'Check otap fallback maximum border size');
+ 43    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS, 1, 'Check otap fallback preserve days');
+ 44    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS_MIN, 1, 'Check otap fallback minimum preserve days');
+ 45    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS_MAX, 7, 'Check otap fallback maximum preserve days');
+ 46    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_DELAY, 10, 'Check otap fallback delete delay');
+ 47    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_DELAY_MIN, 1, 'Check otap fallback minimum delete delay');
+ 48    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_DELAY_MAX, 600, 'Check otap fallback maximum delete delay');
+ 49    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE, 1000, 'Check otap fallback delete batch size');
+ 50    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE_MIN, 100, 'Check otap fallback minimum delete batch size');
+ 51    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE_MAX, 10000, 'Check otap fallback maximum delete batch size');
+ 52    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_FORMAT_HEADER_CHAR, '=', 'Check otap fallback format header char');
+ 53    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_FORMAT_SET_CHAR, '*', 'Check otap fallback format test set char');
+ 54    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_FORMAT_GROUP_CHAR, '+', 'Check otap fallback format test group char');
+ 55    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, '-', 'Check otap fallback format test name char');
+ 56    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_TRUE, 'true', 'Check otap fallback text TRUE');
+ 57    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_FALSE, 'false', 'Check otap fallback text FALSE');
+ 58    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES, 'Yes', 'Check otap fallback boolean true to yes text');
+ 59    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO, 'No', 'Check otap fallback boolean false to no text');
+ 60    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_TEST_PASSED, 'Passed', 'Check otap fallback text test passed');
+ 61    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_TEST_FAILED, 'FAILED', 'Check otap fallback text test failed');
+ 62    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, 'UNDEFINED', 'Check otap fallback text test undefined');
+ 63    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX, 'TEST', 'Check otap fallback test identifier prefix');
+ 64    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, 'OTAP test set', 'Check otap fallback test set default name');
+ 65    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, 'OTAP test group', 'Check otap fallback test group default name');
+ 66    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, 'OTAP test name', 'Check otap fallback test name default name');
+ 67    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_DEFAULT_LANGUAGE, 'en', 'Check otap fallback default language');
+ 68    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'M', 'Check otap fallback default layout definition');
+ 69    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT, 'L', 'Check otap fallback default result layout definition');
+ 70    l_return := otap_test.is_eq(otap_constants.OTAP_FALLBACK_LABEL_DEFAULT, 'L', 'Check otap fallback default label layout definition');
+ 71    DBMS_OUTPUT.PUT_LINE('OTAP_CONSTANTS internal constant check finished');
+ 72    -- check basic functions
+ 73    l_return := otap_test.alike(otap_constants.get_version, '%' || otap_constants.OTAP_INTERNAL_NAME || '%' || otap_constants.OTAP_INTERNAL_VERSION_NR || '%' || otap_constants.OTAP_INTERNAL_COPYRIGHT1 || '%' || otap_constants.OTAP_INTERNAL_COPYRIGHT2 || '%', otap_constants.OTAP_NUM_FALSE, 'Check otap_constants.get_version');
+ 74    l_return := otap_test.is_eq(otap_constants.get_otap_user_role, '&OTAP_ROLE', 'Check otap_constants.get_otap_user_role');
+ 75    l_return := otap_test.is_eq(otap_constants.get_otap_schema, '&OTAP_USER', 'Check otap_constants.get_otap_schema');
+ 76    l_return := otap_test.is_eq(otap_constants.get_otap_tablespace, '&OTAP_TABLESPACE', 'Check otap_constants.get_otap_tablespace');
+ 77    l_return := otap_test.is_eq(otap_constants.get_otap_num_true, OTAP_CONSTANTS.OTAP_NUM_TRUE, 'Check otap_constants.get_otap_num_true');
+ 78    l_return := otap_test.is_eq(otap_constants.get_otap_num_false, OTAP_CONSTANTS.OTAP_NUM_FALSE, 'Check otap_constants.get_otap_num_false');
+ 79    l_return := otap_test.is_eq(otap_constants.get_otap_num_test_passed, OTAP_CONSTANTS.OTAP_NUM_TEST_PASSED, 'Check otap_constants.get_otap_num_test_passed');
+ 80    l_return := otap_test.is_eq(otap_constants.get_otap_num_test_failed, OTAP_CONSTANTS.OTAP_NUM_TEST_FAILED, 'Check otap_constants.get_otap_num_test_failed');
+ 81    l_return := otap_test.is_eq(otap_constants.get_otap_num_test_undefined, OTAP_CONSTANTS.OTAP_NUM_TEST_UNDEFINED, 'Check otap_constants.get_otap_num_test_undefined');
+ 82    l_return := otap_test.is_eq(otap_constants.get_otap_num_min_fill_length, OTAP_CONSTANTS.OTAP_NUM_MIN_FILL_LENGTH, 'Check otap_constants.get_otap_num_min_fill_length');
+ 83    l_return := otap_test.is_eq(otap_constants.get_otap_num_max_fill_length, OTAP_CONSTANTS.OTAP_NUM_MAX_FILL_LENGTH, 'Check otap_constants.get_otap_num_max_fill_length');
+ 84    l_return := otap_test.is_eq(otap_constants.get_otap_internal_delimiter, OTAP_CONSTANTS.OTAP_INTERNAL_DELIMITER, 'Check otap_constants.get_otap_internal_delimiter');
+ 85    l_return := otap_test.is_eq(otap_constants.get_otap_internal_error, OTAP_CONSTANTS.OTAP_INTERNAL_ERROR, 'Check otap_constants.get_otap_internal_error');
+ 86    l_return := otap_test.is_eq(otap_constants.get_otap_internal_na, OTAP_CONSTANTS.OTAP_INTERNAL_NA, 'Check otap_constants.get_otap_internal_na');
+ 87    l_return := otap_test.is_eq(otap_constants.get_otap_internal_var, OTAP_CONSTANTS.OTAP_INTERNAL_VAR, 'Check otap_constants.get_otap_internal_var');
+ 88    l_return := otap_test.is_eq(otap_constants.get_otap_config_type_number, OTAP_CONSTANTS.OTAP_CONFIG_TYPE_NUMBER, 'Check otap_constants.get_otap_config_type_number');
+ 89    l_return := otap_test.is_eq(otap_constants.get_otap_config_type_char, OTAP_CONSTANTS.OTAP_CONFIG_TYPE_CHAR, 'Check otap_constants.get_otap_config_type_char');
+ 90    DBMS_OUTPUT.PUT_LINE('OTAP_CONSTANTS function check finished');
+ 91  END;
+ 92  /
+old  11:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_USER_ROLE, '&OTAP_ROLE', 'Check otap role');
+new  11:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_USER_ROLE, 'OTAP_USER', 'Check otap role');
+old  12:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_SCHEMA, '&OTAP_USER', 'Check otap user');
+new  12:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_SCHEMA, 'OTAP', 'Check otap user');
+old  13:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_TABLESPACE, '&OTAP_TABLESPACE', 'Check otap tablespace');
+new  13:   l_return := otap_test.is_eq(otap_constants.OTAP_INTERNAL_TABLESPACE, 'OTAP_TABLESPACE', 'Check otap tablespace');
+old  74:   l_return := otap_test.is_eq(otap_constants.get_otap_user_role, '&OTAP_ROLE', 'Check otap_constants.get_otap_user_role');
+new  74:   l_return := otap_test.is_eq(otap_constants.get_otap_user_role, 'OTAP_USER', 'Check otap_constants.get_otap_user_role');
+old  75:   l_return := otap_test.is_eq(otap_constants.get_otap_schema, '&OTAP_USER', 'Check otap_constants.get_otap_schema');
+new  75:   l_return := otap_test.is_eq(otap_constants.get_otap_schema, 'OTAP', 'Check otap_constants.get_otap_schema');
+old  76:   l_return := otap_test.is_eq(otap_constants.get_otap_tablespace, '&OTAP_TABLESPACE', 'Check otap_constants.get_otap_tablespace');
+new  76:   l_return := otap_test.is_eq(otap_constants.get_otap_tablespace, 'OTAP_TABLESPACE', 'Check otap_constants.get_otap_tablespace');
+OTAP_CONSTANTS internal constant check finished
+OTAP_CONSTANTS function check finished
+
+PL/SQL procedure successfully completed.
+
+SQL> 
+SQL> -- @@otap_log.sql
+SQL> -- @@otap_util.sql
+SQL> -- table triggers
+SQL> -- table contents
+SQL> -- packages
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 5 tests: 459 from 459 errors: 0 run time: +000000000 00:00:29.000000000 started: 2025-01-24 02:48:57
+Summary id: 15 tests: 553 from 553 errors: 0 run time: +000000000 00:00:35.000000000 started: 2025-02-05 18:45:30
 Current test settings
-Test session id: 6
+Test session id: 16
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -5011,8 +5280,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 5
-Test start: 2025-01-24 02:49:26
+Current view id: 15
+Test start: 2025-02-05 18:46:05
 
 
 1 row selected.
