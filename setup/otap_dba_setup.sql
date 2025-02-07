@@ -369,7 +369,7 @@ BEGIN
   l_statement := 'GRANT SELECT ON dba_tab_identity_cols TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
   EXECUTE IMMEDIATE l_statement;
-  l_output := l_output || 'DBA_TAB_IDENTITY_COLS, '; || l_lf;
+  l_output := l_output || 'DBA_TAB_IDENTITY_COLS, ' || l_lf;
   --
   l_statement := 'GRANT SELECT ON gv_$instance TO &OTAP_USER.';
   DBMS_OUTPUT.PUT_LINE(l_statement || ';');
