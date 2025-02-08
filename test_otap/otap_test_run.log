@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 689
+SQL> SELECT otap_test.init_test( p_test_count => 750
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 32
+Test session id: 12
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 689
+Expected tests: 750
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 32
-Test start: 2025-02-07 03:54:32
+Current view id: 12
+Test start: 2025-02-08 03:33:37
 
 
 1 row selected.
@@ -848,7 +848,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
   2  				, p_column_name => 'CONFIG_VALUE'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'N'
   7  				) FROM dual;
 Passed column OTAP_CONFIG.CONFIG_VALUE exists check (OTAP)
@@ -965,7 +965,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_CONFIG'
   2  				, p_column_name => 'CONFIG_DESCRIPTION'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_CONFIG.CONFIG_DESCRIPTION exists check (OTAP)
@@ -1329,7 +1329,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_RESULTS'
   2  				, p_column_name => 'TEST_ERRORS'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_RESULTS.TEST_ERRORS exists check (OTAP)
@@ -1963,6 +1963,231 @@ Current test group: packages
 1 row selected.
 
 SQL> -- set test name for package
+SQL> SELECT otap_test.set_test_name('package OTAP_CONSTANTS') FROM dual;
+Current test: package OTAP_CONSTANTS
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
+  2  				 , p_schema => 'OTAP'
+  3  				 ) FROM dual;
+Passed package OTAP_CONSTANTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
+  2  				 , p_schema => 'OTAP'
+  3  				 , p_package_type => 'PACKAGE BODY'
+  4  				 ) FROM dual;
+Passed package body OTAP_CONSTANTS exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP procedures
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_VERSION'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_VERSION exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_USER_ROLE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_USER_ROLE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_SCHEMA'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_SCHEMA exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_TABLESPACE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_TABLESPACE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TRUE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TRUE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_FALSE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_FALSE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_PASSED'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_PASSED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_FAILED'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_FAILED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_UNDEFINED'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_UNDEFINED exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_MIN_FILL_LENGTH'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_MIN_FILL_LENGTH exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_MAX_FILL_LENGTH'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_NUM_MAX_FILL_LENGTH exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_DELIMITER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_DELIMITER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_ERROR'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_ERROR exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_NA'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_NA exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_VAR'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_VAR exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_CONFIG_TYPE_NUMBER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_NUMBER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_CONFIG_TYPE_CHAR'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_CONSTANTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_CHAR exists check (OTAP)
+
+1 row selected.
+
+SQL> -- set test name for package
+SQL> SELECT otap_test.set_test_name('package OTAP_LOG') FROM dual;
+Current test: package OTAP_LOG
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
+  2  				 , p_schema => 'OTAP'
+  3  				 ) FROM dual;
+Passed package OTAP_LOG exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
+  2  				 , p_schema => 'OTAP'
+  3  				 , p_package_type => 'PACKAGE BODY'
+  4  				 ) FROM dual;
+Passed package body OTAP_LOG exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP procedures
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'LOG'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_LOG'
+  5  				   ) FROM dual;
+Passed procedure OTAP_LOG.LOG exists check (OTAP)
+
+1 row selected.
+
+SQL> -- set test name for package
 SQL> SELECT otap_test.set_test_name('package OTAP_STRING') FROM dual;
 Current test: package OTAP_STRING
 
@@ -2142,6 +2367,205 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_SYS_OBJECT'
   5  				   , p_return_type => 'BOOLEAN'
   6  				   ) FROM dual;
 Passed function OTAP_STRING.IS_SYS_OBJECT exists check (OTAP)
+
+1 row selected.
+
+SQL> -- set test name for package
+SQL> SELECT otap_test.set_test_name('package OTAP_UTIL') FROM dual;
+Current test: package OTAP_UTIL
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
+  2  				 , p_schema => 'OTAP'
+  3  				 ) FROM dual;
+Passed package OTAP_UTIL exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
+  2  				 , p_schema => 'OTAP'
+  3  				 , p_package_type => 'PACKAGE BODY'
+  4  				 ) FROM dual;
+Passed package body OTAP_UTIL exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP procedures
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_NUMBER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.IS_NUMBER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_INTEGER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.IS_INTEGER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_CONFIG_NAME'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   ) FROM dual;
+Passed procedure OTAP_UTIL.VALIDATE_CONFIG_NAME exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_CONFIG_VALUE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.VALIDATE_CONFIG_VALUE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_TRANSLATABLE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   ) FROM dual;
+Passed procedure OTAP_UTIL.VALIDATE_TRANSLATABLE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CONFIG_VALUE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_CONFIG_VALUE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CONFIG_NUMBER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_CONFIG_NUMBER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LABEL_ID'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_LABEL_ID exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_TEST_STATE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_LENGTH_TEST_STATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_SUMMARY_STATE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_LENGTH_SUMMARY_STATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_HEADERS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_LENGTH_HEADERS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_RESULT_HEADERS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.GET_LENGTH_RESULT_HEADERS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_RESULT_TO_TEXT'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.TEST_RESULT_TO_TEXT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CONSTRAINT_TYPE_TO_LABEL'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.CONSTRAINT_TYPE_TO_LABEL exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_MSG'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.BUILD_MSG exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'WRITE_TEST_RESULT'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   ) FROM dual;
+Passed procedure OTAP_UTIL.WRITE_TEST_RESULT exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MAX_TEXT_SIZE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_UTIL.MAX_TEXT_SIZE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'RESULT_CLEANUP'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_UTIL'
+  5  				   ) FROM dual;
+Passed procedure OTAP_UTIL.RESULT_CLEANUP exists check (OTAP)
 
 1 row selected.
 
@@ -2328,16 +2752,6 @@ Passed function OTAP_REPORT.GET_GROUP_TEXT exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_SEPARATOR_LINE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_REPORT'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_REPORT.GET_SEPARATOR_LINE exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_NAME_TEXT'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2365,6 +2779,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_COUNT_DESC'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_REPORT.GET_COUNT_DESC exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_SEPARATOR_LINE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_REPORT'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_REPORT.GET_SEPARATOR_LINE exists check (OTAP)
 
 1 row selected.
 
@@ -2431,16 +2855,6 @@ Passed package body OTAP_OBJECTS exists check (OTAP)
 
 SQL> -- otap GENERATE test scripts OTAP procedures
 SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_GROUP'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_OBJECTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_VERIFY'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'PROCEDURE'
@@ -2487,6 +2901,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_SET exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_SET_TEST_GROUP'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_OBJECTS'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_OBJECTS.OTAP_SESSION_SET_TEST_GROUP exists check (OTAP)
 
 1 row selected.
 
@@ -2674,16 +3098,6 @@ Passed function OTAP_SCHEMA.HAS_TABLE exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_SCHEMA'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_SCHEMA.HAS_TRIGGER exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_COLUMN'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -2711,6 +3125,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_PROCEDURE'
   5  				   , p_return_type => 'NUMBER'
   6  				   ) FROM dual;
 Passed function OTAP_SCHEMA.HAS_PROCEDURE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TRIGGER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_SCHEMA'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_SCHEMA.HAS_TRIGGER exists check (OTAP)
 
 1 row selected.
 
@@ -2801,6 +3225,129 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_USER'
   5  				   , p_return_type => 'NUMBER'
   6  				   ) FROM dual;
 Passed function OTAP_SCHEMA.HAS_USER exists check (OTAP)
+
+1 row selected.
+
+SQL> -- set test name for package
+SQL> SELECT otap_test.set_test_name('package OTAP_LOGIC') FROM dual;
+Current test: package OTAP_LOGIC
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
+  2  				 , p_schema => 'OTAP'
+  3  				 ) FROM dual;
+Passed package OTAP_LOGIC exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
+  2  				 , p_schema => 'OTAP'
+  3  				 , p_package_type => 'PACKAGE BODY'
+  4  				 ) FROM dual;
+Passed package body OTAP_LOGIC exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP procedures
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.OK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.IS_EQ exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.MATCH_REGEX exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'ALIKE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.ALIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_OK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_OK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_MATCHES exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.THROWS_LIKE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CHECK_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.CHECK_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_BLOCK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.GET_TEST_BLOCK exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_EXCEPTION'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_LOGIC'
+  5  				   , p_return_type => 'BOOLEAN'
+  6  				   ) FROM dual;
+Passed function OTAP_LOGIC.HAS_EXCEPTION exists check (OTAP)
 
 1 row selected.
 
@@ -3216,16 +3763,6 @@ Passed function OTAP_API.HAS_OBJECT exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_API.HAS_INDEX exists check (OTAP)
-
-1 row selected.
-
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_CONSTRAINT'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3256,6 +3793,16 @@ Passed function OTAP_API.HAS_NOT_NULL_CONSTRAINT exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_INDEX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.HAS_INDEX exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_TYPE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3273,16 +3820,6 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_SEQUENCE'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_API.HAS_SEQUENCE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_API.IS_EQ exists check (OTAP)
 
 1 row selected.
 
@@ -3316,6 +3853,16 @@ Passed function OTAP_API.OK exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.IS_EQ exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3346,6 +3893,16 @@ Passed function OTAP_API.THROWS_OK exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.THROWS_MATCHES exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3356,13 +3913,334 @@ Passed function OTAP_API.THROWS_LIKE exists check (OTAP)
 
 1 row selected.
 
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
+SQL> -- set test name for package
+SQL> SELECT otap_test.set_test_name('package OTAP_GENERATE') FROM dual;
+Current test: package OTAP_GENERATE
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
+  2  				 , p_schema => 'OTAP'
+  3  				 ) FROM dual;
+Passed package OTAP_GENERATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
+  2  				 , p_schema => 'OTAP'
+  3  				 , p_package_type => 'PACKAGE BODY'
+  4  				 ) FROM dual;
+Passed package body OTAP_GENERATE exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP procedures
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'COLUMN_TESTS'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.COLUMN_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TABLE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.TABLE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CONSTRAINT_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.CONSTRAINT_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'INDEX_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.INDEX_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TRIGGER_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.TRIGGER_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PROCEDURE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.PROCEDURE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PACKAGE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.PACKAGE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VIEW_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.VIEW_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_USER_TEST'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SCHEMA_USER_TEST exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'RELATED_USER_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.RELATED_USER_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TYPE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.TYPE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SEQUENCE_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SEQUENCE_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHED_JOB_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SCHED_JOB_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_TESTS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.SCHEMA_TESTS exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
-Passed function OTAP_API.THROWS_MATCHES exists check (OTAP)
+Passed function OTAP_GENERATE.PREPARE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   ) FROM dual;
+Passed procedure OTAP_GENERATE.PREPARE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SET_GEN_TYPE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'PROCEDURE'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   ) FROM dual;
+Passed procedure OTAP_GENERATE.SET_GEN_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_GEN_TYPE'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_GEN_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_CODE_PREFIX exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX_LEN'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'NUMBER'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_CODE_PREFIX_LEN exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_POSTFIX'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_CODE_POSTFIX exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PAD'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_CODE_PAD exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_SCRIPT_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_FUNCTION_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_PROCEDURE_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_HEADER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_HEADER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_FOOTER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_SCRIPT_FOOTER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_FOOTER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_FUNCTION_FOOTER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_FOOTER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.BUILD_PROCEDURE_FOOTER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_FOOTER'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'TABLE'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_FOOTER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_DBA_COL_DETAILS'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_GENERATE'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_GENERATE.GET_DBA_COL_DETAILS exists check (OTAP)
 
 1 row selected.
 
@@ -3878,884 +4756,6 @@ Passed function OTAP_TEST.GENERATE_SEQUENCE_TESTS exists check (OTAP)
 
 1 row selected.
 
-SQL> -- set test name for package
-SQL> SELECT otap_test.set_test_name('package OTAP_UTIL') FROM dual;
-Current test: package OTAP_UTIL
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
-  2  				 , p_schema => 'OTAP'
-  3  				 ) FROM dual;
-Passed package OTAP_UTIL exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_UTIL'
-  2  				 , p_schema => 'OTAP'
-  3  				 , p_package_type => 'PACKAGE BODY'
-  4  				 ) FROM dual;
-Passed package body OTAP_UTIL exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP procedures
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_NUMBER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'BOOLEAN'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.IS_NUMBER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_INTEGER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'BOOLEAN'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.IS_INTEGER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_CONFIG_NAME'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   ) FROM dual;
-Passed procedure OTAP_UTIL.VALIDATE_CONFIG_NAME exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_CONFIG_VALUE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.VALIDATE_CONFIG_VALUE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VALIDATE_TRANSLATABLE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   ) FROM dual;
-Passed procedure OTAP_UTIL.VALIDATE_TRANSLATABLE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CONFIG_VALUE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_CONFIG_VALUE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CONFIG_NUMBER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_CONFIG_NUMBER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LABEL_ID'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_LABEL_ID exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_TEST_STATE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_LENGTH_TEST_STATE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_SUMMARY_STATE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_LENGTH_SUMMARY_STATE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_HEADERS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_LENGTH_HEADERS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_LENGTH_RESULT_HEADERS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.GET_LENGTH_RESULT_HEADERS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_RESULT_TO_TEXT'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.TEST_RESULT_TO_TEXT exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CONSTRAINT_TYPE_TO_LABEL'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.CONSTRAINT_TYPE_TO_LABEL exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_MSG'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.BUILD_MSG exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'WRITE_TEST_RESULT'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   ) FROM dual;
-Passed procedure OTAP_UTIL.WRITE_TEST_RESULT exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MAX_TEXT_SIZE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_UTIL.MAX_TEXT_SIZE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'RESULT_CLEANUP'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_UTIL'
-  5  				   ) FROM dual;
-Passed procedure OTAP_UTIL.RESULT_CLEANUP exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for package
-SQL> SELECT otap_test.set_test_name('package OTAP_GENERATE') FROM dual;
-Current test: package OTAP_GENERATE
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
-  2  				 , p_schema => 'OTAP'
-  3  				 ) FROM dual;
-Passed package OTAP_GENERATE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_GENERATE'
-  2  				 , p_schema => 'OTAP'
-  3  				 , p_package_type => 'PACKAGE BODY'
-  4  				 ) FROM dual;
-Passed package body OTAP_GENERATE exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP procedures
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'COLUMN_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.COLUMN_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TABLE_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.TABLE_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CONSTRAINT_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.CONSTRAINT_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'INDEX_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.INDEX_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TRIGGER_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.TRIGGER_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PROCEDURE_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.PROCEDURE_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PACKAGE_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.PACKAGE_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'VIEW_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.VIEW_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_USER_TEST'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.SCHEMA_USER_TEST exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'RELATED_USER_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.RELATED_USER_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TYPE_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.TYPE_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SEQUENCE_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.SEQUENCE_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHED_JOB_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.SCHED_JOB_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SCHEMA_TESTS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.SCHEMA_TESTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.PREPARE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'PREPARE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   ) FROM dual;
-Passed procedure OTAP_GENERATE.PREPARE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'SET_GEN_TYPE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   ) FROM dual;
-Passed procedure OTAP_GENERATE.SET_GEN_TYPE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_GEN_TYPE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_GEN_TYPE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_CODE_PREFIX exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PREFIX_LEN'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_CODE_PREFIX_LEN exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_POSTFIX'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_CODE_POSTFIX exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_CODE_PAD'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_CODE_PAD exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_HEADER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_SCRIPT_HEADER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_HEADER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_FUNCTION_HEADER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_HEADER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_PROCEDURE_HEADER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_HEADER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_HEADER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_SCRIPT_FOOTER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_SCRIPT_FOOTER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_FUNCTION_FOOTER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_FUNCTION_FOOTER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'BUILD_PROCEDURE_FOOTER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.BUILD_PROCEDURE_FOOTER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_FOOTER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'TABLE'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_FOOTER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_DBA_COL_DETAILS'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_GENERATE'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_GENERATE.GET_DBA_COL_DETAILS exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for package
-SQL> SELECT otap_test.set_test_name('package OTAP_CONSTANTS') FROM dual;
-Current test: package OTAP_CONSTANTS
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
-  2  				 , p_schema => 'OTAP'
-  3  				 ) FROM dual;
-Passed package OTAP_CONSTANTS exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_CONSTANTS'
-  2  				 , p_schema => 'OTAP'
-  3  				 , p_package_type => 'PACKAGE BODY'
-  4  				 ) FROM dual;
-Passed package body OTAP_CONSTANTS exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP procedures
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_VERSION'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_VERSION exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_USER_ROLE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_USER_ROLE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_SCHEMA'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_SCHEMA exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_TABLESPACE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_TABLESPACE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TRUE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TRUE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_FALSE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_FALSE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_PASSED'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_PASSED exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_FAILED'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_FAILED exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_TEST_UNDEFINED'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_TEST_UNDEFINED exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_MIN_FILL_LENGTH'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_MIN_FILL_LENGTH exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_NUM_MAX_FILL_LENGTH'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_NUM_MAX_FILL_LENGTH exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_DELIMITER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_DELIMITER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_ERROR'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_ERROR exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_NA'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_NA exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_INTERNAL_VAR'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_INTERNAL_VAR exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_CONFIG_TYPE_NUMBER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_NUMBER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_OTAP_CONFIG_TYPE_CHAR'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_CONSTANTS'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_CONSTANTS.GET_OTAP_CONFIG_TYPE_CHAR exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for package
-SQL> SELECT otap_test.set_test_name('package OTAP_LOG') FROM dual;
-Current test: package OTAP_LOG
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
-  2  				 , p_schema => 'OTAP'
-  3  				 ) FROM dual;
-Passed package OTAP_LOG exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOG'
-  2  				 , p_schema => 'OTAP'
-  3  				 , p_package_type => 'PACKAGE BODY'
-  4  				 ) FROM dual;
-Passed package body OTAP_LOG exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP procedures
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'LOG'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'PROCEDURE'
-  4  				   , p_package_name => 'OTAP_LOG'
-  5  				   ) FROM dual;
-Passed procedure OTAP_LOG.LOG exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for package
-SQL> SELECT otap_test.set_test_name('package OTAP_LOGIC') FROM dual;
-Current test: package OTAP_LOGIC
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
-  2  				 , p_schema => 'OTAP'
-  3  				 ) FROM dual;
-Passed package OTAP_LOGIC exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_package( p_package_name => 'OTAP_LOGIC'
-  2  				 , p_schema => 'OTAP'
-  3  				 , p_package_type => 'PACKAGE BODY'
-  4  				 ) FROM dual;
-Passed package body OTAP_LOGIC exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP procedures
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OK'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.OK exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'IS_EQ'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.IS_EQ exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'MATCH_REGEX'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.MATCH_REGEX exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'ALIKE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.ALIKE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_OK'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.THROWS_OK exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_MATCHES'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.THROWS_MATCHES exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'THROWS_LIKE'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'NUMBER'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.THROWS_LIKE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'CHECK_HEADER'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'BOOLEAN'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.CHECK_HEADER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEST_BLOCK'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.GET_TEST_BLOCK exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'HAS_EXCEPTION'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_LOGIC'
-  5  				   , p_return_type => 'BOOLEAN'
-  6  				   ) FROM dual;
-Passed function OTAP_LOGIC.HAS_EXCEPTION exists check (OTAP)
-
-1 row selected.
-
 SQL> -- otap GENERATE test scripts OTAP views
 SQL> -- LIKE scope: %
 SQL> -- set test group for views
@@ -4795,7 +4795,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
   2  				, p_column_name => 'LABEL_TEXT_LOWER'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_LOWER exists check (OTAP)
@@ -4806,7 +4806,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
   2  				, p_column_name => 'LABEL_TEXT_CAP'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_CAP exists check (OTAP)
@@ -4817,7 +4817,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
   2  				, p_column_name => 'LABEL_TEXT_UPPER'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_IDENTIFIERS_V.LABEL_TEXT_UPPER exists check (OTAP)
@@ -4828,7 +4828,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
   2  				, p_column_name => 'LABEL_SOURCE'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_IDENTIFIERS_V.LABEL_SOURCE exists check (OTAP)
@@ -4839,7 +4839,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
   2  				, p_column_name => 'LABEL_TYPE'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 32767
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_IDENTIFIERS_V.LABEL_TYPE exists check (OTAP)
@@ -4888,7 +4888,7 @@ SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LATEST_TEST_RESULTS_V'
   2  				, p_column_name => 'RESULT_TEXT'
   3  				, p_schema => 'OTAP'
   4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 16000
+  5  				, p_data_length => 4000
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column OTAP_LATEST_TEST_RESULTS_V.RESULT_TEXT exists check (OTAP)
@@ -5476,7 +5476,7 @@ SQL> DECLARE
 125    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'Check config label view readonly');
 126    l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'Check config label window');
 127    l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'Check config label XML schema');
-128    -- check functionality
+128    -- check functionality is_number
 129    l_return := otap_test.ok(otap_util.is_number('1'), 'Check otap_util.is_number with simple number');
 130    l_return := otap_test.ok((NOT otap_util.is_number('A')), 'Check otap_util.is_number with simple char fails');
 131    l_return := otap_test.ok(p_boolean => otap_util.is_number('A'), p_description => 'Check otap_util.is_number with simple char and expected result failed', p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED);
@@ -5493,9 +5493,73 @@ SQL> DECLARE
 142    l_return := otap_test.ok(otap_util.is_number(l_decimal || '234'), 'Check otap_util.is_number with number using leading current decimal point defined, e.g. .234');
 143    -- this is something allowed in SQL with wrong results (decimals cut and zeroed) but not with PLSQL
 144    l_return := otap_test.ok((NOT otap_util.is_number('1e10')), 'Check otap_util.is_number with scientific notation 1e10 fails');
-145  
-146  END;
-147  /
+145    -- check functionality is_integer
+146    l_return := otap_test.ok(otap_util.is_integer('1'), 'Check otap_util.is_integer with simple integer');
+147    l_return := otap_test.ok((NOT otap_util.is_integer('A')), 'Check otap_util.is_integer with simple char fails');
+148    l_return := otap_test.ok((NOT otap_util.is_integer('1.0')), 'Check otap_util.is_integer with decimal 1.0 fails');
+149    l_return := otap_test.ok((NOT otap_util.is_integer('.045')), 'Check otap_util.is_integer with decimal .045 fails');
+150    l_return := otap_test.ok(otap_util.is_integer('-1'), 'Check otap_util.is_integer with simple negative integer');
+151    l_return := otap_test.ok((NOT otap_util.is_integer('-1-')), 'Check otap_util.is_integer with strange number -1- fails');
+152    l_return := otap_test.ok((NOT otap_util.is_integer('-1*2+')), 'Check otap_util.is_integer with strange number -1*2+ fails');
+153    l_return := otap_test.ok((NOT otap_util.is_integer('99999999999999999999999999999999999999999999999999')), 'Check otap_util.is_integer with too big number 99999999999999999999999999999999999999999999999999 fails');
+154    -- check functionality validate_config_name
+155    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'');', -20001, NULL, 'Check invalid config name exception');
+156    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER, TRUE);', -20006, NULL, 'Check delete config name exception');
+157    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'', TRUE);', -20006, NULL, 'Check delete invalid config name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+158    -- check that defined config names do not cause exceptions
+159    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_constants.OTAP_CFG_DEBUG_MODE);', -20001, NULL, 'Check debug mode no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+160    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER);', -20001, NULL, 'Check default border no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+161    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LABEL_COLUMN);', -20001, NULL, 'Check default label column no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+162    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LAYOUT);', -20001, NULL, 'Check default layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+163    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_PREFIX);', -20001, NULL, 'Check default prefix no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+164    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_RESULT_LAYOUT);', -20001, NULL, 'Check default result layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+165    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_GROUP);', -20001, NULL, 'Check default test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+166    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_NAME);', -20001, NULL, 'Check default test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+167    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_SET);', -20001, NULL, 'Check default test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+168    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_BATCH_SIZE);', -20001, NULL, 'Check delete batch size no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+169    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_DELAY);', -20001, NULL, 'Check delete delay no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+170    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_GROUP_CHAR);', -20001, NULL, 'Check format group char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+171    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_HEADER_CHAR);', -20001, NULL, 'Check format header char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+172    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_NAME_CHAR);', -20001, NULL, 'Check format test name char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+173    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_SET_CHAR);', -20001, NULL, 'Check format test set char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+174    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_PRESERVE_DAYS);', -20001, NULL, 'Check preserve days no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+175    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_COUNT_DESC);', -20001, NULL, 'Check template count description no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+176    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERRORS);', -20001, NULL, 'Check template errors no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+177    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERROR_DETAILS);', -20001, NULL, 'Check template error details no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+178    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS);', -20001, NULL, 'Check template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+179    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTSX);', -20001, NULL, 'Check extended template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+180    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_C);', -20001, NULL, 'Check template constraints exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+181    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_CX);', -20001, NULL, 'Check extended template constraint exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+182    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_F);', -20001, NULL, 'Check template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+183    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_FX);', -20001, NULL, 'Check extended template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+184  
+185    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_GROUP);', -20001, NULL, 'Check template test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+186    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_MATCH);', -20001, NULL, 'Check template match no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+187    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_NO_DATA);', -20001, NULL, 'Check template no data no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+188    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_REPORT_TOTAL);', -20001, NULL, 'Check template report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+189    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_RESULT_LINE);', -20001, NULL, 'Check template result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+190    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SESSION_ID);', -20001, NULL, 'Check template session id no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+191    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SET);', -20001, NULL, 'Check template test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+192    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SUMMARY);', -20001, NULL, 'Check template summary no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+193    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_TEST_NAME);', -20001, NULL, 'Check template test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+194    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE);', -20001, NULL, 'Check config text false no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+195    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE_NO);', -20001, NULL, 'Check config text false/no no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+196    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_END);', -20001, NULL, 'Check config text report end no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+197    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_START);', -20001, NULL, 'Check config text report start no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+198    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'Check config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+199    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'Check config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+200    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'Check config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+201    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_ERROR);', -20001, NULL, 'Check config text summary error no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+202    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_SUCCESS);', -20001, NULL, 'Check config text summary success no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+203    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_HEADER);', -20001, NULL, 'Check config text test count header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+204    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_NAME);', -20001, NULL, 'Check config text test count name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+205    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'Check config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+206    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_PASSED);', -20001, NULL, 'Check config text test passed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+207    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'Check config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+208    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE);', -20001, NULL, 'Check config text true no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+209    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE_YES);', -20001, NULL, 'Check config text true/yes no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+210  END;
+211  /
 
 PL/SQL procedure successfully completed.
 
@@ -5505,9 +5569,9 @@ SQL> -- packages
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 32 tests: 689 from 689 errors: 0 run time: +000000000 00:00:39.000000000 started: 2025-02-07 03:54:32
+Summary id: 12 tests: 750 from 750 errors: 0 run time: +000000000 00:00:33.000000000 started: 2025-02-08 03:33:37
 Current test settings
-Test session id: 33
+Test session id: 13
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -5520,8 +5584,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 32
-Test start: 2025-02-07 03:55:11
+Current view id: 12
+Test start: 2025-02-08 03:34:10
 
 
 1 row selected.

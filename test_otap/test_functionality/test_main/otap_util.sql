@@ -135,7 +135,7 @@ BEGIN
   l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'Check config label view readonly');
   l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'Check config label window');
   l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'Check config label XML schema');
-  -- check functionality
+  -- check functionality is_number
   l_return := otap_test.ok(otap_util.is_number('1'), 'Check otap_util.is_number with simple number');
   l_return := otap_test.ok((NOT otap_util.is_number('A')), 'Check otap_util.is_number with simple char fails');
   l_return := otap_test.ok(p_boolean => otap_util.is_number('A'), p_description => 'Check otap_util.is_number with simple char and expected result failed', p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED);
@@ -152,6 +152,70 @@ BEGIN
   l_return := otap_test.ok(otap_util.is_number(l_decimal || '234'), 'Check otap_util.is_number with number using leading current decimal point defined, e.g. .234');
   -- this is something allowed in SQL with wrong results (decimals cut and zeroed) but not with PLSQL
   l_return := otap_test.ok((NOT otap_util.is_number('1e10')), 'Check otap_util.is_number with scientific notation 1e10 fails');
+  -- check functionality is_integer
+  l_return := otap_test.ok(otap_util.is_integer('1'), 'Check otap_util.is_integer with simple integer');
+  l_return := otap_test.ok((NOT otap_util.is_integer('A')), 'Check otap_util.is_integer with simple char fails');
+  l_return := otap_test.ok((NOT otap_util.is_integer('1.0')), 'Check otap_util.is_integer with decimal 1.0 fails');
+  l_return := otap_test.ok((NOT otap_util.is_integer('.045')), 'Check otap_util.is_integer with decimal .045 fails');
+  l_return := otap_test.ok(otap_util.is_integer('-1'), 'Check otap_util.is_integer with simple negative integer');
+  l_return := otap_test.ok((NOT otap_util.is_integer('-1-')), 'Check otap_util.is_integer with strange number -1- fails');
+  l_return := otap_test.ok((NOT otap_util.is_integer('-1*2+')), 'Check otap_util.is_integer with strange number -1*2+ fails');
+  l_return := otap_test.ok((NOT otap_util.is_integer('99999999999999999999999999999999999999999999999999')), 'Check otap_util.is_integer with too big number 99999999999999999999999999999999999999999999999999 fails');
+  -- check functionality validate_config_name
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'');', -20001, NULL, 'Check invalid config name exception');
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER, TRUE);', -20006, NULL, 'Check delete config name exception');
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'', TRUE);', -20006, NULL, 'Check delete invalid config name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  -- check that defined config names do not cause exceptions
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_constants.OTAP_CFG_DEBUG_MODE);', -20001, NULL, 'Check debug mode no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER);', -20001, NULL, 'Check default border no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LABEL_COLUMN);', -20001, NULL, 'Check default label column no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LAYOUT);', -20001, NULL, 'Check default layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_PREFIX);', -20001, NULL, 'Check default prefix no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_RESULT_LAYOUT);', -20001, NULL, 'Check default result layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_GROUP);', -20001, NULL, 'Check default test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_NAME);', -20001, NULL, 'Check default test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_SET);', -20001, NULL, 'Check default test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_BATCH_SIZE);', -20001, NULL, 'Check delete batch size no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_DELAY);', -20001, NULL, 'Check delete delay no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_GROUP_CHAR);', -20001, NULL, 'Check format group char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_HEADER_CHAR);', -20001, NULL, 'Check format header char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_NAME_CHAR);', -20001, NULL, 'Check format test name char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_SET_CHAR);', -20001, NULL, 'Check format test set char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_PRESERVE_DAYS);', -20001, NULL, 'Check preserve days no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_COUNT_DESC);', -20001, NULL, 'Check template count description no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERRORS);', -20001, NULL, 'Check template errors no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERROR_DETAILS);', -20001, NULL, 'Check template error details no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS);', -20001, NULL, 'Check template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTSX);', -20001, NULL, 'Check extended template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_C);', -20001, NULL, 'Check template constraints exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_CX);', -20001, NULL, 'Check extended template constraint exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_F);', -20001, NULL, 'Check template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_FX);', -20001, NULL, 'Check extended template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
 
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_GROUP);', -20001, NULL, 'Check template test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_MATCH);', -20001, NULL, 'Check template match no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_NO_DATA);', -20001, NULL, 'Check template no data no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_REPORT_TOTAL);', -20001, NULL, 'Check template report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_RESULT_LINE);', -20001, NULL, 'Check template result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SESSION_ID);', -20001, NULL, 'Check template session id no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SET);', -20001, NULL, 'Check template test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SUMMARY);', -20001, NULL, 'Check template summary no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_TEST_NAME);', -20001, NULL, 'Check template test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE);', -20001, NULL, 'Check config text false no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE_NO);', -20001, NULL, 'Check config text false/no no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_END);', -20001, NULL, 'Check config text report end no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_START);', -20001, NULL, 'Check config text report start no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'Check config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'Check config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'Check config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_ERROR);', -20001, NULL, 'Check config text summary error no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_SUCCESS);', -20001, NULL, 'Check config text summary success no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_HEADER);', -20001, NULL, 'Check config text test count header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_NAME);', -20001, NULL, 'Check config text test count name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'Check config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_PASSED);', -20001, NULL, 'Check config text test passed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'Check config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE);', -20001, NULL, 'Check config text true no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE_YES);', -20001, NULL, 'Check config text true/yes no exception', otap_constants.OTAP_NUM_TEST_FAILED);
 END;
 /

@@ -7,7 +7,8 @@ AS
   * Provides basic table management and utility functions for otap. Used in triggers and packages.
   * Owes the configuration access constants.
   */
-  -- configuration access constants apart from DEBUG_MODE which is in otap_constants.
+  -- configuration access constants apart from DEBUG_MODE which is in otap_constants
+  -- DONT FORGET on updates of config_names to update validate_config_name
   CFG_DEFAULT_BORDER                CONSTANT CHAR(14)   := 'DEFAULT_BORDER';
   CFG_DEFAULT_LABEL_COLUMN          CONSTANT CHAR(20)   := 'DEFAULT_LABEL_COLUMN';
   CFG_DEFAULT_LAYOUT                CONSTANT CHAR(14)   := 'DEFAULT_LAYOUT';

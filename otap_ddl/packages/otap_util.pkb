@@ -52,8 +52,58 @@ AS
 
     IF NOT p_del_trigger
     THEN
-      -- check name against a fixed list, disabled during development
-      IF p_config_name IS NULL -- p_config_name NOT IN (...)
+      -- check name against a fixed list
+      IF p_config_name NOT IN ( otap_constants.OTAP_CFG_DEBUG_MODE
+                              , otap_util.CFG_DEFAULT_BORDER
+                              , otap_util.CFG_DEFAULT_LABEL_COLUMN
+                              , otap_util.CFG_DEFAULT_LAYOUT
+                              , otap_util.CFG_DEFAULT_PREFIX
+                              , otap_util.CFG_DEFAULT_RESULT_LAYOUT
+                              , otap_util.CFG_DEFAULT_TEST_GROUP
+                              , otap_util.CFG_DEFAULT_TEST_NAME
+                              , otap_util.CFG_DEFAULT_TEST_SET
+                              , otap_util.CFG_DELETE_BATCH_SIZE
+                              , otap_util.CFG_DELETE_DELAY
+                              , otap_util.CFG_FORMAT_GROUP_CHAR
+                              , otap_util.CFG_FORMAT_HEADER_CHAR
+                              , otap_util.CFG_FORMAT_NAME_CHAR
+                              , otap_util.CFG_FORMAT_SET_CHAR
+                              , otap_util.CFG_PRESERVE_DAYS
+                              , otap_util.CFG_TEMPLATE_COUNT_DESC
+                              , otap_util.CFG_TEMPLATE_ERRORS
+                              , otap_util.CFG_TEMPLATE_ERROR_DETAILS
+                              , otap_util.CFG_TEMPLATE_EXISTS
+                              , otap_util.CFG_TEMPLATE_EXISTSX
+                              , otap_util.CFG_TEMPLATE_EXISTS_C
+                              , otap_util.CFG_TEMPLATE_EXISTS_CX
+                              , otap_util.CFG_TEMPLATE_EXISTS_F
+                              , otap_util.CFG_TEMPLATE_EXISTS_FX
+                              , otap_util.CFG_TEMPLATE_GROUP
+                              , otap_util.CFG_TEMPLATE_MATCH
+                              , otap_util.CFG_TEMPLATE_NO_DATA
+                              , otap_util.CFG_TEMPLATE_REPORT_TOTAL
+                              , otap_util.CFG_TEMPLATE_RESULT_LINE
+                              , otap_util.CFG_TEMPLATE_SESSION_ID
+                              , otap_util.CFG_TEMPLATE_SET
+                              , otap_util.CFG_TEMPLATE_SUMMARY
+                              , otap_util.CFG_TEMPLATE_TEST_NAME
+                              , otap_util.CFG_TEXT_FALSE
+                              , otap_util.CFG_TEXT_FALSE_NO
+                              , otap_util.CFG_TEXT_REPORT_END
+                              , otap_util.CFG_TEXT_REPORT_START
+                              , otap_util.CFG_TEXT_REPORT_TOTAL
+                              , otap_util.CFG_TEXT_RESULT_HEADER
+                              , otap_util.CFG_TEXT_RESULT_LINE
+                              , otap_util.CFG_TEXT_SUMMARY_ERROR
+                              , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                              , otap_util.CFG_TEXT_TEST_COUNT_HEADER
+                              , otap_util.CFG_TEXT_TEST_COUNT_NAME
+                              , otap_util.CFG_TEXT_TEST_FAILED
+                              , otap_util.CFG_TEXT_TEST_PASSED
+                              , otap_util.CFG_TEXT_TEST_UNDEFINED
+                              , otap_util.CFG_TEXT_TRUE
+                              , otap_util.CFG_TEXT_TRUE_YES
+                              )
       THEN
         -- log the error
         otap_log.log('-20001 The configuration name: ' || NVL(p_config_name, 'NULL') || ' is not supported', l_script);
@@ -61,8 +111,58 @@ AS
         RAISE_APPLICATION_ERROR(-20001, 'The configuration name: ' || NVL(p_config_name, 'NULL') || ' is not supported.');
       END IF;
     ELSE
-      -- check name against a fixed list, disabled during development
-      IF p_config_name IS NOT NULL -- p_config_name IN (...)
+      -- check name against a fixed list
+      IF p_config_name IN ( otap_constants.OTAP_CFG_DEBUG_MODE
+                          , otap_util.CFG_DEFAULT_BORDER
+                          , otap_util.CFG_DEFAULT_LABEL_COLUMN
+                          , otap_util.CFG_DEFAULT_LAYOUT
+                          , otap_util.CFG_DEFAULT_PREFIX
+                          , otap_util.CFG_DEFAULT_RESULT_LAYOUT
+                          , otap_util.CFG_DEFAULT_TEST_GROUP
+                          , otap_util.CFG_DEFAULT_TEST_NAME
+                          , otap_util.CFG_DEFAULT_TEST_SET
+                          , otap_util.CFG_DELETE_BATCH_SIZE
+                          , otap_util.CFG_DELETE_DELAY
+                          , otap_util.CFG_FORMAT_GROUP_CHAR
+                          , otap_util.CFG_FORMAT_HEADER_CHAR
+                          , otap_util.CFG_FORMAT_NAME_CHAR
+                          , otap_util.CFG_FORMAT_SET_CHAR
+                          , otap_util.CFG_PRESERVE_DAYS
+                          , otap_util.CFG_TEMPLATE_COUNT_DESC
+                          , otap_util.CFG_TEMPLATE_ERRORS
+                          , otap_util.CFG_TEMPLATE_ERROR_DETAILS
+                          , otap_util.CFG_TEMPLATE_EXISTS
+                          , otap_util.CFG_TEMPLATE_EXISTSX
+                          , otap_util.CFG_TEMPLATE_EXISTS_C
+                          , otap_util.CFG_TEMPLATE_EXISTS_CX
+                          , otap_util.CFG_TEMPLATE_EXISTS_F
+                          , otap_util.CFG_TEMPLATE_EXISTS_FX
+                          , otap_util.CFG_TEMPLATE_GROUP
+                          , otap_util.CFG_TEMPLATE_MATCH
+                          , otap_util.CFG_TEMPLATE_NO_DATA
+                          , otap_util.CFG_TEMPLATE_REPORT_TOTAL
+                          , otap_util.CFG_TEMPLATE_RESULT_LINE
+                          , otap_util.CFG_TEMPLATE_SESSION_ID
+                          , otap_util.CFG_TEMPLATE_SET
+                          , otap_util.CFG_TEMPLATE_SUMMARY
+                          , otap_util.CFG_TEMPLATE_TEST_NAME
+                          , otap_util.CFG_TEXT_FALSE
+                          , otap_util.CFG_TEXT_FALSE_NO
+                          , otap_util.CFG_TEXT_REPORT_END
+                          , otap_util.CFG_TEXT_REPORT_START
+                          , otap_util.CFG_TEXT_REPORT_TOTAL
+                          , otap_util.CFG_TEXT_RESULT_HEADER
+                          , otap_util.CFG_TEXT_RESULT_LINE
+                          , otap_util.CFG_TEXT_SUMMARY_ERROR
+                          , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                          , otap_util.CFG_TEXT_TEST_COUNT_HEADER
+                          , otap_util.CFG_TEXT_TEST_COUNT_NAME
+                          , otap_util.CFG_TEXT_TEST_FAILED
+                          , otap_util.CFG_TEXT_TEST_PASSED
+                          , otap_util.CFG_TEXT_TEST_UNDEFINED
+                          , otap_util.CFG_TEXT_TRUE
+                          , otap_util.CFG_TEXT_TRUE_YES
+                          )
       THEN
         -- log the error
         otap_log.log('-20006 The configuration name: ' || NVL(p_config_name, 'NULL') || ' cannot be deleted.', l_script);
