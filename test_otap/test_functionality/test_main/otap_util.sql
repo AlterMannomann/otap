@@ -9,8 +9,11 @@ SELECT otap_test.set_test_name('Verify otap_util functionality') FROM dual;
 -- to not overload DBMS_OUTPUT only minimal summary output
 SET SERVEROUTPUT ON SIZE UNLIMITED
 DECLARE
-  l_return  VARCHAR2(4000);
-  l_decimal CHAR(1);
+  l_return        VARCHAR2(4000);
+  l_decimal       CHAR(1);
+  l_stamp         TIMESTAMP;
+  l_finish        TIMESTAMP;
+  l_translatable  NUMBER;
 BEGIN
   -- check util config constants
   l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_BORDER, 'DEFAULT_BORDER', 'Check config name default border');
@@ -191,7 +194,6 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_CX);', -20001, NULL, 'Check extended template constraint exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_F);', -20001, NULL, 'Check template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_FX);', -20001, NULL, 'Check extended template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_GROUP);', -20001, NULL, 'Check template test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_MATCH);', -20001, NULL, 'Check template match no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_NO_DATA);', -20001, NULL, 'Check template no data no exception', otap_constants.OTAP_NUM_TEST_FAILED);
@@ -217,5 +219,244 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'Check config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE);', -20001, NULL, 'Check config text true no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE_YES);', -20001, NULL, 'Check config text true/yes no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  -- reduced testing for validate_config_value, as used in trigger config_name must be valid for testing, as checked before
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, NULL, ''NUMBER'', l_translatable, NULL);', -20002, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value NULL exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''INTEGER'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value type exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''number'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value type lower case number exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''char'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value type lower case char exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''NUMBER'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value max defined length number exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''CHAR'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value max defined length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''NUMBER'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value max length number exception');
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''CHAR'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value max length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''A'', ''NUMBER'', l_translatable, NULL);', -20005, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'Check config value not a number exception');
+  l_translatable := 9;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '0', 'NUMBER', l_translatable, NULL);
+  l_finish       := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'Check default value on invalid translatable');
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid translatable')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for TRANSLATABLE: 9%'
+  ;
+  l_translatable := otap_constants.OTAP_NUM_TRUE;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_PREFIX, otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX, 'CHAR', l_translatable, otap_constants.OTAP_NUM_PREFIX_MAX_SIZE);
+  l_finish       := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'Check default value on invalid translatable for default prefix');
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry invalid translatable for default prefix')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_PREFIX || ' for TRANSLATABLE:%'
+  ;
+  l_translatable := otap_constants.OTAP_NUM_TRUE;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'CHAR', l_translatable, 1);
+  l_finish       := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'Check default value on invalid translatable for default layout');
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry invalid translatable for default layout')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_LAYOUT || ' for TRANSLATABLE:%'
+  ;
+  l_translatable := otap_constants.OTAP_NUM_TRUE;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT, 'CHAR', l_translatable, 1);
+  l_finish       := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'Check default value on invalid translatable for default result layout');
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry invalid translatable for default result layout')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_RESULT_LAYOUT || ' for TRANSLATABLE:%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'Check default preserve days on invalid min value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid preserve days min value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for PRESERVE_DAYS: 0%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '8', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'Check default preserve days on invalid max value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid preserve days max value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for PRESERVE_DAYS: 8%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '1.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'Check default preserve days on invalid decimal value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid preserve days decimal value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for PRESERVE_DAYS: 1.5%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'Check default delete delay on invalid min value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete delay min value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_DELAY: 0%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '601', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'Check default delete delay on invalid max value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete delay max value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_DELAY: 601%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'Check default delete delay on invalid decimal value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete delay decimal value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_DELAY: 100.5%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'Check default delete batch size on invalid min value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete batch size min value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_BATCH_SIZE: 10%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10001', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'Check default delete batch size on invalid max value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete batch size max value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_BATCH_SIZE: 10001%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'Check default delete batch size on invalid decimal value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid delete batch size decimal value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DELETE_BATCH_SIZE: 100.5%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '1', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'Check default border size on invalid min value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid border size min value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_BORDER: 1%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '11', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'Check default border size on invalid max value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid border size max value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_BORDER: 11%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '5.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'Check default border size on invalid decimal value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid border size decimal value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_BORDER: 5.5%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '3', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_NUM_FALSE)), 'Check default debug on invalid value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid debug value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEBUG_MODE: 3%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LAYOUT_MIDDLE)), 'Check default layout on invalid value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid layout value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_LAYOUT: X%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, 'M', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT)), 'Check default result layout on invalid value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid result layout value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_RESULT_LAYOUT: M%'
+  ;
+  l_stamp        := SYSTIMESTAMP;
+  l_return       := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LABEL_COLUMN, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LABEL_LOWER)), 'Check default label layout on invalid value');
+  l_finish       := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'Check log entry for invalid label layout value')
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+     AND message            LIKE 'Invalid value for DEFAULT_LABEL_LAYOUT: X%'
+  ;
+
 END;
 /

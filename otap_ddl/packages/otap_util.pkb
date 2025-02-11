@@ -246,7 +246,7 @@ AS
     IF     (   p_config_type = 'NUMBER'
             OR l_config_name IN (otap_util.CFG_DEFAULT_PREFIX, otap_util.CFG_DEFAULT_LAYOUT, otap_util.CFG_DEFAULT_RESULT_LAYOUT)
            )
-       AND p_translatable = TRIM(TO_CHAR(otap_constants.OTAP_NUM_TRUE))
+       AND p_translatable = otap_constants.OTAP_NUM_TRUE
     THEN
       otap_log.log('Invalid config_name: ' || l_config_name || ' for TRANSLATABLE: ' || p_translatable || ' use default.', l_script);
       p_translatable := otap_constants.OTAP_NUM_FALSE;
@@ -350,7 +350,7 @@ AS
       IF l_config_value NOT IN (otap_constants.OTAP_LABEL_LOWER, otap_constants.OTAP_LABEL_INIT_CAP, otap_constants.OTAP_LABEL_UPPER)
       THEN
         otap_log.log('Invalid value for DEFAULT_LABEL_LAYOUT: ' || l_config_value || ' use default.', l_script);
-        l_config_value := otap_constants.OTAP_LAYOUT_LEFT;
+        l_config_value := otap_constants.OTAP_LABEL_LOWER;
       END IF;
     END IF;
     RETURN l_config_value;

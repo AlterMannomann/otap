@@ -1992,7 +1992,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_util
 243  	 IF	(   p_config_type = 'NUMBER'
 244  		 OR l_config_name IN (otap_util.CFG_DEFAULT_PREFIX, otap_util.CFG_DEFAULT_LAYOUT, otap_util.CFG_DEFAULT_RESULT_LAYOUT)
 245  		)
-246  	    AND p_translatable = TRIM(TO_CHAR(otap_constants.OTAP_NUM_TRUE))
+246  	    AND p_translatable = otap_constants.OTAP_NUM_TRUE
 247  	 THEN
 248  	   otap_log.log('Invalid config_name: ' || l_config_name || ' for TRANSLATABLE: ' || p_translatable || ' use default.', l_script);
 249  	   p_translatable := otap_constants.OTAP_NUM_FALSE;
@@ -2096,7 +2096,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_util
 347  	   IF l_config_value NOT IN (otap_constants.OTAP_LABEL_LOWER, otap_constants.OTAP_LABEL_INIT_CAP, otap_constants.OTAP_LABEL_UPPER)
 348  	   THEN
 349  	     otap_log.log('Invalid value for DEFAULT_LABEL_LAYOUT: ' || l_config_value || ' use default.', l_script);
-350  	     l_config_value := otap_constants.OTAP_LAYOUT_LEFT;
+350  	     l_config_value := otap_constants.OTAP_LABEL_LOWER;
 351  	   END IF;
 352  	 END IF;
 353  	 RETURN l_config_value;
