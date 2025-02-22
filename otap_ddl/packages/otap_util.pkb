@@ -378,9 +378,9 @@ AS
       IF l_is_translatable = 0
       THEN
         -- log the error
-        otap_log.log('-20020 The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item.', l_script);
+        otap_log.log('-20020 The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item if possible.', l_script);
         -- only direct testing could call this currently as table has a NOT NULL constraint
-        RAISE_APPLICATION_ERROR(-20020, 'The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item.');
+        RAISE_APPLICATION_ERROR(-20020, 'The given identifier: ' || NVL(p_otap_identifier, 'NULL') || ' cannot be translated. Ask your admin to adjust this configuration item if possible.');
       END IF;
     END IF;
   END validate_translatable;
@@ -513,13 +513,15 @@ AS
   IS
     l_return INTEGER;
   BEGIN
-    SELECT MAX(LENGTH(config_value))
+    -- consider possible translations, fetch from otap_identifiers_v
+    -- length does not change on upper, lower or init capitals
+    SELECT MAX(LENGTH(label_text_lower))
       INTO l_return
-      FROM otap_config
-     WHERE config_name IN ( otap_util.CFG_TEXT_TEST_FAILED
-                          , otap_util.CFG_TEXT_TEST_PASSED
-                          , otap_util.CFG_TEXT_TEST_UNDEFINED
-                          )
+      FROM otap_identifiers_v
+     WHERE otap_identifier IN ( otap_util.CFG_TEXT_TEST_UNDEFINED
+                              , otap_util.CFG_TEXT_TEST_PASSED
+                              , otap_util.CFG_TEXT_TEST_FAILED
+                              )
     ;
     RETURN l_return;
   EXCEPTION
@@ -533,12 +535,14 @@ AS
   IS
     l_return INTEGER;
   BEGIN
-    SELECT MAX(LENGTH(config_value))
+    -- consider possible translations, fetch from otap_identifiers_v
+    -- length does not change on upper, lower or init capitals
+    SELECT MAX(LENGTH(label_text_lower))
       INTO l_return
-      FROM otap_config
-     WHERE config_name IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
-                          , otap_util.CFG_TEXT_SUMMARY_SUCCESS
-                          )
+      FROM otap_identifiers_v
+     WHERE otap_identifier IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
+                              , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                              )
     ;
     RETURN l_return;
   EXCEPTION
@@ -552,13 +556,15 @@ AS
   IS
     l_return INTEGER;
   BEGIN
-    SELECT MAX(LENGTH(config_value))
+    -- consider possible translations, fetch from otap_identifiers_v
+    -- length does not change on upper, lower or init capitals
+    SELECT MAX(LENGTH(label_text_lower))
       INTO l_return
-      FROM otap_config
-     WHERE config_name IN ( otap_util.CFG_TEXT_REPORT_START
-                          , otap_util.CFG_TEXT_REPORT_END
-                          , otap_util.CFG_TEXT_REPORT_TOTAL
-                          )
+      FROM otap_identifiers_v
+     WHERE otap_identifier IN ( otap_util.CFG_TEXT_REPORT_START
+                              , otap_util.CFG_TEXT_REPORT_END
+                              , otap_util.CFG_TEXT_REPORT_TOTAL
+                              )
     ;
     RETURN l_return;
   EXCEPTION
@@ -572,12 +578,14 @@ AS
   IS
     l_return INTEGER;
   BEGIN
-    SELECT MAX(LENGTH(config_value))
+    -- consider possible translations, fetch from otap_identifiers_v
+    -- length does not change on upper, lower or init capitals
+    SELECT MAX(LENGTH(label_text_lower))
       INTO l_return
-      FROM otap_config
-     WHERE config_name IN ( otap_util.CFG_TEXT_RESULT_HEADER
-                          , otap_util.CFG_TEXT_RESULT_LINE
-                          )
+      FROM otap_identifiers_v
+     WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
+                              , otap_util.CFG_TEXT_RESULT_LINE
+                              )
     ;
     RETURN l_return;
   EXCEPTION
@@ -639,7 +647,7 @@ AS
     IF l_label IS NULL
     THEN
       -- log error
-      otap_log.log('Invalid constraint type', 'otap_util.constraint_type_to_label', 'Given:' || NVL(p_constraint_type, 'NULL'));
+      otap_log.log('Invalid constraint type: ' || NVL(p_constraint_type, 'NULL'), 'otap_util.constraint_type_to_label');
       l_label := otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE;
     END IF;
     RETURN l_label;
@@ -716,7 +724,7 @@ AS
                 l_text_result := REPLACE(l_text_result, p_param1, p_param1_value);
               ELSE
                 -- ignore, log error
-                otap_log.log('Value without variable name: ' || p_param1_value || ' or invalid parameter: ' || p_param1, l_script);
+                otap_log.log('Value without variable name: ' || p_param1_value || ' or invalid parameter: ' || NVL(p_param1, 'NULL'), l_script);
               END IF;
             END IF;
             IF p_param2_value IS NOT NULL
@@ -728,7 +736,7 @@ AS
                 l_text_result := REPLACE(l_text_result, p_param2, p_param2_value);
               ELSE
                 -- ignore, log error
-                otap_log.log('Value without variable name: ' || p_param2_value || ' or invalid parameter: ' || p_param2, l_script);
+                otap_log.log('Value without variable name: ' || p_param2_value || ' or invalid parameter: ' || NVL(p_param2, 'NULL'), l_script);
               END IF;
             END IF;
             IF p_param3_value IS NOT NULL
@@ -740,7 +748,7 @@ AS
                 l_text_result := REPLACE(l_text_result, p_param3, p_param3_value);
               ELSE
                 -- ignore, log error
-                otap_log.log('Value without variable name: ' || p_param3_value || ' or invalid parameter: ' || p_param3, l_script);
+                otap_log.log('Value without variable name: ' || p_param3_value || ' or invalid parameter: ' || NVL(p_param3, 'NULL'), l_script);
               END IF;
             END IF;
             IF p_param4_value IS NOT NULL
@@ -752,7 +760,7 @@ AS
                 l_text_result := REPLACE(l_text_result, p_param4, p_param4_value);
               ELSE
                 -- ignore, log error
-                otap_log.log('Value without variable name: ' || p_param4_value || ' or invalid parameter: ' || p_param4, l_script);
+                otap_log.log('Value without variable name: ' || p_param4_value || ' or invalid parameter: ' || NVL(p_param4, 'NULL'), l_script);
               END IF;
             END IF;
             IF p_param5_value IS NOT NULL
@@ -764,7 +772,7 @@ AS
                 l_text_result := REPLACE(l_text_result, p_param5, p_param5_value);
               ELSE
                 -- ignore, log error
-                otap_log.log('Value without variable name: ' || p_param5_value || ' or invalid parameter: ' || p_param5, l_script);
+                otap_log.log('Value without variable name: ' || p_param5_value || ' or invalid parameter: ' || NVL(p_param5, 'NULL'), l_script);
               END IF;
             END IF;
             -- allow NULL value for replace
@@ -911,6 +919,8 @@ AS
       l_row_counter := l_row_counter + 1;
       l_processed   := l_processed + 1;
     END LOOP;
+    -- commit any pending deletes
+    COMMIT;
     l_delete_msg := 'Processed ' || l_processed || ' records for delete. Started at ' || TO_CHAR(l_delete_start, 'YYYY-MM-DD HH24:MI:SS') || ' finished at ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS');
     otap_log.log(l_delete_msg, l_script, 'Procedure end', 'OTAP_DEBUG');
     DBMS_OUTPUT.PUT_LINE(l_delete_msg);

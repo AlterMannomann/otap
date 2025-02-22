@@ -10,7 +10,7 @@ BEGIN
   :NEW.created_by     := SYS_CONTEXT('USERENV', 'SESSION_USER');
   :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
   :NEW.language_id    := otap_constants.OTAP_INTERNAL_NA;
-  -- check if the label is defined and translatable, deny if so
+  -- check if the label is defined and translatable, deny if not, ignore if not in otap_config
   otap_util.validate_translatable(:NEW.otap_identifier);
 END;
 /

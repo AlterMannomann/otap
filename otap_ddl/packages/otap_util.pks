@@ -203,6 +203,8 @@ AS
   /** PROCEDURE otap_util.validate_translatable
   * Checks for OTAP_TRANSLATE trigger if the identifier is defined and not translatable.
   * Identifiers for not translatable config names are not allowed and will cause an exception.
+  * Checks only values in OTAP_CONFIG. Other identifiers are ignored and may get used, if they
+  * exist. OTAP_CONFIG identifiers must be of type CHAR and must have translatable set.
   *
   * @param p_otap_identifier The identifier name, usally :NEW.otap_identifier or :OLD.otap_identifier.
   *
@@ -222,7 +224,7 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_util.get_config_value
+  /** FUNCTION otap_util.get_config_number
   * Returns a config value for a given configuration as NUMBER. Return value is always NUMBER.
   * On errors return NULL or raise exception.
   *
@@ -238,7 +240,7 @@ AS
   * Returns the label name for a given object type. If not found the LABEL_UNDEFINED is returned.
   * Exceptions are raised. Will not check OTAP_CONFIG, will operate on OTAP_LABELS_MV.
   *
-  * @param p_object_type A valid Oracle object type as defined in DBA_OBJECTS or V$RESERVED_WORDS.
+  * @param p_object_type A valid Oracle object type as defined in DBA_OBJECTS, V$RESERVED_WORDS or by otap.
   *
   * @return The label identifier for a given object type or LABEL_UNDEFINED.
   */
@@ -250,7 +252,7 @@ AS
   * Checks the defined text representations of passed, failed and undefined to
   * determine the maximum length a string needs. Used during formatting reports.
   *
-  * @return The maximum length of test states defined in OTAP_CONFIG.
+  * @return The maximum length of test states defined in OTAP_CONFIG or existing translations.
   */
   FUNCTION get_length_test_state
     RETURN NUMBER
