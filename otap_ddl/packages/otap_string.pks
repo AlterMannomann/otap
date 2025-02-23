@@ -11,7 +11,7 @@ AS
   /** FUNCTION otap_string.reduce
   * Basic string trimming and cutting to a given size. Trims the result.
   * Limited to PLSQL string size. On using defaults return a NULL string. Can be used in PLSQL to guarantee string
-  * length for a used variable size and avoid exceptions on oversized strings.
+  * length for a used variable size and avoid exceptions on oversized strings. Limited to 32767 chars.
   *
   * @param p_string The string to trim and cut to the given size.
   * @param p_size The maximum length for the result string.
@@ -27,7 +27,7 @@ AS
   /** FUNCTION otap_string.cut
   * Basic string cutting to a given size. Does not trim the result.
   * Limited to PLSQL string size. On using defaults return a NULL string. Can be used in PLSQL to guarantee string
-  * length for a used variable size and avoid exceptions on oversized strings.
+  * length for a used variable size and avoid exceptions on oversized strings. Limited to 32767 chars.
   *
   * @param p_string The string to cut to the given size.
   * @param p_size The maximum length for the result string.
@@ -44,7 +44,7 @@ AS
   * Basic string flattening and cutting to a given size. Does not trim the result.
   * Limited to PLSQL string size. On using defaults return a NULL string. Can be used
   * to remove white space chars like more than one space, tab, line feed and others and
-  * replace them with a single space.
+  * replace them with a single space. Limited to 32767 chars.
   *
   * @param p_string The string to flatten and cut to the given size.
   * @param p_size The maximum length for the result string.

@@ -749,6 +749,7 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
+                                   , p_runtime      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    )
     RETURN VARCHAR2
@@ -759,7 +760,7 @@ AS
     l_message := otap_constants.OTAP_INTERNAL_ERROR;
     -- execute the wrapped function in an extra block
     BEGIN
-      l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_min_fill);
+      l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_runtime, p_min_fill);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -850,6 +851,7 @@ AS
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
            , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+           , TRIM(SUM((test_end - test_start) DAY TO SECOND)) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
              -- exclude optional extra total count test
@@ -1010,7 +1012,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
       FOR rec IN cur_session_total(p_session_id)
       LOOP
-        l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, l_report_size);
+        l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, rec.exec_time, l_report_size);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));

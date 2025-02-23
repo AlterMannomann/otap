@@ -171,7 +171,7 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEMPLATE_SUMMARY', '@status@ runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEMPLATE_SUMMARY', '@status@ total runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- @testname@ represents the test name for the summary of errors under this test name
 INSERT INTO otap_config
@@ -238,7 +238,7 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEMPLATE_REPORT_TOTAL', 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEMPLATE_REPORT_TOTAL', 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@ exec time: @runtime@', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- generic exists template
 -- @type@ represents the object type as defined in the database, see OTAP_IDENTIFIERS_V.

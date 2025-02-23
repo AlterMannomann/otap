@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 929
+SQL> SELECT otap_test.init_test( p_test_count => 988
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 77
+Test session id: 22
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 929
+Expected tests: 988
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 77
-Test start: 2025-02-22 20:26:48
+Current view id: 22
+Test start: 2025-02-23 00:41:36
 
 
 1 row selected.
@@ -5334,6 +5334,93 @@ SQL> DECLARE
 
 PL/SQL procedure successfully completed.
 
+SQL> @@otap_string.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- sets the test name and calls the tests for this test name
+SQL> 
+SQL> -- basic schema and otap_constants tests already done, test log entries will remain, logging is always committed on success
+SQL> SELECT otap_test.set_test_name('Verify otap_string functionality') FROM dual;
+Current test: Verify otap_string functionality
+
+1 row selected.
+
+SQL> -- to verify package constants we use a anonymous PLSQL block
+SQL> -- to not overload DBMS_OUTPUT only minimal summary output
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return VARCHAR2(4000);
+  3    l_stamp	TIMESTAMP;
+  4  BEGIN
+  5    l_return := otap_test.ok(otap_string.reduce IS NULL, 'otap_string.reduce no parameters');
+  6    l_return := otap_test.is_eq(otap_string.reduce('1234', 2), '12', 'otap_string.reduce cut string');
+  7    l_return := otap_test.is_eq(otap_string.reduce('1234	  ', 4000), '1234', 'otap_string.reduce trim string trailing blanks');
+  8    l_return := otap_test.is_eq(otap_string.reduce(' 	  1234', 4000), '1234', 'otap_string.reduce trim string leading blanks');
+  9    l_return := otap_test.is_eq(otap_string.reduce(' 	  1234		 ', 4000), '1234', 'otap_string.reduce trim string leading and trailing blanks');
+ 10    l_return := otap_test.is_eq(otap_string.reduce('   123	345   ', 6), '123', 'otap_string.reduce trim and cut');
+ 11    l_return := otap_test.is_eq(otap_string.reduce('   123	345   ', 9), '123   345', 'otap_string.reduce trim and cut extended');
+ 12    l_return := otap_test.throws_ok('l_reduce := otap_string.reduce(RPAD(''a'', 35000, ''b''), 32767);', -6502, 'l_reduce VARCHAR2(32767);', 'otap_string.reduce PLSQL overflow behavior buffer too small exception');
+ 13    SELECT otap_test.is_eq(LENGTH(otap_string.reduce(RPAD('a', 35000, 'b'), 32767)), 4000, 'otap_string.reduce SQL overflow behavior cut to 4000 chars')
+ 14  	 INTO l_return
+ 15  	 FROM dual;
+ 16    l_return := otap_test.ok(otap_string.cut IS NULL, 'otap_string.cut no parameters');
+ 17    l_return := otap_test.is_eq(otap_string.cut('1234', 2), '12', 'otap_string.cut cut string');
+ 18    l_return := otap_test.is_eq(otap_string.cut('1234  ', 6), '1234	', 'otap_string.cut no trim on cut');
+ 19    l_return := otap_test.is_eq(otap_string.cut('1234  ', 9), '1234	', 'otap_string.cut no string filling');
+ 20    l_return := otap_test.throws_ok('l_cut := otap_string.cut(RPAD(''a'', 35000, ''b''), 32767);', -6502, 'l_cut VARCHAR2(32767);', 'otap_string.cut PLSQL overflow behavior buffer too small exception');
+ 21    SELECT otap_test.is_eq(LENGTH(otap_string.cut(RPAD('a', 35000, 'b'), 32767)), 4000, 'otap_string.cut SQL overflow behavior cut to 4000 chars')
+ 22  	 INTO l_return
+ 23  	 FROM dual;
+ 24    l_return := otap_test.ok(otap_string.flatten IS NULL, 'otap_string.flatten no parameter');
+ 25    l_return := otap_test.is_eq(otap_string.flatten('1234', 2), '12', 'otap_string.flatten cut string');
+ 26    l_return := otap_test.is_eq(otap_string.flatten('	   1234 	  ', 4000), ' 1234 ', 'otap_string.flatten string leading and trailing blanks');
+ 27    l_return := otap_test.is_eq(otap_string.flatten('   123	 345   ', 6), ' 123 3', 'otap_string.flatten spaces');
+ 28    l_return := otap_test.is_eq(otap_string.flatten('   123	 345   ', 9), ' 123 345 ', 'otap_string.flatten spaces other size');
+ 29    l_return := otap_test.is_eq(otap_string.flatten('123' || CHR(13) || CHR(10) || '   345	', 9), '123 345 ', 'otap_string.flatten CR, LF and spaces');
+ 30    l_return := otap_test.is_eq(otap_string.check_border, otap_constants.OTAP_FALLBACK_BORDER, 'otap_string.check_border no parameter');
+ 31    l_return := otap_test.is_eq(otap_string.check_border(NULL), otap_constants.OTAP_FALLBACK_BORDER, 'otap_string.check_border NULL parameter');
+ 32    l_return := otap_test.is_eq(otap_string.check_border(5), 5, 'otap_string.check_border valid parameter');
+ 33    l_return := otap_test.is_eq(otap_string.check_border(2), 2, 'otap_string.check_border min value');
+ 34    l_return := otap_test.is_eq(otap_string.check_border(10), 10, 'otap_string.check_border max value');
+ 35    l_return := otap_test.is_eq(otap_string.check_border(20), otap_constants.OTAP_FALLBACK_BORDER, 'otap_string.check_border invalid parameter');
+ 36    l_return := otap_test.is_eq(otap_string.check_line_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size no parameter');
+ 37    l_return := otap_test.is_eq(otap_string.check_line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size NULL parameter');
+ 38    l_return := otap_test.is_eq(otap_string.check_line_size(20), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size under minimum');
+ 39    l_return := otap_test.is_eq(otap_string.check_line_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_line_size over maximum');
+ 40    l_return := otap_test.is_eq(otap_string.check_line_size(120), 120, 'otap_string.check_line_size valid size');
+ 41    l_return := otap_test.is_eq(otap_string.check_line_size(120.35), 120, 'otap_string.check_line_size truncate decimal to integer');
+ 42    l_return := otap_test.is_eq(otap_string.check_title_size, 0, 'otap_string.check_title_size no parameter');
+ 43    l_return := otap_test.is_eq(otap_string.check_title_size(NULL), 0, 'otap_string.check_title_size NULL parameter');
+ 44    l_return := otap_test.is_eq(otap_string.check_title_size(20), 20, 'otap_string.check_title_size valid parameter');
+ 45    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 5), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 10), 'otap_string.check_title_size overflow max size');
+ 46    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 2), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 4), 'otap_string.check_title_size overflow max size different border');
+ 47    l_return := otap_test.is_eq(otap_string.check_string_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size no parameter');
+ 48    l_return := otap_test.is_eq(otap_string.check_string_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size NULL parameter');
+ 49    l_return := otap_test.is_eq(otap_string.check_string_size(120), 120, 'otap_string.check_string_size valid parameter');
+ 50    l_return := otap_test.is_eq(otap_string.check_string_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_string_size overflow parameter');
+ 51    l_return := otap_test.is_eq(otap_string.check_layout, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout no parameter');
+ 52    l_return := otap_test.is_eq(otap_string.check_layout(NULL), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout NULL parameter');
+ 53    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_RIGHT), otap_constants.OTAP_LAYOUT_RIGHT, 'otap_string.check_layout layout right');
+ 54    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_MIDDLE), otap_constants.OTAP_LAYOUT_MIDDLE, 'otap_string.check_layout layout middle');
+ 55    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_LEFT), otap_constants.OTAP_LAYOUT_LEFT, 'otap_string.check_layout layout left');
+ 56    l_return := otap_test.is_eq(otap_string.check_layout('0'), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout invalid layout');
+ 57    l_return := otap_test.is_eq(otap_string.check_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration no parameter');
+ 58    l_return := otap_test.is_eq(otap_string.check_decoration(NULL), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration NULL parameter');
+ 59    l_return := otap_test.is_eq(otap_string.check_decoration(CHR(9)), CHR(9), 'otap_string.check_decoration define non printable CHR(9)');
+ 60    l_return := otap_test.is_eq(otap_string.check_decoration('!'), '!', 'otap_string.check_decoration define printable !');
+ 61    l_return := otap_test.is_eq(otap_string.check_decoration('*--'), '*', 'otap_string.check_decoration truncate parameter with invalid size');
+ 62    l_return := otap_test.is_eq(otap_string.line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size NULL parameter');
+ 63    l_return := otap_test.is_eq(otap_string.line_size(120, 5), 130, 'otap_string.line_size valid parameter');
+ 64    l_return := otap_test.is_eq(otap_string.line_size(otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size valid max size');
+ 65    l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');
+ 66    l_return := otap_test.is_eq(otap_string.line_size(120, 1), 120 + (otap_constants.OTAP_FALLBACK_BORDER * 2), 'otap_string.line_size invalid border parameter');
+ 67    l_return := otap_test.is_eq(otap_string.line_size(20, 5, 30), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size invalid min fill size');
+ 68  END;
+ 69  /
+
+PL/SQL procedure successfully completed.
+
 SQL> @@otap_util.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
@@ -6709,7 +6796,7 @@ SQL> DECLARE
 1358  	l_return    := otap_test.ok(l_runtime < 20, 'otap_util.result_cleanup preparation performance seconds: ' || TO_CHAR(l_runtime, '90.09') || ' < 20');
 1359  END;
 1360  /
-Processed 1004 records for delete. Started at 2025-02-22 20:27:34 finished at 2025-02-22 20:27:44
+Processed 1004 records for delete. Started at 2025-02-23 00:42:21 finished at 2025-02-23 00:42:31
 
 PL/SQL procedure successfully completed.
 
@@ -6719,9 +6806,9 @@ SQL> -- packages
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 77 tests: 929 from 929 errors: 0 run time: +000000000 00:00:57.000000000 started: 2025-02-22 20:26:48
+Summary id: 22 tests: 988 from 988 errors: 0 run time: +000000000 00:00:55.000000000 started: 2025-02-23 00:41:36
 Current test settings
-Test session id: 78
+Test session id: 23
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -6734,8 +6821,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 77
-Test start: 2025-02-22 20:27:45
+Current view id: 22
+Test start: 2025-02-23 00:42:31
 
 
 1 row selected.

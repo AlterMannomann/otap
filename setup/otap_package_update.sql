@@ -1,7 +1,7 @@
 -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 -- Not allowed to be used as AI training material without explicite permission.
--- updates packages of the otap environment
+-- updates packages and data of the otap environment
 @@util/log_visible.sql
 -- set CHAR semantics to get SPERRORLOG ready for bigger chars before creation
 ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR;
@@ -15,6 +15,12 @@ SET ERRORLOGGING ON
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============INSTALL start==============
 SPOOL logs/otap_update.log
+-- update config data
+UPDATE otap_config
+   SET config_value = 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@ exec time: @runtime@'
+ WHERE config_name = 'TEMPLATE_REPORT_TOTAL'
+;
+COMMIT;
 -- reinstall the materialized view to get all labels
 @@../otap_ddl/views/drop/drop_otap_labels_mv.sql
 @@../otap_ddl/views/otap_labels_mv.sql

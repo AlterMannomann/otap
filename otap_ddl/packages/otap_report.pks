@@ -68,6 +68,7 @@ AS
   * @param p_groups The number of unique test groups processed in the test session.
   * @param p_names The number of unique test names processed in the test session.
   * @param p_descriptions The number of unique test descriptions processed in the test session. May differ from runs.
+  * @param p_runtime The run time of the tests without preparations. May differ from total runtime.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
   *
   * @return The configured and decorated report totals header.
@@ -76,6 +77,7 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
+                                   , p_runtime      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    )
     RETURN VARCHAR2
