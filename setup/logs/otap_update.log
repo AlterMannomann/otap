@@ -830,7 +830,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_string
 218    * R (right): Minimum border decoration placed at the right with leading title, left padding border decoration up to calculated line size.
 219    *
 220    * Examples
-221    * decorate('test', '-', 20, 'M', 3): ------- test -------
+221    * decorate('test', '-', 20, 'M', 3): ------------------------------------- test -------------------------------------
 222    * decorate('test', '-', 20, 'L', 3): -- test ------------
 223    * decorate('test', '-', 20, 'R', 3): ------------ test --
 224    *
@@ -1004,7 +1004,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 107  	 THEN
 108  	   l_title_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH - (l_border * 2);
 109  	 ELSE
-110  	   l_title_size := NVL(p_title_length, 0);
+110  	   l_title_size := GREATEST(NVL(p_title_length, 0), 0);
 111  	 END IF;
 112  	 RETURN l_title_size;
 113    EXCEPTION
@@ -1259,9 +1259,9 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
 362  	 l_title	:= otap_string.reduce(p_title, l_title_length);
 363  	 otap_log.log('Current title: ' || l_title || ' calculated title length: ' || l_title_length || ' line size: ' || l_line_size, l_script, 'Calculate title and line size to use', 'OTAP_DEBUG');
 364  	 -- build the string
-365  	 l_deco_string := otap_string.left_deco(l_title_length, l_line_size, l_deco, l_layout) ||
+365  	 l_deco_string := otap_string.left_deco(l_title_length, l_line_size, l_deco, l_layout, l_border) ||
 366  			  l_title ||
-367  			  otap_string.right_deco(l_title_length, l_line_size, l_deco, l_layout)
+367  			  otap_string.right_deco(l_title_length, l_line_size, l_deco, l_layout, l_border)
 368  	 ;
 369  	 RETURN l_deco_string;
 370    EXCEPTION
@@ -9303,7 +9303,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 848  		, SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
 849  		, SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
 850  		, TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-851  		, TRIM(SUM((test_end - test_start) DAY TO SECOND)) AS exec_time
+851  		, SUM((test_end - test_start) DAY TO SECOND) AS exec_time
 852  	     FROM otap_results
 853  	    WHERE test_session_id = cp_session_id
 854  		  -- exclude optional extra total count test

@@ -110,7 +110,7 @@ AS
     THEN
       l_title_size := otap_constants.OTAP_NUM_MAX_FILL_LENGTH - (l_border * 2);
     ELSE
-      l_title_size := NVL(p_title_length, 0);
+      l_title_size := GREATEST(NVL(p_title_length, 0), 0);
     END IF;
     RETURN l_title_size;
   EXCEPTION
@@ -365,9 +365,9 @@ AS
     l_title        := otap_string.reduce(p_title, l_title_length);
     otap_log.log('Current title: ' || l_title || ' calculated title length: ' || l_title_length || ' line size: ' || l_line_size, l_script, 'Calculate title and line size to use', 'OTAP_DEBUG');
     -- build the string
-    l_deco_string := otap_string.left_deco(l_title_length, l_line_size, l_deco, l_layout) ||
+    l_deco_string := otap_string.left_deco(l_title_length, l_line_size, l_deco, l_layout, l_border) ||
                      l_title ||
-                     otap_string.right_deco(l_title_length, l_line_size, l_deco, l_layout)
+                     otap_string.right_deco(l_title_length, l_line_size, l_deco, l_layout, l_border)
     ;
     RETURN l_deco_string;
   EXCEPTION

@@ -851,7 +851,7 @@ AS
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
            , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-           , TRIM(SUM((test_end - test_start) DAY TO SECOND)) AS exec_time
+           , SUM((test_end - test_start) DAY TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
              -- exclude optional extra total count test

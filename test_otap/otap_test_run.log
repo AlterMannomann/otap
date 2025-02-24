@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 988
+SQL> SELECT otap_test.init_test( p_test_count => 1053
   2  			       , p_test_set => 'OTAP system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 22
+Test session id: 33
 Test set: OTAP system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15,12 +15,12 @@ DB user: OTAP
 DB schema: OTAP
 Test identifier prefix: TEST
 Current tests:0
-Expected tests: 988
+Expected tests: 1053
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 22
-Test start: 2025-02-23 00:41:36
+Current view id: 33
+Test start: 2025-02-24 02:24:25
 
 
 1 row selected.
@@ -5386,38 +5386,103 @@ SQL> DECLARE
  35    l_return := otap_test.is_eq(otap_string.check_border(20), otap_constants.OTAP_FALLBACK_BORDER, 'otap_string.check_border invalid parameter');
  36    l_return := otap_test.is_eq(otap_string.check_line_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size no parameter');
  37    l_return := otap_test.is_eq(otap_string.check_line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size NULL parameter');
- 38    l_return := otap_test.is_eq(otap_string.check_line_size(20), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size under minimum');
- 39    l_return := otap_test.is_eq(otap_string.check_line_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_line_size over maximum');
- 40    l_return := otap_test.is_eq(otap_string.check_line_size(120), 120, 'otap_string.check_line_size valid size');
- 41    l_return := otap_test.is_eq(otap_string.check_line_size(120.35), 120, 'otap_string.check_line_size truncate decimal to integer');
- 42    l_return := otap_test.is_eq(otap_string.check_title_size, 0, 'otap_string.check_title_size no parameter');
- 43    l_return := otap_test.is_eq(otap_string.check_title_size(NULL), 0, 'otap_string.check_title_size NULL parameter');
- 44    l_return := otap_test.is_eq(otap_string.check_title_size(20), 20, 'otap_string.check_title_size valid parameter');
- 45    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 5), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 10), 'otap_string.check_title_size overflow max size');
- 46    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 2), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 4), 'otap_string.check_title_size overflow max size different border');
- 47    l_return := otap_test.is_eq(otap_string.check_string_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size no parameter');
- 48    l_return := otap_test.is_eq(otap_string.check_string_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size NULL parameter');
- 49    l_return := otap_test.is_eq(otap_string.check_string_size(120), 120, 'otap_string.check_string_size valid parameter');
- 50    l_return := otap_test.is_eq(otap_string.check_string_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_string_size overflow parameter');
- 51    l_return := otap_test.is_eq(otap_string.check_layout, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout no parameter');
- 52    l_return := otap_test.is_eq(otap_string.check_layout(NULL), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout NULL parameter');
- 53    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_RIGHT), otap_constants.OTAP_LAYOUT_RIGHT, 'otap_string.check_layout layout right');
- 54    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_MIDDLE), otap_constants.OTAP_LAYOUT_MIDDLE, 'otap_string.check_layout layout middle');
- 55    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_LEFT), otap_constants.OTAP_LAYOUT_LEFT, 'otap_string.check_layout layout left');
- 56    l_return := otap_test.is_eq(otap_string.check_layout('0'), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout invalid layout');
- 57    l_return := otap_test.is_eq(otap_string.check_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration no parameter');
- 58    l_return := otap_test.is_eq(otap_string.check_decoration(NULL), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration NULL parameter');
- 59    l_return := otap_test.is_eq(otap_string.check_decoration(CHR(9)), CHR(9), 'otap_string.check_decoration define non printable CHR(9)');
- 60    l_return := otap_test.is_eq(otap_string.check_decoration('!'), '!', 'otap_string.check_decoration define printable !');
- 61    l_return := otap_test.is_eq(otap_string.check_decoration('*--'), '*', 'otap_string.check_decoration truncate parameter with invalid size');
- 62    l_return := otap_test.is_eq(otap_string.line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size NULL parameter');
- 63    l_return := otap_test.is_eq(otap_string.line_size(120, 5), 130, 'otap_string.line_size valid parameter');
- 64    l_return := otap_test.is_eq(otap_string.line_size(otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size valid max size');
- 65    l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');
- 66    l_return := otap_test.is_eq(otap_string.line_size(120, 1), 120 + (otap_constants.OTAP_FALLBACK_BORDER * 2), 'otap_string.line_size invalid border parameter');
- 67    l_return := otap_test.is_eq(otap_string.line_size(20, 5, 30), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size invalid min fill size');
- 68  END;
- 69  /
+ 38    l_return := otap_test.is_eq(otap_string.check_line_size(-10), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size negative parameter');
+ 39    l_return := otap_test.is_eq(otap_string.check_line_size(20), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_line_size under minimum');
+ 40    l_return := otap_test.is_eq(otap_string.check_line_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_line_size over maximum');
+ 41    l_return := otap_test.is_eq(otap_string.check_line_size(120), 120, 'otap_string.check_line_size valid size');
+ 42    l_return := otap_test.is_eq(otap_string.check_line_size(120.35), 120, 'otap_string.check_line_size truncate decimal to integer');
+ 43    l_return := otap_test.is_eq(otap_string.check_title_size, 0, 'otap_string.check_title_size no parameter');
+ 44    l_return := otap_test.is_eq(otap_string.check_title_size(NULL), 0, 'otap_string.check_title_size NULL parameter');
+ 45    l_return := otap_test.is_eq(otap_string.check_title_size(-10), 0, 'otap_string.check_title_size negative parameter');
+ 46    l_return := otap_test.is_eq(otap_string.check_title_size(20), 20, 'otap_string.check_title_size valid parameter');
+ 47    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 5), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 10), 'otap_string.check_title_size overflow max size');
+ 48    l_return := otap_test.is_eq(otap_string.check_title_size(4000, 2), (otap_constants.OTAP_NUM_MAX_FILL_LENGTH - 4), 'otap_string.check_title_size overflow max size different border');
+ 49    l_return := otap_test.is_eq(otap_string.check_string_size, otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size no parameter');
+ 50    l_return := otap_test.is_eq(otap_string.check_string_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size NULL parameter');
+ 51    l_return := otap_test.is_eq(otap_string.check_string_size(-10), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.check_string_size negative parameter');
+ 52    l_return := otap_test.is_eq(otap_string.check_string_size(120), 120, 'otap_string.check_string_size valid parameter');
+ 53    l_return := otap_test.is_eq(otap_string.check_string_size(5000), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.check_string_size overflow parameter');
+ 54    l_return := otap_test.is_eq(otap_string.check_layout, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout no parameter');
+ 55    l_return := otap_test.is_eq(otap_string.check_layout(NULL), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout NULL parameter');
+ 56    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_RIGHT), otap_constants.OTAP_LAYOUT_RIGHT, 'otap_string.check_layout layout right');
+ 57    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_MIDDLE), otap_constants.OTAP_LAYOUT_MIDDLE, 'otap_string.check_layout layout middle');
+ 58    l_return := otap_test.is_eq(otap_string.check_layout(otap_constants.OTAP_LAYOUT_LEFT), otap_constants.OTAP_LAYOUT_LEFT, 'otap_string.check_layout layout left');
+ 59    l_return := otap_test.is_eq(otap_string.check_layout('0'), otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'otap_string.check_layout invalid layout');
+ 60    l_return := otap_test.is_eq(otap_string.check_decoration, otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration no parameter');
+ 61    l_return := otap_test.is_eq(otap_string.check_decoration(NULL), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, 'otap_string.check_decoration NULL parameter');
+ 62    l_return := otap_test.is_eq(otap_string.check_decoration(CHR(9)), CHR(9), 'otap_string.check_decoration define non printable CHR(9)');
+ 63    l_return := otap_test.is_eq(otap_string.check_decoration('!'), '!', 'otap_string.check_decoration define printable !');
+ 64    l_return := otap_test.is_eq(otap_string.check_decoration('*--'), '*', 'otap_string.check_decoration truncate parameter with invalid size');
+ 65    l_return := otap_test.is_eq(otap_string.line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size NULL parameter');
+ 66    l_return := otap_test.is_eq(otap_string.line_size(120, 5), 130, 'otap_string.line_size valid parameter');
+ 67    l_return := otap_test.is_eq(otap_string.line_size(otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size valid max size');
+ 68    l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');
+ 69    l_return := otap_test.is_eq(otap_string.line_size(120, 1), 120 + (otap_constants.OTAP_FALLBACK_BORDER * 2), 'otap_string.line_size invalid border parameter');
+ 70    l_return := otap_test.is_eq(otap_string.line_size(20, 5, 30), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size invalid min fill size');
+ 71    l_return := otap_test.is_eq(otap_string.max_size(NULL), 0, 'otap_string.max_size NULL title size');
+ 72    l_return := otap_test.is_eq(otap_string.max_size(0), 0, 'otap_string.max_size 0 title size');
+ 73    l_return := otap_test.is_eq(otap_string.max_size(-10), 0, 'otap_string.max_size negative title size');
+ 74    l_return := otap_test.is_eq(otap_string.max_size(2), 2, 'otap_string.max_size small title size');
+ 75    l_return := otap_test.is_eq(otap_string.max_size(120), 120, 'otap_string.max_size typical title size');
+ 76    l_return := otap_test.is_eq(otap_string.max_size(5000, 80, 5), 3990, 'otap_string.max_size overflow title size');
+ 77    l_return := otap_test.is_eq(otap_string.max_size(120, 20), 120, 'otap_string.max_size invalid line size ignored');
+ 78    l_return := otap_test.is_eq(otap_string.max_size(120, 80, 50), 120, 'otap_string.max_size invalid border size ignored');
+ 79    l_return := otap_test.is_eq(otap_string.max_size(120, 10, 50), 120, 'otap_string.max_size invalid line and border size ignored');
+ 80    l_return := otap_test.is_eq(otap_string.left_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco NULL title size');
+ 81    l_return := otap_test.is_eq(otap_string.left_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco 0 title size');
+ 82    l_return := otap_test.is_eq(otap_string.left_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco negative title size');
+ 83    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'M', 5), LPAD(' ', 10, '-'), 'otap_string.left_deco typical parameter layout M');
+ 84    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'M', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout M');
+ 85    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'M', 5), LPAD(' ', 8, '-'), 'otap_string.left_deco uneven title size layout M');
+ 86    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 5), LPAD(' ', 15, '-'), 'otap_string.left_deco typical parameter layout R');
+ 87    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'R', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout R');
+ 88    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'R', 5), LPAD(' ', 12, '-'), 'otap_string.left_deco uneven title size layout R');
+ 89    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco typical parameter layout L');
+ 90    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout L');
+ 91    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco uneven title size layout L');
+ 92    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 2), LPAD(' ', 2, '-'), 'otap_string.left_deco minimum border layout L');
+ 93    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 2), LPAD(' ', 18, '-'), 'otap_string.left_deco minimum border layout R');
+ 94    l_return := otap_test.is_eq(otap_string.left_deco(60, NULL, NULL, NULL, NULL), LPAD(' ', 10, '-'), 'otap_string.left_deco default optional parameter NULL');
+ 95    l_return := otap_test.is_eq(otap_string.right_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco NULL title size');
+ 96    l_return := otap_test.is_eq(otap_string.right_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco 0 title size');
+ 97    l_return := otap_test.is_eq(otap_string.right_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco negative title size');
+ 98    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'M', 5), RPAD(' ', 10, '-'), 'otap_string.right_deco typical parameter layout M');
+ 99    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'M', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout M');
+100    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'M', 5), RPAD(' ', 9, '-'), 'otap_string.right_deco uneven title size layout M');
+101    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco typical parameter layout R');
+102    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout R');
+103    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco uneven title size layout R');
+104    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 5), RPAD(' ', 15, '-'), 'otap_string.right_deco typical parameter layout L');
+105    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'L', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout L');
+106    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'L', 5), RPAD(' ', 12, '-'), 'otap_string.right_deco uneven title size layout L');
+107    l_return := otap_test.is_eq(otap_string.right_deco(60, NULL, NULL, NULL, NULL), RPAD(' ', 10, '-'), 'otap_string.right_deco default optional parameter NULL');
+108    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 2), RPAD(' ', 18, '-'), 'otap_string.right_deco minimum border layout L');
+109    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 2), RPAD(' ', 2, '-'), 'otap_string.right_deco minimum border layout R');
+110    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'M', 3), (LPAD(' ', 38, '-') || 'test' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M typical');
+111    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'test' || RPAD(' ', 73, '-')), 'otap_string.decorate layout L typical');
+112    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'R', 3), (LPAD(' ', 73, '-') || 'test' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R typical');
+113    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'M', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout M oversize cutted');
+114    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'L', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout L oversize cutted');
+115    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'R', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout R oversize cutted');
+116    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'M', 3), (LPAD(' ', 37, '-') || 'teste' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M uneven title size');
+117    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'teste' || RPAD(' ', 72, '-')), 'otap_string.decorate layout L uneven title size');
+118    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'R', 3), (LPAD(' ', 72, '-') || 'teste' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R uneven title size');
+119    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'L'), RPAD('test', 80, ' '), 'otap_string.borderless layout L typical');
+120    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'M'), RPAD('test', 80, ' '), 'otap_string.borderless layout M fallback');
+121    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'R'), LPAD('test', 80, ' '), 'otap_string.borderless layout R typical');
+122    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'L'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout L oversize cutted');
+123    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'R'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout R oversize cutted');
+124    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'M'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout M oversize cutted');
+125    l_return := otap_test.ok(otap_string.is_sys_object('SYS_'), 'otap_string.is_sys_object simple SYS_ value');
+126    l_return := otap_test.ok(otap_string.is_sys_object('sys_'), 'otap_string.is_sys_object sys_ value');
+127    l_return := otap_test.ok(otap_string.is_sys_object('$'), 'otap_string.is_sys_object simple $ value');
+128    l_return := otap_test.ok(otap_string.is_sys_object('#'), 'otap_string.is_sys_object simple # value');
+129    l_return := otap_test.ok(otap_string.is_sys_object('Sys_blabla$bla#'), 'otap_string.is_sys_object mixed case Sys_blabla$bla# value');
+130    l_return := otap_test.ok(otap_string.is_sys_object('SYSAUTH$'), 'otap_string.is_sys_object typical sys object $');
+131    l_return := otap_test.ok(otap_string.is_sys_object('SYS_LOB0000000157C00003$$'), 'otap_string.is_sys_object typical sys object lobs');
+132    l_return := otap_test.ok(otap_string.is_sys_object('I_FILE#_BLOCK#'), 'otap_string.is_sys_object typical sys object #');
+133  END;
+134  /
 
 PL/SQL procedure successfully completed.
 
@@ -6796,7 +6861,7 @@ SQL> DECLARE
 1358  	l_return    := otap_test.ok(l_runtime < 20, 'otap_util.result_cleanup preparation performance seconds: ' || TO_CHAR(l_runtime, '90.09') || ' < 20');
 1359  END;
 1360  /
-Processed 1004 records for delete. Started at 2025-02-23 00:42:21 finished at 2025-02-23 00:42:31
+Processed 1004 records for delete. Started at 2025-02-24 02:25:15 finished at 2025-02-24 02:25:25
 
 PL/SQL procedure successfully completed.
 
@@ -6806,9 +6871,9 @@ SQL> -- packages
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 22 tests: 988 from 988 errors: 0 run time: +000000000 00:00:55.000000000 started: 2025-02-23 00:41:36
+Summary id: 33 tests: 1053 from 1053 errors: 0 run time: +000000000 00:01:01.000000000 started: 2025-02-24 02:24:25
 Current test settings
-Test session id: 23
+Test session id: 34
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -6821,8 +6886,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 22
-Test start: 2025-02-23 00:42:31
+Current view id: 33
+Test start: 2025-02-24 02:25:26
 
 
 1 row selected.

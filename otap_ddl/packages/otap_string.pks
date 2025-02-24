@@ -215,20 +215,20 @@ AS
   /** FUNCTION otap_string.decorate
   * Decorates a given title string with the decoration char to left and right padded and a space between title and
   * decoration char. Title is placed as defined by layout. Title will be cutted if it is too long, see
-  * otap_constants.OTAP_NUM_MAX_FILL_LENGTH.
+  * otap_constants.OTAP_NUM_MAX_FILL_LENGTH. Cutting string is always on the right.
   *
   * M (middle): Title is placed in the middle, decoration chars padded and extended equally on both sides up to calculated line size.
   * L (left): Minimum border decoration placed at the left followed by the title, right padding border decoration up to calculated line size.
   * R (right): Minimum border decoration placed at the right with leading title, left padding border decoration up to calculated line size.
   *
   * Examples
-  * decorate('test', '-', 20, 'M', 3): ------- test -------
-  * decorate('test', '-', 20, 'L', 3): -- test ------------
-  * decorate('test', '-', 20, 'R', 3): ------------ test --
+  * decorate('test', '-', 80, 'M', 3): ------------------------------------- test -------------------------------------
+  * decorate('test', '-', 80, 'L', 3): -- test ------------------------------------------------------------------------
+  * decorate('test', '-', 80, 'R', 3): ------------------------------------------------------------------------ test --
   *
   * @param p_title The title to use in the decorated line. If NULL a decorated line is created without any text inside.
   * @param p_decoration The decoration char that should pad the title to the left and right including a space between text and decoration.
-  * @param p_min_length The minimum size for a decorated report line.
+  * @param p_min_length The minimum size for a decorated report line. Limited by otap_constants.OTAP_NUM_MIN_FILL_LENGTH. Lower values translate to minimum fill length.
   * @param p_layout The decoration layout orientation for the title in the decoration.
   * @param p_border The decoration border length including the space to separate text from decoration.
   *
@@ -245,11 +245,11 @@ AS
 
   /** FUNCTION otap_string.borderless
   * Builds not decorated report lines, like results or result headers, with given layout orientation. Only left and right allowed. Middle
-  * will translate to the default otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT.
+  * will translate to the default otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT. Cutting string is always on the right.
   * For languages that read from right to left, the templates and headers have to be adjusted accordingly.
   *
   * @param p_string The string to format with the given orientation.
-  * @param p_min_length The minimum string size to use for padding.
+  * @param p_min_length The minimum string size to use for padding. Limited by otap_constants.OTAP_NUM_MIN_FILL_LENGTH. Lower values translate to minimum fill length.
   * @param p_layout The layout orientation for the string.
   *
   * @return The string with the given layout orientation.
