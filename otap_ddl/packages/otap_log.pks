@@ -15,14 +15,15 @@ AS
 
   /** PROCEDURE otap_util.log
   * Writes a log message to SPERRORLOG which should be already available by setup. If the identifier
-  * is not otap_constants.OTAP_INTERNAL_ERROR the log output will only be stored, if OTAP_CONFIG
-  * DEBUG_MODE is set to 1. User and timestamp are set by the procedure. Runs as autonomous transaction.
+  * is not otap_constants.OTAP_INTERNAL_ERROR or otap_constants.OTAP_INTERNAL_WARNING the log output
+  * will only be stored, if OTAP_CONFIG DEBUG_MODE is set to 1.
+  * User and timestamp are set by the procedure. Runs as autonomous transaction.
   * If SPERRORLOG does not exist, will do nothing apart from DBMS_OUTPUT the exception.
   *
   * @param p_log_message The message to log in SPERRORLOG.
   * @param p_script The script, package or function that caused the message.
   * @param p_statement The statement that caused the message.
-  * @param p_identifier The identifier in SPERRORLOG. If not otap_constants.OTAP_INTERNAL_ERROR, message is logged only if debug mode is set.
+  * @param p_identifier The allowed otap identifier in SPERRORLOG, user-defined only if in debug mode.
   */
   PROCEDURE log( p_log_message  IN VARCHAR2
                , p_script       IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA

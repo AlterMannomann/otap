@@ -68,6 +68,7 @@ AS
   * @param p_test_group The name of the test group applied if the name of the executed test procedure or function does not provide a test group name or name precendence is disabled.
   * @param p_test_name The name of the test name applied if the name of the executed test procedure or function does not provide a test name or name precendence is disabled.
   * @param p_prefix The prefix to use for identifying test functions and procedures. Limited to 4 chars. Test functions and procedures must have a trailing delimiter _ after the prefix to be identified.
+  * @param p_language_id The session language id to use for test reports and results. Limited to 3 chars. If language has no translation, default is used.
   * @param p_name_precedence Can disable the naming conventions for otap. If set to otap_constants.OTAP_NUM_FALSE, all tests will run under the defined test set and group, set by init_test.
   * @param p_include_pkg Can enable to search also packages and package procedures and functions that fit the naming convention with the given prefix, if set to otap_constants.OTAP_NUM_TRUE.
   * @param p_persist Can enable to persist the test results longer than the current default of PRESERVE_DAYS in OTAP_CONFIG, if set to otap_constants.OTAP_NUM_TRUE.
@@ -83,6 +84,7 @@ AS
                     , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
                     , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
                     , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+                    , p_language_id     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                     , p_name_precedence IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
                     , p_include_pkg     IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
                     , p_persist         IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
@@ -199,6 +201,29 @@ AS
   * @return The test set currently active as text message.
   */
   FUNCTION set_test_set(p_test_set IN VARCHAR2)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.set_language
+  * Sets the current session language, limited to 3 chars, always converted to upper case.
+  * Longer values are cutted to 3 chars. If NULL is given than, otap_constants.OTAP_INTERNAL_NA
+  * is used. If the language does not exist in OTAP_TRANSLATE it is ignored and defaults are used.
+  *
+  * @param p_language_id The 3 char language id to use. No effect if OTAP_TRANSLATE is empty.
+  *
+  * @return The session language id currently active.
+  */
+  FUNCTION set_language(p_language_id IN VARCHAR2)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.get_language
+  * Retrieves the current active session language id, limited to 3 chars.
+  * Wrapper for otap_api.otap_session_get_language.
+  *
+  * @return The session language id currently active.
+  */
+  FUNCTION get_language
     RETURN VARCHAR2
   ;
 

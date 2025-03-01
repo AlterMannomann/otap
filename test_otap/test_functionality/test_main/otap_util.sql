@@ -186,6 +186,7 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_GROUP);', -20001, NULL, 'otap_util.validate_config_name default test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_NAME);', -20001, NULL, 'otap_util.validate_config_name default test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_SET);', -20001, NULL, 'otap_util.validate_config_name default test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LANGUAGE);', -20001, NULL, 'otap_util.validate_config_name default language no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_BATCH_SIZE);', -20001, NULL, 'otap_util.validate_config_name delete batch size no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_DELAY);', -20001, NULL, 'otap_util.validate_config_name delete delay no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_GROUP_CHAR);', -20001, NULL, 'otap_util.validate_config_name format group char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
@@ -506,6 +507,7 @@ BEGIN
                             , otap_util.CFG_TEXT_TEST_PASSED
                             , otap_util.CFG_TEXT_TEST_FAILED
                             )
+     AND language_id      = otap_constants.OTAP_INTERNAL_NA
   ;
   SELECT otap_test.is_eq(otap_util.get_length_summary_state, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_summary_state')
     INTO l_return
@@ -513,6 +515,7 @@ BEGIN
    WHERE otap_identifier IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
                             , otap_util.CFG_TEXT_SUMMARY_SUCCESS
                             )
+     AND language_id      = otap_constants.OTAP_INTERNAL_NA
   ;
   SELECT otap_test.is_eq(otap_util.get_length_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_headers')
     INTO l_return
@@ -521,6 +524,7 @@ BEGIN
                             , otap_util.CFG_TEXT_REPORT_END
                             , otap_util.CFG_TEXT_REPORT_TOTAL
                             )
+     AND language_id      = otap_constants.OTAP_INTERNAL_NA
   ;
   SELECT otap_test.is_eq(otap_util.get_length_result_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_result_headers')
     INTO l_return
@@ -528,6 +532,7 @@ BEGIN
    WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
                             , otap_util.CFG_TEXT_RESULT_LINE
                             )
+     AND language_id      = otap_constants.OTAP_INTERNAL_NA
   ;
   l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_PASSED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED), 'otap_util.test_result_to_text passed');
   l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_FAILED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED), 'otap_util.test_result_to_text failed');

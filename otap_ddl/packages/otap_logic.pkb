@@ -85,6 +85,7 @@ AS
     THEN
       -- header valid, check statement
       l_block := otap_logic.get_test_block(p_statement, p_header_def);
+      otap_log.log('Dynamic execution of unverified code', l_script, l_block, otap_constants.OTAP_INTERNAL_WARNING);
       BEGIN
         EXECUTE IMMEDIATE l_block;
         l_return := FALSE;

@@ -62,6 +62,7 @@ AS
                               , otap_util.CFG_DEFAULT_TEST_GROUP
                               , otap_util.CFG_DEFAULT_TEST_NAME
                               , otap_util.CFG_DEFAULT_TEST_SET
+                              , otap_util.CFG_DEFAULT_LANGUAGE
                               , otap_util.CFG_DELETE_BATCH_SIZE
                               , otap_util.CFG_DELETE_DELAY
                               , otap_util.CFG_FORMAT_GROUP_CHAR
@@ -121,6 +122,7 @@ AS
                           , otap_util.CFG_DEFAULT_TEST_GROUP
                           , otap_util.CFG_DEFAULT_TEST_NAME
                           , otap_util.CFG_DEFAULT_TEST_SET
+                          , otap_util.CFG_DEFAULT_LANGUAGE
                           , otap_util.CFG_DELETE_BATCH_SIZE
                           , otap_util.CFG_DELETE_DELAY
                           , otap_util.CFG_FORMAT_GROUP_CHAR
@@ -385,7 +387,41 @@ AS
     END IF;
   END validate_translatable;
 
-  FUNCTION get_config_value(p_config_name IN VARCHAR2)
+  PROCEDURE validate_translation( p_otap_identifier IN VARCHAR2
+                                , p_label_text      IN VARCHAR2
+                                )
+  IS
+    l_script        VARCHAR2(1024 CHAR) := 'otap_util.validate_translatable';
+    l_is_config     INTEGER;
+    l_length_limit  INTEGER;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_is_config
+      FROM otap_config
+     WHERE config_name       = p_otap_identifier
+       AND translatable      = otap_constants.OTAP_NUM_TRUE
+       AND config_max_length > 0
+    ;
+    IF l_is_config = 1
+    THEN
+      SELECT config_max_length
+        INTO l_length_limit
+        FROM otap_config
+       WHERE config_name = p_otap_identifier
+      ;
+      IF LENGTH(p_label_text) > l_length_limit
+      THEN
+        -- log the error
+        otap_log.log('-20021 The given translation: ' || p_label_text || ' exceeds the length limits (' || l_length_limit || ') for ' || p_otap_identifier, l_script);
+        -- only direct testing could call this currently as table has a NOT NULL constraint
+        RAISE_APPLICATION_ERROR(-20021, 'The given translation: ' || p_label_text || ' exceeds the length limits (' || l_length_limit || ') for ' || p_otap_identifier);
+      END IF;
+    END IF;
+  END validate_translation;
+
+  FUNCTION get_config_value( p_config_name IN VARCHAR2
+                           , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           )
     RETURN VARCHAR2
   IS
     l_script      VARCHAR2(1024 CHAR)            := 'otap_util.get_config_value';
@@ -393,13 +429,28 @@ AS
     l_has_config  INTEGER;
     l_has_label   INTEGER;
     l_label_col   VARCHAR2(1 CHAR);
+    l_language    VARCHAR2(3);
   BEGIN
     l_return := otap_constants.OTAP_INTERNAL_ERROR;
     SELECT COUNT(*)
       INTO l_has_config
       FROM otap_identifiers_v
      WHERE otap_identifier = UPPER(p_config_name)
+       AND language_id     = UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA))
     ;
+    -- we need a fallback if given language does not match
+    IF l_has_config = 0
+    THEN
+      SELECT COUNT(*)
+        INTO l_has_config
+        FROM otap_identifiers_v
+      WHERE otap_identifier = UPPER(p_config_name)
+        AND language_id     = otap_constants.OTAP_INTERNAL_NA
+      ;
+      l_language := otap_constants.OTAP_INTERNAL_NA;
+    ELSE
+      l_language := UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA));
+    END IF;
     SELECT COUNT(*)
       INTO l_has_label
       FROM otap_config
@@ -429,7 +480,8 @@ AS
              END
         INTO l_return
         FROM otap_identifiers_v
-      WHERE otap_identifier = UPPER(p_config_name)
+       WHERE otap_identifier = UPPER(p_config_name)
+         AND language_id     = l_language
       ;
     ELSE
       l_return := otap_constants.OTAP_INTERNAL_ERROR;
@@ -438,9 +490,37 @@ AS
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, l_script, 'SELECT config_value INTO l_return FROM otap_config WHERE config_name = UPPER(p_config_name)');
+      otap_log.log(SQLERRM, l_script, 'SELECT config_value INTO l_return FROM otap_config WHERE config_name = UPPER(p_config_name) AND language_id = UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA))');
       RAISE;
   END get_config_value;
+
+  PROCEDURE set_config_value( p_config_name  IN VARCHAR2
+                            , p_config_value IN VARCHAR2
+                            )
+  IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    l_script      VARCHAR2(1024 CHAR)            := 'otap_util.set_config_value';
+    l_exists      INTEGER;
+  BEGIN
+    SELECT COUNT(*)
+      INTO l_exists
+      FROM otap_config
+     WHERE config_name  = p_config_name
+       AND translatable = 0
+    ;
+    IF l_exists = 1
+    THEN
+      UPDATE otap_config
+         SET config_value = p_config_value
+       WHERE config_name  = p_config_name
+      ;
+      COMMIT;
+    ELSE
+      otap_log.log('-20007 The given config_name ' || p_config_name || ' does not exist or is translatable.', l_script);
+      RAISE_APPLICATION_ERROR(-20007, 'The given config_name ' || p_config_name || ' does not exist or is translatable.');
+    END IF;
+  -- do not catch exceptions, pass them to caller as happening
+  END set_config_value;
 
   FUNCTION get_config_number(p_config_name IN VARCHAR2)
     RETURN NUMBER
@@ -508,7 +588,7 @@ AS
       RAISE;
   END get_label_id;
 
-  FUNCTION get_length_test_state
+  FUNCTION get_length_test_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   IS
     l_return INTEGER;
@@ -522,6 +602,8 @@ AS
                               , otap_util.CFG_TEXT_TEST_PASSED
                               , otap_util.CFG_TEXT_TEST_FAILED
                               )
+                              -- language fallback included
+       AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
     ;
     RETURN l_return;
   EXCEPTION
@@ -530,7 +612,7 @@ AS
       RAISE;
   END get_length_test_state;
 
-  FUNCTION get_length_summary_state
+  FUNCTION get_length_summary_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   IS
     l_return INTEGER;
@@ -543,6 +625,8 @@ AS
      WHERE otap_identifier IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
                               , otap_util.CFG_TEXT_SUMMARY_SUCCESS
                               )
+                              -- language fallback included
+       AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
     ;
     RETURN l_return;
   EXCEPTION
@@ -551,7 +635,7 @@ AS
       RAISE;
   END get_length_summary_state;
 
-  FUNCTION get_length_headers
+  FUNCTION get_length_headers(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   IS
     l_return INTEGER;
@@ -565,6 +649,8 @@ AS
                               , otap_util.CFG_TEXT_REPORT_END
                               , otap_util.CFG_TEXT_REPORT_TOTAL
                               )
+                              -- language fallback included
+       AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
     ;
     RETURN l_return;
   EXCEPTION
@@ -573,7 +659,7 @@ AS
       RAISE;
   END get_length_headers;
 
-  FUNCTION get_length_result_headers
+  FUNCTION get_length_result_headers(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   IS
     l_return INTEGER;
@@ -586,6 +672,8 @@ AS
      WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
                               , otap_util.CFG_TEXT_RESULT_LINE
                               )
+                              -- language fallback included
+       AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
     ;
     RETURN l_return;
   EXCEPTION
@@ -595,18 +683,20 @@ AS
   END get_length_result_headers;
 
 
-  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+  FUNCTION test_result_to_text( p_test_passed IN NUMBER
+                              , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                              )
     RETURN VARCHAR
   IS
     l_translation otap_config.config_value%TYPE;
   BEGIN
     l_translation := CASE p_test_passed
                        WHEN otap_constants.OTAP_NUM_TEST_PASSED
-                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED)
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED, p_language_id)
                        WHEN otap_constants.OTAP_NUM_TEST_FAILED
-                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED)
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED, p_language_id)
                        WHEN otap_constants.OTAP_NUM_TEST_UNDEFINED
-                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED)
+                       THEN otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, p_language_id)
                        ELSE otap_constants.OTAP_INTERNAL_ERROR
                      END
     ;
@@ -672,6 +762,7 @@ AS
                     , p_param6n       IN VARCHAR2 DEFAULT NULL
                     , p_param6n_value IN VARCHAR2 DEFAULT NULL
                     , p_description   IN VARCHAR2 DEFAULT NULL
+                    , p_language_id   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                     )
     RETURN VARCHAR2
   IS
@@ -689,7 +780,7 @@ AS
         l_text_result := otap_constants.OTAP_INTERNAL_ERROR || ' ' || l_script || ' missing description and template identifier';
         otap_log.log(l_text_result, l_script);
       ELSE
-        l_text_result := otap_util.get_config_value(p_cfg_template);
+        l_text_result := otap_util.get_config_value(p_cfg_template, p_language_id);
         IF l_text_result = otap_constants.OTAP_INTERNAL_ERROR
         THEN
           l_text_result := otap_constants.OTAP_INTERNAL_ERROR || ' ' || l_script || ' invalid template identifier ' || p_cfg_template;
@@ -704,7 +795,7 @@ AS
             IF     p_type_label                                      IS NOT NULL
                AND INSTR(l_text_result, otap_constants.OTAP_TYPE_VAR) > 0
             THEN
-              l_label := otap_util.get_config_value(p_type_label);
+              l_label := otap_util.get_config_value(p_type_label, p_language_id);
               -- do nothing on errors
               IF l_label != otap_constants.OTAP_INTERNAL_ERROR
               THEN

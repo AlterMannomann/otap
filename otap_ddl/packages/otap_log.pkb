@@ -39,7 +39,7 @@ AS
     l_has_sperrorlog  NUMBER;
   BEGIN
     -- check which type of log
-    IF    p_identifier = otap_constants.OTAP_INTERNAL_ERROR
+    IF    p_identifier IN (otap_constants.OTAP_INTERNAL_ERROR, otap_constants.OTAP_INTERNAL_WARNING)
        OR otap_log.debug_active
     THEN
       -- check if table exists

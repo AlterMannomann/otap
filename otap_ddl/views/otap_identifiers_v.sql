@@ -2,6 +2,7 @@
 -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 -- Not allowed to be used as AI training material without explicite permission.
 -- Internal view for all otap identifiers that provides translations available from OTAP_TRANSLATE.
+-- If translations are available, this view is only unique if filtered by language_id.
 CREATE OR REPLACE VIEW otap_identifiers_v
 AS
     WITH lbl AS
@@ -26,17 +27,53 @@ AS
                , otap_constants.get_otap_num_false        AS from_config
             FROM otap_labels_mv
          )
-  SELECT lbl.otap_identifier
-         -- leave translations unchanged
-       , NVL(otr.label_text, lbl.label_text_lower) AS label_text_lower
-       , NVL(otr.label_text, lbl.label_text_cap)   AS label_text_cap
-       , NVL(otr.label_text, lbl.label_text_upper) AS label_text_upper
+         -- guarantee fallback language
+       , nol AS  -- no language
+         (SELECT otap_identifier
+               , 'N/A'                                     AS language_id
+               , label_text_lower
+               , label_text_cap
+               , label_text_upper
+               , label_source
+               , label_type
+               , label_translatable
+               , from_config
+            FROM lbl
+         )
+       , lng AS -- all defined language translations
+         (SELECT lbl.otap_identifier
+               , otr.language_id
+                 -- leave translations unchanged
+               , otr.label_text         AS label_text_lower
+               , otr.label_text         AS label_text_cap
+               , otr.label_text         AS label_text_upper
+               , lbl.label_source
+               , lbl.label_type
+               , lbl.label_translatable
+               , lbl.from_config
+            FROM otap_translate otr
+            LEFT OUTER JOIN lbl
+              ON otr.otap_identifier = lbl.otap_identifier
+         )
+  SELECT otap_identifier
+       , language_id
+       , label_text_lower
+       , label_text_cap
+       , label_text_upper
        , label_source
        , label_type
        , label_translatable
        , from_config
-    FROM lbl
-    LEFT OUTER JOIN otap_translate otr
-      ON lbl.otap_identifier = otr.otap_identifier
-     AND otr.language_id     = otap_constants.get_otap_internal_na
+    FROM nol
+   UNION ALL
+  SELECT otap_identifier
+       , language_id
+       , label_text_lower
+       , label_text_cap
+       , label_text_upper
+       , label_source
+       , label_type
+       , label_translatable
+       , from_config
+    FROM lng
 ;

@@ -2,22 +2,21 @@
 # Version: otap v1.0.0-alpha.1
 See also [releases](https://github.com/AlterMannomann/otap/releases).
 # UNDER DEVELOPMENT
-This is currently just an stable alpha version. Beta is on the way.
+This is currently the not yet finished beta version. Existing tests need rework due to introducing session language support. More tests still needed.
 
 You may use the script [otap_package_update.sql](./setup/otap_package_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
 ### Current changes
+- Added logging and warning for dynamic block execution by test functions
+- Added language functionality to translate table and alpha version of session language support
 - Generate fully integrated with current state
 - Add new schema test functions
 - Fix search conditions for schema functions in some NULL situations
-- Moved generate access to otap_test.
-option.
-- otap can now grant the otap user role to others
 ### Next steps
 - Test otap functionality with otap and enhance functionality as needed
 - Enhance documentation
 - Integrate schema setup into dba setup for one step installation
 ### Current state
-Pre-alpha, basically stable with following tests (package otap_test):
+Stable alpha with following tests (package otap_test):
 - has_table
 - has_column
 - has_package
@@ -53,7 +52,7 @@ The finish_test function is also available as a function with exit code (otap_te
 
 For function and generation overview see currently [otap_test package description](./otap_ddl/packages/otap_test.md).
 
-See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on system base, not on user base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
+See [simple_test_setup.sql](./otap_test/basic/simple_test_setup.sql) for a first impression. Design is made to support other languages on session base. Templates exist that can be translated. Layout orientation left, middle and right is supported for languages that read from right to left. This needs also adjustment on the templates to reorganize columns right to left. Supports test procedures or scripts.
 
 ![otap_simple_test](https://github.com/user-attachments/assets/27bf12b7-7fea-42ea-9056-e4e0881c9d47)
 
@@ -113,6 +112,12 @@ You may spool the content to a file, make sure to set heading, paging and other 
 A list of known issues that will not be fixed.
 ### Persisted tests
 In case of sequence cycle for session id, situations may occur where stored tests are no longer uniquely identified by session id. Still date and db user can help to distinguish the tests. In this cases it is recommended, to delete on of the tests with equal session id.
+### Test warnings
+The otap_test.throws_ functions allow to execute code automatically that is not verified. It will work or not. This are test functions that can be misused for other things than testing. Every dynamic statement therefore is logged with identifier OTAP_WARNING.
+### Autonomous transactions
+For several tasks like logging, trigger and testing, autonomous transactions are used or must be used due to Oracle restrictions. This has the effect, that data changes must be committed to be visible during testing. The tester is repsonsible to save the current state and restore it after testing. Or limit tests to current available data. It is strongly recommended to use otap with full functionality only in test environments.
+### otap tests may interfere with running user tests
+It is recommended to test otap itself only, if no other users are running tests. otap will change settings temporarily to test the functionality. And make them permanent during the related tests. This may lead to unexpected side effects on other users, running tests at the same time.
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 

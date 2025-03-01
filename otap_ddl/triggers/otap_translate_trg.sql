@@ -9,9 +9,12 @@ BEGIN
   :NEW.created        := SYSDATE;
   :NEW.created_by     := SYS_CONTEXT('USERENV', 'SESSION_USER');
   :NEW.created_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
-  :NEW.language_id    := otap_constants.OTAP_INTERNAL_NA;
+  :NEW.language_id    := otap_string.reduce(UPPER(NVL(:NEW.language_id, otap_constants.OTAP_INTERNAL_NA)), 3);
+
   -- check if the label is defined and translatable, deny if not, ignore if not in otap_config
   otap_util.validate_translatable(:NEW.otap_identifier);
+  -- check length constraints on config values
+  otap_util.validate_translation(:NEW.otap_identifier, :NEW.label_text);
 END;
 /
 
@@ -25,7 +28,8 @@ BEGIN
   :NEW.updated        := SYSDATE;
   :NEW.updated_by     := SYS_CONTEXT('USERENV', 'SESSION_USER');
   :NEW.updated_by_os  := SYS_CONTEXT('USERENV', 'OS_USER');
-  :NEW.language_id    := otap_constants.OTAP_INTERNAL_NA;
+  :NEW.language_id    := otap_string.reduce(UPPER(NVL(:NEW.language_id, otap_constants.OTAP_INTERNAL_NA)), 3);
   otap_util.validate_translatable(:NEW.otap_identifier);
+  otap_util.validate_translation(:NEW.otap_identifier, :NEW.label_text);
 END;
 /

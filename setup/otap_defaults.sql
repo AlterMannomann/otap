@@ -64,6 +64,11 @@ INSERT INTO otap_config
   ('DEFAULT_BORDER', '5', otap_constants.get_otap_config_type_number, 2, 'Defines the default minimum border chars to use for decorating report lines. Only values between 2 and 10 supported. Wrong values lead to otap_constants.OTAP_FALLBACK_BORDER as default.')
 ;
 INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  VALUES
+  ('DEFAULT_LANGUAGE', otap_constants.OTAP_FALLBACK_DEFAULT_LANGUAGE, otap_constants.get_otap_config_type_char, 3, 'Defines the default language to use for entries in the translation table. Will always be handled upper case internally.')
+;
+INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
   ('FORMAT_HEADER_CHAR', '=', otap_constants.get_otap_config_type_char, 1, 1, 'Used to format the report header line. Limited to 1 char.')

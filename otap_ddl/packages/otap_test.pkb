@@ -13,6 +13,7 @@ AS
                                              , SYS_CONTEXT('USERENV', 'CURRENT_USER')
                                              , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                                              , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+                                             , otap_constants.OTAP_INTERNAL_NA
                                              , 0
                                              , 0
                                              , FALSE
@@ -30,14 +31,10 @@ AS
                     , p_test_group      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
                     , p_test_name       IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
                     , p_prefix          IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+                    , p_language_id     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                     , p_name_precedence IN NUMBER   DEFAULT otap_constants.OTAP_NUM_TRUE
                     , p_include_pkg     IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
                     , p_persist         IN NUMBER   DEFAULT otap_constants.OTAP_NUM_FALSE
-                    -- internal variables from caller environment DO NOT SET them explicitely
-                    -- you may want to set p_schema, which is the default schema used for object searches
-                    -- but schema test functions provide a schema override, so in general there is no need
-                    -- for overwritting this value
-                    -- currently no save way exists to get the correct values from inside a procedure of function
                     , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                     , p_user            IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')
                     , p_executor        IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'SESSION_USER')
@@ -52,6 +49,7 @@ AS
                                    , NVL(p_test_group, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP)
                                    , NVL(p_test_name, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME)
                                    , NVL(p_prefix, otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX)
+                                   , NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)
                                    , NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE)
                                    , NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE)
                                    , NVL(p_persist, otap_constants.OTAP_NUM_FALSE)
@@ -109,14 +107,16 @@ AS
     RETURN otap_view_result_tbl PIPELINED
   IS
     l_text_column  VARCHAR2(4000 CHAR);
-    CURSOR cur_report(cp_session_id IN NUMBER)
+    CURSOR cur_report( cp_session_id  IN NUMBER
+                     , cp_language_id IN VARCHAR2
+                     )
     IS
       SELECT result_text
            , result_errors
-        FROM TABLE(otap_api.result_view(cp_session_id))
+        FROM TABLE(otap_api.result_view(cp_session_id, cp_language_id))
     ;
   BEGIN
-    FOR rec IN cur_report(p_session_id)
+    FOR rec IN cur_report(p_session_id, session_record.session_language)
     LOOP
       PIPE ROW (otap_view_result_rec(rec.result_text, rec.result_errors));
     END LOOP;
@@ -216,6 +216,40 @@ AS
       END IF;
       RAISE;
   END set_test_set;
+
+  FUNCTION set_language(p_language_id IN VARCHAR2)
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.otap_session_set_language(p_language_id, session_record);
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.set_language', 'l_message := otap_api.otap_session_set_language(p_language_id, session_record)');
+      END IF;
+      RAISE;
+  END set_language;
+
+  FUNCTION get_language
+    RETURN VARCHAR2
+  IS
+    l_return VARCHAR2(3);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_return := otap_api.otap_session_get_language(session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.get_language', 'l_message := otap_api.otap_session_get_language(session_record)');
+      END IF;
+      RAISE;
+  END get_language;
 
   FUNCTION get_session_id
     RETURN NUMBER

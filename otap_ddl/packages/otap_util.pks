@@ -17,6 +17,7 @@ AS
   CFG_DEFAULT_TEST_GROUP            CONSTANT CHAR(18)   := 'DEFAULT_TEST_GROUP';
   CFG_DEFAULT_TEST_NAME             CONSTANT CHAR(17)   := 'DEFAULT_TEST_NAME';
   CFG_DEFAULT_TEST_SET              CONSTANT CHAR(16)   := 'DEFAULT_TEST_SET';
+  CFG_DEFAULT_LANGUAGE              CONSTANT CHAR(16)   := 'DEFAULT_LANGUAGE';
   CFG_DELETE_BATCH_SIZE             CONSTANT CHAR(17)   := 'DELETE_BATCH_SIZE';
   CFG_DELETE_DELAY                  CONSTANT CHAR(12)   := 'DELETE_DELAY';
   CFG_FORMAT_GROUP_CHAR             CONSTANT CHAR(17)   := 'FORMAT_GROUP_CHAR';
@@ -212,21 +213,63 @@ AS
   */
   PROCEDURE validate_translatable(p_otap_identifier IN VARCHAR2);
 
+  /** PROCEDURE otap_util.validate_translatable
+  * Checks for OTAP_TRANSLATE trigger if the identifier is a config name and has length constraints.
+  * Translations must keep the config length constraints or will cause an exception.
+  * Checks only values in OTAP_CONFIG that are translatable. Other identifiers are ignored and may use
+  * the limit of 4000 chars, even not recommended for report readability.
+  *
+  * @param p_otap_identifier The identifier name, usally :NEW.otap_identifier or :OLD.otap_identifier.
+  * @param p_label_text The translation text, usally :NEW.label_text or :OLD.label_text.
+  *
+  * @throws -20021 The given value exceeds the length limits of OTAP_CONFIG for the given identifier.
+  */
+  PROCEDURE validate_translation( p_otap_identifier IN VARCHAR2
+                                , p_label_text      IN VARCHAR2
+                                )
+  ;
+
   /** FUNCTION otap_util.get_config_value
   * Returns a config value for a given configuration as is. Return value is always VARCHAR2.
   * On errors return otap error identifier or raise exception.
   *
   * @param p_config_name A valid configuration name.
+  * @param p_language_id A valid or existing language id.
   *
-  * @return The config value for the given config name as string or the otap error identifier.
+  * @return The config value for the given config name in the given language as string or the otap error identifier.
   */
-  FUNCTION get_config_value(p_config_name IN VARCHAR2)
+  FUNCTION get_config_value( p_config_name IN VARCHAR2
+                           , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           )
     RETURN VARCHAR2
+  ;
+
+  /** PROCEDURE otap_util.set_config_value
+  * Sets a config value for a given and existing configuration name. Executes as autonomous transaction.
+  * Exceptions from otap_config triggers may occur on invalid configuration values or names.
+  * This is an internal function for QoL, it is not intended to be used by otap users. It will be used
+  * by otap itself, when testing otap. And it should be used by the otap owner to set the configuration
+  * as desired only once or on intended changes. Supported are only configuration values that are not
+  * translatable.
+  *
+  * @param p_config_name A valid not translatable configuration name.
+  * @param p_config_value A valid configuration value.
+  *
+  * @throws -20002 The given config_value is not supported. Empty or only spaces.
+  * @throws -20003 The given config_type is not supported. Only CHAR or NUMBER supported.
+  * @throws -20004 The given config_value exceeds the maximum length allowed.
+  * @throws -20005 The given config_value cannot be converted to a number.
+  * @throws -20007 The given config_name does not exist or is translatable.
+  */
+  PROCEDURE set_config_value( p_config_name  IN VARCHAR2
+                            , p_config_value IN VARCHAR2
+                            )
   ;
 
   /** FUNCTION otap_util.get_config_number
   * Returns a config value for a given configuration as NUMBER. Return value is always NUMBER.
-  * On errors return NULL or raise exception.
+  * On errors return NULL or raise exception. NUMBER types are not translatable, language is
+  * ignored.
   *
   * @param p_config_name A valid configuration name that has configured NUMBER as type.
   *
@@ -252,9 +295,11 @@ AS
   * Checks the defined text representations of passed, failed and undefined to
   * determine the maximum length a string needs. Used during formatting reports.
   *
+  * @param p_language_id A valid or existing language id.
+  *
   * @return The maximum length of test states defined in OTAP_CONFIG or existing translations.
   */
-  FUNCTION get_length_test_state
+  FUNCTION get_length_test_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   ;
 
@@ -263,9 +308,11 @@ AS
   * Checks the defined text representations of summary state SUCCESS and ERROR to
   * determine the maximum length a string needs. Used during formatting reports.
   *
+  * @param p_language_id A valid or existing language id.
+  *
   * @return The maximum length of summary states defined in OTAP_CONFIG.
   */
-  FUNCTION get_length_summary_state
+  FUNCTION get_length_summary_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   ;
 
@@ -273,9 +320,11 @@ AS
   * Checks the defined text representations of report headers to
   * determine the maximum length a string needs. Used during formatting reports.
   *
+  * @param p_language_id A valid or existing language id.
+  *
   * @return The maximum length of report headers defined in OTAP_CONFIG.
   */
-  FUNCTION get_length_headers
+  FUNCTION get_length_headers(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   ;
 
@@ -283,9 +332,11 @@ AS
   * Checks the defined text representations of result headers to
   * determine the maximum length a string needs. Used during formatting reports.
   *
+  * @param p_language_id A valid or existing language id.
+  *
   * @return The maximum length of result headers defined in OTAP_CONFIG.
   */
-  FUNCTION get_length_result_headers
+  FUNCTION get_length_result_headers(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   ;
 
@@ -294,10 +345,13 @@ AS
   * is not valid, will return the otap error indicator OTAP_ERROR.
   *
   * @param p_test_passed The numeric test state indicator.
+  * @param p_language_id A valid or existing language id.
   *
   * @return The text representation as defined in OTAP_CONFIG for the given test state or OTAP_ERROR.
   */
-  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+  FUNCTION test_result_to_text( p_test_passed IN NUMBER
+                              , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                              )
     RETURN VARCHAR
   ;
 
@@ -340,6 +394,7 @@ AS
   * @param p_param6n The 6th variable name in @variable@ notation. If @type@ ignored. Optional. Supports NULL values.
   * @param p_param6n_value The substitution value for the 6th variable name. Optional. Supports NULL values.
   * @param p_description A template overwrite. Will return the given description instead of the template. Optional.
+  * @param p_language_id A valid or existing language id.
   *
   * @return The message build from template, overwritten by description or an error message.
   */
@@ -358,6 +413,7 @@ AS
                     , p_param6n       IN VARCHAR2 DEFAULT NULL
                     , p_param6n_value IN VARCHAR2 DEFAULT NULL
                     , p_description   IN VARCHAR2 DEFAULT NULL
+                    , p_language_id   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                     )
     RETURN VARCHAR2
   ;

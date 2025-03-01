@@ -39,6 +39,7 @@ AS
   -- default fix name delimiter, $ and # are not recommended by Oracle and therefore not configurable
   OTAP_INTERNAL_DELIMITER  CONSTANT CHAR(1)             := '_';
   OTAP_INTERNAL_ERROR      CONSTANT CHAR(10)            := 'OTAP_ERROR';
+  OTAP_INTERNAL_WARNING    CONSTANT CHAR(12)            := 'OTAP_WARNING';
   OTAP_INTERNAL_NA         CONSTANT CHAR(3)             := 'N/A';
   OTAP_INTERNAL_VAR        CONSTANT CHAR(1)             := '@';
   OTAP_CONFIG_TYPE_NUMBER  CONSTANT CHAR(6)             := 'NUMBER';
@@ -88,7 +89,7 @@ AS
   OTAP_FALLBACK_DEFAULT_TEST_SET      CONSTANT CHAR(13)       := 'OTAP test set';
   OTAP_FALLBACK_DEFAULT_TEST_GROUP    CONSTANT CHAR(15)       := 'OTAP test group';
   OTAP_FALLBACK_DEFAULT_TEST_NAME     CONSTANT CHAR(14)       := 'OTAP test name';
-  OTAP_FALLBACK_DEFAULT_LANGUAGE      CONSTANT CHAR(2)        := 'en';
+  OTAP_FALLBACK_DEFAULT_LANGUAGE      CONSTANT CHAR(3)        := 'N/A';
   OTAP_FALLBACK_LAYOUT_DEFAULT        CONSTANT CHAR(1)        := 'M';
   OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT CONSTANT CHAR(1)        := 'L';
   OTAP_FALLBACK_LABEL_DEFAULT         CONSTANT CHAR(1)        := 'L';

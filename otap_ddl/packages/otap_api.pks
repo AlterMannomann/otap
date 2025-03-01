@@ -44,6 +44,7 @@ AS
                     , p_test_group          IN            VARCHAR2
                     , p_test_name           IN            VARCHAR2
                     , p_prefix              IN            VARCHAR2
+                    , p_language_id         IN            VARCHAR2
                     , p_name_precedence     IN            NUMBER
                     , p_include_pkg         IN            NUMBER
                     , p_persist             IN            NUMBER
@@ -74,21 +75,21 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_show
-  * @see otap_objects.otap_session_show and otap_test.otap_session_show
+  * @see otap_objects.otap_session_show and otap_test.current_settings
   */
   FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.otap_session_summary
-  * @see otap_objects.otap_session_summary and otap_test.otap_session_summary
+  * @see otap_objects.otap_session_summary and otap_test.current_summary
   */
   FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_name
-  * @see otap_objects.otap_session_set_test_name and otap_test.otap_session_set_test_name
+  * @see otap_objects.otap_session_set_test_name and otap_test.set_test_name
   */
   FUNCTION otap_session_set_test_name( p_test_name    IN            VARCHAR2
                                      , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -97,7 +98,7 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_group
-  * @see otap_objects.otap_session_set_test_group and otap_test.otap_session_set_test_group
+  * @see otap_objects.otap_session_set_test_group and otap_test.set_test_group
   */
   FUNCTION otap_session_set_test_group( p_test_group   IN            VARCHAR2
                                       , o_otap_session IN OUT NOCOPY OTAP_SESSION
@@ -106,11 +107,27 @@ AS
   ;
 
   /** FUNCTION otap_api.otap_session_set_test_set
-  * @see otap_objects.otap_session_set_test_set and otap_test.otap_session_set_test_set
+  * @see otap_objects.otap_session_set_test_set and otap_test.set_test_set
   */
   FUNCTION otap_session_set_test_set( p_test_set     IN            VARCHAR2
                                     , o_otap_session IN OUT NOCOPY OTAP_SESSION
                                     )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_set_test_set
+  * @see otap_objects.otap_session_set_language and otap_test.set_language
+  */
+  FUNCTION otap_session_set_language( p_language_id  IN            VARCHAR2
+                                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                                    )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_get_language
+  * @see otap_objects.otap_session_get_language and otap_test.get_language
+  */
+  FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   ;
 
@@ -141,22 +158,27 @@ AS
   /** FUNCTION otap_api.max_text_size
   * @see otap_util.max_text_size and otap_test.max_text_size
   */
-  FUNCTION max_text_size(p_session_id IN NUMBER)
+  FUNCTION max_text_size( p_session_id  IN NUMBER
+                        , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                        )
     RETURN NUMBER
   ;
 
   /** FUNCTION otap_api.get_report_header
   * @see otap_report.get_report_header and otap_test.get_report_header
   */
-  FUNCTION get_report_header(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_report_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                            , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            )
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_session_id_text
   * @see otap_report.get_session_id_text and otap_test.get_session_id_text
   */
-  FUNCTION get_session_id_text( p_session_id IN NUMBER
-                              , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_session_id_text( p_session_id  IN NUMBER
+                              , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                              , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                               )
     RETURN VARCHAR2
   ;
@@ -164,8 +186,9 @@ AS
   /** FUNCTION otap_api.get_set_text
   * @see otap_report.get_set_text and otap_test.get_set_text
   */
-  FUNCTION get_set_text( p_test_set IN VARCHAR2
-                       , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_set_text( p_test_set    IN VARCHAR2
+                       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                       , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                        )
     RETURN VARCHAR2
   ;
@@ -174,11 +197,12 @@ AS
   * @see otap_report.get_summary and otap_test.get_summary
   * Calculates status needed by errors and issues.
   */
-  FUNCTION get_summary( p_runtime  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                      , p_runs     IN NUMBER   DEFAULT 0
-                      , p_errors   IN NUMBER   DEFAULT 0
-                      , p_issues   IN NUMBER   DEFAULT 0
-                      , p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_summary( p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      , p_runs        IN NUMBER   DEFAULT 0
+                      , p_errors      IN NUMBER   DEFAULT 0
+                      , p_issues      IN NUMBER   DEFAULT 0
+                      , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                      , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       )
     RETURN VARCHAR2
   ;
@@ -186,8 +210,9 @@ AS
   /** FUNCTION otap_api.get_group_text
   * @see otap_report.get_group_text and otap_test.get_group_text
   */
-  FUNCTION get_group_text( p_test_group IN VARCHAR2
-                         , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_group_text( p_test_group  IN VARCHAR2
+                         , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                         , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                          )
     RETURN VARCHAR2
   ;
@@ -195,8 +220,9 @@ AS
   /** FUNCTION otap_api.get_test_name_text
   * @see otap_report.get_test_name_text and otap_test.get_test_name_text
   */
-  FUNCTION get_test_name_text( p_test_name IN VARCHAR2
-                             , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_test_name_text( p_test_name   IN VARCHAR2
+                             , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                              )
     RETURN VARCHAR2
   ;
@@ -204,14 +230,18 @@ AS
   /** FUNCTION otap_api.get_result_header
   * @see otap_report.get_result_header and otap_test.get_result_header
   */
-  FUNCTION get_result_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_result_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                            , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            )
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_result_underline
   * @see otap_report.get_result_underline and otap_test.get_result_underline
   */
-  FUNCTION get_result_underline(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_result_underline( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                               , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                               )
     RETURN VARCHAR2
   ;
 
@@ -223,6 +253,7 @@ AS
                           , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                          , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                           )
     RETURN VARCHAR2
   ;
@@ -230,15 +261,18 @@ AS
   /** FUNCTION otap_api.test_result_to_text
   * @see otap_util.test_result_to_text and otap_test.test_result_to_text
   */
-  FUNCTION test_result_to_text(p_test_passed IN NUMBER)
+  FUNCTION test_result_to_text( p_test_passed IN NUMBER
+                              , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                              )
     RETURN VARCHAR
   ;
 
   /** FUNCTION otap_api.get_error_result_header
   * @see otap_report.get_error_result_header and otap_test.get_error_result_header
   */
-  FUNCTION get_error_result_header( p_test_name IN VARCHAR2
-                                  , p_min_fill  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_error_result_header( p_test_name   IN VARCHAR2
+                                  , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                                  , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                   )
     RETURN VARCHAR2
   ;
@@ -246,9 +280,10 @@ AS
   /** FUNCTION otap_api.get_error_details
   * @see otap_report.get_error_details and otap_test.get_error_details
   */
-  FUNCTION get_error_details( p_test_desc  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                            , p_error_info IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-                            , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_error_details( p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_error_info  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                            , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                             )
     RETURN VARCHAR2
   ;
@@ -256,8 +291,9 @@ AS
   /** FUNCTION otap_api.get_no_data_text
   * @see otap_report.get_no_data_text and otap_report.get_no_data_text
   */
-  FUNCTION get_no_data_text( p_session_id IN NUMBER
-                           , p_min_fill   IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  FUNCTION get_no_data_text( p_session_id  IN NUMBER
+                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                           , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                            )
     RETURN VARCHAR2
   ;
@@ -265,7 +301,9 @@ AS
   /** FUNCTION otap_api.get_report_footer
   * @see otap_report.get_report_footer and otap_test.get_report_footer
   */
-  FUNCTION get_report_footer(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_report_footer( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                            , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                            )
     RETURN VARCHAR2
   ;
 
@@ -279,23 +317,27 @@ AS
   ;
 
   /** FUNCTION otap_api.get_text_test_count_name
-  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME) and otap_test.get_text_test_count_name
+  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME, p_language_id) and otap_test.get_text_test_count_name
   */
-  FUNCTION get_text_test_count_name
+  FUNCTION get_text_test_count_name(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_test_count_header
   * @see otap_report.get_test_count_header and otap_test.get_test_count_header
   */
-  FUNCTION get_test_count_header(p_min_fill IN INTEGER DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_test_count_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                                , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                                )
     RETURN VARCHAR2
   ;
 
   /** FUNCTION otap_api.get_report_total
   * @see otap_report.get_report_total and otap_test.get_report_total
   */
-  FUNCTION get_report_total(p_min_fill IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH)
+  FUNCTION get_report_total( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                           , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                           )
     RETURN VARCHAR2
   ;
 
@@ -308,6 +350,7 @@ AS
                                    , p_descriptions IN INTEGER  DEFAULT 0
                                    , p_runtime      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                                   , p_language_id  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    )
     RETURN VARCHAR2
   ;
@@ -315,7 +358,9 @@ AS
   /** FUNCTION otap_api.result_view
   * @see otap_test.result_view
   */
-  FUNCTION result_view(p_session_id IN NUMBER)
+  FUNCTION result_view( p_session_id   IN NUMBER
+                      , p_language_id  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      )
     RETURN otap_view_result_tbl PIPELINED
   ;
 

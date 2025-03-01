@@ -21,9 +21,13 @@ UPDATE otap_config
  WHERE config_name = 'TEMPLATE_REPORT_TOTAL'
 ;
 COMMIT;
+-- reinstall session object
+@@../otap_ddl/types/otap_session.sql
 -- reinstall the materialized view to get all labels
 @@../otap_ddl/views/drop/drop_otap_labels_mv.sql
 @@../otap_ddl/views/otap_labels_mv.sql
+-- reinstall changed views
+@@../otap_ddl/views/otap_identifiers_v.sql
 -- independent packages
 @@../otap_ddl/packages/otap_constants.pks
 @@../otap_ddl/packages/otap_constants.pkb
@@ -50,6 +54,20 @@ COMMIT;
 @@../otap_ddl/packages/otap_generate.pkb
 @@../otap_ddl/packages/otap_test.pks
 @@../otap_ddl/packages/otap_test.pkb
+-- update trigger
+@@../otap_ddl/triggers/otap_translate_trg.sql
+-- insert new config values after supported by packages, if they do not exist yet
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, config_description)
+  SELECT 'DEFAULT_LANGUAGE' AS config_name
+       , 'N/A' AS config_value
+       , 'CHAR' AS config_type
+       , 3 AS config_max_length
+       , 'Defines the default language to use for entries in the translation table. Will always be handled upper case internally.' AS config_description
+    FROM dual
+   WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'DEFAULT_LANGUAGE') = 0
+;
+COMMIT;
 -- recompile invalidated objects by package recreates
 EXEC DBMS_UTILITY.COMPILE_SCHEMA(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), FALSE);
 -- ==============INSTALL end==============

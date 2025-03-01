@@ -70,7 +70,7 @@ AS
     ;
     -- add test to session var
     otap_objects.otap_session_add_test(l_test_passed, o_otap_session);
-    l_return := otap_string.reduce(otap_util.test_result_to_text(l_test_passed) || ' ' || l_test_description, 4000);
+    l_return := otap_string.reduce(otap_util.test_result_to_text(l_test_passed, o_otap_session.session_language) || ' ' || l_test_description, 4000);
     RETURN l_return;
   EXCEPTION
     WHEN OTHERS THEN
@@ -100,7 +100,7 @@ AS
       l_test_description := otap_string.reduce(otap_report.get_count_desc(p_otap_session.test_count, p_otap_session.intended_count), 256);
       l_errors           := NULL;
       l_tmp_otap_session := otap_objects.otap_session_copy(p_otap_session);
-      l_tmp_otap_session.test_name := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME);
+      l_tmp_otap_session.test_name := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME, p_otap_session.session_language);
       l_return := otap_plan.write_test_result(l_test_description, l_tmp_otap_session, NULL, l_test_passed, l_start, l_errors);
     END IF;
   EXCEPTION
@@ -118,6 +118,7 @@ AS
                     , p_test_group          IN            VARCHAR2
                     , p_test_name           IN            VARCHAR2
                     , p_prefix              IN            VARCHAR2
+                    , p_language_id         IN            VARCHAR2
                     , p_name_precedence     IN            NUMBER
                     , p_include_pkg         IN            NUMBER
                     , p_persist             IN            NUMBER
@@ -148,6 +149,7 @@ AS
                                                            , p_test_group
                                                            , p_test_name
                                                            , p_prefix
+                                                           , p_language_id
                                                            , p_name_precedence
                                                            , p_include_pkg
                                                            , p_persist

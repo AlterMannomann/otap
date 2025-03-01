@@ -5,6 +5,13 @@ This folder contains internal test procedures and scripts for otap. Testing otap
 
 - [Back to main](../README.md)
 
+## General notes on testing
+Even if you have thousands of tests, like it will be with otap, it is only the basic testing. My gut feeling tells me that I can reach nearly 50% test coverage with the tests for otap. Means main functionality will work and may be able to deal with some expected situations. The problem is exponential, rising with the amount of parameter and the possible values that can be used. Testing is a serious job and you can call yourself lucky if you have a small project and are able to get 80% oder 90% test coverage.
+
+The base of tests should get constantly enhanced with every new known issue and a test case for this.
+
+Currently otap has no build-in option to manage test coverage topics. You may manage this by test names and test groups or test sets and use the summaries for having an overview.
+
 ## Disclaimer
 Use this software at your own risk. No liabilities or warranties are given, no support is guaranteed. Any result of executing this software is under the responsibility of the legal entity using this software. For details see license.
 

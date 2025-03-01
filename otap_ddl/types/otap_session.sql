@@ -14,6 +14,7 @@ CREATE OR REPLACE TYPE otap_session
      , db_user          VARCHAR2(128 CHAR)
      , db_schema        VARCHAR2(128 CHAR)
      , test_prefix      VARCHAR2(4 CHAR)
+     , session_language VARCHAR2(3 CHAR)
      , test_count       INTEGER
      , intended_count   INTEGER
      , persist_test     BOOLEAN

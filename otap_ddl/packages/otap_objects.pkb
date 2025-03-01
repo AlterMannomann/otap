@@ -26,6 +26,7 @@ AS
        OR p_otap_session.db_schema                   IS NULL
        OR LENGTH(TRIM(p_otap_session.db_schema))      = 0
        OR p_otap_session.test_prefix                 IS NULL
+       OR p_otap_session.session_language            IS NULL
        OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
        OR p_otap_session.test_count                  IS NULL
        OR p_otap_session.intended_count              IS NULL
@@ -52,6 +53,7 @@ OR LENGTH(TRIM(p_otap_session.db_user))        = 0
 OR p_otap_session.db_schema                   IS NULL
 OR LENGTH(TRIM(p_otap_session.db_schema))      = 0
 OR p_otap_session.test_prefix                 IS NULL
+OR p_otap_session.session_language            IS NULL
 OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
 OR p_otap_session.test_count                  IS NULL
 OR p_otap_session.intended_count              IS NULL
@@ -103,6 +105,11 @@ OR p_otap_session.session_view_id             IS NULL]'
         IF p_otap_session.test_prefix IS NULL OR LENGTH(TRIM(p_otap_session.test_prefix)) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_prefix';
+          l_delimiter := ',';
+        END IF;
+        IF p_otap_session.session_language IS NULL OR LENGTH(TRIM(p_otap_session.session_language)) = 0
+        THEN
+          l_message := l_message || l_delimiter || 'session_language';
           l_delimiter := ',';
         END IF;
         IF p_otap_session.test_count IS NULL
@@ -182,6 +189,7 @@ OR p_otap_session.session_view_id             IS NULL]'
                  'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_INTERNAL_LF ||
                  'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_INTERNAL_LF ||
                  'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_INTERNAL_LF ||
+                 'Session language: ' || p_otap_session.session_language || otap_constants.OTAP_INTERNAL_LF ||
                  'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_INTERNAL_LF ||
                  'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_INTERNAL_LF ||
                  'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
@@ -207,6 +215,7 @@ OR p_otap_session.session_view_id             IS NULL]'
                            , p_test_group          IN            VARCHAR2
                            , p_test_name           IN            VARCHAR2
                            , p_prefix              IN            VARCHAR2
+                           , p_language_id         IN            VARCHAR2
                            , p_name_precedence     IN            NUMBER
                            , p_include_pkg         IN            NUMBER
                            , p_persist             IN            NUMBER
@@ -278,6 +287,13 @@ OR p_otap_session.session_view_id             IS NULL]'
     THEN
       o_otap_session.persist_test := (NVL(p_persist, otap_constants.OTAP_NUM_FALSE) = otap_constants.OTAP_NUM_TRUE);
     END IF;
+    -- check language, must be a 3 char code
+    IF LENGTH(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)) > 3
+    THEN
+      o_otap_session.session_language := otap_constants.OTAP_INTERNAL_NA;
+    ELSE
+      o_otap_session.session_language := UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA));
+    END IF;
     -- now start setting the new values
     o_otap_session.test_executor   := p_executor;
     o_otap_session.db_user         := p_user;
@@ -321,6 +337,7 @@ OR p_otap_session.session_view_id             IS NULL]'
                                   , p_otap_session.db_user
                                   , p_otap_session.db_schema
                                   , p_otap_session.test_prefix
+                                  , p_otap_session.session_language
                                   , p_otap_session.test_count
                                   , p_otap_session.intended_count
                                   , p_otap_session.persist_test
@@ -426,6 +443,51 @@ OR p_otap_session.session_view_id             IS NULL]'
       END IF;
       RAISE;
   END otap_session_set_test_name;
+
+  FUNCTION otap_session_set_language( p_language_id  IN            VARCHAR2
+                                    , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                                    )
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_language';
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_objects.otap_session_verify(o_otap_session);
+    IF LENGTH(p_language_id) > 3
+    THEN
+      o_otap_session.session_language := UPPER(SUBSTR(TRIM(p_language_id), 1, 3));
+      otap_log.log('ERROR language id length exceed 3 chars. Language id ' || p_language_id || ' cutted to 3 chars.', l_script, 'LENGTH(p_language_id) > 3');
+    ELSE
+      o_otap_session.session_language := UPPER(NVL(TRIM(p_language_id), otap_constants.OTAP_INTERNAL_NA));
+    END IF;
+    l_message := otap_string.reduce('Current language: ' || o_otap_session.session_language, 4000);
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_set_language;
+
+  FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    RETURN p_otap_session.session_language;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_get_language;
 
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER

@@ -189,15 +189,21 @@ AS
   BEGIN
     l_border     := otap_string.check_border(p_border);
     l_line_size  := otap_string.check_line_size(p_min_fill);
-    l_title_size := otap_string.check_title_size(p_title_length, l_border);
-    l_calc_size  := l_title_size + (l_border * 2);
-    l_length     := GREATEST(NVL(l_calc_size, 0), l_line_size);
-    IF l_length < otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+    IF NVL(p_title_length, 0) > (otap_constants.OTAP_NUM_MIN_FILL_LENGTH - (l_border * 2))
     THEN
+      -- only calculate, if a title length exceeds min length
+      l_title_size := otap_string.check_title_size(p_title_length, l_border);
+      l_calc_size  := l_title_size + (l_border * 2);
+      l_length     := GREATEST(NVL(l_calc_size, 0), l_line_size);
+      IF l_length < otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+      THEN
+        l_length := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+      ELSIF l_length > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
+      THEN
+        l_length := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
+      END IF;
+    ELSE
       l_length := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
-    ELSIF l_length > otap_constants.OTAP_NUM_MAX_FILL_LENGTH
-    THEN
-      l_length := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
     END IF;
     RETURN l_length;
   EXCEPTION

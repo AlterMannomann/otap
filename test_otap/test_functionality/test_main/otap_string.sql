@@ -73,6 +73,8 @@ BEGIN
   l_return := otap_test.is_eq(otap_string.check_decoration('!'), '!', 'otap_string.check_decoration define printable !');
   l_return := otap_test.is_eq(otap_string.check_decoration('*--'), '*', 'otap_string.check_decoration truncate parameter with invalid size');
   l_return := otap_test.is_eq(otap_string.line_size(NULL), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size NULL parameter');
+  l_return := otap_test.is_eq(otap_string.line_size(NULL, 5), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size NULL parameter with border');
+  l_return := otap_test.is_eq(otap_string.line_size(60, 5), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size title length below min length');
   l_return := otap_test.is_eq(otap_string.line_size(120, 5), 130, 'otap_string.line_size valid parameter');
   l_return := otap_test.is_eq(otap_string.line_size(otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size valid max size');
   l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');

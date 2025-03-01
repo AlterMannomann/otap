@@ -60,6 +60,7 @@ AS
   * @param p_test_group The name of the test group applied if the name of the executed test procedure or function does not provide a test group name or name precendence is disabled.
   * @param p_test_name The name of the test name applied if the name of the executed test procedure or function does not provide a test name or name precendence is disabled.
   * @param p_prefix The prefix to use for identifying test functions and procedures. Limited to 4 chars. Test functions and procedures must have a trailing delimiter _ after the prefix to be identified.
+  * @param p_language_id The session language id to use for test reports and results. Limited to 3 chars. If language has no translation, default is used.
   * @param p_name_precedence Can disable the naming conventions for otap. If set to otap_constants.OTAP_NUM_FALSE, all tests will run under the defined test set and group, set by init_test.
   * @param p_include_pkg Can enable to search also packages and package procedures and functions that fit the naming convention with the given prefix, if set to otap_constants.OTAP_NUM_TRUE.
   * @param p_persist Can enable to persist the test results longer than the current default of PRESERVE_DAYS in OTAP_CONFIG, if set to otap_constants.OTAP_NUM_TRUE.
@@ -76,6 +77,7 @@ AS
                     , p_test_group          IN            VARCHAR2
                     , p_test_name           IN            VARCHAR2
                     , p_prefix              IN            VARCHAR2
+                    , p_language_id         IN            VARCHAR2
                     , p_name_precedence     IN            NUMBER
                     , p_include_pkg         IN            NUMBER
                     , p_persist             IN            NUMBER
