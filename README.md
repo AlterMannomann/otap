@@ -4,7 +4,7 @@ See also [releases](https://github.com/AlterMannomann/otap/releases).
 # UNDER DEVELOPMENT
 This is currently the not yet finished beta version. Existing tests need rework due to introducing session language support. More tests still needed.
 
-You may use the script [otap_package_update.sql](./setup/otap_package_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
+You may use the script [otap_update.sql](./setup/otap_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
 ### Current changes
 - Added logging and warning for dynamic block execution by test functions
 - Added language functionality to translate table and alpha version of session language support
