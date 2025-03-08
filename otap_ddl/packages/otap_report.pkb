@@ -218,8 +218,28 @@ AS
       RAISE;
   END get_test_count_header;
 
+  FUNCTION get_summary_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                             )
+    RETURN VARCHAR2
+  IS
+    l_return_text VARCHAR2(32767 CHAR);
+  BEGIN
+    l_return_text := otap_report.borderless( otap_util.get_config_value(otap_util.CFG_TEXT_SUMMARY_HEADER, p_language_id)
+                                           , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), otap_util.get_length_result_headers(p_language_id))
+                                           , p_language_id
+                                           )
+    ;
+    RETURN l_return_text;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_report.get_summary_header', 'otap_util.get_config_value(otap_util.CFG_TEXT_SUMMARY_HEADER)');
+      RAISE;
+  END get_summary_header;
+
   FUNCTION get_summary( p_status      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      , p_exectime    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs        IN NUMBER   DEFAULT 0
                       , p_errors      IN NUMBER   DEFAULT 0
                       , p_issues      IN NUMBER   DEFAULT 0
@@ -230,12 +250,27 @@ AS
   IS
     l_return_text   VARCHAR2(32767 CHAR);
     l_template_text VARCHAR2(32767 CHAR);
+    l_fallback      VARCHAR2(4000 CHAR);
+    l_fmt_text      VARCHAR2(4000 CHAR);
+    l_layout        VARCHAR2(1 CHAR);
+    l_fmt_len       INTEGER;
   BEGIN
     -- fetch template
     l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY, p_language_id);
-    -- replace variables
-    l_template_text := REPLACE(l_template_text, '@status@', NVL(p_status, otap_util.get_config_value(otap_util.CFG_TEXT_SUMMARY_ERROR, p_language_id)));
+    -- replace variables and format them before USE TEST_PASSED (also undefined) delete SUMMARY text
+    l_fallback := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, p_language_id);
+    l_layout   := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id);
+    l_fmt_len  := otap_util.get_length_test_state(p_language_id);
+    l_fmt_text := NVL(p_status, l_fallback);
+    IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+    THEN
+      l_fmt_text := LPAD(l_fmt_text, l_fmt_len, ' ');
+    ELSE
+      l_fmt_text := RPAD(l_fmt_text, l_fmt_len, ' ');
+    END IF;
+    l_template_text := REPLACE(l_template_text, '@status@', l_fmt_text);
     l_template_text := REPLACE(l_template_text, '@runtime@', NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA));
+    l_template_text := REPLACE(l_template_text, '@exectime@', NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA));
     l_template_text := REPLACE(l_template_text, '@runs@', NVL(TRIM(TO_CHAR(p_runs)), otap_constants.OTAP_INTERNAL_NA) );
     l_template_text := REPLACE(l_template_text, '@errors@', NVL(TRIM(TO_CHAR(p_errors)), otap_constants.OTAP_INTERNAL_NA));
     l_template_text := REPLACE(l_template_text, '@issues@', NVL(TRIM(TO_CHAR(p_issues)), otap_constants.OTAP_INTERNAL_NA));

@@ -462,7 +462,30 @@ AS
     RETURN l_message;
   END get_set_text;
 
+  FUNCTION get_summary_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                             )
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_summary_header';
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    l_message := otap_constants.OTAP_INTERNAL_ERROR;
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_message := otap_report.get_summary_header(p_min_fill, p_language_id);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_summary_header');
+        l_message := otap_string.reduce('Internal otap error get summary header: ' || SQLERRM, 4000);
+    END;
+    -- return or let exception happen
+    RETURN l_message;
+  END get_summary_header;
+
   FUNCTION get_summary( p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      , p_exectime    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs        IN NUMBER   DEFAULT 0
                       , p_errors      IN NUMBER   DEFAULT 0
                       , p_issues      IN NUMBER   DEFAULT 0
@@ -486,7 +509,7 @@ AS
                     ELSE otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED, p_language_id)
                   END
       ;
-      l_message := otap_report.get_summary(l_status, p_runtime, p_runs, p_errors, p_issues, p_min_fill, p_language_id);
+      l_message := otap_report.get_summary(l_status, p_runtime, p_exectime, p_runs, p_errors, p_issues, p_min_fill, p_language_id);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -859,7 +882,8 @@ AS
            , COUNT(*) AS test_runs
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-           , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+           , CAST((MAX(test_end) - MIN(test_start)) AS INTERVAL DAY(2) TO SECOND) AS run_time
+           , CAST(SUM(test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
          AND test_name      != otap_api.get_text_test_count_name(cp_language_id)
@@ -875,7 +899,8 @@ AS
            , COUNT(*) AS test_runs
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-           , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+           , CAST((MAX(test_end) - MIN(test_start)) AS INTERVAL DAY(2) TO SECOND) AS run_time
+           , CAST(SUM(test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
          AND test_set        = cp_test_set
@@ -893,7 +918,8 @@ AS
            , COUNT(*) AS test_runs
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-           , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+           , CAST((MAX(test_end) - MIN(test_start)) AS INTERVAL DAY(2) TO SECOND) AS run_time
+           , CAST(SUM(test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
          AND test_set        = cp_test_set
@@ -910,7 +936,8 @@ AS
            , COUNT(*) AS test_runs
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-           , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
+           , CAST((MAX(test_end) - MIN(test_start)) AS INTERVAL DAY(2) TO SECOND) AS run_time
+           , CAST(SUM(test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
          AND test_name       = otap_api.get_text_test_count_name(cp_language_id)
@@ -929,8 +956,8 @@ AS
            , COUNT(*) AS test_runs
            , SUM(CASE WHEN test_passed = -1 THEN 1 ELSE 0 END) AS test_errors
            , SUM(CASE WHEN test_errors IS NOT NULL THEN 1 ELSE 0 END) AS setup_errors
-           , TRIM((MAX(test_end) - MIN(test_start)) DAY TO SECOND) AS run_time
-           , SUM((test_end - test_start) DAY TO SECOND) AS exec_time
+           , CAST((MAX(test_end) - MIN(test_start)) AS INTERVAL DAY(2) TO SECOND) AS run_time
+           , CAST(SUM(test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS exec_time
         FROM otap_results
        WHERE test_session_id = cp_session_id
              -- exclude optional extra total count test
@@ -948,7 +975,7 @@ AS
       SELECT test_desc
            , test_passed
            , otap_api.test_result_to_text(test_passed, cp_language_id) AS test_state
-           , TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
+           , CAST((test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS run_time
            , test_errors
            , otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END, cp_language_id) AS issue_state
         FROM otap_results
@@ -966,7 +993,7 @@ AS
       SELECT test_desc
            , test_passed
            , otap_api.test_result_to_text(test_passed, cp_language_id) AS test_state
-           , TRIM(TO_CHAR(((test_end - test_start) DAY TO SECOND))) AS run_time
+           , CAST((test_end - test_start) AS INTERVAL DAY(2) TO SECOND) AS run_time
            , test_errors
            , otap_api.test_result_to_text(CASE WHEN test_errors IS NULL THEN 1 ELSE -1 END, cp_language_id) AS issue_state
         FROM otap_results
@@ -992,7 +1019,9 @@ AS
         l_text_column := otap_api.get_set_text(rec_set.test_set, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         -- build test set summary
-        l_text_column := otap_api.get_summary(rec_set.run_time, rec_set.test_runs, rec_set.test_errors, rec_set.setup_errors, l_report_size, p_language_id);
+        l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
+        PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+        l_text_column := otap_api.get_summary(rec_set.run_time, rec_set.exec_time, rec_set.test_runs, rec_set.test_errors, rec_set.setup_errors, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         -- loop through the group
         FOR rec_grp IN cur_test_groups(p_session_id, rec_set.test_set, p_language_id)
@@ -1000,7 +1029,7 @@ AS
           l_text_column := otap_api.get_group_text(rec_grp.test_group, l_report_size, p_language_id);
           PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           -- build test set summary
-          l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size, p_language_id);
+          l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.exec_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size, p_language_id);
           PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           -- loop through the names
           FOR rec_nam IN cur_test_names(p_session_id, rec_set.test_set, rec_grp.test_group, p_language_id)
@@ -1008,7 +1037,9 @@ AS
             l_text_column := otap_api.get_test_name_text(rec_nam.test_name, l_report_size, p_language_id);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- build test set summary
-            l_text_column := otap_api.get_summary(rec_nam.run_time, rec_nam.test_runs, rec_nam.test_errors, rec_nam.setup_errors, l_report_size, p_language_id);
+            l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
+            PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+            l_text_column := otap_api.get_summary(rec_nam.run_time, rec_nam.exec_time, rec_nam.test_runs, rec_nam.test_errors, rec_nam.setup_errors, l_report_size, p_language_id);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- build header
             l_text_column := otap_api.get_result_header(l_report_size, p_language_id);
@@ -1053,7 +1084,9 @@ AS
         -- build header
         l_text_column := otap_api.get_test_count_header(l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-        l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size, p_language_id);
+        l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
+        PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+        l_text_column := otap_api.get_summary(rec.run_time, rec.exec_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         -- build header
         l_text_column := otap_api.get_result_header(l_report_size, p_language_id);
@@ -1095,7 +1128,9 @@ AS
       LOOP
         l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, rec.exec_time, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-        l_text_column := otap_api.get_summary(rec.run_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size, p_language_id);
+        l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
+        PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+        l_text_column := otap_api.get_summary(rec.run_time, rec.exec_time, rec.test_runs, rec.test_errors, rec.setup_errors, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
       END LOOP;
     ELSE
@@ -2751,6 +2786,45 @@ AS
     -- return result or let exception happen
     RETURN l_return;
   END throws_like;
+
+  FUNCTION test_error( p_description     IN            VARCHAR2
+                     , p_errors          IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     )
+    RETURN VARCHAR2
+  IS
+    l_script           VARCHAR2(1024 CHAR)                  := 'otap_api.test_error';
+    l_start            TIMESTAMP;
+    l_result           INTEGER;
+    l_return           VARCHAR2(4000 CHAR);
+    l_errors           otap_results.test_errors%TYPE;
+    l_schema           otap_results.db_schema%TYPE;
+    l_desc             otap_results.test_desc%TYPE;
+  BEGIN
+    l_start  := SYSTIMESTAMP;
+    -- default return
+    l_return := otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED, o_otap_session.session_language) || ' ' || otap_constants.OTAP_INTERNAL_NA;
+    l_schema := COALESCE(p_schema, o_otap_session.db_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'));
+    BEGIN
+      -- define variables
+      l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+      l_desc   := p_description;
+      l_errors := p_errors;
+      -- write result
+      l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        l_result := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+        l_errors := otap_string.reduce(p_errors || ' Internal error ' || l_script || ': ' || SQLERRM, 4000);
+        otap_log.log(SQLERRM, l_script, 'Execute ' || l_script || ' function');
+        -- try again
+        l_return := otap_plan.write_test_result(l_desc, o_otap_session, l_schema, l_result, l_start, l_errors);
+    END;
+    -- return result or let exception happen
+    RETURN l_return;
+  END test_error;
 
 END;
 /

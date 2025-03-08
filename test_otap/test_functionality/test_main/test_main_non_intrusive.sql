@@ -13,7 +13,3 @@ SELECT otap_test.set_test_group('OTAP basic package functionality') FROM dual;
 -- table triggers
 -- table contents
 -- packages
-
--- intrusive tests changing data
-SELECT otap_test.set_test_group('OTAP data change functionality') FROM dual;
-@@otap_intrusive.sql

@@ -66,7 +66,7 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)
   VALUES
-  ('DEFAULT_LANGUAGE', otap_constants.OTAP_FALLBACK_DEFAULT_LANGUAGE, otap_constants.get_otap_config_type_char, 3, 'Defines the default language to use for entries in the translation table. Will always be handled upper case internally.')
+  ('DEFAULT_LANGUAGE', 'N/A', otap_constants.get_otap_config_type_char, 3, 'Defines the default language to use for entries in the translation table. Will always be handled upper case internally.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
@@ -161,22 +161,18 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEXT_SUMMARY_SUCCESS', 'SUCCESS', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEXT_SUMMARY_HEADER', 'Overall   Runtime             Execution time      Details', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as summary header, depending on formatting and size of summary success and error. If the strings are longer than 7 chars the header line must be adjusted. Limited to 256, recommended shorter than 80 chars.')
 ;
-INSERT INTO otap_config
-  (config_name, config_value, config_type, config_max_length, translatable, config_description)
-  VALUES
-  ('TEXT_SUMMARY_ERROR', 'ERROR', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as information text if a set, group or test name has executed with errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
-;
--- @status@ represents SNIPPET_SUMMARY_ERROR or SNIPPET_SUMMARY_SUCCESS
--- @runtime@ represents the runtime as Oracle interval
+-- @status@ represents TEXT_SUMMARY_ERROR or TEXT_SUMMARY_SUCCESS
+-- @runtime@ represents the complete runtime as Oracle interval
+-- @exectime@ represents the test execution time (without setup and call overheads) as Oracle interval
 -- @runs@ represent the amount of tests executed for the set, group or test name
 -- @errors@ represent the amount of tests with errors for the set, group or test name
 -- @issues@ represent the amount of test setup or internal errors for the set, group or test name
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEMPLATE_SUMMARY', '@status@ total runtime: @runtime@ (runs: @runs@ errors: @errors@ issues: @issues@)', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEMPLATE_SUMMARY', '@status@ @runtime@ @exectime@ runs: @runs@ errors: @errors@ issues: @issues@', otap_constants.get_otap_config_type_char, 256, 1, 'Used as a template, all @variables@ will be replaced by corresponding values. The @variablename@ cannot be changed. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 -- @testname@ represents the test name for the summary of errors under this test name
 INSERT INTO otap_config

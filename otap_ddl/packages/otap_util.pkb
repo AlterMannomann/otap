@@ -95,8 +95,7 @@ AS
                               , otap_util.CFG_TEXT_REPORT_TOTAL
                               , otap_util.CFG_TEXT_RESULT_HEADER
                               , otap_util.CFG_TEXT_RESULT_LINE
-                              , otap_util.CFG_TEXT_SUMMARY_ERROR
-                              , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                              , otap_util.CFG_TEXT_SUMMARY_HEADER
                               , otap_util.CFG_TEXT_TEST_COUNT_HEADER
                               , otap_util.CFG_TEXT_TEST_COUNT_NAME
                               , otap_util.CFG_TEXT_TEST_FAILED
@@ -155,8 +154,7 @@ AS
                           , otap_util.CFG_TEXT_REPORT_TOTAL
                           , otap_util.CFG_TEXT_RESULT_HEADER
                           , otap_util.CFG_TEXT_RESULT_LINE
-                          , otap_util.CFG_TEXT_SUMMARY_ERROR
-                          , otap_util.CFG_TEXT_SUMMARY_SUCCESS
+                          , otap_util.CFG_TEXT_SUMMARY_HEADER
                           , otap_util.CFG_TEXT_TEST_COUNT_HEADER
                           , otap_util.CFG_TEXT_TEST_COUNT_NAME
                           , otap_util.CFG_TEXT_TEST_FAILED
@@ -506,7 +504,7 @@ AS
       INTO l_exists
       FROM otap_config
      WHERE config_name  = p_config_name
-       AND translatable = 0
+       AND translatable = otap_constants.OTAP_NUM_FALSE
     ;
     IF l_exists = 1
     THEN
@@ -612,29 +610,6 @@ AS
       RAISE;
   END get_length_test_state;
 
-  FUNCTION get_length_summary_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
-    RETURN NUMBER
-  IS
-    l_return INTEGER;
-  BEGIN
-    -- consider possible translations, fetch from otap_identifiers_v
-    -- length does not change on upper, lower or init capitals
-    SELECT MAX(LENGTH(label_text_lower))
-      INTO l_return
-      FROM otap_identifiers_v
-     WHERE otap_identifier IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
-                              , otap_util.CFG_TEXT_SUMMARY_SUCCESS
-                              )
-                              -- language fallback included
-       AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
-    ;
-    RETURN l_return;
-  EXCEPTION
-    WHEN OTHERS THEN
-      otap_log.log(SQLERRM, 'otap_util.get_length_summary_state', 'Get MAX length for config values');
-      RAISE;
-  END get_length_summary_state;
-
   FUNCTION get_length_headers(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
     RETURN NUMBER
   IS
@@ -671,6 +646,7 @@ AS
       FROM otap_identifiers_v
      WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
                               , otap_util.CFG_TEXT_RESULT_LINE
+                              , otap_util.CFG_TEXT_SUMMARY_HEADER
                               )
                               -- language fallback included
        AND language_id     IN (UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)), otap_constants.OTAP_INTERNAL_NA)
@@ -681,7 +657,6 @@ AS
       otap_log.log(SQLERRM, 'otap_util.get_length_result_headers', 'Get MAX length for config values');
       RAISE;
   END get_length_result_headers;
-
 
   FUNCTION test_result_to_text( p_test_passed IN NUMBER
                               , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA

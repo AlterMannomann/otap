@@ -4,13 +4,15 @@ See also [releases](https://github.com/AlterMannomann/otap/releases).
 # UNDER DEVELOPMENT
 This is currently the not yet finished beta version. Existing tests need rework due to introducing session language support. More tests still needed.
 
-You may use the script [otap_update.sql](./setup/otap_update.sql) for usual updates. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
+You may use the script [otap_update.sql](./setup/otap_update.sql) for usual updates on the branch. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
 ### Current changes
+- Changes in layout, execution time and run time for all summaries
+- Add function to report errors in execution of test scripts and blocks
+- Removed unused config names
 - Added logging and warning for dynamic block execution by test functions
 - Added language functionality to translate table and alpha version of session language support
 - Generate fully integrated with current state
 - Add new schema test functions
-- Fix search conditions for schema functions in some NULL situations
 ### Next steps
 - Test otap functionality with otap and enhance functionality as needed
 - Enhance documentation
@@ -38,6 +40,7 @@ Stable alpha with following tests (package otap_test):
 - throws_ok (exception compare message or error code)
 - throws_matches (regular expression match on exception message)
 - throws_like (LIKE expression match on exception message)
+- test_error (report errors from script execution or exceptions)
 - result view: otap_latest_test_results_v
 
 Every function supports different optional parameters (not complete in sense of available object options) to narrow the exist check. If exist check fails this does not necessarily mean the object does not exist at all. It just doesn't exist in the specified way for the test. Exist function do not check for the reason currently. Every test has to pass two steps, the test it self and no errors by wrong usage or internal problems. Result shows the test result itself in the report, Setup shows any errors either caused by usage or otap itself.

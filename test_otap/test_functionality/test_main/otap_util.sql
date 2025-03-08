@@ -23,129 +23,128 @@ DECLARE
   l_setup_end     TIMESTAMP;
   l_runtime       NUMBER;
 BEGIN
-  -- check util config constants
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_BORDER, 'DEFAULT_BORDER', 'otap_util constant config name default border');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_LABEL_COLUMN, 'DEFAULT_LABEL_COLUMN', 'otap_util constant config name default label column');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_LAYOUT, 'DEFAULT_LAYOUT', 'otap_util constant config name default layout');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_PREFIX, 'DEFAULT_PREFIX', 'otap_util constant config name default prefix');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_RESULT_LAYOUT, 'DEFAULT_RESULT_LAYOUT', 'otap_util constant config name default result layout');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_GROUP, 'DEFAULT_TEST_GROUP', 'otap_util constant config name default test group');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_NAME, 'DEFAULT_TEST_NAME', 'otap_util constant config name default test name');
-  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_SET, 'DEFAULT_TEST_SET', 'otap_util constant config name default test set');
-  l_return := otap_test.is_eq(otap_util.CFG_DELETE_BATCH_SIZE, 'DELETE_BATCH_SIZE', 'otap_util constant config name delete batch size');
-  l_return := otap_test.is_eq(otap_util.CFG_DELETE_DELAY, 'DELETE_DELAY', 'otap_util constant config name delete delay');
-  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_GROUP_CHAR, 'FORMAT_GROUP_CHAR', 'otap_util constant config name formatting test group char');
-  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_HEADER_CHAR, 'FORMAT_HEADER_CHAR', 'otap_util constant config name formatting header char');
-  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_NAME_CHAR, 'FORMAT_NAME_CHAR', 'otap_util constant config name formatting test name char');
-  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_SET_CHAR, 'FORMAT_SET_CHAR', 'otap_util constant config name formatting test set char');
-  l_return := otap_test.is_eq(otap_util.CFG_PRESERVE_DAYS, 'PRESERVE_DAYS', 'otap_util constant config name delete preserve days');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_COUNT_DESC, 'TEMPLATE_COUNT_DESC', 'otap_util constant config name template count description');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_ERRORS, 'TEMPLATE_ERRORS', 'otap_util constant config name template errors');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_ERROR_DETAILS, 'TEMPLATE_ERROR_DETAILS', 'otap_util constant config name template error details');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS, 'TEMPLATE_EXISTS', 'otap_util constant config name template object exists');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTSX, 'TEMPLATE_EXISTSX', 'otap_util constant config name template object exists extended');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_C, 'TEMPLATE_EXISTS_C', 'otap_util constant config name template constraint exists');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_CX, 'TEMPLATE_EXISTS_CX', 'otap_util constant config name template constraints exists extended');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_F, 'TEMPLATE_EXISTS_F', 'otap_util constant config name template function/procedure exists');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_FX, 'TEMPLATE_EXISTS_FX', 'otap_util constant config name template function/procedure exists extended');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_GROUP, 'TEMPLATE_GROUP', 'otap_util constant config name template test group');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_MATCH, 'TEMPLATE_MATCH', 'otap_util constant config name template match expression/value');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_NO_DATA, 'TEMPLATE_NO_DATA', 'otap_util constant config name template no data');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_REPORT_TOTAL, 'TEMPLATE_REPORT_TOTAL', 'otap_util constant config name template report totals');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_RESULT_LINE, 'TEMPLATE_RESULT_LINE', 'otap_util constant config name template result line');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SESSION_ID, 'TEMPLATE_SESSION_ID', 'otap_util constant config name template session id');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SET, 'TEMPLATE_SET', 'otap_util constant config name template test set');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SUMMARY, 'TEMPLATE_SUMMARY', 'otap_util constant config name template summary');
-  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_TEST_NAME, 'TEMPLATE_TEST_NAME', 'otap_util constant config name template test name');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_FALSE, 'TEXT_FALSE', 'otap_util constant config name text FALSE');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_FALSE_NO, 'TEXT_FALSE_NO', 'otap_util constant config name text NO');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_END, 'TEXT_REPORT_END', 'otap_util constant config name text report end');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_START, 'TEXT_REPORT_START', 'otap_util constant config name text report start');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_TOTAL, 'TEXT_REPORT_TOTAL', 'otap_util constant config name text report totals');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_HEADER, 'TEXT_RESULT_HEADER', 'otap_util constant config name text result header');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_LINE, 'TEXT_RESULT_LINE', 'otap_util constant config name text result line');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_SUMMARY_ERROR, 'TEXT_SUMMARY_ERROR', 'otap_util constant config name text summary error');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_SUMMARY_SUCCESS, 'TEXT_SUMMARY_SUCCESS', 'otap_util constant config name text summary success');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_HEADER, 'TEXT_TEST_COUNT_HEADER', 'otap_util constant config name text test count header');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_NAME, 'TEXT_TEST_COUNT_NAME', 'otap_util constant config name text test count name');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_FAILED, 'TEXT_TEST_FAILED', 'otap_util constant config name text test failed');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_PASSED, 'TEXT_TEST_PASSED', 'otap_util constant config name text test passed');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_UNDEFINED, 'TEXT_TEST_UNDEFINED', 'otap_util constant config name text test undefined');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE, 'TEXT_TRUE', 'otap_util constant config name text TRUE');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE_YES, 'TEXT_TRUE_YES', 'otap_util constant config name text YES');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_BOOLEAN, 'LABEL_BOOLEAN', 'otap_util constant config label boolean');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CHECK, 'LABEL_CHECK', 'otap_util constant config label check');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CLUSTER, 'LABEL_CLUSTER', 'otap_util constant config label cluster');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_COLUMN, 'LABEL_COLUMN', 'otap_util constant config label column');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSTRAINT, 'LABEL_CONSTRAINT', 'otap_util constant config label constraint');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSUMER_GROUP, 'LABEL_CONSUMER_GROUP', 'otap_util constant config label consumer group');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONTEXT, 'LABEL_CONTEXT', 'otap_util constant config label context');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CREDENTIAL, 'LABEL_CREDENTIAL', 'otap_util constant config label credential');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATABASE, 'LABEL_DATABASE', 'otap_util constant config label database');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATE, 'LABEL_DATE', 'otap_util constant config label date');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DESTINATION, 'LABEL_DESTINATION', 'otap_util constant config label destination');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIMENSION, 'LABEL_DIMENSION', 'otap_util constant config label dimension');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIRECTORY, 'LABEL_DIRECTORY', 'otap_util constant config label directory');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DOMAIN, 'LABEL_DOMAIN', 'otap_util constant config label domain');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EDITION, 'LABEL_EDITION', 'otap_util constant config label edition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EVALUATION_CONTEXT, 'LABEL_EVALUATION_CONTEXT', 'otap_util constant config evaluation context');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EXCEPTION, 'LABEL_EXCEPTION', 'otap_util constant config label exception');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_FOREIGN_KEY, 'LABEL_FOREIGN_KEY', 'otap_util constant config label foreign key');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_FUNCTION, 'LABEL_FUNCTION', 'otap_util constant config label function');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_HASH, 'LABEL_HASH', 'otap_util constant config label hash');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX, 'LABEL_INDEX', 'otap_util constant config label index');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEXTYPE, 'LABEL_INDEXTYPE', 'otap_util constant config label index type');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_PARTITION, 'LABEL_INDEX_PARTITION', 'otap_util constant config label index partition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_SUBPARTITION, 'LABEL_INDEX_SUBPARTITION', 'otap_util constant config label index subpartition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'LABEL_INVALID_CONSTRAINT_TYPE', 'otap_util constant config label invalid constraint type');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_CLASS, 'LABEL_JAVA_CLASS', 'otap_util constant config label java class');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_DATA, 'LABEL_JAVA_DATA', 'otap_util constant config label java data');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_RESOURCE, 'LABEL_JAVA_RESOURCE', 'otap_util constant config label java resource');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_SOURCE, 'LABEL_JAVA_SOURCE', 'otap_util constant config label java source');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB, 'LABEL_JOB', 'otap_util constant config label job');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB_CLASS, 'LABEL_JOB_CLASS', 'otap_util constant config label job class');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LIBRARY, 'LABEL_LIBRARY', 'otap_util constant config label library');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB, 'LABEL_LOB', 'otap_util constant config label LOB');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB_PARTITION, 'LABEL_LOB_PARTITION', 'otap_util constant config label LOB partition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_MATERIALIZED_VIEW, 'LABEL_MATERIALIZED_VIEW', 'otap_util constant config label materialized view');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_MLE_LANGUAGE, 'LABEL_MLE_LANGUAGE', 'otap_util constant config label mle language');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NOT_NULL, 'LABEL_NOT_NULL', 'otap_util constant config label not null');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NULL, 'LABEL_NULL', 'otap_util constant config label null');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NUMBER, 'LABEL_NUMBER', 'otap_util constant config label number');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_OPERATOR, 'LABEL_OPERATOR', 'otap_util constant config label operator');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE, 'LABEL_PACKAGE', 'otap_util constant config label package');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE_BODY, 'LABEL_PACKAGE_BODY', 'otap_util constant config label package body');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PRIMARY_KEY, 'LABEL_PRIMARY_KEY', 'otap_util constant config label primary key');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROCEDURE, 'LABEL_PROCEDURE', 'otap_util constant config label procedure');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROGRAM, 'LABEL_PROGRAM', 'otap_util constant config label program');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_QUEUE, 'LABEL_QUEUE', 'otap_util constant config label queue');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_REF_COLUMN, 'LABEL_REF_COLUMN', 'otap_util constant config label reference column');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RESOURCE_PLAN, 'LABEL_RESOURCE_PLAN', 'otap_util constant config label resource plan');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_ROLE, 'LABEL_ROLE', 'otap_util constant config label role');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE, 'LABEL_RULE', 'otap_util constant config label rule');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE_SET, 'LABEL_RULE_SET', 'otap_util constant config label rule set');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULE, 'LABEL_SCHEDULE', 'otap_util constant config label schedule');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_GROUP, 'LABEL_SCHEDULER_GROUP', 'otap_util constant config label scheduler group');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_JOB, 'LABEL_SCHEDULER_JOB', 'otap_util constant config label scheduler job');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SEQUENCE, 'LABEL_SEQUENCE', 'otap_util constant config label sequence');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'LABEL_SUPPLEMENTAL_LOGGGING', 'otap_util constant config label supplemental logging');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SYNONYM, 'LABEL_SYNONYM', 'otap_util constant config label synonym');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE, 'LABEL_TABLE', 'otap_util constant config label table');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_PARTITION, 'LABEL_TABLE_PARTITION', 'otap_util constant config label table partition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_SUBPARTITION, 'LABEL_TABLE_SUBPARTITION', 'otap_util constant config label table subpartition');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TRIGGER, 'LABEL_TRIGGER', 'otap_util constant config label trigger');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE, 'LABEL_TYPE', 'otap_util constant config label type');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE_BODY, 'LABEL_TYPE_BODY', 'otap_util constant config label type body');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNDEFINED, 'LABEL_UNDEFINED', 'otap_util constant config label undefined');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY, 'LABEL_UNIFIED_AUDIT_POLICY', 'otap_util constant config label unified audit policy');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIQUE_KEY, 'LABEL_UNIQUE_KEY', 'otap_util constant config label unique key');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_USER, 'LABEL_USER', 'otap_util constant config label user');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VARCHAR2, 'LABEL_VARCHAR2', 'otap_util constant config label VARCHAR2');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW, 'LABEL_VIEW', 'otap_util constant config label view');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_CHECK, 'LABEL_VIEW_CHECK', 'otap_util constant config label view check');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'otap_util constant config label view readonly');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'otap_util constant config label window');
-  l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'otap_util constant config label XML schema');
+  -- util constants check generated
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_BORDER, 'DEFAULT_BORDER', 'Verify package constant otap_util.CFG_DEFAULT_BORDER');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_LABEL_COLUMN, 'DEFAULT_LABEL_COLUMN', 'Verify package constant otap_util.CFG_DEFAULT_LABEL_COLUMN');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_LANGUAGE, 'DEFAULT_LANGUAGE', 'Verify package constant otap_util.CFG_DEFAULT_LANGUAGE');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_LAYOUT, 'DEFAULT_LAYOUT', 'Verify package constant otap_util.CFG_DEFAULT_LAYOUT');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_PREFIX, 'DEFAULT_PREFIX', 'Verify package constant otap_util.CFG_DEFAULT_PREFIX');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_RESULT_LAYOUT, 'DEFAULT_RESULT_LAYOUT', 'Verify package constant otap_util.CFG_DEFAULT_RESULT_LAYOUT');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_GROUP, 'DEFAULT_TEST_GROUP', 'Verify package constant otap_util.CFG_DEFAULT_TEST_GROUP');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_NAME, 'DEFAULT_TEST_NAME', 'Verify package constant otap_util.CFG_DEFAULT_TEST_NAME');
+  l_return := otap_test.is_eq(otap_util.CFG_DEFAULT_TEST_SET, 'DEFAULT_TEST_SET', 'Verify package constant otap_util.CFG_DEFAULT_TEST_SET');
+  l_return := otap_test.is_eq(otap_util.CFG_DELETE_BATCH_SIZE, 'DELETE_BATCH_SIZE', 'Verify package constant otap_util.CFG_DELETE_BATCH_SIZE');
+  l_return := otap_test.is_eq(otap_util.CFG_DELETE_DELAY, 'DELETE_DELAY', 'Verify package constant otap_util.CFG_DELETE_DELAY');
+  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_GROUP_CHAR, 'FORMAT_GROUP_CHAR', 'Verify package constant otap_util.CFG_FORMAT_GROUP_CHAR');
+  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_HEADER_CHAR, 'FORMAT_HEADER_CHAR', 'Verify package constant otap_util.CFG_FORMAT_HEADER_CHAR');
+  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_NAME_CHAR, 'FORMAT_NAME_CHAR', 'Verify package constant otap_util.CFG_FORMAT_NAME_CHAR');
+  l_return := otap_test.is_eq(otap_util.CFG_FORMAT_SET_CHAR, 'FORMAT_SET_CHAR', 'Verify package constant otap_util.CFG_FORMAT_SET_CHAR');
+  l_return := otap_test.is_eq(otap_util.CFG_PRESERVE_DAYS, 'PRESERVE_DAYS', 'Verify package constant otap_util.CFG_PRESERVE_DAYS');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_COUNT_DESC, 'TEMPLATE_COUNT_DESC', 'Verify package constant otap_util.CFG_TEMPLATE_COUNT_DESC');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_ERRORS, 'TEMPLATE_ERRORS', 'Verify package constant otap_util.CFG_TEMPLATE_ERRORS');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_ERROR_DETAILS, 'TEMPLATE_ERROR_DETAILS', 'Verify package constant otap_util.CFG_TEMPLATE_ERROR_DETAILS');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS, 'TEMPLATE_EXISTS', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTS');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTSX, 'TEMPLATE_EXISTSX', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTSX');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_C, 'TEMPLATE_EXISTS_C', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTS_C');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_CX, 'TEMPLATE_EXISTS_CX', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTS_CX');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_F, 'TEMPLATE_EXISTS_F', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTS_F');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_EXISTS_FX, 'TEMPLATE_EXISTS_FX', 'Verify package constant otap_util.CFG_TEMPLATE_EXISTS_FX');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_GROUP, 'TEMPLATE_GROUP', 'Verify package constant otap_util.CFG_TEMPLATE_GROUP');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_MATCH, 'TEMPLATE_MATCH', 'Verify package constant otap_util.CFG_TEMPLATE_MATCH');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_NO_DATA, 'TEMPLATE_NO_DATA', 'Verify package constant otap_util.CFG_TEMPLATE_NO_DATA');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_REPORT_TOTAL, 'TEMPLATE_REPORT_TOTAL', 'Verify package constant otap_util.CFG_TEMPLATE_REPORT_TOTAL');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_RESULT_LINE, 'TEMPLATE_RESULT_LINE', 'Verify package constant otap_util.CFG_TEMPLATE_RESULT_LINE');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SESSION_ID, 'TEMPLATE_SESSION_ID', 'Verify package constant otap_util.CFG_TEMPLATE_SESSION_ID');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SET, 'TEMPLATE_SET', 'Verify package constant otap_util.CFG_TEMPLATE_SET');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_SUMMARY, 'TEMPLATE_SUMMARY', 'Verify package constant otap_util.CFG_TEMPLATE_SUMMARY');
+  l_return := otap_test.is_eq(otap_util.CFG_TEMPLATE_TEST_NAME, 'TEMPLATE_TEST_NAME', 'Verify package constant otap_util.CFG_TEMPLATE_TEST_NAME');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_FALSE, 'TEXT_FALSE', 'Verify package constant otap_util.CFG_TEXT_FALSE');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_FALSE_NO, 'TEXT_FALSE_NO', 'Verify package constant otap_util.CFG_TEXT_FALSE_NO');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_END, 'TEXT_REPORT_END', 'Verify package constant otap_util.CFG_TEXT_REPORT_END');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_START, 'TEXT_REPORT_START', 'Verify package constant otap_util.CFG_TEXT_REPORT_START');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_TOTAL, 'TEXT_REPORT_TOTAL', 'Verify package constant otap_util.CFG_TEXT_REPORT_TOTAL');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_HEADER, 'TEXT_RESULT_HEADER', 'Verify package constant otap_util.CFG_TEXT_RESULT_HEADER');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_LINE, 'TEXT_RESULT_LINE', 'Verify package constant otap_util.CFG_TEXT_RESULT_LINE');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_HEADER, 'TEXT_TEST_COUNT_HEADER', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_HEADER');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_NAME, 'TEXT_TEST_COUNT_NAME', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_NAME');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_FAILED, 'TEXT_TEST_FAILED', 'Verify package constant otap_util.CFG_TEXT_TEST_FAILED');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_PASSED, 'TEXT_TEST_PASSED', 'Verify package constant otap_util.CFG_TEXT_TEST_PASSED');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_UNDEFINED, 'TEXT_TEST_UNDEFINED', 'Verify package constant otap_util.CFG_TEXT_TEST_UNDEFINED');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE, 'TEXT_TRUE', 'Verify package constant otap_util.CFG_TEXT_TRUE');
+  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE_YES, 'TEXT_TRUE_YES', 'Verify package constant otap_util.CFG_TEXT_TRUE_YES');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_BOOLEAN, 'LABEL_BOOLEAN', 'Verify package constant otap_util.CFG_LABEL_BOOLEAN');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CHECK, 'LABEL_CHECK', 'Verify package constant otap_util.CFG_LABEL_CHECK');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CLUSTER, 'LABEL_CLUSTER', 'Verify package constant otap_util.CFG_LABEL_CLUSTER');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_COLUMN, 'LABEL_COLUMN', 'Verify package constant otap_util.CFG_LABEL_COLUMN');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSTRAINT, 'LABEL_CONSTRAINT', 'Verify package constant otap_util.CFG_LABEL_CONSTRAINT');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSUMER_GROUP, 'LABEL_CONSUMER_GROUP', 'Verify package constant otap_util.CFG_LABEL_CONSUMER_GROUP');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONTEXT, 'LABEL_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_CONTEXT');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_CREDENTIAL, 'LABEL_CREDENTIAL', 'Verify package constant otap_util.CFG_LABEL_CREDENTIAL');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATABASE, 'LABEL_DATABASE', 'Verify package constant otap_util.CFG_LABEL_DATABASE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATE, 'LABEL_DATE', 'Verify package constant otap_util.CFG_LABEL_DATE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DESTINATION, 'LABEL_DESTINATION', 'Verify package constant otap_util.CFG_LABEL_DESTINATION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIMENSION, 'LABEL_DIMENSION', 'Verify package constant otap_util.CFG_LABEL_DIMENSION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIRECTORY, 'LABEL_DIRECTORY', 'Verify package constant otap_util.CFG_LABEL_DIRECTORY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_DOMAIN, 'LABEL_DOMAIN', 'Verify package constant otap_util.CFG_LABEL_DOMAIN');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EDITION, 'LABEL_EDITION', 'Verify package constant otap_util.CFG_LABEL_EDITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EVALUATION_CONTEXT, 'LABEL_EVALUATION_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_EVALUATION_CONTEXT');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_EXCEPTION, 'LABEL_EXCEPTION', 'Verify package constant otap_util.CFG_LABEL_EXCEPTION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_FOREIGN_KEY, 'LABEL_FOREIGN_KEY', 'Verify package constant otap_util.CFG_LABEL_FOREIGN_KEY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_FUNCTION, 'LABEL_FUNCTION', 'Verify package constant otap_util.CFG_LABEL_FUNCTION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_HASH, 'LABEL_HASH', 'Verify package constant otap_util.CFG_LABEL_HASH');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX, 'LABEL_INDEX', 'Verify package constant otap_util.CFG_LABEL_INDEX');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEXTYPE, 'LABEL_INDEXTYPE', 'Verify package constant otap_util.CFG_LABEL_INDEXTYPE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_PARTITION, 'LABEL_INDEX_PARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_PARTITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_SUBPARTITION, 'LABEL_INDEX_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_SUBPARTITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'LABEL_INVALID_CONSTRAINT_TYPE', 'Verify package constant otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_CLASS, 'LABEL_JAVA_CLASS', 'Verify package constant otap_util.CFG_LABEL_JAVA_CLASS');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_DATA, 'LABEL_JAVA_DATA', 'Verify package constant otap_util.CFG_LABEL_JAVA_DATA');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_RESOURCE, 'LABEL_JAVA_RESOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_RESOURCE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_SOURCE, 'LABEL_JAVA_SOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_SOURCE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB, 'LABEL_JOB', 'Verify package constant otap_util.CFG_LABEL_JOB');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB_CLASS, 'LABEL_JOB_CLASS', 'Verify package constant otap_util.CFG_LABEL_JOB_CLASS');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LIBRARY, 'LABEL_LIBRARY', 'Verify package constant otap_util.CFG_LABEL_LIBRARY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB, 'LABEL_LOB', 'Verify package constant otap_util.CFG_LABEL_LOB');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB_PARTITION, 'LABEL_LOB_PARTITION', 'Verify package constant otap_util.CFG_LABEL_LOB_PARTITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_MATERIALIZED_VIEW, 'LABEL_MATERIALIZED_VIEW', 'Verify package constant otap_util.CFG_LABEL_MATERIALIZED_VIEW');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_MLE_LANGUAGE, 'LABEL_MLE_LANGUAGE', 'Verify package constant otap_util.CFG_LABEL_MLE_LANGUAGE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NOT_NULL, 'LABEL_NOT_NULL', 'Verify package constant otap_util.CFG_LABEL_NOT_NULL');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NULL, 'LABEL_NULL', 'Verify package constant otap_util.CFG_LABEL_NULL');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_NUMBER, 'LABEL_NUMBER', 'Verify package constant otap_util.CFG_LABEL_NUMBER');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_OPERATOR, 'LABEL_OPERATOR', 'Verify package constant otap_util.CFG_LABEL_OPERATOR');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE, 'LABEL_PACKAGE', 'Verify package constant otap_util.CFG_LABEL_PACKAGE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE_BODY, 'LABEL_PACKAGE_BODY', 'Verify package constant otap_util.CFG_LABEL_PACKAGE_BODY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PRIMARY_KEY, 'LABEL_PRIMARY_KEY', 'Verify package constant otap_util.CFG_LABEL_PRIMARY_KEY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROCEDURE, 'LABEL_PROCEDURE', 'Verify package constant otap_util.CFG_LABEL_PROCEDURE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROGRAM, 'LABEL_PROGRAM', 'Verify package constant otap_util.CFG_LABEL_PROGRAM');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_QUEUE, 'LABEL_QUEUE', 'Verify package constant otap_util.CFG_LABEL_QUEUE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_REF_COLUMN, 'LABEL_REF_COLUMN', 'Verify package constant otap_util.CFG_LABEL_REF_COLUMN');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RESOURCE_PLAN, 'LABEL_RESOURCE_PLAN', 'Verify package constant otap_util.CFG_LABEL_RESOURCE_PLAN');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_ROLE, 'LABEL_ROLE', 'Verify package constant otap_util.CFG_LABEL_ROLE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE, 'LABEL_RULE', 'Verify package constant otap_util.CFG_LABEL_RULE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE_SET, 'LABEL_RULE_SET', 'Verify package constant otap_util.CFG_LABEL_RULE_SET');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULE, 'LABEL_SCHEDULE', 'Verify package constant otap_util.CFG_LABEL_SCHEDULE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_GROUP, 'LABEL_SCHEDULER_GROUP', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_GROUP');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_JOB, 'LABEL_SCHEDULER_JOB', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_JOB');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SEQUENCE, 'LABEL_SEQUENCE', 'Verify package constant otap_util.CFG_LABEL_SEQUENCE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'LABEL_SUPPLEMENTAL_LOGGGING', 'Verify package constant otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_SYNONYM, 'LABEL_SYNONYM', 'Verify package constant otap_util.CFG_LABEL_SYNONYM');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE, 'LABEL_TABLE', 'Verify package constant otap_util.CFG_LABEL_TABLE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_PARTITION, 'LABEL_TABLE_PARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_PARTITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_SUBPARTITION, 'LABEL_TABLE_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_SUBPARTITION');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TRIGGER, 'LABEL_TRIGGER', 'Verify package constant otap_util.CFG_LABEL_TRIGGER');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE, 'LABEL_TYPE', 'Verify package constant otap_util.CFG_LABEL_TYPE');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE_BODY, 'LABEL_TYPE_BODY', 'Verify package constant otap_util.CFG_LABEL_TYPE_BODY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNDEFINED, 'LABEL_UNDEFINED', 'Verify package constant otap_util.CFG_LABEL_UNDEFINED');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY, 'LABEL_UNIFIED_AUDIT_POLICY', 'Verify package constant otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIQUE_KEY, 'LABEL_UNIQUE_KEY', 'Verify package constant otap_util.CFG_LABEL_UNIQUE_KEY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_USER, 'LABEL_USER', 'Verify package constant otap_util.CFG_LABEL_USER');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VARCHAR2, 'LABEL_VARCHAR2', 'Verify package constant otap_util.CFG_LABEL_VARCHAR2');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW, 'LABEL_VIEW', 'Verify package constant otap_util.CFG_LABEL_VIEW');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_CHECK, 'LABEL_VIEW_CHECK', 'Verify package constant otap_util.CFG_LABEL_VIEW_CHECK');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'Verify package constant otap_util.CFG_LABEL_VIEW_READONLY');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'Verify package constant otap_util.CFG_LABEL_WINDOW');
+  l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'Verify package constant otap_util.CFG_LABEL_XML_SCHEMA');
   -- check functionality is_number
   l_return := otap_test.ok(otap_util.is_number('1'), 'otap_util.is_number simple number');
   l_return := otap_test.ok((NOT otap_util.is_number('A')), 'otap_util.is_number simple char fails');
@@ -219,8 +218,6 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_ERROR);', -20001, NULL, 'otap_util.validate_config_name config text summary error no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_SUMMARY_SUCCESS);', -20001, NULL, 'otap_util.validate_config_name config text summary success no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text test count header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_NAME);', -20001, NULL, 'otap_util.validate_config_name config text test count name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'otap_util.validate_config_name config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
@@ -469,24 +466,7 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_constants.OTAP_CFG_DEBUG_MODE);', -20020, NULL, 'otap_util.validate_translatable config value not translatable exception');
   l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_DEFAULT_TEST_SET);', -20020, NULL, 'otap_util.validate_translatable config value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_LABEL_BOOLEAN);', -20020, NULL, 'otap_util.validate_translatable label value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-  l_return := otap_test.is_eq(otap_util.get_config_value(otap_util.CFG_DEFAULT_PREFIX), 'TEST', 'otap_util.get_config_value get config value as text');
   l_return := otap_test.is_eq(otap_util.get_config_value('Not exists'), 'OTAP_ERROR', 'otap_util.get_config_value get invalid config value as text');
-  -- save the current configuration for style lower, upper, init capitals
-  SELECT config_value INTO l_label_style FROM otap_config WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN;
-  -- set the configuration temporarily and test this configuration
-  UPDATE otap_config SET config_value = otap_constants.OTAP_LABEL_LOWER WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN;
-  COMMIT;
-  l_return := otap_test.is_eq(otap_util.get_config_value(otap_util.CFG_LABEL_BOOLEAN), 'boolean', 'otap_util.get_config_value label as text format lower');
-  UPDATE otap_config SET config_value = otap_constants.OTAP_LABEL_UPPER WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN;
-  COMMIT;
-  l_return := otap_test.is_eq(otap_util.get_config_value(otap_util.CFG_LABEL_BOOLEAN), 'BOOLEAN', 'otap_util.get_config_value label as text format upper');
-  UPDATE otap_config SET config_value = otap_constants.OTAP_LABEL_INIT_CAP WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN;
-  COMMIT;
-  l_return := otap_test.is_eq(otap_util.get_config_value(otap_util.CFG_LABEL_BOOLEAN), 'Boolean', 'otap_util.get_config_value label as text format initial capitals');
-  -- restore the original value
-  UPDATE otap_config SET config_value = l_label_style WHERE config_name = otap_util.CFG_DEFAULT_LABEL_COLUMN;
-  COMMIT;
-  l_return := otap_test.is_eq(otap_util.get_config_number(otap_constants.OTAP_CFG_DEBUG_MODE), 0, 'otap_util.get_config_number get config value as number');
   l_return := otap_test.ok((otap_util.get_config_number('Debuck_mode') IS NULL), 'otap_util.get_config_number get invalid config value as number');
   l_return := otap_test.is_eq(otap_util.get_label_id('BOOLEAN'), otap_util.CFG_LABEL_BOOLEAN, 'otap_util.get_label_id BOOLEAN');
   l_stamp  := SYSTIMESTAMP;
@@ -506,14 +486,6 @@ BEGIN
    WHERE otap_identifier IN ( otap_util.CFG_TEXT_TEST_UNDEFINED
                             , otap_util.CFG_TEXT_TEST_PASSED
                             , otap_util.CFG_TEXT_TEST_FAILED
-                            )
-     AND language_id      = otap_constants.OTAP_INTERNAL_NA
-  ;
-  SELECT otap_test.is_eq(otap_util.get_length_summary_state, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_summary_state')
-    INTO l_return
-    FROM otap_identifiers_v
-   WHERE otap_identifier IN ( otap_util.CFG_TEXT_SUMMARY_ERROR
-                            , otap_util.CFG_TEXT_SUMMARY_SUCCESS
                             )
      AND language_id      = otap_constants.OTAP_INTERNAL_NA
   ;
@@ -1287,89 +1259,9 @@ BEGIN
      AND test_errors    IS NOT NULL
   ;
   l_return := otap_test.is_eq(otap_util.max_text_size(l_testing_id), 80, 'otap_util.max_text_size expected max length');
-  -- ramp up result cleanup
-  l_setup_start := SYSTIMESTAMP;
-  -- disable job, if active
-  DBMS_SCHEDULER.DISABLE(name => 'OTAP_MAINTENANCE', force => TRUE);
-  -- create batch size + 1 record for delete
-  l_batch_size := otap_util.get_config_number(otap_util.CFG_DELETE_BATCH_SIZE) + 1;
-  -- create batch size +1 records with simulated testing session id
-  FOR rec IN 1..l_batch_size
-  LOOP
-    otap_util.write_test_result(otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_TEST_PASSED, l_testing_id, NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);
-  END LOOP;
-  -- turn off trigger to be able set an older date
-  EXECUTE IMMEDIATE 'ALTER TRIGGER otap_results_upd_trg DISABLE';
-  -- update to a date old enough to beat highest possible value
-  UPDATE otap_results
-     SET to_delete       = otap_constants.OTAP_NUM_TRUE
-       , deleted_by      = USER
-       , test_run_date   = TRUNC(SYSDATE - 9)
-   WHERE test_session_id = l_testing_id
-  ;
-  COMMIT;
-  -- enable trigger again
-  EXECUTE IMMEDIATE 'ALTER TRIGGER otap_results_upd_trg ENABLE';
-  -- get amount of batches to execute, might be more than only the test records
-  SELECT FLOOR(COUNT(*) / otap_util.get_config_number(otap_util.CFG_DELETE_BATCH_SIZE))
-    INTO l_batches
-    FROM otap_results
-   WHERE to_delete      = otap_constants.OTAP_NUM_TRUE
-     AND test_run_date <= TRUNC(SYSDATE - otap_util.get_config_number(otap_util.CFG_PRESERVE_DAYS))
-  ;
-  -- set debug to be able to control debug log messages
-  UPDATE otap_config SET config_value = '1' WHERE config_name = otap_constants.OTAP_CFG_DEBUG_MODE;
-  COMMIT;
-  l_stamp  := SYSTIMESTAMP;
-  -- run cleaunup, will delete all simulated session id records
-  otap_util.result_cleanup;
-  l_finish := SYSTIMESTAMP;
-  -- disable debug mode again
-  UPDATE otap_config SET config_value = '0' WHERE config_name = otap_constants.OTAP_CFG_DEBUG_MODE;
-  COMMIT;
-  l_setup_end := SYSTIMESTAMP;
-  -- now check otap_results
-  SELECT otap_test.is_eq(COUNT(*), 0, 'otap_util.result_cleanup verify delete')
-    INTO l_return
-    FROM otap_results
-   WHERE test_session_id = l_testing_id
-  ;
-  -- verify debug messages
-  SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.result_cleanup verify debug start log message')
-    INTO l_return
-    FROM sperrorlog
-   WHERE identifier   = 'OTAP_DEBUG'
-     AND script    LIKE 'otap_util.result_cleanup'
-     AND statement LIKE 'Procedure start'
-     AND message   LIKE 'Start delete with batch size%'
-     AND timestamp   >= l_stamp
-     AND timestamp   <= l_finish
-  ;
-  SELECT otap_test.is_eq(COUNT(*), l_batches, 'otap_util.result_cleanup verify debug batch messages')
-    INTO l_return
-    FROM sperrorlog
-   WHERE identifier   = 'OTAP_DEBUG'
-     AND script    LIKE 'otap_util.result_cleanup'
-     AND statement LIKE 'Batch size reached and wait'
-     AND message   LIKE 'Batch size reached, commit and wait. Processed records%'
-     AND timestamp   >= l_stamp
-     AND timestamp   <= l_finish
-  ;
-  SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.result_cleanup verify debug end log message')
-    INTO l_return
-    FROM sperrorlog
-   WHERE identifier   = 'OTAP_DEBUG'
-     AND script    LIKE 'otap_util.result_cleanup'
-     AND statement LIKE 'Procedure end'
-     AND message   LIKE 'Processed%records for delete%'
-     AND timestamp   >= l_stamp
-     AND timestamp   <= l_finish
-  ;
-  -- enable job again
-  DBMS_SCHEDULER.ENABLE(name => 'OTAP_MAINTENANCE');
-  -- time preparation diff seconds
-  l_curr_date := SYSDATE;
-  l_runtime   := l_curr_date + ((l_setup_end - l_setup_start) * 86400) - l_curr_date;
-  l_return    := otap_test.ok(l_runtime < 20, 'otap_util.result_cleanup preparation performance seconds: ' || TO_CHAR(l_runtime, '90.09') || ' < 20');
+EXCEPTION
+  WHEN OTHERS THEN
+    otap_log.log('Test block OTAP_UTIL failed', 'otap_util.sql', SQLERRM);
+    l_return := otap_test.test_error('Complete test block OTAP_UTIL failed', SQLERRM);
 END;
 /

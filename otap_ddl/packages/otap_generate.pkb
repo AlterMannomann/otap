@@ -1342,7 +1342,7 @@ AS
       PIPE ROW (otap_view_result_rec(rec.result_text, NULL));
     END LOOP;
     l_pad_par := otap_generate.get_code_prefix_len + 21;
-    l_statement :=  otap_generate.get_code_prefix || 'otap_test.set_group_name(''trigger'')' || otap_generate.get_code_postfix;
+    l_statement :=  otap_generate.get_code_prefix || 'otap_test.set_test_group(''trigger'')' || otap_generate.get_code_postfix;
     PIPE ROW (otap_view_result_rec(l_statement, NULL));
     SELECT COUNT(*) INTO l_count FROM dba_triggers WHERE owner = l_schema AND table_name IS NOT NULL;
     IF l_count > 0
@@ -2368,6 +2368,10 @@ AS
       IF NOT otap_string.is_sys_object(rec.sequence_name, 1)
       THEN
         l_statement := LPAD(' ', l_pad_par, ' ') || ', p_sequence_name => ''' || rec.sequence_name || '''';
+        PIPE ROW (otap_view_result_rec(l_statement, NULL));
+      ELSE
+        -- p_sequence_name is mandatory
+        l_statement := LPAD(' ', l_pad_par, ' ') || ', p_sequence_name => NULL';
         PIPE ROW (otap_view_result_rec(l_statement, NULL));
       END IF;
       IF rec.table_name IS NOT NULL

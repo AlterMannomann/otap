@@ -142,5 +142,9 @@ BEGIN
   l_return := otap_test.ok(otap_string.is_sys_object('SYSAUTH$'), 'otap_string.is_sys_object typical sys object $');
   l_return := otap_test.ok(otap_string.is_sys_object('SYS_LOB0000000157C00003$$'), 'otap_string.is_sys_object typical sys object lobs');
   l_return := otap_test.ok(otap_string.is_sys_object('I_FILE#_BLOCK#'), 'otap_string.is_sys_object typical sys object #');
+EXCEPTION
+  WHEN OTHERS THEN
+    otap_log.log('Test block OTAP_STRING failed', 'otap_string.sql', SQLERRM);
+    l_return := otap_test.test_error('Complete test block OTAP_STRING failed', SQLERRM);
 END;
 /

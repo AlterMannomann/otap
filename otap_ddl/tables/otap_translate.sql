@@ -20,7 +20,7 @@ CREATE TABLE otap_translate
 COMMENT ON TABLE otap_translate IS 'Provides the possibility for translation of otap templates, formattings and labels.';
 COMMENT ON COLUMN otap_translate.otap_identifier IS 'Must match either the config_name in OTAP_CONFIG or the otap_identifier in OTAP_LABELS_MV to be considered. Primary key.';
 COMMENT ON COLUMN otap_translate.label_text IS 'Contains the translation for the template, formatting or label';
-COMMENT ON COLUMN otap_translate.language_id IS 'The 3 char language code the translation belongs to. Default language is defined in OTAP_CONFIG and must match.';
+COMMENT ON COLUMN otap_translate.language_id IS 'The 3 char language code the translation belongs to. Never use T$O, this is the internal intrusive test language id. Default language is defined in OTAP_CONFIG and must match.';
 COMMENT ON COLUMN otap_translate.created IS 'Date created, managed by default and trigger.';
 COMMENT ON COLUMN otap_translate.updated IS 'Date updated, managed by default and trigger.';
 COMMENT ON COLUMN otap_translate.created_by IS 'DB user who created the record, managed by default and trigger.';

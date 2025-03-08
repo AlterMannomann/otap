@@ -11,13 +11,13 @@ AS
   -- DONT FORGET on updates of config_names to update validate_config_name
   CFG_DEFAULT_BORDER                CONSTANT CHAR(14)   := 'DEFAULT_BORDER';
   CFG_DEFAULT_LABEL_COLUMN          CONSTANT CHAR(20)   := 'DEFAULT_LABEL_COLUMN';
+  CFG_DEFAULT_LANGUAGE              CONSTANT CHAR(16)   := 'DEFAULT_LANGUAGE';
   CFG_DEFAULT_LAYOUT                CONSTANT CHAR(14)   := 'DEFAULT_LAYOUT';
   CFG_DEFAULT_PREFIX                CONSTANT CHAR(14)   := 'DEFAULT_PREFIX';
   CFG_DEFAULT_RESULT_LAYOUT         CONSTANT CHAR(21)   := 'DEFAULT_RESULT_LAYOUT';
   CFG_DEFAULT_TEST_GROUP            CONSTANT CHAR(18)   := 'DEFAULT_TEST_GROUP';
   CFG_DEFAULT_TEST_NAME             CONSTANT CHAR(17)   := 'DEFAULT_TEST_NAME';
   CFG_DEFAULT_TEST_SET              CONSTANT CHAR(16)   := 'DEFAULT_TEST_SET';
-  CFG_DEFAULT_LANGUAGE              CONSTANT CHAR(16)   := 'DEFAULT_LANGUAGE';
   CFG_DELETE_BATCH_SIZE             CONSTANT CHAR(17)   := 'DELETE_BATCH_SIZE';
   CFG_DELETE_DELAY                  CONSTANT CHAR(12)   := 'DELETE_DELAY';
   CFG_FORMAT_GROUP_CHAR             CONSTANT CHAR(17)   := 'FORMAT_GROUP_CHAR';
@@ -50,8 +50,7 @@ AS
   CFG_TEXT_REPORT_TOTAL             CONSTANT CHAR(17)   := 'TEXT_REPORT_TOTAL';
   CFG_TEXT_RESULT_HEADER            CONSTANT CHAR(18)   := 'TEXT_RESULT_HEADER';
   CFG_TEXT_RESULT_LINE              CONSTANT CHAR(16)   := 'TEXT_RESULT_LINE';
-  CFG_TEXT_SUMMARY_ERROR            CONSTANT CHAR(18)   := 'TEXT_SUMMARY_ERROR';
-  CFG_TEXT_SUMMARY_SUCCESS          CONSTANT CHAR(20)   := 'TEXT_SUMMARY_SUCCESS';
+  CFG_TEXT_SUMMARY_HEADER           CONSTANT CHAR(19)   := 'TEXT_SUMMARY_HEADER';
   CFG_TEXT_TEST_COUNT_HEADER        CONSTANT CHAR(22)   := 'TEXT_TEST_COUNT_HEADER';
   CFG_TEXT_TEST_COUNT_NAME          CONSTANT CHAR(20)   := 'TEXT_TEST_COUNT_NAME';
   CFG_TEXT_TEST_FAILED              CONSTANT CHAR(16)   := 'TEXT_TEST_FAILED';
@@ -303,19 +302,6 @@ AS
     RETURN NUMBER
   ;
 
-
-  /** FUNCTION otap_util.get_length_summary_state
-  * Checks the defined text representations of summary state SUCCESS and ERROR to
-  * determine the maximum length a string needs. Used during formatting reports.
-  *
-  * @param p_language_id A valid or existing language id.
-  *
-  * @return The maximum length of summary states defined in OTAP_CONFIG.
-  */
-  FUNCTION get_length_summary_state(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
-    RETURN NUMBER
-  ;
-
   /** FUNCTION otap_util.get_length_headers
   * Checks the defined text representations of report headers to
   * determine the maximum length a string needs. Used during formatting reports.
@@ -329,7 +315,7 @@ AS
   ;
 
   /** FUNCTION otap_util.get_length_result_headers
-  * Checks the defined text representations of result headers to
+  * Checks the defined text representations of result/summary headers to
   * determine the maximum length a string needs. Used during formatting reports.
   *
   * @param p_language_id A valid or existing language id.

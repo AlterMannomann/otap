@@ -69,5 +69,7 @@ EXCEPTION
     UPDATE otap_config SET config_value = l_layout_bkp WHERE config_name = otap_util.CFG_DEFAULT_LAYOUT;
     UPDATE otap_config SET config_value = l_border_bkp WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
     COMMIT;
+    otap_log.log('Test block OTAP_REPORT failed', 'otap_report.sql', SQLERRM);
+    l_return := otap_test.test_error('Complete test block OTAP_REPORT failed', SQLERRM);
 END;
 /

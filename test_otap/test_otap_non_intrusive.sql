@@ -20,11 +20,11 @@ SELECT 'otap_test_run' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') AS IDENT
 -- try again with identifier
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- spool the test run
-SPOOL otap_test_run.log
+SPOOL otap_test_run_ni.log
 -- init the session
 -- do not make a count test, set some defaults
-SELECT otap_test.init_test( p_test_count => 1070
-                          , p_test_set => 'OTAP full system test'
+SELECT otap_test.init_test( p_test_count => 1065
+                          , p_test_set => 'OTAP non-intrusive system test'
                           )
   FROM dual
 ;
@@ -32,24 +32,14 @@ SELECT otap_test.init_test( p_test_count => 1070
 -- call directory master scripts
 @@test_functionality/test_basics/test_basic_master.sql
 @@test_schema/test_schema_master.sql
-@@test_functionality/test_main/test_main_master.sql
-
-
-SELECT otap_test.set_test_group('OTAP test setup') FROM dual;
-SELECT otap_test.set_test_name('Check SPERRORLOG for test run') FROM dual;
--- check errors
-SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_CHAR(message)) AS error_msg
-  FROM sperrorlog
- WHERE identifier = '&IDENT'
- ORDER BY timestamp
-;
+@@test_functionality/test_main/test_main_non_intrusive.sql
 
 -- finish test
 SELECT otap_test.finish_test FROM dual;
 SPOOL OFF
 -- write report
 @@../setup/util/log_silent.sql
-SPOOL otap_test_result.log
+SPOOL otap_test_result_ni.log
 SELECT result_text FROM otap_latest_test_results_v;
 SPOOL OFF
 -- exit

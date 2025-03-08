@@ -165,7 +165,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_report_header
-  * @see otap_report.get_report_header and otap_test.get_report_header
+  * @see otap_report.get_report_header
   */
   FUNCTION get_report_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -174,7 +174,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_session_id_text
-  * @see otap_report.get_session_id_text and otap_test.get_session_id_text
+  * @see otap_report.get_session_id_text
   */
   FUNCTION get_session_id_text( p_session_id  IN NUMBER
                               , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -184,7 +184,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_set_text
-  * @see otap_report.get_set_text and otap_test.get_set_text
+  * @see otap_report.get_set_text
   */
   FUNCTION get_set_text( p_test_set    IN VARCHAR2
                        , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -193,11 +193,21 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.get_summary_header
+  * @see otap_report.get_summary_header
+  */
+  FUNCTION get_summary_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                             )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.get_summary
-  * @see otap_report.get_summary and otap_test.get_summary
-  * Calculates status needed by errors and issues.
+  * @see otap_report.get_summary
+  * Calculates overall status by given errors and issues.
   */
   FUNCTION get_summary( p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      , p_exectime    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs        IN NUMBER   DEFAULT 0
                       , p_errors      IN NUMBER   DEFAULT 0
                       , p_issues      IN NUMBER   DEFAULT 0
@@ -208,7 +218,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_group_text
-  * @see otap_report.get_group_text and otap_test.get_group_text
+  * @see otap_report.get_group_text
   */
   FUNCTION get_group_text( p_test_group  IN VARCHAR2
                          , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -218,7 +228,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_test_name_text
-  * @see otap_report.get_test_name_text and otap_test.get_test_name_text
+  * @see otap_report.get_test_name_text
   */
   FUNCTION get_test_name_text( p_test_name   IN VARCHAR2
                              , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -228,7 +238,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_result_header
-  * @see otap_report.get_result_header and otap_test.get_result_header
+  * @see otap_report.get_result_header
   */
   FUNCTION get_result_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -237,7 +247,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_result_underline
-  * @see otap_report.get_result_underline and otap_test.get_result_underline
+  * @see otap_report.get_result_underline
   */
   FUNCTION get_result_underline( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -246,7 +256,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_result_line
-  * @see otap_report.get_result_line and otap_test.get_result_line
+  * @see otap_report.get_result_line
   */
   FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                           , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
@@ -268,7 +278,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_error_result_header
-  * @see otap_report.get_error_result_header and otap_test.get_error_result_header
+  * @see otap_report.get_error_result_header
   */
   FUNCTION get_error_result_header( p_test_name   IN VARCHAR2
                                   , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -278,7 +288,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_error_details
-  * @see otap_report.get_error_details and otap_test.get_error_details
+  * @see otap_report.get_error_details
   */
   FUNCTION get_error_details( p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                             , p_error_info  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -289,7 +299,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_no_data_text
-  * @see otap_report.get_no_data_text and otap_report.get_no_data_text
+  * @see otap_report.get_no_data_text
   */
   FUNCTION get_no_data_text( p_session_id  IN NUMBER
                            , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
@@ -299,7 +309,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_report_footer
-  * @see otap_report.get_report_footer and otap_test.get_report_footer
+  * @see otap_report.get_report_footer
   */
   FUNCTION get_report_footer( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -324,7 +334,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_test_count_header
-  * @see otap_report.get_test_count_header and otap_test.get_test_count_header
+  * @see otap_report.get_test_count_header
   */
   FUNCTION get_test_count_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                 , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -333,7 +343,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_report_total
-  * @see otap_report.get_report_total and otap_test.get_report_total
+  * @see otap_report.get_report_total
   */
   FUNCTION get_report_total( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                            , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
@@ -342,7 +352,7 @@ AS
   ;
 
   /** FUNCTION otap_api.get_report_total_details
-  * @see otap_report.get_report_total_details and otap_test.get_report_total_details
+  * @see otap_report.get_report_total_details
   */
   FUNCTION get_report_total_details( p_sets         IN INTEGER  DEFAULT 0
                                    , p_groups       IN INTEGER  DEFAULT 0
@@ -728,6 +738,27 @@ AS
                       , p_expected_result IN            NUMBER       DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
                       , p_schema          IN            VARCHAR2     DEFAULT NULL
                       )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.test_error
+  * Provides a possibility to report script errors to test sessions, that are not discovered by tests itself.
+  * Usually using SPERRORLOG and an error identifier during script runs or in exception blocks. Test errors
+  * are always considered as UNDEFINED as tests have not been executed as intended. Does not execute any test
+  * only writes an test error record.
+  *
+  * @param p_description Mandatory. The description of the identified error.
+  * @param p_errors Mandatory. The identified error messages like SQLERRM or MESSAGE column of SPERRORLOG.
+  * @param o_otap_session Mandatory. The session record from otap_test.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+  *
+  * @return Always an otap_constants.OTAP_NUM_TEST_UNDEFINED result message using the description given.
+  */
+  FUNCTION test_error( p_description     IN            VARCHAR2
+                     , p_errors          IN            VARCHAR2
+                     , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     )
     RETURN VARCHAR2
   ;
 

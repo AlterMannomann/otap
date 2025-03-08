@@ -934,6 +934,25 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_test.test_error
+  * Provides a possibility to report script errors to test sessions, that are not discovered by tests itself.
+  * Usually using SPERRORLOG and an error identifier during script runs or in exception blocks. Test errors
+  * are always considered as UNDEFINED as tests have not been executed as intended. Does not execute any test
+  * only writes an test error record.
+  *
+  * @param p_description Mandatory. The description of the identified error.
+  * @param p_errors Mandatory. The identified error messages like SQLERRM or MESSAGE column of SPERRORLOG.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+  *
+  * @return Always an otap_constants.OTAP_NUM_TEST_UNDEFINED result message using the description given.
+  */
+  FUNCTION test_error( p_description     IN            VARCHAR2
+                     , p_errors          IN            VARCHAR2
+                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+                     )
+    RETURN VARCHAR2
+  ;
+
   -- generate functionality, all generate functions only require the otap user role as they operate on meta data
 
   /** PROCEDURE otap_test.generate_set_type

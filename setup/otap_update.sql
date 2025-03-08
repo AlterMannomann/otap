@@ -17,8 +17,22 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 SPOOL logs/otap_update.log
 -- update config data
 UPDATE otap_config
-   SET config_value = 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@ exec time: @runtime@'
+   SET config_value = 'sets: @sets@ groups: @groups@ names: @names@ descriptions: @descs@'
  WHERE config_name = 'TEMPLATE_REPORT_TOTAL'
+;
+UPDATE otap_config
+   SET config_value = '@status@ @runtime@ @exectime@ runs: @runs@ errors: @errors@ issues: @issues@'
+ WHERE config_name = 'TEMPLATE_SUMMARY'
+;
+UPDATE otap_config
+   SET config_max_length  = 50
+     , config_description = 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Adjust summary header if longer than 7 chars. Limited to 50 chars, recommended as short as possible.'
+ WHERE config_name = 'TEXT_SUMMARY_SUCCESS'
+;
+UPDATE otap_config
+   SET config_max_length  = 50
+     , config_description = 'Used in templates as information text if a set, group or test name has executed with errors. Extended by the category specific information. Adjust summary header if longer than 7 chars. Limited to 50 chars, recommended as short as possible.'
+ WHERE config_name = 'TEXT_SUMMARY_ERROR'
 ;
 COMMIT;
 -- reinstall session object
@@ -67,6 +81,19 @@ INSERT INTO otap_config
     FROM dual
    WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'DEFAULT_LANGUAGE') = 0
 ;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  SELECT 'TEXT_SUMMARY_HEADER' AS config_name
+       , 'Overall   Runtime             Execution time      Details' AS config_value
+       , 'CHAR' AS config_type
+       , 256 AS config_max_length
+       , 1 AS translatable
+       , 'Used in templates as summary header, depending on formatting and size of summary success and error. If the strings are longer than 7 chars the header line must be adjusted. Limited to 256, recommended shorter than 80 chars.' AS config_description
+    FROM dual
+   WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'TEXT_SUMMARY_HEADER') = 0
+;
+-- delete unused config values after package update
+DELETE FROM otap_config WHERE config_name IN ('TEXT_SUMMARY_SUCCESS', 'TEXT_SUMMARY_ERROR');
 COMMIT;
 -- recompile invalidated objects by package recreates
 EXEC DBMS_UTILITY.COMPILE_SCHEMA(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), FALSE);

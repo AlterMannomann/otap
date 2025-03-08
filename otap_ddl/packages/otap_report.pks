@@ -155,12 +155,27 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_report.get_summary_header
+  * The defined header line for summary reports.
+  *
+  * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
+  * @param p_language_id A valid or existing language id.
+  *
+  * @return The summary header as defined in OTAP_CONFIG.
+  */
+  FUNCTION get_summary_header( p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                             , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                             )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_report.get_summary
   * Does minor NVL handling, if status is NULL will result in ERROR, other NULLS
   * result in N/A.
   *
   * @param p_status A valid summary status as configured in OTAP_CONFIG.
-  * @param p_runtime The runtime of set, group or test name as string.
+  * @param p_runtime The runtime of set, group or test name as string. The time from start of tests to end of tests.
+  * @param p_exectime The execution time of the tests in a set, group or test name as string. The pure test functions execution time.
   * @param p_runs The amount of executed test runs for set, group or test name.
   * @param p_errors The amount test runs with errors for set, group or test name.
   * @param p_issues The amount internal issues for set, group or test name.
@@ -171,6 +186,7 @@ AS
   */
   FUNCTION get_summary( p_status      IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
                       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                      , p_exectime    IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                       , p_runs        IN NUMBER   DEFAULT 0
                       , p_errors      IN NUMBER   DEFAULT 0
                       , p_issues      IN NUMBER   DEFAULT 0

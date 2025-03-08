@@ -36,34 +36,9 @@ BEGIN
      AND timestamp         >= l_stamp
   ;
   l_return := otap_test.throws_ok('otap_log.log(RPAD(''X'', 38000, ''x''));', -6502, NULL, 'Check exception on message too long for VARCHAR2');
-  l_stamp := SYSTIMESTAMP;
-  otap_log.log(p_log_message => 'OTAP_TEST: Should not log with identifier not OTAP_ERROR', p_identifier => 'MY DEBUG');
-  SELECT otap_test.is_eq(COUNT(*), 0, 'Check only error logging if not debug mode')
-    INTO l_return
-    FROM sperrorlog
-   WHERE TO_CHAR(message)   = 'OTAP_TEST: Should not log with identifier not OTAP_ERROR'
-     AND TO_CHAR(script)    = otap_constants.OTAP_INTERNAL_NA
-     AND TO_CHAR(statement) = otap_constants.OTAP_INTERNAL_NA
-     AND identifier         = 'MY DEBUG'
-     AND username           = otap_constants.OTAP_INTERNAL_SCHEMA
-     AND timestamp         >= l_stamp
-  ;
-  UPDATE otap_config SET config_value = otap_constants.OTAP_NUM_TRUE WHERE config_name = otap_constants.OTAP_CFG_DEBUG_MODE;
-  -- commit needed due to independent transaction
-  COMMIT;
-  otap_log.log(p_log_message => 'OTAP_TEST: Should log with identifier not OTAP_ERROR', p_identifier => 'MY DEBUG');
-  SELECT otap_test.is_eq(COUNT(*), 1, 'Check debug logging')
-    INTO l_return
-    FROM sperrorlog
-   WHERE TO_CHAR(message)   = 'OTAP_TEST: Should log with identifier not OTAP_ERROR'
-     AND TO_CHAR(script)    = otap_constants.OTAP_INTERNAL_NA
-     AND TO_CHAR(statement) = otap_constants.OTAP_INTERNAL_NA
-     AND identifier         = 'MY DEBUG'
-     AND username           = otap_constants.OTAP_INTERNAL_SCHEMA
-     AND timestamp         >= l_stamp
-  ;
-  -- reset change
-  UPDATE otap_config SET config_value = otap_constants.OTAP_NUM_FALSE WHERE config_name = otap_constants.OTAP_CFG_DEBUG_MODE;
-  COMMIT;
+EXCEPTION
+  WHEN OTHERS THEN
+    otap_log.log('Test block OTAP_LOG failed', 'otap_log.sql', SQLERRM);
+    l_return := otap_test.test_error('Complete test block OTAP_LOG failed', SQLERRM);
 END;
 /

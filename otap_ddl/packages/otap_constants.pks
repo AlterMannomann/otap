@@ -44,10 +44,10 @@ AS
   OTAP_INTERNAL_VAR        CONSTANT CHAR(1)             := '@';
   OTAP_CONFIG_TYPE_NUMBER  CONSTANT CHAR(6)             := 'NUMBER';
   OTAP_CONFIG_TYPE_CHAR    CONSTANT CHAR(4)             := 'CHAR';
-
   -- no get functions for the following constants
   -- internal otap constants only usable within PLSQL
   OTAP_INTERNAL_LF                    CONSTANT CHAR(1)        := CHR(10);
+  OTAP_TEST_LANGUAGE_ID               CONSTANT CHAR(3)        := 'T$O';
   OTAP_NUM_PREFIX_MAX_SIZE            CONSTANT INTEGER        := 4;
   OTAP_LAYOUT_RIGHT                   CONSTANT CHAR(1)        := 'R';
   OTAP_LAYOUT_MIDDLE                  CONSTANT CHAR(1)        := 'M';
@@ -59,6 +59,8 @@ AS
   OTAP_GEN_TYPE_SCRIPT                CONSTANT CHAR(1)        := 'S';
   OTAP_GEN_TYPE_FUNCTION              CONSTANT CHAR(1)        := 'F';
   OTAP_GEN_TYPE_PROCEDURE             CONSTANT CHAR(1)        := 'P';
+  -- predefined language id only for testing
+
   -- otap log needs to know the debug mode access name, therefore in otap_constants, other access identifiers are in otap_util
   OTAP_CFG_DEBUG_MODE                 CONSTANT CHAR(10)       := 'DEBUG_MODE';
   -- fallback constants for access failure situations, defaults and checks
