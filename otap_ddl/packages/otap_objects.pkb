@@ -625,5 +625,31 @@ OR p_otap_session.session_view_id             IS NULL]'
       RAISE;
   END otap_session_finish;
 
+  FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
+                                  , p_set_name     IN VARCHAR2
+                                  , p_group_name   IN VARCHAR2
+                                  , p_test_name    IN VARCHAR2
+                                  )
+    RETURN OTAP_SESSION
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_test_setup';
+    l_message VARCHAR2(4000 CHAR);
+    l_copy    OTAP_SESSION;
+  BEGIN
+    l_copy            := otap_objects.otap_session_copy(p_otap_session);
+    l_copy.test_set   := NVL(p_set_name, 'Test setup');
+    l_copy.test_group := NVL(p_group_name, 'Session test setup');
+    l_copy.test_name  := NVL(p_test_name, 'Session test setup checks');
+    RETURN l_copy;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_test_setup;
+
 END;
 /

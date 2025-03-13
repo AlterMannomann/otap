@@ -23,7 +23,7 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 SPOOL otap_test_run.log
 -- init the session
 -- do not make a count test, set some defaults
-SELECT otap_test.init_test( p_test_count => 1070
+SELECT otap_test.init_test( p_test_count => 1068
                           , p_test_set => 'OTAP full system test'
                           )
   FROM dual
@@ -34,10 +34,12 @@ SELECT otap_test.init_test( p_test_count => 1070
 @@test_schema/test_schema_master.sql
 @@test_functionality/test_main/test_main_master.sql
 
-
-SELECT otap_test.set_test_group('OTAP test setup') FROM dual;
-SELECT otap_test.set_test_name('Check SPERRORLOG for test run') FROM dual;
--- check errors
+-- get setup test script execution summary
+SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPERRORLOG')
+  FROM sperrorlog
+ WHERE identifier = '&IDENT'
+;
+-- get errors if any
 SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_CHAR(message)) AS error_msg
   FROM sperrorlog
  WHERE identifier = '&IDENT'

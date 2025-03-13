@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 1070
+SQL> SELECT otap_test.init_test( p_test_count => 1068
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 27
+Test session id: 51
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 1070
+Expected tests: 1068
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 27
-Test start: 2025-03-08 19:55:38
+Current view id: 51
+Test start: 2025-03-13 04:49:22
 
 
 1 row selected.
@@ -816,6 +816,87 @@ SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column SPERRORLOG.STATEMENT exists check (OTAP)
+
+1 row selected.
+
+SQL> -- set test name for table
+SQL> SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
+Current test: table OTAP_LABELS_MV
+
+1 row selected.
+
+SQL> SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
+  2  			       , p_schema => 'OTAP'
+  3  			       ) FROM dual;
+Passed table OTAP_LABELS_MV exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'ORACLE_TYPE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_IDENTIFIER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_LOWER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_CAP'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_UPPER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_SOURCE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
 
 1 row selected.
 
@@ -1755,87 +1836,6 @@ SQL> SELECT otap_test.has_index( p_table_name => 'OTAP_TRANSLATE'
   8  			       , p_partitioned => 'NO'
   9  			       ) FROM dual;
 Passed index OTAP_TRANSLATE_PK for table OTAP_TRANSLATE.OTAP_IDENTIFIER exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for table
-SQL> SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
-Current test: table OTAP_LABELS_MV
-
-1 row selected.
-
-SQL> SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
-  2  			       , p_schema => 'OTAP'
-  3  			       ) FROM dual;
-Passed table OTAP_LABELS_MV exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'ORACLE_TYPE'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_IDENTIFIER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_LOWER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_CAP'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_UPPER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_SOURCE'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
 
 1 row selected.
 
@@ -3019,6 +3019,16 @@ Passed function OTAP_OBJECTS.OTAP_SESSION_FINISH exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'OTAP_SESSION_TEST_SETUP'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_OBJECTS'
+  5  				   , p_return_type => 'OBJECT'
+  6  				   ) FROM dual;
+Passed function OTAP_OBJECTS.OTAP_SESSION_TEST_SETUP exists check (OTAP)
+
+1 row selected.
+
 SQL> -- set test name for package
 SQL> SELECT otap_test.set_test_name('package OTAP_PLAN') FROM dual;
 Current test: package OTAP_PLAN
@@ -3716,16 +3726,6 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FLATTEN'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_API.FLATTEN exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_TEXT_TEST_COUNT_NAME'
-  2  				   , p_schema => 'OTAP'
-  3  				   , p_procedure_type => 'FUNCTION'
-  4  				   , p_package_name => 'OTAP_API'
-  5  				   , p_return_type => 'VARCHAR2'
-  6  				   ) FROM dual;
-Passed function OTAP_API.GET_TEXT_TEST_COUNT_NAME exists check (OTAP)
 
 1 row selected.
 
@@ -5653,1206 +5653,1202 @@ SQL> DECLARE
  55    l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_TOTAL, 'TEXT_REPORT_TOTAL', 'Verify package constant otap_util.CFG_TEXT_REPORT_TOTAL');
  56    l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_HEADER, 'TEXT_RESULT_HEADER', 'Verify package constant otap_util.CFG_TEXT_RESULT_HEADER');
  57    l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_LINE, 'TEXT_RESULT_LINE', 'Verify package constant otap_util.CFG_TEXT_RESULT_LINE');
- 58    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_HEADER, 'TEXT_TEST_COUNT_HEADER', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_HEADER');
- 59    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_NAME, 'TEXT_TEST_COUNT_NAME', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_NAME');
- 60    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_FAILED, 'TEXT_TEST_FAILED', 'Verify package constant otap_util.CFG_TEXT_TEST_FAILED');
- 61    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_PASSED, 'TEXT_TEST_PASSED', 'Verify package constant otap_util.CFG_TEXT_TEST_PASSED');
- 62    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_UNDEFINED, 'TEXT_TEST_UNDEFINED', 'Verify package constant otap_util.CFG_TEXT_TEST_UNDEFINED');
- 63    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE, 'TEXT_TRUE', 'Verify package constant otap_util.CFG_TEXT_TRUE');
- 64    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE_YES, 'TEXT_TRUE_YES', 'Verify package constant otap_util.CFG_TEXT_TRUE_YES');
- 65    l_return := otap_test.is_eq(otap_util.CFG_LABEL_BOOLEAN, 'LABEL_BOOLEAN', 'Verify package constant otap_util.CFG_LABEL_BOOLEAN');
- 66    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CHECK, 'LABEL_CHECK', 'Verify package constant otap_util.CFG_LABEL_CHECK');
- 67    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CLUSTER, 'LABEL_CLUSTER', 'Verify package constant otap_util.CFG_LABEL_CLUSTER');
- 68    l_return := otap_test.is_eq(otap_util.CFG_LABEL_COLUMN, 'LABEL_COLUMN', 'Verify package constant otap_util.CFG_LABEL_COLUMN');
- 69    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSTRAINT, 'LABEL_CONSTRAINT', 'Verify package constant otap_util.CFG_LABEL_CONSTRAINT');
- 70    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSUMER_GROUP, 'LABEL_CONSUMER_GROUP', 'Verify package constant otap_util.CFG_LABEL_CONSUMER_GROUP');
- 71    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONTEXT, 'LABEL_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_CONTEXT');
- 72    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CREDENTIAL, 'LABEL_CREDENTIAL', 'Verify package constant otap_util.CFG_LABEL_CREDENTIAL');
- 73    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATABASE, 'LABEL_DATABASE', 'Verify package constant otap_util.CFG_LABEL_DATABASE');
- 74    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATE, 'LABEL_DATE', 'Verify package constant otap_util.CFG_LABEL_DATE');
- 75    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DESTINATION, 'LABEL_DESTINATION', 'Verify package constant otap_util.CFG_LABEL_DESTINATION');
- 76    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIMENSION, 'LABEL_DIMENSION', 'Verify package constant otap_util.CFG_LABEL_DIMENSION');
- 77    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIRECTORY, 'LABEL_DIRECTORY', 'Verify package constant otap_util.CFG_LABEL_DIRECTORY');
- 78    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DOMAIN, 'LABEL_DOMAIN', 'Verify package constant otap_util.CFG_LABEL_DOMAIN');
- 79    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EDITION, 'LABEL_EDITION', 'Verify package constant otap_util.CFG_LABEL_EDITION');
- 80    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EVALUATION_CONTEXT, 'LABEL_EVALUATION_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_EVALUATION_CONTEXT');
- 81    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EXCEPTION, 'LABEL_EXCEPTION', 'Verify package constant otap_util.CFG_LABEL_EXCEPTION');
- 82    l_return := otap_test.is_eq(otap_util.CFG_LABEL_FOREIGN_KEY, 'LABEL_FOREIGN_KEY', 'Verify package constant otap_util.CFG_LABEL_FOREIGN_KEY');
- 83    l_return := otap_test.is_eq(otap_util.CFG_LABEL_FUNCTION, 'LABEL_FUNCTION', 'Verify package constant otap_util.CFG_LABEL_FUNCTION');
- 84    l_return := otap_test.is_eq(otap_util.CFG_LABEL_HASH, 'LABEL_HASH', 'Verify package constant otap_util.CFG_LABEL_HASH');
- 85    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX, 'LABEL_INDEX', 'Verify package constant otap_util.CFG_LABEL_INDEX');
- 86    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEXTYPE, 'LABEL_INDEXTYPE', 'Verify package constant otap_util.CFG_LABEL_INDEXTYPE');
- 87    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_PARTITION, 'LABEL_INDEX_PARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_PARTITION');
- 88    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_SUBPARTITION, 'LABEL_INDEX_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_SUBPARTITION');
- 89    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'LABEL_INVALID_CONSTRAINT_TYPE', 'Verify package constant otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE');
- 90    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_CLASS, 'LABEL_JAVA_CLASS', 'Verify package constant otap_util.CFG_LABEL_JAVA_CLASS');
- 91    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_DATA, 'LABEL_JAVA_DATA', 'Verify package constant otap_util.CFG_LABEL_JAVA_DATA');
- 92    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_RESOURCE, 'LABEL_JAVA_RESOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_RESOURCE');
- 93    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_SOURCE, 'LABEL_JAVA_SOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_SOURCE');
- 94    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB, 'LABEL_JOB', 'Verify package constant otap_util.CFG_LABEL_JOB');
- 95    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB_CLASS, 'LABEL_JOB_CLASS', 'Verify package constant otap_util.CFG_LABEL_JOB_CLASS');
- 96    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LIBRARY, 'LABEL_LIBRARY', 'Verify package constant otap_util.CFG_LABEL_LIBRARY');
- 97    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB, 'LABEL_LOB', 'Verify package constant otap_util.CFG_LABEL_LOB');
- 98    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB_PARTITION, 'LABEL_LOB_PARTITION', 'Verify package constant otap_util.CFG_LABEL_LOB_PARTITION');
- 99    l_return := otap_test.is_eq(otap_util.CFG_LABEL_MATERIALIZED_VIEW, 'LABEL_MATERIALIZED_VIEW', 'Verify package constant otap_util.CFG_LABEL_MATERIALIZED_VIEW');
-100    l_return := otap_test.is_eq(otap_util.CFG_LABEL_MLE_LANGUAGE, 'LABEL_MLE_LANGUAGE', 'Verify package constant otap_util.CFG_LABEL_MLE_LANGUAGE');
-101    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NOT_NULL, 'LABEL_NOT_NULL', 'Verify package constant otap_util.CFG_LABEL_NOT_NULL');
-102    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NULL, 'LABEL_NULL', 'Verify package constant otap_util.CFG_LABEL_NULL');
-103    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NUMBER, 'LABEL_NUMBER', 'Verify package constant otap_util.CFG_LABEL_NUMBER');
-104    l_return := otap_test.is_eq(otap_util.CFG_LABEL_OPERATOR, 'LABEL_OPERATOR', 'Verify package constant otap_util.CFG_LABEL_OPERATOR');
-105    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE, 'LABEL_PACKAGE', 'Verify package constant otap_util.CFG_LABEL_PACKAGE');
-106    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE_BODY, 'LABEL_PACKAGE_BODY', 'Verify package constant otap_util.CFG_LABEL_PACKAGE_BODY');
-107    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PRIMARY_KEY, 'LABEL_PRIMARY_KEY', 'Verify package constant otap_util.CFG_LABEL_PRIMARY_KEY');
-108    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROCEDURE, 'LABEL_PROCEDURE', 'Verify package constant otap_util.CFG_LABEL_PROCEDURE');
-109    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROGRAM, 'LABEL_PROGRAM', 'Verify package constant otap_util.CFG_LABEL_PROGRAM');
-110    l_return := otap_test.is_eq(otap_util.CFG_LABEL_QUEUE, 'LABEL_QUEUE', 'Verify package constant otap_util.CFG_LABEL_QUEUE');
-111    l_return := otap_test.is_eq(otap_util.CFG_LABEL_REF_COLUMN, 'LABEL_REF_COLUMN', 'Verify package constant otap_util.CFG_LABEL_REF_COLUMN');
-112    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RESOURCE_PLAN, 'LABEL_RESOURCE_PLAN', 'Verify package constant otap_util.CFG_LABEL_RESOURCE_PLAN');
-113    l_return := otap_test.is_eq(otap_util.CFG_LABEL_ROLE, 'LABEL_ROLE', 'Verify package constant otap_util.CFG_LABEL_ROLE');
-114    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE, 'LABEL_RULE', 'Verify package constant otap_util.CFG_LABEL_RULE');
-115    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE_SET, 'LABEL_RULE_SET', 'Verify package constant otap_util.CFG_LABEL_RULE_SET');
-116    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULE, 'LABEL_SCHEDULE', 'Verify package constant otap_util.CFG_LABEL_SCHEDULE');
-117    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_GROUP, 'LABEL_SCHEDULER_GROUP', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_GROUP');
-118    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_JOB, 'LABEL_SCHEDULER_JOB', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_JOB');
-119    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SEQUENCE, 'LABEL_SEQUENCE', 'Verify package constant otap_util.CFG_LABEL_SEQUENCE');
-120    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'LABEL_SUPPLEMENTAL_LOGGGING', 'Verify package constant otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING');
-121    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SYNONYM, 'LABEL_SYNONYM', 'Verify package constant otap_util.CFG_LABEL_SYNONYM');
-122    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE, 'LABEL_TABLE', 'Verify package constant otap_util.CFG_LABEL_TABLE');
-123    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_PARTITION, 'LABEL_TABLE_PARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_PARTITION');
-124    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_SUBPARTITION, 'LABEL_TABLE_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_SUBPARTITION');
-125    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TRIGGER, 'LABEL_TRIGGER', 'Verify package constant otap_util.CFG_LABEL_TRIGGER');
-126    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE, 'LABEL_TYPE', 'Verify package constant otap_util.CFG_LABEL_TYPE');
-127    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE_BODY, 'LABEL_TYPE_BODY', 'Verify package constant otap_util.CFG_LABEL_TYPE_BODY');
-128    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNDEFINED, 'LABEL_UNDEFINED', 'Verify package constant otap_util.CFG_LABEL_UNDEFINED');
-129    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY, 'LABEL_UNIFIED_AUDIT_POLICY', 'Verify package constant otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY');
-130    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIQUE_KEY, 'LABEL_UNIQUE_KEY', 'Verify package constant otap_util.CFG_LABEL_UNIQUE_KEY');
-131    l_return := otap_test.is_eq(otap_util.CFG_LABEL_USER, 'LABEL_USER', 'Verify package constant otap_util.CFG_LABEL_USER');
-132    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VARCHAR2, 'LABEL_VARCHAR2', 'Verify package constant otap_util.CFG_LABEL_VARCHAR2');
-133    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW, 'LABEL_VIEW', 'Verify package constant otap_util.CFG_LABEL_VIEW');
-134    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_CHECK, 'LABEL_VIEW_CHECK', 'Verify package constant otap_util.CFG_LABEL_VIEW_CHECK');
-135    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'Verify package constant otap_util.CFG_LABEL_VIEW_READONLY');
-136    l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'Verify package constant otap_util.CFG_LABEL_WINDOW');
-137    l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'Verify package constant otap_util.CFG_LABEL_XML_SCHEMA');
-138    -- check functionality is_number
-139    l_return := otap_test.ok(otap_util.is_number('1'), 'otap_util.is_number simple number');
-140    l_return := otap_test.ok((NOT otap_util.is_number('A')), 'otap_util.is_number simple char fails');
-141    l_return := otap_test.ok(p_boolean => otap_util.is_number('A'), p_description => 'otap_util.is_number simple char and expected result failed', p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED);
-142    l_return := otap_test.ok((NOT otap_util.is_number('-1-')), 'otap_util.is_number strange number -1- fails');
-143    l_return := otap_test.ok((NOT otap_util.is_number('-1*2+')), 'otap_util.is_number strange number -1*2+ fails');
-144    l_return := otap_test.ok((NOT otap_util.is_number('99999999999999999999999999999999999999999999999999')), 'otap_util.is_number too big number 99999999999999999999999999999999999999999999999999 fails');
-145    -- get correct current decimal points, thousands divider does not work with TO_NUMBER, without given format
-146    SELECT SUBSTR(value, 1, 1)
-147  	 INTO l_decimal
-148  	 FROM nls_session_parameters
-149  	WHERE parameter = 'NLS_NUMERIC_CHARACTERS'
-150    ;
-151    l_return := otap_test.ok(otap_util.is_number('1' || l_decimal || '234'), 'otap_util.is_number using current decimal point defined 1.234');
-152    l_return := otap_test.ok(otap_util.is_number(l_decimal || '234'), 'otap_util.is_number using leading current decimal point defined .234');
-153    -- this is something allowed in SQL with wrong results (decimals cut and zeroed) but not with PLSQL
-154    l_return := otap_test.ok((NOT otap_util.is_number('1e10')), 'otap_util.is_number scientific notation 1e10 fails');
-155    -- check functionality is_integer
-156    l_return := otap_test.ok(otap_util.is_integer('1'), 'otap_util.is_integer simple integer');
-157    l_return := otap_test.ok((NOT otap_util.is_integer('A')), 'otap_util.is_integer simple char fails');
-158    l_return := otap_test.ok((NOT otap_util.is_integer('1.0')), 'otap_util.is_integer decimal 1.0 fails');
-159    l_return := otap_test.ok((NOT otap_util.is_integer('.045')), 'otap_util.is_integer decimal .045 fails');
-160    l_return := otap_test.ok(otap_util.is_integer('-1'), 'otap_util.is_integer simple negative integer');
-161    l_return := otap_test.ok((NOT otap_util.is_integer('-1-')), 'otap_util.is_integer strange number -1- fails');
-162    l_return := otap_test.ok((NOT otap_util.is_integer('-1*2+')), 'otap_util.is_integer strange number -1*2+ fails');
-163    l_return := otap_test.ok((NOT otap_util.is_integer('99999999999999999999999999999999999999999999999999')), 'otap_util.is_integer too big number 99999999999999999999999999999999999999999999999999 fails');
-164    -- check functionality validate_config_name
-165    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'');', -20001, NULL, 'otap_util.validate_config_name invalid config name exception');
-166    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER, TRUE);', -20006, NULL, 'otap_util.validate_config_name delete config name exception');
-167    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'', TRUE);', -20006, NULL, 'otap_util.validate_config_name delete invalid config name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-168    -- check that defined config names do not cause exceptions
-169    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_constants.OTAP_CFG_DEBUG_MODE);', -20001, NULL, 'otap_util.validate_config_name debug mode no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-170    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER);', -20001, NULL, 'otap_util.validate_config_name default border no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-171    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LABEL_COLUMN);', -20001, NULL, 'otap_util.validate_config_name default label column no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-172    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LAYOUT);', -20001, NULL, 'otap_util.validate_config_name default layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-173    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_PREFIX);', -20001, NULL, 'otap_util.validate_config_name default prefix no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-174    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_RESULT_LAYOUT);', -20001, NULL, 'otap_util.validate_config_name default result layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-175    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_GROUP);', -20001, NULL, 'otap_util.validate_config_name default test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-176    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_NAME);', -20001, NULL, 'otap_util.validate_config_name default test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-177    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_SET);', -20001, NULL, 'otap_util.validate_config_name default test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-178    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LANGUAGE);', -20001, NULL, 'otap_util.validate_config_name default language no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-179    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_BATCH_SIZE);', -20001, NULL, 'otap_util.validate_config_name delete batch size no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-180    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_DELAY);', -20001, NULL, 'otap_util.validate_config_name delete delay no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-181    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_GROUP_CHAR);', -20001, NULL, 'otap_util.validate_config_name format group char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-182    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_HEADER_CHAR);', -20001, NULL, 'otap_util.validate_config_name format header char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-183    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_NAME_CHAR);', -20001, NULL, 'otap_util.validate_config_name format test name char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-184    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_SET_CHAR);', -20001, NULL, 'otap_util.validate_config_name format test set char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-185    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_PRESERVE_DAYS);', -20001, NULL, 'otap_util.validate_config_name preserve days no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-186    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_COUNT_DESC);', -20001, NULL, 'otap_util.validate_config_name template count description no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-187    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERRORS);', -20001, NULL, 'otap_util.validate_config_name template errors no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-188    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERROR_DETAILS);', -20001, NULL, 'otap_util.validate_config_name template error details no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-189    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS);', -20001, NULL, 'otap_util.validate_config_name template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-190    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTSX);', -20001, NULL, 'otap_util.validate_config_name extended template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-191    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_C);', -20001, NULL, 'otap_util.validate_config_name template constraints exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-192    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_CX);', -20001, NULL, 'otap_util.validate_config_name extended template constraint exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-193    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_F);', -20001, NULL, 'otap_util.validate_config_name template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-194    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_FX);', -20001, NULL, 'otap_util.validate_config_name extended template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-195    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_GROUP);', -20001, NULL, 'otap_util.validate_config_name template test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-196    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_MATCH);', -20001, NULL, 'otap_util.validate_config_name template match no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-197    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_NO_DATA);', -20001, NULL, 'otap_util.validate_config_name template no data no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-198    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name template report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-199    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name template result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-200    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SESSION_ID);', -20001, NULL, 'otap_util.validate_config_name template session id no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-201    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SET);', -20001, NULL, 'otap_util.validate_config_name template test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-202    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SUMMARY);', -20001, NULL, 'otap_util.validate_config_name template summary no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-203    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_TEST_NAME);', -20001, NULL, 'otap_util.validate_config_name template test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-204    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE);', -20001, NULL, 'otap_util.validate_config_name config text false no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-205    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE_NO);', -20001, NULL, 'otap_util.validate_config_name config text false/no no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-206    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_END);', -20001, NULL, 'otap_util.validate_config_name config text report end no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-207    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_START);', -20001, NULL, 'otap_util.validate_config_name config text report start no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-208    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-209    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-210    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-211    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text test count header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-212    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_NAME);', -20001, NULL, 'otap_util.validate_config_name config text test count name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-213    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'otap_util.validate_config_name config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-214    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_PASSED);', -20001, NULL, 'otap_util.validate_config_name config text test passed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-215    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'otap_util.validate_config_name config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-216    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE);', -20001, NULL, 'otap_util.validate_config_name config text true no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-217    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE_YES);', -20001, NULL, 'otap_util.validate_config_name config text true/yes no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-218    -- reduced testing for validate_config_value, as used in trigger config_name must be valid for testing, as checked before
-219    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, NULL, ''NUMBER'', l_translatable, NULL);', -20002, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value NULL exception');
-220    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''INTEGER'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type exception');
-221    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''number'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type lower case number exception');
-222    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''char'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type lower case char exception');
-223    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''NUMBER'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max defined length number exception');
-224    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''CHAR'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max defined length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-225    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''NUMBER'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max length number exception');
-226    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''CHAR'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-227    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''A'', ''NUMBER'', l_translatable, NULL);', -20005, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value not a number exception');
-228    l_translatable := 9;
-229    l_stamp	      := SYSTIMESTAMP;
-230    l_return       := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '0', 'NUMBER', l_translatable, NULL);
-231    l_finish       := SYSTIMESTAMP;
-232    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value default value on invalid translatable');
-233    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable')
-234  	 INTO l_return
-235  	 FROM sperrorlog
-236  	WHERE timestamp 	   >= l_stamp
-237  	  AND timestamp 	   <= l_finish
-238  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-239  	  AND message		 LIKE 'Invalid value for TRANSLATABLE: 9%'
-240    ;
-241    l_translatable := otap_constants.OTAP_NUM_TRUE;
-242    l_stamp	      := SYSTIMESTAMP;
-243    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_PREFIX, otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX, 'CHAR', l_translatable, otap_constants.OTAP_NUM_PREFIX_MAX_SIZE);
-244    l_finish       := SYSTIMESTAMP;
-245    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default prefix');
-246    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default prefix')
-247  	 INTO l_return
-248  	 FROM sperrorlog
-249  	WHERE timestamp 	   >= l_stamp
-250  	  AND timestamp 	   <= l_finish
-251  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-252  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_PREFIX || ' for TRANSLATABLE:%'
-253    ;
-254    l_translatable := otap_constants.OTAP_NUM_TRUE;
-255    l_stamp	      := SYSTIMESTAMP;
-256    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'CHAR', l_translatable, 1);
-257    l_finish       := SYSTIMESTAMP;
-258    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default layout');
-259    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default layout')
-260  	 INTO l_return
-261  	 FROM sperrorlog
-262  	WHERE timestamp 	   >= l_stamp
-263  	  AND timestamp 	   <= l_finish
-264  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-265  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_LAYOUT || ' for TRANSLATABLE:%'
-266    ;
-267    l_translatable := otap_constants.OTAP_NUM_TRUE;
-268    l_stamp	      := SYSTIMESTAMP;
-269    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT, 'CHAR', l_translatable, 1);
-270    l_finish       := SYSTIMESTAMP;
-271    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default result layout');
-272    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default result layout')
-273  	 INTO l_return
-274  	 FROM sperrorlog
-275  	WHERE timestamp 	   >= l_stamp
-276  	  AND timestamp 	   <= l_finish
-277  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-278  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_RESULT_LAYOUT || ' for TRANSLATABLE:%'
-279    ;
-280    l_stamp	:= SYSTIMESTAMP;
-281    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid min value');
-282    l_finish := SYSTIMESTAMP;
-283    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days min value')
-284  	 INTO l_return
-285  	 FROM sperrorlog
-286  	WHERE timestamp 	   >= l_stamp
-287  	  AND timestamp 	   <= l_finish
-288  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-289  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 0%'
-290    ;
-291    l_stamp	:= SYSTIMESTAMP;
-292    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '8', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid max value');
-293    l_finish := SYSTIMESTAMP;
-294    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days max value')
-295  	 INTO l_return
-296  	 FROM sperrorlog
-297  	WHERE timestamp 	   >= l_stamp
-298  	  AND timestamp 	   <= l_finish
-299  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-300  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 8%'
-301    ;
-302    l_stamp	:= SYSTIMESTAMP;
-303    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '1.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid decimal value');
-304    l_finish := SYSTIMESTAMP;
-305    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days decimal value')
-306  	 INTO l_return
-307  	 FROM sperrorlog
-308  	WHERE timestamp 	   >= l_stamp
-309  	  AND timestamp 	   <= l_finish
-310  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-311  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 1.5%'
-312    ;
-313    l_stamp	:= SYSTIMESTAMP;
-314    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid min value');
-315    l_finish := SYSTIMESTAMP;
-316    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay min value')
-317  	 INTO l_return
-318  	 FROM sperrorlog
-319  	WHERE timestamp 	   >= l_stamp
-320  	  AND timestamp 	   <= l_finish
-321  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-322  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 0%'
-323    ;
-324    l_stamp	:= SYSTIMESTAMP;
-325    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '601', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid max value');
-326    l_finish := SYSTIMESTAMP;
-327    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay max value')
-328  	 INTO l_return
-329  	 FROM sperrorlog
-330  	WHERE timestamp 	   >= l_stamp
-331  	  AND timestamp 	   <= l_finish
-332  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-333  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 601%'
-334    ;
-335    l_stamp	:= SYSTIMESTAMP;
-336    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid decimal value');
-337    l_finish := SYSTIMESTAMP;
-338    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay decimal value')
-339  	 INTO l_return
-340  	 FROM sperrorlog
-341  	WHERE timestamp 	   >= l_stamp
-342  	  AND timestamp 	   <= l_finish
-343  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-344  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 100.5%'
-345    ;
-346    l_stamp	:= SYSTIMESTAMP;
-347    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid min value');
-348    l_finish := SYSTIMESTAMP;
-349    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size min value')
-350  	 INTO l_return
-351  	 FROM sperrorlog
-352  	WHERE timestamp 	   >= l_stamp
-353  	  AND timestamp 	   <= l_finish
-354  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-355  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 10%'
-356    ;
-357    l_stamp	:= SYSTIMESTAMP;
-358    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10001', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid max value');
-359    l_finish := SYSTIMESTAMP;
-360    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size max value')
-361  	 INTO l_return
-362  	 FROM sperrorlog
-363  	WHERE timestamp 	   >= l_stamp
-364  	  AND timestamp 	   <= l_finish
-365  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-366  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 10001%'
-367    ;
-368    l_stamp	:= SYSTIMESTAMP;
-369    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid decimal value');
-370    l_finish := SYSTIMESTAMP;
-371    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size decimal value')
-372  	 INTO l_return
-373  	 FROM sperrorlog
-374  	WHERE timestamp 	   >= l_stamp
-375  	  AND timestamp 	   <= l_finish
-376  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-377  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 100.5%'
-378    ;
-379    l_stamp	:= SYSTIMESTAMP;
-380    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '1', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid min value');
-381    l_finish := SYSTIMESTAMP;
-382    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size min value')
-383  	 INTO l_return
-384  	 FROM sperrorlog
-385  	WHERE timestamp 	   >= l_stamp
-386  	  AND timestamp 	   <= l_finish
-387  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-388  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 1%'
-389    ;
-390    l_stamp	:= SYSTIMESTAMP;
-391    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '11', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid max value');
-392    l_finish := SYSTIMESTAMP;
-393    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size max value')
-394  	 INTO l_return
-395  	 FROM sperrorlog
-396  	WHERE timestamp 	   >= l_stamp
-397  	  AND timestamp 	   <= l_finish
-398  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-399  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 11%'
-400    ;
-401    l_stamp	:= SYSTIMESTAMP;
-402    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '5.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid decimal value');
-403    l_finish := SYSTIMESTAMP;
-404    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size decimal value')
-405  	 INTO l_return
-406  	 FROM sperrorlog
-407  	WHERE timestamp 	   >= l_stamp
-408  	  AND timestamp 	   <= l_finish
-409  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-410  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 5.5%'
-411    ;
-412    l_stamp	:= SYSTIMESTAMP;
-413    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '3', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_NUM_FALSE)), 'otap_util.validate_config_value default debug invalid value');
-414    l_finish := SYSTIMESTAMP;
-415    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid debug value')
-416  	 INTO l_return
-417  	 FROM sperrorlog
-418  	WHERE timestamp 	   >= l_stamp
-419  	  AND timestamp 	   <= l_finish
-420  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-421  	  AND message		 LIKE 'Invalid value for DEBUG_MODE: 3%'
-422    ;
-423    l_stamp	:= SYSTIMESTAMP;
-424    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LAYOUT_MIDDLE)), 'otap_util.validate_config_value default layout invalid value');
-425    l_finish := SYSTIMESTAMP;
-426    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid layout value')
-427  	 INTO l_return
-428  	 FROM sperrorlog
-429  	WHERE timestamp 	   >= l_stamp
-430  	  AND timestamp 	   <= l_finish
-431  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-432  	  AND message		 LIKE 'Invalid value for DEFAULT_LAYOUT: X%'
-433    ;
-434    l_stamp	:= SYSTIMESTAMP;
-435    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, 'M', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT)), 'otap_util.validate_config_value default result layout invalid value');
-436    l_finish := SYSTIMESTAMP;
-437    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid result layout value')
-438  	 INTO l_return
-439  	 FROM sperrorlog
-440  	WHERE timestamp 	   >= l_stamp
-441  	  AND timestamp 	   <= l_finish
-442  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-443  	  AND message		 LIKE 'Invalid value for DEFAULT_RESULT_LAYOUT: M%'
-444    ;
-445    l_stamp	:= SYSTIMESTAMP;
-446    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LABEL_COLUMN, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LABEL_LOWER)), 'otap_util.validate_config_value default label layout invalid value');
-447    l_finish := SYSTIMESTAMP;
-448    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid label layout value')
-449  	 INTO l_return
-450  	 FROM sperrorlog
-451  	WHERE timestamp 	   >= l_stamp
-452  	  AND timestamp 	   <= l_finish
-453  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
-454  	  AND message		 LIKE 'Invalid value for DEFAULT_LABEL_LAYOUT: X%'
-455    ;
-456    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_constants.OTAP_CFG_DEBUG_MODE);', -20020, NULL, 'otap_util.validate_translatable config value not translatable exception');
-457    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_DEFAULT_TEST_SET);', -20020, NULL, 'otap_util.validate_translatable config value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-458    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_LABEL_BOOLEAN);', -20020, NULL, 'otap_util.validate_translatable label value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-459    l_return := otap_test.is_eq(otap_util.get_config_value('Not exists'), 'OTAP_ERROR', 'otap_util.get_config_value get invalid config value as text');
-460    l_return := otap_test.ok((otap_util.get_config_number('Debuck_mode') IS NULL), 'otap_util.get_config_number get invalid config value as number');
-461    l_return := otap_test.is_eq(otap_util.get_label_id('BOOLEAN'), otap_util.CFG_LABEL_BOOLEAN, 'otap_util.get_label_id BOOLEAN');
-462    l_stamp	:= SYSTIMESTAMP;
-463    l_return := otap_test.is_eq(otap_util.get_label_id('BOOLEAN OHH MY GOD'), otap_util.CFG_LABEL_UNDEFINED, 'otap_util.get_label_id not existing BOOLEAN OHH MY GOD');
-464    l_finish := SYSTIMESTAMP;
-465    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.get_label_id log entry invalid label value')
-466  	 INTO l_return
-467  	 FROM sperrorlog
-468  	WHERE timestamp 	   >= l_stamp
-469  	  AND timestamp 	   <= l_finish
-470  	  AND TRIM(TO_CHAR(script)) = 'otap_util.get_label_id'
-471  	  AND message		 LIKE 'Invalid object type: BOOLEAN OHH MY GOD%'
-472    ;
-473    SELECT otap_test.is_eq(otap_util.get_length_test_state, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_test_state')
-474  	 INTO l_return
-475  	 FROM otap_identifiers_v
-476  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_TEST_UNDEFINED
-477  				 , otap_util.CFG_TEXT_TEST_PASSED
-478  				 , otap_util.CFG_TEXT_TEST_FAILED
-479  				 )
-480  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
-481    ;
-482    SELECT otap_test.is_eq(otap_util.get_length_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_headers')
-483  	 INTO l_return
-484  	 FROM otap_identifiers_v
-485  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_REPORT_START
-486  				 , otap_util.CFG_TEXT_REPORT_END
-487  				 , otap_util.CFG_TEXT_REPORT_TOTAL
-488  				 )
-489  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
-490    ;
-491    SELECT otap_test.is_eq(otap_util.get_length_result_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_result_headers')
-492  	 INTO l_return
-493  	 FROM otap_identifiers_v
-494  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
-495  				 , otap_util.CFG_TEXT_RESULT_LINE
-496  				 )
-497  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
-498    ;
-499    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_PASSED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED), 'otap_util.test_result_to_text passed');
-500    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_FAILED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED), 'otap_util.test_result_to_text failed');
-501    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED), 'otap_util.test_result_to_text undefined');
-502    l_return := otap_test.is_eq(otap_util.test_result_to_text(99), otap_constants.OTAP_INTERNAL_ERROR, 'otap_util.test_result_to_text wrong test result number');
-503    l_return := otap_test.is_eq(otap_util.constraint_type_to_label, otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label default check');
-504    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('C'), otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label parameter C check');
-505    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('c'), otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label lower parameter c check');
-506    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('P'), otap_util.CFG_LABEL_PRIMARY_KEY, 'otap_util.constraint_type_to_label parameter P primary key');
-507    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('U'), otap_util.CFG_LABEL_UNIQUE_KEY, 'otap_util.constraint_type_to_label parameter U unique key');
-508    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('R'), otap_util.CFG_LABEL_FOREIGN_KEY, 'otap_util.constraint_type_to_label parameter R foreign key');
-509    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('V'), otap_util.CFG_LABEL_VIEW_CHECK, 'otap_util.constraint_type_to_label parameter V view check');
-510    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('O'), otap_util.CFG_LABEL_VIEW_READONLY, 'otap_util.constraint_type_to_label parameter O view readonly');
-511    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('F'), otap_util.CFG_LABEL_REF_COLUMN, 'otap_util.constraint_type_to_label parameter F ref column');
-512    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('H'), otap_util.CFG_LABEL_HASH, 'otap_util.constraint_type_to_label parameter H hash');
-513    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('S'), otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'otap_util.constraint_type_to_label parameter S supplemental logging');
-514    l_stamp	:= SYSTIMESTAMP;
-515    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('X'), otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'otap_util.constraint_type_to_label parameter X invalid');
-516    l_finish := SYSTIMESTAMP;
-517    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.constraint_type_to_label log entry invalid parameter')
-518  	 INTO l_return
-519  	 FROM sperrorlog
-520  	WHERE timestamp 	   >= l_stamp
-521  	  AND timestamp 	   <= l_finish
-522  	  AND TRIM(TO_CHAR(script)) = 'otap_util.constraint_type_to_label'
-523  	  AND message		 LIKE 'Invalid constraint type: X%'
-524    ;
-525    l_stamp	:= SYSTIMESTAMP;
-526    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => NULL, p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule missing template');
-527    l_finish := SYSTIMESTAMP;
-528    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_util.build_msg description no log entry missing template identifier')
-529  	 INTO l_return
-530  	 FROM sperrorlog
-531  	WHERE timestamp 	   >= l_stamp
-532  	  AND timestamp 	   <= l_finish
-533  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-534  	  AND message		 LIKE '%missing%template identifier%'
-535    ;
-536    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS, p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule given template');
-537    l_stamp	:= SYSTIMESTAMP;
-538    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => 'I DO NOT EXIST', p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule invalid template');
-539    l_finish := SYSTIMESTAMP;
-540    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_util.build_msg description no log entry invalid template identifier')
-541  	 INTO l_return
-542  	 FROM sperrorlog
-543  	WHERE timestamp 	   >= l_stamp
-544  	  AND timestamp 	   <= l_finish
-545  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-546  	  AND message		 LIKE '%invalid template identifier%'
-547    ;
-548    l_stamp	:= SYSTIMESTAMP;
-549    l_return := otap_test.is_eq(otap_util.build_msg(NULL), otap_constants.OTAP_INTERNAL_ERROR || ' otap_util.build_msg missing description and template identifier', 'otap_util.build_msg missing template');
-550    l_finish := SYSTIMESTAMP;
-551    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry missing template identifier')
-552  	 INTO l_return
-553  	 FROM sperrorlog
-554  	WHERE timestamp 	   >= l_stamp
-555  	  AND timestamp 	   <= l_finish
-556  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-557  	  AND message		 LIKE '%otap_util.build_msg missing description and template identifier'
-558    ;
-559    l_stamp	:= SYSTIMESTAMP;
-560    l_return := otap_test.is_eq(otap_util.build_msg('I DO NOT EXIST'), otap_constants.OTAP_INTERNAL_ERROR || ' otap_util.build_msg invalid template identifier I DO NOT EXIST', 'otap_util.build_msg invalid template');
-561    l_finish := SYSTIMESTAMP;
-562    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry invalid template identifier')
-563  	 INTO l_return
-564  	 FROM sperrorlog
-565  	WHERE timestamp 	   >= l_stamp
-566  	  AND timestamp 	   <= l_finish
-567  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-568  	  AND message		 LIKE '%otap_util.build_msg invalid template identifier I DO NOT EXIST'
-569    ;
-570    l_return := otap_test.is_eq(otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS), '@type@ @object@ exists check (@schema@)', 'otap_util.build_msg template no parameter');
-571    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN)
-572  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-573  				  , 'otap_util.build_msg template only type parameter'
-574  				  )
-575    ;
-576    l_stamp	:= SYSTIMESTAMP;
-577    l_return := otap_test.is_eq(otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, 'Type invalid'), '@type@ @object@ exists check (@schema@)', 'otap_util.build_msg template invalid type parameter');
-578    l_finish := SYSTIMESTAMP;
-579    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry invalid type identifier')
-580  	 INTO l_return
-581  	 FROM sperrorlog
-582  	WHERE timestamp 	   >= l_stamp
-583  	  AND timestamp 	   <= l_finish
-584  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-585  	  AND message		 LIKE 'Type ignored, Invalid label used: Type invalid%'
-586    ;
-587    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@')
-588  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-589  				  , 'otap_util.build_msg template no value for first variable'
-590  				  )
-591    ;
-592    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@', 'MY_OBJECT')
-593  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-594  				  , 'otap_util.build_msg template first variable/value pair'
-595  				  )
-596    ;
-597    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@', 'My fanCY obJECT')
-598  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-599  				  , 'otap_util.build_msg template first variable/value pair value any case'
-600  				  )
-601    ;
-602    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@OBJECT@', 'MY_OBJECT')
-603  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-604  				  , 'otap_util.build_msg template first variable/value pair, wrong variable case'
-605  				  )
-606    ;
-607    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@@', 'MY_OBJECT')
-608  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-609  				  , 'otap_util.build_msg template first variable/value pair, empty variable'
-610  				  )
-611    ;
-612    l_stamp	:= SYSTIMESTAMP;
-613    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, 'object', 'MY_OBJECT')
-614  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-615  				  , 'otap_util.build_msg template first variable/value pair, no variable identifier'
-616  				  )
-617    ;
-618    l_finish := SYSTIMESTAMP;
-619    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no first variable identifier')
-620  	 INTO l_return
-621  	 FROM sperrorlog
-622  	WHERE timestamp 	   >= l_stamp
-623  	  AND timestamp 	   <= l_finish
-624  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-625  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
-626    ;
-627    l_stamp	:= SYSTIMESTAMP;
-628    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@@object@@', 'MY_OBJECT')
-629  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-630  				  , 'otap_util.build_msg template first variable/value pair, wrong variable identifier count'
-631  				  )
-632    ;
-633    l_finish := SYSTIMESTAMP;
-634    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong first variable identifier count')
-635  	 INTO l_return
-636  	 FROM sperrorlog
-637  	WHERE timestamp 	   >= l_stamp
-638  	  AND timestamp 	   <= l_finish
-639  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-640  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
-641    ;
-642    l_stamp	:= SYSTIMESTAMP;
-643    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-644  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-645  						       , p_param1_value => 'MY_OBJECT'
-646  						       )
-647  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-648  				  , 'otap_util.build_msg template first value without variable'
-649  				  )
-650    ;
-651    l_finish := SYSTIMESTAMP;
-652    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry first value without variable')
-653  	 INTO l_return
-654  	 FROM sperrorlog
-655  	WHERE timestamp 	   >= l_stamp
-656  	  AND timestamp 	   <= l_finish
-657  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-658  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
-659    ;
-660    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-661  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-662  						       , p_param2 => '@object@'
-663  						       )
-664  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-665  				  , 'otap_util.build_msg template no value for second variable'
-666  				  )
-667    ;
-668    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-669  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-670  						       , p_param2 => '@object@'
-671  						       , p_param2_value => 'MY_OBJECT'
-672  						       )
-673  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-674  				  , 'otap_util.build_msg template second variable/value pair'
-675  				  )
-676    ;
-677    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-678  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-679  						       , p_param2 => '@object@'
-680  						       , p_param2_value => 'My fanCY obJECT'
-681  						       )
-682  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-683  				  , 'otap_util.build_msg template second variable/value pair value any case'
-684  				  )
-685    ;
-686    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-687  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-688  						       , p_param2 => '@OBJECT@'
-689  						       , p_param2_value => 'MY_OBJECT'
-690  						       )
-691  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-692  				  , 'otap_util.build_msg template second variable/value pair, wrong variable case'
-693  				  )
-694    ;
-695    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-696  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-697  						       , p_param2 => '@@'
-698  						       , p_param2_value => 'MY_OBJECT'
-699  						       )
-700  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-701  				  , 'otap_util.build_msg template second variable/value pair, empty variable'
-702  				  )
-703    ;
-704    l_stamp	:= SYSTIMESTAMP;
-705    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-706  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-707  						       , p_param2 => 'object'
-708  						       , p_param2_value => 'MY_OBJECT'
-709  						       )
-710  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-711  				  , 'otap_util.build_msg template second variable/value pair, no variable identifier'
-712  				  )
-713    ;
-714    l_finish := SYSTIMESTAMP;
-715    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no second variable identifier')
-716  	 INTO l_return
-717  	 FROM sperrorlog
-718  	WHERE timestamp 	   >= l_stamp
-719  	  AND timestamp 	   <= l_finish
-720  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-721  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
-722    ;
-723    l_stamp	:= SYSTIMESTAMP;
-724    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-725  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-726  						       , p_param2 => '@@object@@'
-727  						       , p_param2_value => 'MY_OBJECT')
-728  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-729  				  , 'otap_util.build_msg template second variable/value pair, wrong variable identifier count'
-730  				  )
-731    ;
-732    l_finish := SYSTIMESTAMP;
-733    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong second variable identifier count')
-734  	 INTO l_return
-735  	 FROM sperrorlog
-736  	WHERE timestamp 	   >= l_stamp
-737  	  AND timestamp 	   <= l_finish
-738  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-739  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
-740    ;
-741    l_stamp	:= SYSTIMESTAMP;
-742    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-743  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-744  						       , p_param2_value => 'MY_OBJECT'
-745  						       )
-746  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-747  				  , 'otap_util.build_msg template second value without variable'
-748  				  )
-749    ;
-750    l_finish := SYSTIMESTAMP;
-751    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry second value without variable')
-752  	 INTO l_return
-753  	 FROM sperrorlog
-754  	WHERE timestamp 	   >= l_stamp
-755  	  AND timestamp 	   <= l_finish
-756  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-757  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
-758    ;
-759    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-760  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-761  						       , p_param3 => '@object@'
-762  						       )
-763  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-764  				  , 'otap_util.build_msg template no value for third variable'
-765  				  )
-766    ;
-767    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-768  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-769  						       , p_param3 => '@object@'
-770  						       , p_param3_value => 'MY_OBJECT'
-771  						       )
-772  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-773  				  , 'otap_util.build_msg template third variable/value pair'
-774  				  )
-775    ;
-776    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-777  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-778  						       , p_param3 => '@object@'
-779  						       , p_param3_value => 'My fanCY obJECT'
-780  						       )
-781  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-782  				  , 'otap_util.build_msg template third variable/value pair value any case'
-783  				  )
-784    ;
-785    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-786  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-787  						       , p_param3 => '@OBJECT@'
-788  						       , p_param3_value => 'MY_OBJECT'
-789  						       )
-790  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-791  				  , 'otap_util.build_msg template third variable/value pair, wrong variable case'
-792  				  )
-793    ;
-794    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-795  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-796  						       , p_param3 => '@@'
-797  						       , p_param3_value => 'MY_OBJECT'
-798  						       )
-799  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-800  				  , 'otap_util.build_msg template third variable/value pair, empty variable'
-801  				  )
-802    ;
-803    l_stamp	:= SYSTIMESTAMP;
-804    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-805  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-806  						       , p_param3 => 'object'
-807  						       , p_param3_value => 'MY_OBJECT'
-808  						       )
-809  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-810  				  , 'otap_util.build_msg template third variable/value pair, no variable identifier'
-811  				  )
-812    ;
-813    l_finish := SYSTIMESTAMP;
-814    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no third variable identifier')
-815  	 INTO l_return
-816  	 FROM sperrorlog
-817  	WHERE timestamp 	   >= l_stamp
-818  	  AND timestamp 	   <= l_finish
-819  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-820  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
-821    ;
-822    l_stamp	:= SYSTIMESTAMP;
-823    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-824  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-825  						       , p_param3 => '@@object@@'
-826  						       , p_param3_value => 'MY_OBJECT')
-827  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-828  				  , 'otap_util.build_msg template third variable/value pair, wrong variable identifier count'
-829  				  )
-830    ;
-831    l_finish := SYSTIMESTAMP;
-832    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong third variable identifier count')
-833  	 INTO l_return
-834  	 FROM sperrorlog
-835  	WHERE timestamp 	   >= l_stamp
-836  	  AND timestamp 	   <= l_finish
-837  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-838  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
-839    ;
-840    l_stamp	:= SYSTIMESTAMP;
-841    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-842  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-843  						       , p_param3_value => 'MY_OBJECT'
-844  						       )
-845  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-846  				  , 'otap_util.build_msg template third value without variable'
-847  				  )
-848    ;
-849    l_finish := SYSTIMESTAMP;
-850    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry third value without variable')
-851  	 INTO l_return
-852  	 FROM sperrorlog
-853  	WHERE timestamp 	   >= l_stamp
-854  	  AND timestamp 	   <= l_finish
-855  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-856  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
-857    ;
-858    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-859  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-860  						       , p_param4 => '@object@'
-861  						       )
-862  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-863  				  , 'otap_util.build_msg template no value for fourth variable'
-864  				  )
-865    ;
-866    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-867  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-868  						       , p_param4 => '@object@'
-869  						       , p_param4_value => 'MY_OBJECT'
-870  						       )
-871  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-872  				  , 'otap_util.build_msg template fourth variable/value pair'
-873  				  )
-874    ;
-875    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-876  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-877  						       , p_param4 => '@object@'
-878  						       , p_param4_value => 'My fanCY obJECT'
-879  						       )
-880  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-881  				  , 'otap_util.build_msg template fourth variable/value pair value any case'
-882  				  )
-883    ;
-884    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-885  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-886  						       , p_param4 => '@OBJECT@'
-887  						       , p_param4_value => 'MY_OBJECT'
-888  						       )
-889  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-890  				  , 'otap_util.build_msg template fourth variable/value pair, wrong variable case'
-891  				  )
-892    ;
-893    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-894  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-895  						       , p_param4 => '@@'
-896  						       , p_param4_value => 'MY_OBJECT'
-897  						       )
-898  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-899  				  , 'otap_util.build_msg template fourth variable/value pair, empty variable'
-900  				  )
-901    ;
-902    l_stamp	:= SYSTIMESTAMP;
-903    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-904  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-905  						       , p_param4 => 'object'
-906  						       , p_param4_value => 'MY_OBJECT'
-907  						       )
-908  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-909  				  , 'otap_util.build_msg template fourth variable/value pair, no variable identifier'
-910  				  )
-911    ;
-912    l_finish := SYSTIMESTAMP;
-913    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no fourth variable identifier')
-914  	 INTO l_return
-915  	 FROM sperrorlog
-916  	WHERE timestamp 	   >= l_stamp
-917  	  AND timestamp 	   <= l_finish
-918  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-919  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
-920    ;
-921    l_stamp	:= SYSTIMESTAMP;
-922    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-923  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-924  						       , p_param4 => '@@object@@'
-925  						       , p_param4_value => 'MY_OBJECT')
-926  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-927  				  , 'otap_util.build_msg template fourth variable/value pair, wrong variable identifier count'
-928  				  )
-929    ;
-930    l_finish := SYSTIMESTAMP;
-931    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong fourth variable identifier count')
-932  	 INTO l_return
-933  	 FROM sperrorlog
-934  	WHERE timestamp 	   >= l_stamp
-935  	  AND timestamp 	   <= l_finish
-936  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-937  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
-938    ;
-939    l_stamp	:= SYSTIMESTAMP;
-940    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-941  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-942  						       , p_param4_value => 'MY_OBJECT'
-943  						       )
-944  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-945  				  , 'otap_util.build_msg template fourth value without variable'
-946  				  )
-947    ;
-948    l_finish := SYSTIMESTAMP;
-949    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry fourth value without variable')
-950  	 INTO l_return
-951  	 FROM sperrorlog
-952  	WHERE timestamp 	   >= l_stamp
-953  	  AND timestamp 	   <= l_finish
-954  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-955  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
-956    ;
-957    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-958  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-959  						       , p_param5 => '@object@'
-960  						       )
-961  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-962  				  , 'otap_util.build_msg template no value for fifth variable'
-963  				  )
-964    ;
-965    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-966  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-967  						       , p_param5 => '@object@'
-968  						       , p_param5_value => 'MY_OBJECT'
-969  						       )
-970  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-971  				  , 'otap_util.build_msg template fifth variable/value pair'
-972  				  )
-973    ;
-974    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-975  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-976  						       , p_param5 => '@object@'
-977  						       , p_param5_value => 'My fanCY obJECT'
-978  						       )
-979  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-980  				  , 'otap_util.build_msg template fifth variable/value pair value any case'
-981  				  )
-982    ;
-983    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-984  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-985  						       , p_param5 => '@OBJECT@'
-986  						       , p_param5_value => 'MY_OBJECT'
-987  						       )
-988  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-989  				  , 'otap_util.build_msg template fifth variable/value pair, wrong variable case'
-990  				  )
-991    ;
-992    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-993  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
-994  						       , p_param5 => '@@'
-995  						       , p_param5_value => 'MY_OBJECT'
-996  						       )
-997  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-998  				  , 'otap_util.build_msg template fifth variable/value pair, empty variable'
-999  				  )
-1000  	;
-1001  	l_stamp  := SYSTIMESTAMP;
-1002  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1003  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1004  							, p_param5 => 'object'
-1005  							, p_param5_value => 'MY_OBJECT'
-1006  							)
-1007  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1008  				   , 'otap_util.build_msg template fifth variable/value pair, no variable identifier'
-1009  				   )
-1010  	;
-1011  	l_finish := SYSTIMESTAMP;
-1012  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no fifth variable identifier')
-1013  	  INTO l_return
-1014  	  FROM sperrorlog
-1015  	 WHERE timestamp	    >= l_stamp
-1016  	   AND timestamp	    <= l_finish
-1017  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-1018  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
-1019  	;
-1020  	l_stamp  := SYSTIMESTAMP;
-1021  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1022  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1023  							, p_param5 => '@@object@@'
-1024  							, p_param5_value => 'MY_OBJECT')
-1025  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1026  				   , 'otap_util.build_msg template fifth variable/value pair, wrong variable identifier count'
-1027  				   )
-1028  	;
-1029  	l_finish := SYSTIMESTAMP;
-1030  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong fifth variable identifier count')
-1031  	  INTO l_return
-1032  	  FROM sperrorlog
-1033  	 WHERE timestamp	    >= l_stamp
-1034  	   AND timestamp	    <= l_finish
-1035  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-1036  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
-1037  	;
-1038  	l_stamp  := SYSTIMESTAMP;
-1039  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1040  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1041  							, p_param5_value => 'MY_OBJECT'
-1042  							)
-1043  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1044  				   , 'otap_util.build_msg template fifth value without variable'
-1045  				   )
-1046  	;
-1047  	l_finish := SYSTIMESTAMP;
-1048  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry fifth value without variable')
-1049  	  INTO l_return
-1050  	  FROM sperrorlog
-1051  	 WHERE timestamp	    >= l_stamp
-1052  	   AND timestamp	    <= l_finish
-1053  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
-1054  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
-1055  	;
-1056  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1057  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1058  							, p_param6n => '@object@'
-1059  							)
-1060  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' exists check (@schema@)'
-1061  				   , 'otap_util.build_msg template no value blank out for sixth variable'
-1062  				   )
-1063  	;
-1064  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1065  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1066  							, p_param6n => '@object@'
-1067  							, p_param6n_value => 'MY_OBJECT'
-1068  							)
-1069  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
-1070  				   , 'otap_util.build_msg template sixth variable/value pair'
-1071  				   )
-1072  	;
-1073  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1074  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1075  							, p_param6n => '@object@'
-1076  							, p_param6n_value => 'My fanCY obJECT'
-1077  							)
-1078  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
-1079  				   , 'otap_util.build_msg template sixth variable/value pair value any case'
-1080  				   )
-1081  	;
-1082  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1083  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1084  							, p_param6n => '@OBJECT@'
-1085  							, p_param6n_value => 'MY_OBJECT'
-1086  							)
-1087  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1088  				   , 'otap_util.build_msg template sixth variable/value pair, wrong variable case'
-1089  				   )
-1090  	;
-1091  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1092  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1093  							, p_param6n => '@@'
-1094  							, p_param6n_value => 'MY_OBJECT'
-1095  							)
-1096  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1097  				   , 'otap_util.build_msg template sixth variable/value pair, empty variable'
-1098  				   )
-1099  	;
-1100  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1101  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1102  							, p_param6n => 'object'
-1103  							, p_param6n_value => 'MY_OBJECT'
-1104  							)
-1105  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1106  				   , 'otap_util.build_msg template sixth variable/value pair, no variable identifier'
-1107  				   )
-1108  	;
-1109  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1110  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1111  							, p_param6n => '@@object@@'
-1112  							, p_param6n_value => 'MY_OBJECT')
-1113  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1114  				   , 'otap_util.build_msg template sixth variable/value pair, wrong variable identifier count'
-1115  				   )
-1116  	;
-1117  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-1118  							, p_type_label => otap_util.CFG_LABEL_COLUMN
-1119  							, p_param6n_value => 'MY_OBJECT'
-1120  							)
-1121  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
-1122  				   , 'otap_util.build_msg template sixth value without variable'
-1123  				   )
-1124  	;
-1125  	-- use a negative session id for test writes
-1126  	l_testing_id := otap_test.get_session_id * -1;
-1127  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);'
-1128  					   , -1400
-1129  					   , NULL
-1130  					   , 'otap_util.write_test_result basic record NULL exception test set'
-1131  					   )
-1132  	;
-1133  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, NULL, NULL, NULL, NULL, NULL, NULL, NULL);'
-1134  					   , -1400
-1135  					   , NULL
-1136  					   , 'otap_util.write_test_result basic record NULL exception db user'
-1137  					   )
-1138  	;
-1139  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, NULL, NULL, NULL, NULL, NULL, NULL);'
-1140  					   , -1400
-1141  					   , NULL
-1142  					   , 'otap_util.write_test_result basic record NULL exception db schema'
-1143  					   )
-1144  	;
-1145  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, NULL, NULL, NULL, NULL, NULL);'
-1146  					   , -1400
-1147  					   , NULL
-1148  					   , 'otap_util.write_test_result basic record NULL exception test group'
-1149  					   )
-1150  	;
-1151  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, NULL, NULL, NULL, NULL);'
-1152  					   , -1400
-1153  					   , NULL
-1154  					   , 'otap_util.write_test_result basic record NULL exception test start'
-1155  					   )
-1156  	;
-1157  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, NULL, NULL, NULL);'
-1158  					   , -1400
-1159  					   , NULL
-1160  					   , 'otap_util.write_test_result basic record NULL exception test end'
-1161  					   )
-1162  	;
-1163  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, NULL, NULL);'
-1164  					   , -1400
-1165  					   , NULL
-1166  					   , 'otap_util.write_test_result basic record NULL exception test name'
-1167  					   )
-1168  	;
-1169  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, NULL);'
-1170  					   , -1400
-1171  					   , NULL
-1172  					   , 'otap_util.write_test_result basic record NULL exception test description'
-1173  					   )
-1174  	;
-1175  	l_stamp  := SYSTIMESTAMP;
-1176  	l_return     := otap_test.throws_ok('otap_util.write_test_result(otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_TEST_PASSED, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
-1177  					   , -1400
-1178  					   , NULL
-1179  					   , 'otap_util.write_test_result basic record no exception test'
-1180  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
-1181  					   )
-1182  	;
-1183  	l_finish := SYSTIMESTAMP;
-1184  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written')
-1185  	  INTO l_return
-1186  	  FROM otap_results
-1187  	 WHERE test_session_id = l_testing_id
-1188  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
-1189  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
-1190  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1191  	   AND db_user	       = USER
-1192  	   AND db_schema       = USER
-1193  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1194  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
-1195  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
-1196  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
-1197  	   AND test_start     >= l_stamp
-1198  	   AND test_end       <= l_finish
-1199  	;
-1200  	l_stamp  := SYSTIMESTAMP;
-1201  	l_return     := otap_test.throws_ok('otap_util.write_test_result(9, otap_constants.OTAP_NUM_TEST_PASSED, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
-1202  					   , -1400
-1203  					   , NULL
-1204  					   , 'otap_util.write_test_result basic record no exception wrong to_delete'
-1205  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
-1206  					   )
-1207  	;
-1208  	l_finish := SYSTIMESTAMP;
-1209  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written wrong to_delete')
-1210  	  INTO l_return
-1211  	  FROM otap_results
-1212  	 WHERE test_session_id = l_testing_id
-1213  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
-1214  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
-1215  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1216  	   AND db_user	       = USER
-1217  	   AND db_schema       = USER
-1218  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1219  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
-1220  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
-1221  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
-1222  	   AND test_start     >= l_stamp
-1223  	   AND test_end       <= l_finish
-1224  	;
-1225  	l_stamp  := SYSTIMESTAMP;
-1226  	l_return     := otap_test.throws_ok('otap_util.write_test_result(otap_constants.OTAP_NUM_TRUE, 9, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
-1227  					   , -1400
-1228  					   , NULL
-1229  					   , 'otap_util.write_test_result basic record no exception wrong test_passed'
-1230  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
-1231  					   )
-1232  	;
-1233  	l_finish := SYSTIMESTAMP;
-1234  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written wrong test_passed')
-1235  	  INTO l_return
-1236  	  FROM otap_results
-1237  	 WHERE test_session_id = l_testing_id
-1238  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
-1239  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_UNDEFINED
-1240  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1241  	   AND db_user	       = USER
-1242  	   AND db_schema       = USER
-1243  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
-1244  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
-1245  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
-1246  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
-1247  	   AND test_start     >= l_stamp
-1248  	   AND test_end       <= l_finish
-1249  	   AND test_errors    IS NOT NULL
-1250  	;
-1251  	l_return := otap_test.is_eq(otap_util.max_text_size(l_testing_id), 80, 'otap_util.max_text_size expected max length');
-1252  EXCEPTION
-1253  	WHEN OTHERS THEN
-1254  	  otap_log.log('Test block OTAP_UTIL failed', 'otap_util.sql', SQLERRM);
-1255  	  l_return := otap_test.test_error('Complete test block OTAP_UTIL failed', SQLERRM);
-1256  END;
-1257  /
+ 58    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_FAILED, 'TEXT_TEST_FAILED', 'Verify package constant otap_util.CFG_TEXT_TEST_FAILED');
+ 59    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_PASSED, 'TEXT_TEST_PASSED', 'Verify package constant otap_util.CFG_TEXT_TEST_PASSED');
+ 60    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_UNDEFINED, 'TEXT_TEST_UNDEFINED', 'Verify package constant otap_util.CFG_TEXT_TEST_UNDEFINED');
+ 61    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE, 'TEXT_TRUE', 'Verify package constant otap_util.CFG_TEXT_TRUE');
+ 62    l_return := otap_test.is_eq(otap_util.CFG_TEXT_TRUE_YES, 'TEXT_TRUE_YES', 'Verify package constant otap_util.CFG_TEXT_TRUE_YES');
+ 63    l_return := otap_test.is_eq(otap_util.CFG_LABEL_BOOLEAN, 'LABEL_BOOLEAN', 'Verify package constant otap_util.CFG_LABEL_BOOLEAN');
+ 64    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CHECK, 'LABEL_CHECK', 'Verify package constant otap_util.CFG_LABEL_CHECK');
+ 65    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CLUSTER, 'LABEL_CLUSTER', 'Verify package constant otap_util.CFG_LABEL_CLUSTER');
+ 66    l_return := otap_test.is_eq(otap_util.CFG_LABEL_COLUMN, 'LABEL_COLUMN', 'Verify package constant otap_util.CFG_LABEL_COLUMN');
+ 67    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSTRAINT, 'LABEL_CONSTRAINT', 'Verify package constant otap_util.CFG_LABEL_CONSTRAINT');
+ 68    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONSUMER_GROUP, 'LABEL_CONSUMER_GROUP', 'Verify package constant otap_util.CFG_LABEL_CONSUMER_GROUP');
+ 69    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CONTEXT, 'LABEL_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_CONTEXT');
+ 70    l_return := otap_test.is_eq(otap_util.CFG_LABEL_CREDENTIAL, 'LABEL_CREDENTIAL', 'Verify package constant otap_util.CFG_LABEL_CREDENTIAL');
+ 71    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATABASE, 'LABEL_DATABASE', 'Verify package constant otap_util.CFG_LABEL_DATABASE');
+ 72    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DATE, 'LABEL_DATE', 'Verify package constant otap_util.CFG_LABEL_DATE');
+ 73    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DESTINATION, 'LABEL_DESTINATION', 'Verify package constant otap_util.CFG_LABEL_DESTINATION');
+ 74    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIMENSION, 'LABEL_DIMENSION', 'Verify package constant otap_util.CFG_LABEL_DIMENSION');
+ 75    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DIRECTORY, 'LABEL_DIRECTORY', 'Verify package constant otap_util.CFG_LABEL_DIRECTORY');
+ 76    l_return := otap_test.is_eq(otap_util.CFG_LABEL_DOMAIN, 'LABEL_DOMAIN', 'Verify package constant otap_util.CFG_LABEL_DOMAIN');
+ 77    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EDITION, 'LABEL_EDITION', 'Verify package constant otap_util.CFG_LABEL_EDITION');
+ 78    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EVALUATION_CONTEXT, 'LABEL_EVALUATION_CONTEXT', 'Verify package constant otap_util.CFG_LABEL_EVALUATION_CONTEXT');
+ 79    l_return := otap_test.is_eq(otap_util.CFG_LABEL_EXCEPTION, 'LABEL_EXCEPTION', 'Verify package constant otap_util.CFG_LABEL_EXCEPTION');
+ 80    l_return := otap_test.is_eq(otap_util.CFG_LABEL_FOREIGN_KEY, 'LABEL_FOREIGN_KEY', 'Verify package constant otap_util.CFG_LABEL_FOREIGN_KEY');
+ 81    l_return := otap_test.is_eq(otap_util.CFG_LABEL_FUNCTION, 'LABEL_FUNCTION', 'Verify package constant otap_util.CFG_LABEL_FUNCTION');
+ 82    l_return := otap_test.is_eq(otap_util.CFG_LABEL_HASH, 'LABEL_HASH', 'Verify package constant otap_util.CFG_LABEL_HASH');
+ 83    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX, 'LABEL_INDEX', 'Verify package constant otap_util.CFG_LABEL_INDEX');
+ 84    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEXTYPE, 'LABEL_INDEXTYPE', 'Verify package constant otap_util.CFG_LABEL_INDEXTYPE');
+ 85    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_PARTITION, 'LABEL_INDEX_PARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_PARTITION');
+ 86    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INDEX_SUBPARTITION, 'LABEL_INDEX_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_INDEX_SUBPARTITION');
+ 87    l_return := otap_test.is_eq(otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'LABEL_INVALID_CONSTRAINT_TYPE', 'Verify package constant otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE');
+ 88    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_CLASS, 'LABEL_JAVA_CLASS', 'Verify package constant otap_util.CFG_LABEL_JAVA_CLASS');
+ 89    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_DATA, 'LABEL_JAVA_DATA', 'Verify package constant otap_util.CFG_LABEL_JAVA_DATA');
+ 90    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_RESOURCE, 'LABEL_JAVA_RESOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_RESOURCE');
+ 91    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JAVA_SOURCE, 'LABEL_JAVA_SOURCE', 'Verify package constant otap_util.CFG_LABEL_JAVA_SOURCE');
+ 92    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB, 'LABEL_JOB', 'Verify package constant otap_util.CFG_LABEL_JOB');
+ 93    l_return := otap_test.is_eq(otap_util.CFG_LABEL_JOB_CLASS, 'LABEL_JOB_CLASS', 'Verify package constant otap_util.CFG_LABEL_JOB_CLASS');
+ 94    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LIBRARY, 'LABEL_LIBRARY', 'Verify package constant otap_util.CFG_LABEL_LIBRARY');
+ 95    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB, 'LABEL_LOB', 'Verify package constant otap_util.CFG_LABEL_LOB');
+ 96    l_return := otap_test.is_eq(otap_util.CFG_LABEL_LOB_PARTITION, 'LABEL_LOB_PARTITION', 'Verify package constant otap_util.CFG_LABEL_LOB_PARTITION');
+ 97    l_return := otap_test.is_eq(otap_util.CFG_LABEL_MATERIALIZED_VIEW, 'LABEL_MATERIALIZED_VIEW', 'Verify package constant otap_util.CFG_LABEL_MATERIALIZED_VIEW');
+ 98    l_return := otap_test.is_eq(otap_util.CFG_LABEL_MLE_LANGUAGE, 'LABEL_MLE_LANGUAGE', 'Verify package constant otap_util.CFG_LABEL_MLE_LANGUAGE');
+ 99    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NOT_NULL, 'LABEL_NOT_NULL', 'Verify package constant otap_util.CFG_LABEL_NOT_NULL');
+100    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NULL, 'LABEL_NULL', 'Verify package constant otap_util.CFG_LABEL_NULL');
+101    l_return := otap_test.is_eq(otap_util.CFG_LABEL_NUMBER, 'LABEL_NUMBER', 'Verify package constant otap_util.CFG_LABEL_NUMBER');
+102    l_return := otap_test.is_eq(otap_util.CFG_LABEL_OPERATOR, 'LABEL_OPERATOR', 'Verify package constant otap_util.CFG_LABEL_OPERATOR');
+103    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE, 'LABEL_PACKAGE', 'Verify package constant otap_util.CFG_LABEL_PACKAGE');
+104    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PACKAGE_BODY, 'LABEL_PACKAGE_BODY', 'Verify package constant otap_util.CFG_LABEL_PACKAGE_BODY');
+105    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PRIMARY_KEY, 'LABEL_PRIMARY_KEY', 'Verify package constant otap_util.CFG_LABEL_PRIMARY_KEY');
+106    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROCEDURE, 'LABEL_PROCEDURE', 'Verify package constant otap_util.CFG_LABEL_PROCEDURE');
+107    l_return := otap_test.is_eq(otap_util.CFG_LABEL_PROGRAM, 'LABEL_PROGRAM', 'Verify package constant otap_util.CFG_LABEL_PROGRAM');
+108    l_return := otap_test.is_eq(otap_util.CFG_LABEL_QUEUE, 'LABEL_QUEUE', 'Verify package constant otap_util.CFG_LABEL_QUEUE');
+109    l_return := otap_test.is_eq(otap_util.CFG_LABEL_REF_COLUMN, 'LABEL_REF_COLUMN', 'Verify package constant otap_util.CFG_LABEL_REF_COLUMN');
+110    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RESOURCE_PLAN, 'LABEL_RESOURCE_PLAN', 'Verify package constant otap_util.CFG_LABEL_RESOURCE_PLAN');
+111    l_return := otap_test.is_eq(otap_util.CFG_LABEL_ROLE, 'LABEL_ROLE', 'Verify package constant otap_util.CFG_LABEL_ROLE');
+112    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE, 'LABEL_RULE', 'Verify package constant otap_util.CFG_LABEL_RULE');
+113    l_return := otap_test.is_eq(otap_util.CFG_LABEL_RULE_SET, 'LABEL_RULE_SET', 'Verify package constant otap_util.CFG_LABEL_RULE_SET');
+114    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULE, 'LABEL_SCHEDULE', 'Verify package constant otap_util.CFG_LABEL_SCHEDULE');
+115    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_GROUP, 'LABEL_SCHEDULER_GROUP', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_GROUP');
+116    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SCHEDULER_JOB, 'LABEL_SCHEDULER_JOB', 'Verify package constant otap_util.CFG_LABEL_SCHEDULER_JOB');
+117    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SEQUENCE, 'LABEL_SEQUENCE', 'Verify package constant otap_util.CFG_LABEL_SEQUENCE');
+118    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'LABEL_SUPPLEMENTAL_LOGGGING', 'Verify package constant otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING');
+119    l_return := otap_test.is_eq(otap_util.CFG_LABEL_SYNONYM, 'LABEL_SYNONYM', 'Verify package constant otap_util.CFG_LABEL_SYNONYM');
+120    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE, 'LABEL_TABLE', 'Verify package constant otap_util.CFG_LABEL_TABLE');
+121    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_PARTITION, 'LABEL_TABLE_PARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_PARTITION');
+122    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TABLE_SUBPARTITION, 'LABEL_TABLE_SUBPARTITION', 'Verify package constant otap_util.CFG_LABEL_TABLE_SUBPARTITION');
+123    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TRIGGER, 'LABEL_TRIGGER', 'Verify package constant otap_util.CFG_LABEL_TRIGGER');
+124    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE, 'LABEL_TYPE', 'Verify package constant otap_util.CFG_LABEL_TYPE');
+125    l_return := otap_test.is_eq(otap_util.CFG_LABEL_TYPE_BODY, 'LABEL_TYPE_BODY', 'Verify package constant otap_util.CFG_LABEL_TYPE_BODY');
+126    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNDEFINED, 'LABEL_UNDEFINED', 'Verify package constant otap_util.CFG_LABEL_UNDEFINED');
+127    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY, 'LABEL_UNIFIED_AUDIT_POLICY', 'Verify package constant otap_util.CFG_LABEL_UNIFIED_AUDIT_POLICY');
+128    l_return := otap_test.is_eq(otap_util.CFG_LABEL_UNIQUE_KEY, 'LABEL_UNIQUE_KEY', 'Verify package constant otap_util.CFG_LABEL_UNIQUE_KEY');
+129    l_return := otap_test.is_eq(otap_util.CFG_LABEL_USER, 'LABEL_USER', 'Verify package constant otap_util.CFG_LABEL_USER');
+130    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VARCHAR2, 'LABEL_VARCHAR2', 'Verify package constant otap_util.CFG_LABEL_VARCHAR2');
+131    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW, 'LABEL_VIEW', 'Verify package constant otap_util.CFG_LABEL_VIEW');
+132    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_CHECK, 'LABEL_VIEW_CHECK', 'Verify package constant otap_util.CFG_LABEL_VIEW_CHECK');
+133    l_return := otap_test.is_eq(otap_util.CFG_LABEL_VIEW_READONLY, 'LABEL_VIEW_READONLY', 'Verify package constant otap_util.CFG_LABEL_VIEW_READONLY');
+134    l_return := otap_test.is_eq(otap_util.CFG_LABEL_WINDOW, 'LABEL_WINDOW', 'Verify package constant otap_util.CFG_LABEL_WINDOW');
+135    l_return := otap_test.is_eq(otap_util.CFG_LABEL_XML_SCHEMA, 'LABEL_XML_SCHEMA', 'Verify package constant otap_util.CFG_LABEL_XML_SCHEMA');
+136    -- check functionality is_number
+137    l_return := otap_test.ok(otap_util.is_number('1'), 'otap_util.is_number simple number');
+138    l_return := otap_test.ok((NOT otap_util.is_number('A')), 'otap_util.is_number simple char fails');
+139    l_return := otap_test.ok(p_boolean => otap_util.is_number('A'), p_description => 'otap_util.is_number simple char and expected result failed', p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED);
+140    l_return := otap_test.ok((NOT otap_util.is_number('-1-')), 'otap_util.is_number strange number -1- fails');
+141    l_return := otap_test.ok((NOT otap_util.is_number('-1*2+')), 'otap_util.is_number strange number -1*2+ fails');
+142    l_return := otap_test.ok((NOT otap_util.is_number('99999999999999999999999999999999999999999999999999')), 'otap_util.is_number too big number 99999999999999999999999999999999999999999999999999 fails');
+143    -- get correct current decimal points, thousands divider does not work with TO_NUMBER, without given format
+144    SELECT SUBSTR(value, 1, 1)
+145  	 INTO l_decimal
+146  	 FROM nls_session_parameters
+147  	WHERE parameter = 'NLS_NUMERIC_CHARACTERS'
+148    ;
+149    l_return := otap_test.ok(otap_util.is_number('1' || l_decimal || '234'), 'otap_util.is_number using current decimal point defined 1.234');
+150    l_return := otap_test.ok(otap_util.is_number(l_decimal || '234'), 'otap_util.is_number using leading current decimal point defined .234');
+151    -- this is something allowed in SQL with wrong results (decimals cut and zeroed) but not with PLSQL
+152    l_return := otap_test.ok((NOT otap_util.is_number('1e10')), 'otap_util.is_number scientific notation 1e10 fails');
+153    -- check functionality is_integer
+154    l_return := otap_test.ok(otap_util.is_integer('1'), 'otap_util.is_integer simple integer');
+155    l_return := otap_test.ok((NOT otap_util.is_integer('A')), 'otap_util.is_integer simple char fails');
+156    l_return := otap_test.ok((NOT otap_util.is_integer('1.0')), 'otap_util.is_integer decimal 1.0 fails');
+157    l_return := otap_test.ok((NOT otap_util.is_integer('.045')), 'otap_util.is_integer decimal .045 fails');
+158    l_return := otap_test.ok(otap_util.is_integer('-1'), 'otap_util.is_integer simple negative integer');
+159    l_return := otap_test.ok((NOT otap_util.is_integer('-1-')), 'otap_util.is_integer strange number -1- fails');
+160    l_return := otap_test.ok((NOT otap_util.is_integer('-1*2+')), 'otap_util.is_integer strange number -1*2+ fails');
+161    l_return := otap_test.ok((NOT otap_util.is_integer('99999999999999999999999999999999999999999999999999')), 'otap_util.is_integer too big number 99999999999999999999999999999999999999999999999999 fails');
+162    -- check functionality validate_config_name
+163    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'');', -20001, NULL, 'otap_util.validate_config_name invalid config name exception');
+164    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER, TRUE);', -20006, NULL, 'otap_util.validate_config_name delete config name exception');
+165    l_return := otap_test.throws_ok('otap_util.validate_config_name(''Not valid'', TRUE);', -20006, NULL, 'otap_util.validate_config_name delete invalid config name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+166    -- check that defined config names do not cause exceptions
+167    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_constants.OTAP_CFG_DEBUG_MODE);', -20001, NULL, 'otap_util.validate_config_name debug mode no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+168    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_BORDER);', -20001, NULL, 'otap_util.validate_config_name default border no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+169    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LABEL_COLUMN);', -20001, NULL, 'otap_util.validate_config_name default label column no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+170    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LAYOUT);', -20001, NULL, 'otap_util.validate_config_name default layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+171    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_PREFIX);', -20001, NULL, 'otap_util.validate_config_name default prefix no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+172    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_RESULT_LAYOUT);', -20001, NULL, 'otap_util.validate_config_name default result layout no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+173    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_GROUP);', -20001, NULL, 'otap_util.validate_config_name default test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+174    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_NAME);', -20001, NULL, 'otap_util.validate_config_name default test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+175    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_TEST_SET);', -20001, NULL, 'otap_util.validate_config_name default test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+176    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DEFAULT_LANGUAGE);', -20001, NULL, 'otap_util.validate_config_name default language no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+177    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_BATCH_SIZE);', -20001, NULL, 'otap_util.validate_config_name delete batch size no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+178    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_DELETE_DELAY);', -20001, NULL, 'otap_util.validate_config_name delete delay no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+179    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_GROUP_CHAR);', -20001, NULL, 'otap_util.validate_config_name format group char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+180    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_HEADER_CHAR);', -20001, NULL, 'otap_util.validate_config_name format header char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+181    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_NAME_CHAR);', -20001, NULL, 'otap_util.validate_config_name format test name char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+182    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_FORMAT_SET_CHAR);', -20001, NULL, 'otap_util.validate_config_name format test set char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+183    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_PRESERVE_DAYS);', -20001, NULL, 'otap_util.validate_config_name preserve days no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+184    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_COUNT_DESC);', -20001, NULL, 'otap_util.validate_config_name template count description no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+185    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERRORS);', -20001, NULL, 'otap_util.validate_config_name template errors no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+186    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_ERROR_DETAILS);', -20001, NULL, 'otap_util.validate_config_name template error details no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+187    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS);', -20001, NULL, 'otap_util.validate_config_name template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+188    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTSX);', -20001, NULL, 'otap_util.validate_config_name extended template object exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+189    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_C);', -20001, NULL, 'otap_util.validate_config_name template constraints exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+190    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_CX);', -20001, NULL, 'otap_util.validate_config_name extended template constraint exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+191    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_F);', -20001, NULL, 'otap_util.validate_config_name template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+192    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_EXISTS_FX);', -20001, NULL, 'otap_util.validate_config_name extended template function exists no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+193    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_GROUP);', -20001, NULL, 'otap_util.validate_config_name template test group no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+194    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_MATCH);', -20001, NULL, 'otap_util.validate_config_name template match no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+195    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_NO_DATA);', -20001, NULL, 'otap_util.validate_config_name template no data no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+196    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name template report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+197    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name template result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+198    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SESSION_ID);', -20001, NULL, 'otap_util.validate_config_name template session id no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+199    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SET);', -20001, NULL, 'otap_util.validate_config_name template test set no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+200    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_SUMMARY);', -20001, NULL, 'otap_util.validate_config_name template summary no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+201    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEMPLATE_TEST_NAME);', -20001, NULL, 'otap_util.validate_config_name template test name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+202    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE);', -20001, NULL, 'otap_util.validate_config_name config text false no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+203    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_FALSE_NO);', -20001, NULL, 'otap_util.validate_config_name config text false/no no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+204    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_END);', -20001, NULL, 'otap_util.validate_config_name config text report end no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+205    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_START);', -20001, NULL, 'otap_util.validate_config_name config text report start no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+206    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+207    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+208    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+209    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'otap_util.validate_config_name config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+210    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_PASSED);', -20001, NULL, 'otap_util.validate_config_name config text test passed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+211    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'otap_util.validate_config_name config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+212    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE);', -20001, NULL, 'otap_util.validate_config_name config text true no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+213    l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TRUE_YES);', -20001, NULL, 'otap_util.validate_config_name config text true/yes no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+214    -- reduced testing for validate_config_value, as used in trigger config_name must be valid for testing, as checked before
+215    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, NULL, ''NUMBER'', l_translatable, NULL);', -20002, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value NULL exception');
+216    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''INTEGER'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type exception');
+217    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''number'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type lower case number exception');
+218    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''1'', ''char'', l_translatable, NULL);', -20003, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value type lower case char exception');
+219    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''NUMBER'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max defined length number exception');
+220    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''10'', ''CHAR'', l_translatable, 1);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max defined length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+221    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''NUMBER'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max length number exception');
+222    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, LPAD(''9'', 4001, ''9''), ''CHAR'', l_translatable, NULL);', -20004, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value max length char no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+223    l_return := otap_test.throws_ok('l_config_value := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, ''A'', ''NUMBER'', l_translatable, NULL);', -20005, 'l_translatable NUMBER := 0; l_config_value VARCHAR2(4000);', 'otap_util.validate_config_value config value not a number exception');
+224    l_translatable := 9;
+225    l_stamp	      := SYSTIMESTAMP;
+226    l_return       := otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '0', 'NUMBER', l_translatable, NULL);
+227    l_finish       := SYSTIMESTAMP;
+228    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value default value on invalid translatable');
+229    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable')
+230  	 INTO l_return
+231  	 FROM sperrorlog
+232  	WHERE timestamp 	   >= l_stamp
+233  	  AND timestamp 	   <= l_finish
+234  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+235  	  AND message		 LIKE 'Invalid value for TRANSLATABLE: 9%'
+236    ;
+237    l_translatable := otap_constants.OTAP_NUM_TRUE;
+238    l_stamp	      := SYSTIMESTAMP;
+239    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_PREFIX, otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX, 'CHAR', l_translatable, otap_constants.OTAP_NUM_PREFIX_MAX_SIZE);
+240    l_finish       := SYSTIMESTAMP;
+241    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default prefix');
+242    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default prefix')
+243  	 INTO l_return
+244  	 FROM sperrorlog
+245  	WHERE timestamp 	   >= l_stamp
+246  	  AND timestamp 	   <= l_finish
+247  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+248  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_PREFIX || ' for TRANSLATABLE:%'
+249    ;
+250    l_translatable := otap_constants.OTAP_NUM_TRUE;
+251    l_stamp	      := SYSTIMESTAMP;
+252    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_DEFAULT, 'CHAR', l_translatable, 1);
+253    l_finish       := SYSTIMESTAMP;
+254    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default layout');
+255    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default layout')
+256  	 INTO l_return
+257  	 FROM sperrorlog
+258  	WHERE timestamp 	   >= l_stamp
+259  	  AND timestamp 	   <= l_finish
+260  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+261  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_LAYOUT || ' for TRANSLATABLE:%'
+262    ;
+263    l_translatable := otap_constants.OTAP_NUM_TRUE;
+264    l_stamp	      := SYSTIMESTAMP;
+265    l_return       := otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT, 'CHAR', l_translatable, 1);
+266    l_finish       := SYSTIMESTAMP;
+267    l_return       := otap_test.is_eq(l_translatable, otap_constants.OTAP_NUM_FALSE, 'otap_util.validate_config_value invalid translatable default result layout');
+268    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid translatable default result layout')
+269  	 INTO l_return
+270  	 FROM sperrorlog
+271  	WHERE timestamp 	   >= l_stamp
+272  	  AND timestamp 	   <= l_finish
+273  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+274  	  AND message		 LIKE 'Invalid config_name: ' || otap_util.CFG_DEFAULT_RESULT_LAYOUT || ' for TRANSLATABLE:%'
+275    ;
+276    l_stamp	:= SYSTIMESTAMP;
+277    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid min value');
+278    l_finish := SYSTIMESTAMP;
+279    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days min value')
+280  	 INTO l_return
+281  	 FROM sperrorlog
+282  	WHERE timestamp 	   >= l_stamp
+283  	  AND timestamp 	   <= l_finish
+284  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+285  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 0%'
+286    ;
+287    l_stamp	:= SYSTIMESTAMP;
+288    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '8', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid max value');
+289    l_finish := SYSTIMESTAMP;
+290    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days max value')
+291  	 INTO l_return
+292  	 FROM sperrorlog
+293  	WHERE timestamp 	   >= l_stamp
+294  	  AND timestamp 	   <= l_finish
+295  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+296  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 8%'
+297    ;
+298    l_stamp	:= SYSTIMESTAMP;
+299    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_PRESERVE_DAYS, '1.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_PRESERVE_DAYS)), 'otap_util.validate_config_value default preserve days invalid decimal value');
+300    l_finish := SYSTIMESTAMP;
+301    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid preserve days decimal value')
+302  	 INTO l_return
+303  	 FROM sperrorlog
+304  	WHERE timestamp 	   >= l_stamp
+305  	  AND timestamp 	   <= l_finish
+306  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+307  	  AND message		 LIKE 'Invalid value for PRESERVE_DAYS: 1.5%'
+308    ;
+309    l_stamp	:= SYSTIMESTAMP;
+310    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '0', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid min value');
+311    l_finish := SYSTIMESTAMP;
+312    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay min value')
+313  	 INTO l_return
+314  	 FROM sperrorlog
+315  	WHERE timestamp 	   >= l_stamp
+316  	  AND timestamp 	   <= l_finish
+317  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+318  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 0%'
+319    ;
+320    l_stamp	:= SYSTIMESTAMP;
+321    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '601', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid max value');
+322    l_finish := SYSTIMESTAMP;
+323    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay max value')
+324  	 INTO l_return
+325  	 FROM sperrorlog
+326  	WHERE timestamp 	   >= l_stamp
+327  	  AND timestamp 	   <= l_finish
+328  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+329  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 601%'
+330    ;
+331    l_stamp	:= SYSTIMESTAMP;
+332    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_DELAY, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_DELAY)), 'otap_util.validate_config_value default delete delay invalid decimal value');
+333    l_finish := SYSTIMESTAMP;
+334    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete delay decimal value')
+335  	 INTO l_return
+336  	 FROM sperrorlog
+337  	WHERE timestamp 	   >= l_stamp
+338  	  AND timestamp 	   <= l_finish
+339  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+340  	  AND message		 LIKE 'Invalid value for DELETE_DELAY: 100.5%'
+341    ;
+342    l_stamp	:= SYSTIMESTAMP;
+343    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid min value');
+344    l_finish := SYSTIMESTAMP;
+345    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size min value')
+346  	 INTO l_return
+347  	 FROM sperrorlog
+348  	WHERE timestamp 	   >= l_stamp
+349  	  AND timestamp 	   <= l_finish
+350  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+351  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 10%'
+352    ;
+353    l_stamp	:= SYSTIMESTAMP;
+354    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '10001', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid max value');
+355    l_finish := SYSTIMESTAMP;
+356    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size max value')
+357  	 INTO l_return
+358  	 FROM sperrorlog
+359  	WHERE timestamp 	   >= l_stamp
+360  	  AND timestamp 	   <= l_finish
+361  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+362  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 10001%'
+363    ;
+364    l_stamp	:= SYSTIMESTAMP;
+365    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DELETE_BATCH_SIZE, '100.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_DELETE_BATCH_SIZE)), 'otap_util.validate_config_value default delete batch size invalid decimal value');
+366    l_finish := SYSTIMESTAMP;
+367    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid delete batch size decimal value')
+368  	 INTO l_return
+369  	 FROM sperrorlog
+370  	WHERE timestamp 	   >= l_stamp
+371  	  AND timestamp 	   <= l_finish
+372  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+373  	  AND message		 LIKE 'Invalid value for DELETE_BATCH_SIZE: 100.5%'
+374    ;
+375    l_stamp	:= SYSTIMESTAMP;
+376    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '1', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid min value');
+377    l_finish := SYSTIMESTAMP;
+378    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size min value')
+379  	 INTO l_return
+380  	 FROM sperrorlog
+381  	WHERE timestamp 	   >= l_stamp
+382  	  AND timestamp 	   <= l_finish
+383  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+384  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 1%'
+385    ;
+386    l_stamp	:= SYSTIMESTAMP;
+387    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '11', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid max value');
+388    l_finish := SYSTIMESTAMP;
+389    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size max value')
+390  	 INTO l_return
+391  	 FROM sperrorlog
+392  	WHERE timestamp 	   >= l_stamp
+393  	  AND timestamp 	   <= l_finish
+394  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+395  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 11%'
+396    ;
+397    l_stamp	:= SYSTIMESTAMP;
+398    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_BORDER, '5.5', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)), 'otap_util.validate_config_value default border size invalid decimal value');
+399    l_finish := SYSTIMESTAMP;
+400    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid border size decimal value')
+401  	 INTO l_return
+402  	 FROM sperrorlog
+403  	WHERE timestamp 	   >= l_stamp
+404  	  AND timestamp 	   <= l_finish
+405  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+406  	  AND message		 LIKE 'Invalid value for DEFAULT_BORDER: 5.5%'
+407    ;
+408    l_stamp	:= SYSTIMESTAMP;
+409    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '3', 'NUMBER', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_NUM_FALSE)), 'otap_util.validate_config_value default debug invalid value');
+410    l_finish := SYSTIMESTAMP;
+411    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid debug value')
+412  	 INTO l_return
+413  	 FROM sperrorlog
+414  	WHERE timestamp 	   >= l_stamp
+415  	  AND timestamp 	   <= l_finish
+416  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+417  	  AND message		 LIKE 'Invalid value for DEBUG_MODE: 3%'
+418    ;
+419    l_stamp	:= SYSTIMESTAMP;
+420    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LAYOUT, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LAYOUT_MIDDLE)), 'otap_util.validate_config_value default layout invalid value');
+421    l_finish := SYSTIMESTAMP;
+422    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid layout value')
+423  	 INTO l_return
+424  	 FROM sperrorlog
+425  	WHERE timestamp 	   >= l_stamp
+426  	  AND timestamp 	   <= l_finish
+427  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+428  	  AND message		 LIKE 'Invalid value for DEFAULT_LAYOUT: X%'
+429    ;
+430    l_stamp	:= SYSTIMESTAMP;
+431    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_RESULT_LAYOUT, 'M', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT)), 'otap_util.validate_config_value default result layout invalid value');
+432    l_finish := SYSTIMESTAMP;
+433    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid result layout value')
+434  	 INTO l_return
+435  	 FROM sperrorlog
+436  	WHERE timestamp 	   >= l_stamp
+437  	  AND timestamp 	   <= l_finish
+438  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+439  	  AND message		 LIKE 'Invalid value for DEFAULT_RESULT_LAYOUT: M%'
+440    ;
+441    l_stamp	:= SYSTIMESTAMP;
+442    l_return := otap_test.is_eq(otap_util.validate_config_value(otap_util.CFG_DEFAULT_LABEL_COLUMN, 'X', 'CHAR', l_translatable, NULL), TRIM(TO_CHAR(otap_constants.OTAP_LABEL_LOWER)), 'otap_util.validate_config_value default label layout invalid value');
+443    l_finish := SYSTIMESTAMP;
+444    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.validate_config_value log entry invalid label layout value')
+445  	 INTO l_return
+446  	 FROM sperrorlog
+447  	WHERE timestamp 	   >= l_stamp
+448  	  AND timestamp 	   <= l_finish
+449  	  AND TRIM(TO_CHAR(script)) = 'otap_util.validate_config_value'
+450  	  AND message		 LIKE 'Invalid value for DEFAULT_LABEL_LAYOUT: X%'
+451    ;
+452    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_constants.OTAP_CFG_DEBUG_MODE);', -20020, NULL, 'otap_util.validate_translatable config value not translatable exception');
+453    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_DEFAULT_TEST_SET);', -20020, NULL, 'otap_util.validate_translatable config value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+454    l_return := otap_test.throws_ok('otap_util.validate_translatable(otap_util.CFG_LABEL_BOOLEAN);', -20020, NULL, 'otap_util.validate_translatable label value translatable no exception', otap_constants.OTAP_NUM_TEST_FAILED);
+455    l_return := otap_test.is_eq(otap_util.get_config_value('Not exists'), 'OTAP_ERROR', 'otap_util.get_config_value get invalid config value as text');
+456    l_return := otap_test.ok((otap_util.get_config_number('Debuck_mode') IS NULL), 'otap_util.get_config_number get invalid config value as number');
+457    l_return := otap_test.is_eq(otap_util.get_label_id('BOOLEAN'), otap_util.CFG_LABEL_BOOLEAN, 'otap_util.get_label_id BOOLEAN');
+458    l_stamp	:= SYSTIMESTAMP;
+459    l_return := otap_test.is_eq(otap_util.get_label_id('BOOLEAN OHH MY GOD'), otap_util.CFG_LABEL_UNDEFINED, 'otap_util.get_label_id not existing BOOLEAN OHH MY GOD');
+460    l_finish := SYSTIMESTAMP;
+461    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.get_label_id log entry invalid label value')
+462  	 INTO l_return
+463  	 FROM sperrorlog
+464  	WHERE timestamp 	   >= l_stamp
+465  	  AND timestamp 	   <= l_finish
+466  	  AND TRIM(TO_CHAR(script)) = 'otap_util.get_label_id'
+467  	  AND message		 LIKE 'Invalid object type: BOOLEAN OHH MY GOD%'
+468    ;
+469    SELECT otap_test.is_eq(otap_util.get_length_test_state, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_test_state')
+470  	 INTO l_return
+471  	 FROM otap_identifiers_v
+472  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_TEST_UNDEFINED
+473  				 , otap_util.CFG_TEXT_TEST_PASSED
+474  				 , otap_util.CFG_TEXT_TEST_FAILED
+475  				 )
+476  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
+477    ;
+478    SELECT otap_test.is_eq(otap_util.get_length_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_headers')
+479  	 INTO l_return
+480  	 FROM otap_identifiers_v
+481  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_REPORT_START
+482  				 , otap_util.CFG_TEXT_REPORT_END
+483  				 , otap_util.CFG_TEXT_REPORT_TOTAL
+484  				 )
+485  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
+486    ;
+487    SELECT otap_test.is_eq(otap_util.get_length_result_headers, MAX(LENGTH(label_text_lower)), 'otap_util.get_length_result_headers')
+488  	 INTO l_return
+489  	 FROM otap_identifiers_v
+490  	WHERE otap_identifier IN ( otap_util.CFG_TEXT_RESULT_HEADER
+491  				 , otap_util.CFG_TEXT_RESULT_LINE
+492  				 )
+493  	  AND language_id      = otap_constants.OTAP_INTERNAL_NA
+494    ;
+495    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_PASSED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_PASSED), 'otap_util.test_result_to_text passed');
+496    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_FAILED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_FAILED), 'otap_util.test_result_to_text failed');
+497    l_return := otap_test.is_eq(otap_util.test_result_to_text(otap_constants.OTAP_NUM_TEST_UNDEFINED), otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED), 'otap_util.test_result_to_text undefined');
+498    l_return := otap_test.is_eq(otap_util.test_result_to_text(99), otap_constants.OTAP_INTERNAL_ERROR, 'otap_util.test_result_to_text wrong test result number');
+499    l_return := otap_test.is_eq(otap_util.constraint_type_to_label, otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label default check');
+500    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('C'), otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label parameter C check');
+501    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('c'), otap_util.CFG_LABEL_CHECK, 'otap_util.constraint_type_to_label lower parameter c check');
+502    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('P'), otap_util.CFG_LABEL_PRIMARY_KEY, 'otap_util.constraint_type_to_label parameter P primary key');
+503    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('U'), otap_util.CFG_LABEL_UNIQUE_KEY, 'otap_util.constraint_type_to_label parameter U unique key');
+504    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('R'), otap_util.CFG_LABEL_FOREIGN_KEY, 'otap_util.constraint_type_to_label parameter R foreign key');
+505    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('V'), otap_util.CFG_LABEL_VIEW_CHECK, 'otap_util.constraint_type_to_label parameter V view check');
+506    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('O'), otap_util.CFG_LABEL_VIEW_READONLY, 'otap_util.constraint_type_to_label parameter O view readonly');
+507    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('F'), otap_util.CFG_LABEL_REF_COLUMN, 'otap_util.constraint_type_to_label parameter F ref column');
+508    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('H'), otap_util.CFG_LABEL_HASH, 'otap_util.constraint_type_to_label parameter H hash');
+509    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('S'), otap_util.CFG_LABEL_SUPPLEMENTAL_LOGGGING, 'otap_util.constraint_type_to_label parameter S supplemental logging');
+510    l_stamp	:= SYSTIMESTAMP;
+511    l_return := otap_test.is_eq(otap_util.constraint_type_to_label('X'), otap_util.CFG_LABEL_INVALID_CONSTRAINT_TYPE, 'otap_util.constraint_type_to_label parameter X invalid');
+512    l_finish := SYSTIMESTAMP;
+513    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.constraint_type_to_label log entry invalid parameter')
+514  	 INTO l_return
+515  	 FROM sperrorlog
+516  	WHERE timestamp 	   >= l_stamp
+517  	  AND timestamp 	   <= l_finish
+518  	  AND TRIM(TO_CHAR(script)) = 'otap_util.constraint_type_to_label'
+519  	  AND message		 LIKE 'Invalid constraint type: X%'
+520    ;
+521    l_stamp	:= SYSTIMESTAMP;
+522    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => NULL, p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule missing template');
+523    l_finish := SYSTIMESTAMP;
+524    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_util.build_msg description no log entry missing template identifier')
+525  	 INTO l_return
+526  	 FROM sperrorlog
+527  	WHERE timestamp 	   >= l_stamp
+528  	  AND timestamp 	   <= l_finish
+529  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+530  	  AND message		 LIKE '%missing%template identifier%'
+531    ;
+532    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS, p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule given template');
+533    l_stamp	:= SYSTIMESTAMP;
+534    l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => 'I DO NOT EXIST', p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule invalid template');
+535    l_finish := SYSTIMESTAMP;
+536    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_util.build_msg description no log entry invalid template identifier')
+537  	 INTO l_return
+538  	 FROM sperrorlog
+539  	WHERE timestamp 	   >= l_stamp
+540  	  AND timestamp 	   <= l_finish
+541  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+542  	  AND message		 LIKE '%invalid template identifier%'
+543    ;
+544    l_stamp	:= SYSTIMESTAMP;
+545    l_return := otap_test.is_eq(otap_util.build_msg(NULL), otap_constants.OTAP_INTERNAL_ERROR || ' otap_util.build_msg missing description and template identifier', 'otap_util.build_msg missing template');
+546    l_finish := SYSTIMESTAMP;
+547    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry missing template identifier')
+548  	 INTO l_return
+549  	 FROM sperrorlog
+550  	WHERE timestamp 	   >= l_stamp
+551  	  AND timestamp 	   <= l_finish
+552  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+553  	  AND message		 LIKE '%otap_util.build_msg missing description and template identifier'
+554    ;
+555    l_stamp	:= SYSTIMESTAMP;
+556    l_return := otap_test.is_eq(otap_util.build_msg('I DO NOT EXIST'), otap_constants.OTAP_INTERNAL_ERROR || ' otap_util.build_msg invalid template identifier I DO NOT EXIST', 'otap_util.build_msg invalid template');
+557    l_finish := SYSTIMESTAMP;
+558    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry invalid template identifier')
+559  	 INTO l_return
+560  	 FROM sperrorlog
+561  	WHERE timestamp 	   >= l_stamp
+562  	  AND timestamp 	   <= l_finish
+563  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+564  	  AND message		 LIKE '%otap_util.build_msg invalid template identifier I DO NOT EXIST'
+565    ;
+566    l_return := otap_test.is_eq(otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS), '@type@ @object@ exists check (@schema@)', 'otap_util.build_msg template no parameter');
+567    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN)
+568  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+569  				  , 'otap_util.build_msg template only type parameter'
+570  				  )
+571    ;
+572    l_stamp	:= SYSTIMESTAMP;
+573    l_return := otap_test.is_eq(otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, 'Type invalid'), '@type@ @object@ exists check (@schema@)', 'otap_util.build_msg template invalid type parameter');
+574    l_finish := SYSTIMESTAMP;
+575    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry invalid type identifier')
+576  	 INTO l_return
+577  	 FROM sperrorlog
+578  	WHERE timestamp 	   >= l_stamp
+579  	  AND timestamp 	   <= l_finish
+580  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+581  	  AND message		 LIKE 'Type ignored, Invalid label used: Type invalid%'
+582    ;
+583    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@')
+584  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+585  				  , 'otap_util.build_msg template no value for first variable'
+586  				  )
+587    ;
+588    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@', 'MY_OBJECT')
+589  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+590  				  , 'otap_util.build_msg template first variable/value pair'
+591  				  )
+592    ;
+593    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@object@', 'My fanCY obJECT')
+594  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+595  				  , 'otap_util.build_msg template first variable/value pair value any case'
+596  				  )
+597    ;
+598    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@OBJECT@', 'MY_OBJECT')
+599  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+600  				  , 'otap_util.build_msg template first variable/value pair, wrong variable case'
+601  				  )
+602    ;
+603    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@@', 'MY_OBJECT')
+604  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+605  				  , 'otap_util.build_msg template first variable/value pair, empty variable'
+606  				  )
+607    ;
+608    l_stamp	:= SYSTIMESTAMP;
+609    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, 'object', 'MY_OBJECT')
+610  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+611  				  , 'otap_util.build_msg template first variable/value pair, no variable identifier'
+612  				  )
+613    ;
+614    l_finish := SYSTIMESTAMP;
+615    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no first variable identifier')
+616  	 INTO l_return
+617  	 FROM sperrorlog
+618  	WHERE timestamp 	   >= l_stamp
+619  	  AND timestamp 	   <= l_finish
+620  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+621  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
+622    ;
+623    l_stamp	:= SYSTIMESTAMP;
+624    l_return := otap_test.is_eq( otap_util.build_msg(otap_util.CFG_TEMPLATE_EXISTS, otap_util.CFG_LABEL_COLUMN, '@@object@@', 'MY_OBJECT')
+625  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+626  				  , 'otap_util.build_msg template first variable/value pair, wrong variable identifier count'
+627  				  )
+628    ;
+629    l_finish := SYSTIMESTAMP;
+630    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong first variable identifier count')
+631  	 INTO l_return
+632  	 FROM sperrorlog
+633  	WHERE timestamp 	   >= l_stamp
+634  	  AND timestamp 	   <= l_finish
+635  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+636  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
+637    ;
+638    l_stamp	:= SYSTIMESTAMP;
+639    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+640  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+641  						       , p_param1_value => 'MY_OBJECT'
+642  						       )
+643  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+644  				  , 'otap_util.build_msg template first value without variable'
+645  				  )
+646    ;
+647    l_finish := SYSTIMESTAMP;
+648    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry first value without variable')
+649  	 INTO l_return
+650  	 FROM sperrorlog
+651  	WHERE timestamp 	   >= l_stamp
+652  	  AND timestamp 	   <= l_finish
+653  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+654  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
+655    ;
+656    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+657  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+658  						       , p_param2 => '@object@'
+659  						       )
+660  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+661  				  , 'otap_util.build_msg template no value for second variable'
+662  				  )
+663    ;
+664    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+665  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+666  						       , p_param2 => '@object@'
+667  						       , p_param2_value => 'MY_OBJECT'
+668  						       )
+669  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+670  				  , 'otap_util.build_msg template second variable/value pair'
+671  				  )
+672    ;
+673    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+674  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+675  						       , p_param2 => '@object@'
+676  						       , p_param2_value => 'My fanCY obJECT'
+677  						       )
+678  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+679  				  , 'otap_util.build_msg template second variable/value pair value any case'
+680  				  )
+681    ;
+682    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+683  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+684  						       , p_param2 => '@OBJECT@'
+685  						       , p_param2_value => 'MY_OBJECT'
+686  						       )
+687  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+688  				  , 'otap_util.build_msg template second variable/value pair, wrong variable case'
+689  				  )
+690    ;
+691    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+692  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+693  						       , p_param2 => '@@'
+694  						       , p_param2_value => 'MY_OBJECT'
+695  						       )
+696  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+697  				  , 'otap_util.build_msg template second variable/value pair, empty variable'
+698  				  )
+699    ;
+700    l_stamp	:= SYSTIMESTAMP;
+701    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+702  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+703  						       , p_param2 => 'object'
+704  						       , p_param2_value => 'MY_OBJECT'
+705  						       )
+706  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+707  				  , 'otap_util.build_msg template second variable/value pair, no variable identifier'
+708  				  )
+709    ;
+710    l_finish := SYSTIMESTAMP;
+711    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no second variable identifier')
+712  	 INTO l_return
+713  	 FROM sperrorlog
+714  	WHERE timestamp 	   >= l_stamp
+715  	  AND timestamp 	   <= l_finish
+716  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+717  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
+718    ;
+719    l_stamp	:= SYSTIMESTAMP;
+720    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+721  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+722  						       , p_param2 => '@@object@@'
+723  						       , p_param2_value => 'MY_OBJECT')
+724  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+725  				  , 'otap_util.build_msg template second variable/value pair, wrong variable identifier count'
+726  				  )
+727    ;
+728    l_finish := SYSTIMESTAMP;
+729    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong second variable identifier count')
+730  	 INTO l_return
+731  	 FROM sperrorlog
+732  	WHERE timestamp 	   >= l_stamp
+733  	  AND timestamp 	   <= l_finish
+734  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+735  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
+736    ;
+737    l_stamp	:= SYSTIMESTAMP;
+738    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+739  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+740  						       , p_param2_value => 'MY_OBJECT'
+741  						       )
+742  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+743  				  , 'otap_util.build_msg template second value without variable'
+744  				  )
+745    ;
+746    l_finish := SYSTIMESTAMP;
+747    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry second value without variable')
+748  	 INTO l_return
+749  	 FROM sperrorlog
+750  	WHERE timestamp 	   >= l_stamp
+751  	  AND timestamp 	   <= l_finish
+752  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+753  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
+754    ;
+755    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+756  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+757  						       , p_param3 => '@object@'
+758  						       )
+759  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+760  				  , 'otap_util.build_msg template no value for third variable'
+761  				  )
+762    ;
+763    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+764  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+765  						       , p_param3 => '@object@'
+766  						       , p_param3_value => 'MY_OBJECT'
+767  						       )
+768  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+769  				  , 'otap_util.build_msg template third variable/value pair'
+770  				  )
+771    ;
+772    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+773  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+774  						       , p_param3 => '@object@'
+775  						       , p_param3_value => 'My fanCY obJECT'
+776  						       )
+777  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+778  				  , 'otap_util.build_msg template third variable/value pair value any case'
+779  				  )
+780    ;
+781    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+782  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+783  						       , p_param3 => '@OBJECT@'
+784  						       , p_param3_value => 'MY_OBJECT'
+785  						       )
+786  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+787  				  , 'otap_util.build_msg template third variable/value pair, wrong variable case'
+788  				  )
+789    ;
+790    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+791  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+792  						       , p_param3 => '@@'
+793  						       , p_param3_value => 'MY_OBJECT'
+794  						       )
+795  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+796  				  , 'otap_util.build_msg template third variable/value pair, empty variable'
+797  				  )
+798    ;
+799    l_stamp	:= SYSTIMESTAMP;
+800    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+801  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+802  						       , p_param3 => 'object'
+803  						       , p_param3_value => 'MY_OBJECT'
+804  						       )
+805  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+806  				  , 'otap_util.build_msg template third variable/value pair, no variable identifier'
+807  				  )
+808    ;
+809    l_finish := SYSTIMESTAMP;
+810    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no third variable identifier')
+811  	 INTO l_return
+812  	 FROM sperrorlog
+813  	WHERE timestamp 	   >= l_stamp
+814  	  AND timestamp 	   <= l_finish
+815  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+816  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
+817    ;
+818    l_stamp	:= SYSTIMESTAMP;
+819    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+820  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+821  						       , p_param3 => '@@object@@'
+822  						       , p_param3_value => 'MY_OBJECT')
+823  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+824  				  , 'otap_util.build_msg template third variable/value pair, wrong variable identifier count'
+825  				  )
+826    ;
+827    l_finish := SYSTIMESTAMP;
+828    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong third variable identifier count')
+829  	 INTO l_return
+830  	 FROM sperrorlog
+831  	WHERE timestamp 	   >= l_stamp
+832  	  AND timestamp 	   <= l_finish
+833  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+834  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
+835    ;
+836    l_stamp	:= SYSTIMESTAMP;
+837    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+838  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+839  						       , p_param3_value => 'MY_OBJECT'
+840  						       )
+841  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+842  				  , 'otap_util.build_msg template third value without variable'
+843  				  )
+844    ;
+845    l_finish := SYSTIMESTAMP;
+846    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry third value without variable')
+847  	 INTO l_return
+848  	 FROM sperrorlog
+849  	WHERE timestamp 	   >= l_stamp
+850  	  AND timestamp 	   <= l_finish
+851  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+852  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
+853    ;
+854    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+855  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+856  						       , p_param4 => '@object@'
+857  						       )
+858  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+859  				  , 'otap_util.build_msg template no value for fourth variable'
+860  				  )
+861    ;
+862    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+863  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+864  						       , p_param4 => '@object@'
+865  						       , p_param4_value => 'MY_OBJECT'
+866  						       )
+867  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+868  				  , 'otap_util.build_msg template fourth variable/value pair'
+869  				  )
+870    ;
+871    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+872  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+873  						       , p_param4 => '@object@'
+874  						       , p_param4_value => 'My fanCY obJECT'
+875  						       )
+876  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+877  				  , 'otap_util.build_msg template fourth variable/value pair value any case'
+878  				  )
+879    ;
+880    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+881  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+882  						       , p_param4 => '@OBJECT@'
+883  						       , p_param4_value => 'MY_OBJECT'
+884  						       )
+885  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+886  				  , 'otap_util.build_msg template fourth variable/value pair, wrong variable case'
+887  				  )
+888    ;
+889    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+890  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+891  						       , p_param4 => '@@'
+892  						       , p_param4_value => 'MY_OBJECT'
+893  						       )
+894  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+895  				  , 'otap_util.build_msg template fourth variable/value pair, empty variable'
+896  				  )
+897    ;
+898    l_stamp	:= SYSTIMESTAMP;
+899    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+900  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+901  						       , p_param4 => 'object'
+902  						       , p_param4_value => 'MY_OBJECT'
+903  						       )
+904  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+905  				  , 'otap_util.build_msg template fourth variable/value pair, no variable identifier'
+906  				  )
+907    ;
+908    l_finish := SYSTIMESTAMP;
+909    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no fourth variable identifier')
+910  	 INTO l_return
+911  	 FROM sperrorlog
+912  	WHERE timestamp 	   >= l_stamp
+913  	  AND timestamp 	   <= l_finish
+914  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+915  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
+916    ;
+917    l_stamp	:= SYSTIMESTAMP;
+918    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+919  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+920  						       , p_param4 => '@@object@@'
+921  						       , p_param4_value => 'MY_OBJECT')
+922  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+923  				  , 'otap_util.build_msg template fourth variable/value pair, wrong variable identifier count'
+924  				  )
+925    ;
+926    l_finish := SYSTIMESTAMP;
+927    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong fourth variable identifier count')
+928  	 INTO l_return
+929  	 FROM sperrorlog
+930  	WHERE timestamp 	   >= l_stamp
+931  	  AND timestamp 	   <= l_finish
+932  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+933  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
+934    ;
+935    l_stamp	:= SYSTIMESTAMP;
+936    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+937  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+938  						       , p_param4_value => 'MY_OBJECT'
+939  						       )
+940  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+941  				  , 'otap_util.build_msg template fourth value without variable'
+942  				  )
+943    ;
+944    l_finish := SYSTIMESTAMP;
+945    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry fourth value without variable')
+946  	 INTO l_return
+947  	 FROM sperrorlog
+948  	WHERE timestamp 	   >= l_stamp
+949  	  AND timestamp 	   <= l_finish
+950  	  AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+951  	  AND message		 LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
+952    ;
+953    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+954  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+955  						       , p_param5 => '@object@'
+956  						       )
+957  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+958  				  , 'otap_util.build_msg template no value for fifth variable'
+959  				  )
+960    ;
+961    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+962  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+963  						       , p_param5 => '@object@'
+964  						       , p_param5_value => 'MY_OBJECT'
+965  						       )
+966  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+967  				  , 'otap_util.build_msg template fifth variable/value pair'
+968  				  )
+969    ;
+970    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+971  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+972  						       , p_param5 => '@object@'
+973  						       , p_param5_value => 'My fanCY obJECT'
+974  						       )
+975  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+976  				  , 'otap_util.build_msg template fifth variable/value pair value any case'
+977  				  )
+978    ;
+979    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+980  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+981  						       , p_param5 => '@OBJECT@'
+982  						       , p_param5_value => 'MY_OBJECT'
+983  						       )
+984  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+985  				  , 'otap_util.build_msg template fifth variable/value pair, wrong variable case'
+986  				  )
+987    ;
+988    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+989  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+990  						       , p_param5 => '@@'
+991  						       , p_param5_value => 'MY_OBJECT'
+992  						       )
+993  				  , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+994  				  , 'otap_util.build_msg template fifth variable/value pair, empty variable'
+995  				  )
+996    ;
+997    l_stamp	:= SYSTIMESTAMP;
+998    l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+999  						       , p_type_label => otap_util.CFG_LABEL_COLUMN
+1000  							, p_param5 => 'object'
+1001  							, p_param5_value => 'MY_OBJECT'
+1002  							)
+1003  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1004  				   , 'otap_util.build_msg template fifth variable/value pair, no variable identifier'
+1005  				   )
+1006  	;
+1007  	l_finish := SYSTIMESTAMP;
+1008  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry no fifth variable identifier')
+1009  	  INTO l_return
+1010  	  FROM sperrorlog
+1011  	 WHERE timestamp	    >= l_stamp
+1012  	   AND timestamp	    <= l_finish
+1013  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+1014  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: object%'
+1015  	;
+1016  	l_stamp  := SYSTIMESTAMP;
+1017  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1018  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1019  							, p_param5 => '@@object@@'
+1020  							, p_param5_value => 'MY_OBJECT')
+1021  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1022  				   , 'otap_util.build_msg template fifth variable/value pair, wrong variable identifier count'
+1023  				   )
+1024  	;
+1025  	l_finish := SYSTIMESTAMP;
+1026  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry wrong fifth variable identifier count')
+1027  	  INTO l_return
+1028  	  FROM sperrorlog
+1029  	 WHERE timestamp	    >= l_stamp
+1030  	   AND timestamp	    <= l_finish
+1031  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+1032  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: @@object@@%'
+1033  	;
+1034  	l_stamp  := SYSTIMESTAMP;
+1035  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1036  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1037  							, p_param5_value => 'MY_OBJECT'
+1038  							)
+1039  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1040  				   , 'otap_util.build_msg template fifth value without variable'
+1041  				   )
+1042  	;
+1043  	l_finish := SYSTIMESTAMP;
+1044  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg log entry fifth value without variable')
+1045  	  INTO l_return
+1046  	  FROM sperrorlog
+1047  	 WHERE timestamp	    >= l_stamp
+1048  	   AND timestamp	    <= l_finish
+1049  	   AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+1050  	   AND message		  LIKE 'Value without variable name: MY_OBJECT or invalid parameter: NULL%'
+1051  	;
+1052  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1053  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1054  							, p_param6n => '@object@'
+1055  							)
+1056  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' exists check (@schema@)'
+1057  				   , 'otap_util.build_msg template no value blank out for sixth variable'
+1058  				   )
+1059  	;
+1060  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1061  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1062  							, p_param6n => '@object@'
+1063  							, p_param6n_value => 'MY_OBJECT'
+1064  							)
+1065  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' MY_OBJECT exists check (@schema@)'
+1066  				   , 'otap_util.build_msg template sixth variable/value pair'
+1067  				   )
+1068  	;
+1069  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1070  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1071  							, p_param6n => '@object@'
+1072  							, p_param6n_value => 'My fanCY obJECT'
+1073  							)
+1074  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' My fanCY obJECT exists check (@schema@)'
+1075  				   , 'otap_util.build_msg template sixth variable/value pair value any case'
+1076  				   )
+1077  	;
+1078  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1079  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1080  							, p_param6n => '@OBJECT@'
+1081  							, p_param6n_value => 'MY_OBJECT'
+1082  							)
+1083  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1084  				   , 'otap_util.build_msg template sixth variable/value pair, wrong variable case'
+1085  				   )
+1086  	;
+1087  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1088  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1089  							, p_param6n => '@@'
+1090  							, p_param6n_value => 'MY_OBJECT'
+1091  							)
+1092  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1093  				   , 'otap_util.build_msg template sixth variable/value pair, empty variable'
+1094  				   )
+1095  	;
+1096  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1097  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1098  							, p_param6n => 'object'
+1099  							, p_param6n_value => 'MY_OBJECT'
+1100  							)
+1101  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1102  				   , 'otap_util.build_msg template sixth variable/value pair, no variable identifier'
+1103  				   )
+1104  	;
+1105  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1106  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1107  							, p_param6n => '@@object@@'
+1108  							, p_param6n_value => 'MY_OBJECT')
+1109  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1110  				   , 'otap_util.build_msg template sixth variable/value pair, wrong variable identifier count'
+1111  				   )
+1112  	;
+1113  	l_return := otap_test.is_eq( otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+1114  							, p_type_label => otap_util.CFG_LABEL_COLUMN
+1115  							, p_param6n_value => 'MY_OBJECT'
+1116  							)
+1117  				   , otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN) || ' @object@ exists check (@schema@)'
+1118  				   , 'otap_util.build_msg template sixth value without variable'
+1119  				   )
+1120  	;
+1121  	-- use a negative session id for test writes
+1122  	l_testing_id := otap_test.get_session_id * -1;
+1123  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);'
+1124  					   , -1400
+1125  					   , NULL
+1126  					   , 'otap_util.write_test_result basic record NULL exception test set'
+1127  					   )
+1128  	;
+1129  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, NULL, NULL, NULL, NULL, NULL, NULL, NULL);'
+1130  					   , -1400
+1131  					   , NULL
+1132  					   , 'otap_util.write_test_result basic record NULL exception db user'
+1133  					   )
+1134  	;
+1135  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, NULL, NULL, NULL, NULL, NULL, NULL);'
+1136  					   , -1400
+1137  					   , NULL
+1138  					   , 'otap_util.write_test_result basic record NULL exception db schema'
+1139  					   )
+1140  	;
+1141  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, NULL, NULL, NULL, NULL, NULL);'
+1142  					   , -1400
+1143  					   , NULL
+1144  					   , 'otap_util.write_test_result basic record NULL exception test group'
+1145  					   )
+1146  	;
+1147  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, NULL, NULL, NULL, NULL);'
+1148  					   , -1400
+1149  					   , NULL
+1150  					   , 'otap_util.write_test_result basic record NULL exception test start'
+1151  					   )
+1152  	;
+1153  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, NULL, NULL, NULL);'
+1154  					   , -1400
+1155  					   , NULL
+1156  					   , 'otap_util.write_test_result basic record NULL exception test end'
+1157  					   )
+1158  	;
+1159  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, NULL, NULL);'
+1160  					   , -1400
+1161  					   , NULL
+1162  					   , 'otap_util.write_test_result basic record NULL exception test name'
+1163  					   )
+1164  	;
+1165  	l_return     := otap_test.throws_ok('otap_util.write_test_result(1, 1, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, NULL);'
+1166  					   , -1400
+1167  					   , NULL
+1168  					   , 'otap_util.write_test_result basic record NULL exception test description'
+1169  					   )
+1170  	;
+1171  	l_stamp  := SYSTIMESTAMP;
+1172  	l_return     := otap_test.throws_ok('otap_util.write_test_result(otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_TEST_PASSED, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
+1173  					   , -1400
+1174  					   , NULL
+1175  					   , 'otap_util.write_test_result basic record no exception test'
+1176  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
+1177  					   )
+1178  	;
+1179  	l_finish := SYSTIMESTAMP;
+1180  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written')
+1181  	  INTO l_return
+1182  	  FROM otap_results
+1183  	 WHERE test_session_id = l_testing_id
+1184  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
+1185  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+1186  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1187  	   AND db_user	       = USER
+1188  	   AND db_schema       = USER
+1189  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1190  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1191  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1192  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
+1193  	   AND test_start     >= l_stamp
+1194  	   AND test_end       <= l_finish
+1195  	;
+1196  	l_stamp  := SYSTIMESTAMP;
+1197  	l_return     := otap_test.throws_ok('otap_util.write_test_result(9, otap_constants.OTAP_NUM_TEST_PASSED, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
+1198  					   , -1400
+1199  					   , NULL
+1200  					   , 'otap_util.write_test_result basic record no exception wrong to_delete'
+1201  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
+1202  					   )
+1203  	;
+1204  	l_finish := SYSTIMESTAMP;
+1205  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written wrong to_delete')
+1206  	  INTO l_return
+1207  	  FROM otap_results
+1208  	 WHERE test_session_id = l_testing_id
+1209  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
+1210  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+1211  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1212  	   AND db_user	       = USER
+1213  	   AND db_schema       = USER
+1214  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1215  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1216  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1217  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
+1218  	   AND test_start     >= l_stamp
+1219  	   AND test_end       <= l_finish
+1220  	;
+1221  	l_stamp  := SYSTIMESTAMP;
+1222  	l_return     := otap_test.throws_ok('otap_util.write_test_result(otap_constants.OTAP_NUM_TRUE, 9, ' || l_testing_id || ', NULL, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET, USER, USER, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP, SYSTIMESTAMP, SYSTIMESTAMP, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);'
+1223  					   , -1400
+1224  					   , NULL
+1225  					   , 'otap_util.write_test_result basic record no exception wrong test_passed'
+1226  					   , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
+1227  					   )
+1228  	;
+1229  	l_finish := SYSTIMESTAMP;
+1230  	SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.write_test_result record written wrong test_passed')
+1231  	  INTO l_return
+1232  	  FROM otap_results
+1233  	 WHERE test_session_id = l_testing_id
+1234  	   AND to_delete       = otap_constants.OTAP_NUM_TRUE
+1235  	   AND test_passed     = otap_constants.OTAP_NUM_TEST_UNDEFINED
+1236  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1237  	   AND db_user	       = USER
+1238  	   AND db_schema       = USER
+1239  	   AND test_set        = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1240  	   AND test_group      = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1241  	   AND test_name       = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1242  	   AND test_desc       = otap_constants.OTAP_INTERNAL_NA
+1243  	   AND test_start     >= l_stamp
+1244  	   AND test_end       <= l_finish
+1245  	   AND test_errors    IS NOT NULL
+1246  	;
+1247  	l_return := otap_test.is_eq(otap_util.max_text_size(l_testing_id), 80, 'otap_util.max_text_size expected max length');
+1248  EXCEPTION
+1249  	WHEN OTHERS THEN
+1250  	  otap_log.log('Test block OTAP_UTIL failed', 'otap_util.sql', SQLERRM);
+1251  	  l_return := otap_test.test_error('Complete test block OTAP_UTIL failed', SQLERRM);
+1252  END;
+1253  /
 
 PL/SQL procedure successfully completed.
 
@@ -7130,39 +7126,39 @@ old 138:   IF '&ORG_MAINTENANCE_JOB' = 'TRUE'
 new 138:   IF 'TRUE' = 'TRUE'
 old 144:   otap_util.set_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '&ORG_DEBUG_MODE');
 new 144:   otap_util.set_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '0');
-Processed 1001 records for delete. Started at 2025-03-08 19:56:23 finished at 2025-03-08 19:56:33
+Processed 1001 records for delete. Started at 2025-03-13 04:50:45 finished at 2025-03-13 04:50:55
 
 PL/SQL procedure successfully completed.
 
 SQL> 
-SQL> 
-SQL> SELECT otap_test.set_test_group('OTAP test setup') FROM dual;
-Current test group: OTAP test setup
+SQL> -- get setup test script execution summary
+SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPERRORLOG')
+  2    FROM sperrorlog
+  3   WHERE identifier = '&IDENT'
+  4  ;
+old   3:  WHERE identifier = '&IDENT'
+new   3:  WHERE identifier = 'otap_test_run20250313044922'
+Passed Check script errors in SPERRORLOG
 
 1 row selected.
 
-SQL> SELECT otap_test.set_test_name('Check SPERRORLOG for test run') FROM dual;
-Current test: Check SPERRORLOG for test run
-
-1 row selected.
-
-SQL> -- check errors
+SQL> -- get errors if any
 SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_CHAR(message)) AS error_msg
   2    FROM sperrorlog
   3   WHERE identifier = '&IDENT'
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250308195538'
+new   3:  WHERE identifier = 'otap_test_run20250313044922'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 27 tests: 1070 from 1070 errors: 0 run time: +000000000 00:00:55.000000000 started: 2025-03-08 19:55:38
+Summary id: 51 tests: 1069 from 1068 errors: 0 run time: +000000000 00:01:34.000000000 started: 2025-03-13 04:49:22
 Current test settings
-Test session id: 28
+Test session id: 52
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -7176,8 +7172,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 27
-Test start: 2025-03-08 19:56:33
+Current view id: 51
+Test start: 2025-03-13 04:50:56
 
 
 1 row selected.

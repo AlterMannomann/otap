@@ -82,10 +82,11 @@ AS
       RAISE;
   END write_test_result;
 
-  PROCEDURE write_count_result(p_otap_session IN OTAP_SESSION)
+  PROCEDURE write_count_result(o_otap_session IN OUT NOCOPY OTAP_SESSION)
   IS
     l_script            VARCHAR2(1024 CHAR) := 'otap_plan.write_count_result';
     l_test_passed       INTEGER;
+    l_test_count        INTEGER;
     l_test_description  VARCHAR2(256 CHAR);
     l_errors            VARCHAR2(4000 CHAR);
     l_start             TIMESTAMP;
@@ -94,14 +95,24 @@ AS
   BEGIN
     l_start := SYSTIMESTAMP;
     -- only write a record, if intended count is set, do nothing otherwise
-    IF p_otap_session.intended_count > 0
+    IF o_otap_session.intended_count > 0
     THEN
-      l_test_passed      := CASE WHEN p_otap_session.test_count = p_otap_session.intended_count THEN otap_constants.OTAP_NUM_TEST_PASSED ELSE otap_constants.OTAP_NUM_TEST_FAILED END;
-      l_test_description := otap_string.reduce(otap_report.get_count_desc(p_otap_session.test_count, p_otap_session.intended_count), 256);
+      -- we have a test pending not counted yet
+      l_test_count       := o_otap_session.test_count + 1;
+      l_test_passed      := CASE WHEN l_test_count = o_otap_session.intended_count THEN otap_constants.OTAP_NUM_TEST_PASSED ELSE otap_constants.OTAP_NUM_TEST_FAILED END;
+      l_test_description := otap_string.reduce(otap_report.get_count_desc(l_test_count, o_otap_session.intended_count), 256);
       l_errors           := NULL;
-      l_tmp_otap_session := otap_objects.otap_session_copy(p_otap_session);
-      l_tmp_otap_session.test_name := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME, p_otap_session.session_language);
+      l_tmp_otap_session := otap_objects.otap_session_test_setup( o_otap_session
+                                                                , otap_util.get_config_value(otap_util.CFG_TEXT_TEST_SETUP_SET, o_otap_session.session_language)
+                                                                , otap_util.get_config_value(otap_util.CFG_TEXT_TEST_SETUP_GROUP, o_otap_session.session_language)
+                                                                , otap_util.get_config_value(otap_util.CFG_TEXT_TEST_SETUP_NAME, o_otap_session.session_language)
+                                                                )
+      ;
+      l_tmp_otap_session.test_count := l_test_count;
       l_return := otap_plan.write_test_result(l_test_description, l_tmp_otap_session, NULL, l_test_passed, l_start, l_errors);
+      -- take over the test and error count changes
+      o_otap_session.test_count  := l_tmp_otap_session.test_count;
+      o_otap_session.error_count := l_tmp_otap_session.error_count;
     END IF;
   EXCEPTION
     WHEN OTHERS THEN

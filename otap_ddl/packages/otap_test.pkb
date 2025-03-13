@@ -1117,9 +1117,9 @@ AS
       RAISE;
   END throws_like;
 
-  FUNCTION test_error( p_description     IN            VARCHAR2
-                     , p_errors          IN            VARCHAR2
-                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+  FUNCTION test_error( p_description IN VARCHAR2
+                     , p_errors      IN VARCHAR2
+                     , p_schema      IN VARCHAR2 DEFAULT NULL
                      )
     RETURN VARCHAR2
   IS
@@ -1141,6 +1141,33 @@ AS
       END IF;
       RAISE;
   END test_error;
+
+  FUNCTION test_error_check( p_have        IN NUMBER
+                           , p_want        IN NUMBER
+                           , p_description IN VARCHAR2
+                           , p_schema      IN VARCHAR2 DEFAULT NULL
+                           )
+    RETURN VARCHAR2
+  IS
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_message := otap_api.test_error_check( p_have
+                                          , p_want
+                                          , p_description
+                                          , session_record
+                                          , p_schema
+                                          )
+    ;
+    RETURN l_message;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.test_error_check', 'l_message := otap_api.test_error_check( p_have, ...');
+      END IF;
+      RAISE;
+  END test_error_check;
 
   -- generate functions
   PROCEDURE generate_set_type(p_gen_type IN VARCHAR2)

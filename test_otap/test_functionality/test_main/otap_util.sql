@@ -65,8 +65,6 @@ BEGIN
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_REPORT_TOTAL, 'TEXT_REPORT_TOTAL', 'Verify package constant otap_util.CFG_TEXT_REPORT_TOTAL');
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_HEADER, 'TEXT_RESULT_HEADER', 'Verify package constant otap_util.CFG_TEXT_RESULT_HEADER');
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_RESULT_LINE, 'TEXT_RESULT_LINE', 'Verify package constant otap_util.CFG_TEXT_RESULT_LINE');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_HEADER, 'TEXT_TEST_COUNT_HEADER', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_HEADER');
-  l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_COUNT_NAME, 'TEXT_TEST_COUNT_NAME', 'Verify package constant otap_util.CFG_TEXT_TEST_COUNT_NAME');
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_FAILED, 'TEXT_TEST_FAILED', 'Verify package constant otap_util.CFG_TEXT_TEST_FAILED');
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_PASSED, 'TEXT_TEST_PASSED', 'Verify package constant otap_util.CFG_TEXT_TEST_PASSED');
   l_return := otap_test.is_eq(otap_util.CFG_TEXT_TEST_UNDEFINED, 'TEXT_TEST_UNDEFINED', 'Verify package constant otap_util.CFG_TEXT_TEST_UNDEFINED');
@@ -218,8 +216,6 @@ BEGIN
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_REPORT_TOTAL);', -20001, NULL, 'otap_util.validate_config_name config text report total no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text result header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_RESULT_LINE);', -20001, NULL, 'otap_util.validate_config_name config text result line no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_HEADER);', -20001, NULL, 'otap_util.validate_config_name config text test count header no exception', otap_constants.OTAP_NUM_TEST_FAILED);
-  l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_COUNT_NAME);', -20001, NULL, 'otap_util.validate_config_name config text test count name no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_FAILED);', -20001, NULL, 'otap_util.validate_config_name config text test failed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_PASSED);', -20001, NULL, 'otap_util.validate_config_name config text test passed no exception', otap_constants.OTAP_NUM_TEST_FAILED);
   l_return := otap_test.throws_ok('otap_util.validate_config_name(otap_util.CFG_TEXT_TEST_UNDEFINED);', -20001, NULL, 'otap_util.validate_config_name config text test undefined no exception', otap_constants.OTAP_NUM_TEST_FAILED);

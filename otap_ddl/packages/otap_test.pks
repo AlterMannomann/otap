@@ -946,10 +946,29 @@ AS
   *
   * @return Always an otap_constants.OTAP_NUM_TEST_UNDEFINED result message using the description given.
   */
-  FUNCTION test_error( p_description     IN            VARCHAR2
-                     , p_errors          IN            VARCHAR2
-                     , p_schema          IN            VARCHAR2     DEFAULT NULL
+  FUNCTION test_error( p_description IN VARCHAR2
+                     , p_errors      IN VARCHAR2
+                     , p_schema      IN VARCHAR2 DEFAULT NULL
                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.test_error_check
+  * Provides a possibility to check counts on error tables to be reported in the test setup section.
+  * Using otap_test.is_eq in the NUMBER parameter version but adjusts automatically the test set, group and name.
+  *
+  * @param p_have Mandatory. The numeric data to check.
+  * @param p_want Mandatory. The expected numeric data.
+  * @param p_description Mandatory. The description of the identified error.
+  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+  *
+  * @return The test result as text.
+  */
+  FUNCTION test_error_check( p_have        IN NUMBER
+                           , p_want        IN NUMBER
+                           , p_description IN VARCHAR2
+                           , p_schema      IN VARCHAR2 DEFAULT NULL
+                           )
     RETURN VARCHAR2
   ;
 

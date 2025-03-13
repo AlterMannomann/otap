@@ -151,12 +151,17 @@ INSERT INTO otap_config
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEXT_TEST_COUNT_HEADER', 'Test count summary', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEXT_TEST_SETUP_SET', 'Test setup', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as fixed set name for the special task of testing the test setup. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)
   VALUES
-  ('TEXT_TEST_COUNT_NAME', 'Session test count', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as information text if a set, group or test name has executed without errors. Extended by the category specific information. Limited to 256 chars, recommended shorter than 80 chars.')
+  ('TEXT_TEST_SETUP_GROUP', 'Session test setup', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as fixed group name for testing the test setup. Limited to 256 chars, recommended shorter than 80 chars.')
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  VALUES
+  ('TEXT_TEST_SETUP_NAME', 'Session test setup checks', otap_constants.get_otap_config_type_char, 256, 1, 'Used in templates as fixed test name for testing the test setup like counts or test_error functions. Limited to 256 chars, recommended shorter than 80 chars.')
 ;
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, translatable, config_description)

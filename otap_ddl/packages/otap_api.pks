@@ -326,13 +326,6 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_api.get_text_test_count_name
-  *  @see otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_NAME, p_language_id) and otap_test.get_text_test_count_name
-  */
-  FUNCTION get_text_test_count_name(p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA)
-    RETURN VARCHAR2
-  ;
-
   /** FUNCTION otap_api.get_test_count_header
   * @see otap_report.get_test_count_header
   */
@@ -742,23 +735,25 @@ AS
   ;
 
   /** FUNCTION otap_api.test_error
-  * Provides a possibility to report script errors to test sessions, that are not discovered by tests itself.
-  * Usually using SPERRORLOG and an error identifier during script runs or in exception blocks. Test errors
-  * are always considered as UNDEFINED as tests have not been executed as intended. Does not execute any test
-  * only writes an test error record.
-  *
-  * @param p_description Mandatory. The description of the identified error.
-  * @param p_errors Mandatory. The identified error messages like SQLERRM or MESSAGE column of SPERRORLOG.
-  * @param o_otap_session Mandatory. The session record from otap_test.
-  * @param p_schema A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
-  *
-  * @return Always an otap_constants.OTAP_NUM_TEST_UNDEFINED result message using the description given.
+  * @see otap_test.test_error
   */
   FUNCTION test_error( p_description     IN            VARCHAR2
                      , p_errors          IN            VARCHAR2
                      , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                      , p_schema          IN            VARCHAR2     DEFAULT NULL
                      )
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.test_error_check
+  * @see otap_test.test_error_check
+  */
+  FUNCTION test_error_check( p_have        IN NUMBER
+                           , p_want        IN NUMBER
+                           , p_description IN VARCHAR2
+                           , o_otap_session    IN OUT NOCOPY OTAP_SESSION
+                           , p_schema      IN VARCHAR2 DEFAULT NULL
+                           )
     RETURN VARCHAR2
   ;
 

@@ -47,9 +47,9 @@ AS
   * Does nothing if OTAP_SESSION intended_count less or equal to 0. This test is not counted within
   * the test count.
   *
-  * @param p_otap_session A valid OTAP_SESSION object to be used for test result insert.
+  * @param o_otap_session A valid OTAP_SESSION object to be used for test result insert.
   */
-  PROCEDURE write_count_result(p_otap_session IN OTAP_SESSION);
+  PROCEDURE write_count_result(o_otap_session IN OUT NOCOPY OTAP_SESSION);
 
   /** FUNCTION otap_plan.init_test
   * Provides the init_test functionality needed by otap_test and setting the package session variables.

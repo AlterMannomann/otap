@@ -92,8 +92,41 @@ INSERT INTO otap_config
     FROM dual
    WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'TEXT_SUMMARY_HEADER') = 0
 ;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  SELECT 'TEXT_TEST_SETUP_SET' AS config_name
+       , 'Test setup' AS config_value
+       , 'CHAR' AS config_type
+       , 256 AS config_max_length
+       , 1 AS translatable
+       , 'Used in templates as fixed set name for the special task of testing the test setup. Limited to 256 chars, recommended shorter than 80 chars.' AS config_description
+    FROM dual
+   WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'TEXT_TEST_SETUP_SET') = 0
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  SELECT 'TEXT_TEST_SETUP_GROUP' AS config_name
+       , 'Session test setup' AS config_value
+       , 'CHAR' AS config_type
+       , 256 AS config_max_length
+       , 1 AS translatable
+       , 'Used in templates as fixed group name for testing the test setup. Limited to 256 chars, recommended shorter than 80 chars.' AS config_description
+    FROM dual
+   WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'TEXT_TEST_SETUP_GROUP') = 0
+;
+INSERT INTO otap_config
+  (config_name, config_value, config_type, config_max_length, translatable, config_description)
+  SELECT 'TEXT_TEST_SETUP_NAME' AS config_name
+       , 'Session test setup verification' AS config_value
+       , 'CHAR' AS config_type
+       , 256 AS config_max_length
+       , 1 AS translatable
+       , 'Used in templates as fixed test name for testing the test setup like counts or test_error functions. Limited to 256 chars, recommended shorter than 80 chars.' AS config_description
+    FROM dual
+   WHERE (SELECT COUNT(*) FROM otap_config WHERE config_name = 'TEXT_TEST_SETUP_NAME') = 0
+;
 -- delete unused config values after package update
-DELETE FROM otap_config WHERE config_name IN ('TEXT_SUMMARY_SUCCESS', 'TEXT_SUMMARY_ERROR');
+DELETE FROM otap_config WHERE config_name IN ('TEXT_SUMMARY_SUCCESS', 'TEXT_SUMMARY_ERROR', 'TEXT_TEST_COUNT_HEADER', 'TEXT_TEST_COUNT_NAME');
 COMMIT;
 -- recompile invalidated objects by package recreates
 EXEC DBMS_UTILITY.COMPILE_SCHEMA(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), FALSE);

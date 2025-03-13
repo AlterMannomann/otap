@@ -258,6 +258,24 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_objects.otap_session_test_setup
+  * Copies the given session record object and changes set, group and name as given for the returned session object.
+  *
+  * @param p_otap_session The current session_record to get a modified copy from.
+  * @param p_set_name The temporary set name to use in the returned session record copy.
+  * @param p_group_name The temporary group name to use in the returned session record copy.
+  * @param p_test_name The temporary test name to use in the returned session record copy.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
+                                  , p_set_name     IN VARCHAR2
+                                  , p_group_name   IN VARCHAR2
+                                  , p_test_name    IN VARCHAR2
+                                  )
+    RETURN OTAP_SESSION
+  ;
+
 END;
 /
 

@@ -205,7 +205,7 @@ AS
   IS
     l_return_text VARCHAR2(32767 CHAR);
   BEGIN
-    l_return_text := otap_report.decorate( otap_util.get_config_value(otap_util.CFG_TEXT_TEST_COUNT_HEADER, p_language_id)
+    l_return_text := otap_report.decorate( otap_util.get_config_value(otap_util.CFG_TEXT_TEST_SETUP_SET, p_language_id)
                                          , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), otap_util.get_length_headers(p_language_id))
                                          , otap_util.get_config_value(otap_util.CFG_FORMAT_HEADER_CHAR, p_language_id)
                                          , p_language_id

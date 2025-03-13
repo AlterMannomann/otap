@@ -96,8 +96,9 @@ AS
                               , otap_util.CFG_TEXT_RESULT_HEADER
                               , otap_util.CFG_TEXT_RESULT_LINE
                               , otap_util.CFG_TEXT_SUMMARY_HEADER
-                              , otap_util.CFG_TEXT_TEST_COUNT_HEADER
-                              , otap_util.CFG_TEXT_TEST_COUNT_NAME
+                              , otap_util.CFG_TEXT_TEST_SETUP_SET
+                              , otap_util.CFG_TEXT_TEST_SETUP_GROUP
+                              , otap_util.CFG_TEXT_TEST_SETUP_NAME
                               , otap_util.CFG_TEXT_TEST_FAILED
                               , otap_util.CFG_TEXT_TEST_PASSED
                               , otap_util.CFG_TEXT_TEST_UNDEFINED
@@ -155,8 +156,9 @@ AS
                           , otap_util.CFG_TEXT_RESULT_HEADER
                           , otap_util.CFG_TEXT_RESULT_LINE
                           , otap_util.CFG_TEXT_SUMMARY_HEADER
-                          , otap_util.CFG_TEXT_TEST_COUNT_HEADER
-                          , otap_util.CFG_TEXT_TEST_COUNT_NAME
+                          , otap_util.CFG_TEXT_TEST_SETUP_SET
+                          , otap_util.CFG_TEXT_TEST_SETUP_GROUP
+                          , otap_util.CFG_TEXT_TEST_SETUP_NAME
                           , otap_util.CFG_TEXT_TEST_FAILED
                           , otap_util.CFG_TEXT_TEST_PASSED
                           , otap_util.CFG_TEXT_TEST_UNDEFINED
