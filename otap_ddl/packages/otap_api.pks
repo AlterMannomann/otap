@@ -317,6 +317,15 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.get_version_info
+  * @see otap_string.decorate_blank
+  */
+  FUNCTION get_version_info( p_info        IN VARCHAR2
+                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                           )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_api.flatten
   * @see otap_string.flatten and otap_test.flatten
   */

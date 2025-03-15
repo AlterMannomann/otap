@@ -203,7 +203,8 @@ AS
         l_length := otap_constants.OTAP_NUM_MAX_FILL_LENGTH;
       END IF;
     ELSE
-      l_length := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+      -- respect min length
+      l_length := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, NVL(p_min_fill, 0));
     END IF;
     RETURN l_length;
   EXCEPTION
@@ -381,6 +382,46 @@ AS
       otap_log.log(SQLERRM, l_script, 'Decorate string');
       RAISE;
   END decorate;
+
+  FUNCTION decorate_blank( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                         , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                         )
+    RETURN VARCHAR2
+  IS
+    l_script        VARCHAR2(256 CHAR) := 'otap_string.decorate_blank';
+    l_title_length  INTEGER;
+    l_min_length    INTEGER;
+    l_line_size     INTEGER;
+    l_padding       INTEGER;
+    l_deco          VARCHAR2(1 CHAR);
+    l_deco_string   VARCHAR2(32767 CHAR);
+    l_title         VARCHAR2(32767 CHAR);
+  BEGIN
+    -- check params, assign defaults
+    l_min_length    := otap_string.check_line_size(p_min_length);
+    l_deco          := ' ';
+    l_title         := NVL(p_string, otap_constants.OTAP_INTERNAL_ERROR);
+    l_title_length  := LENGTH(l_title);
+    l_line_size     := GREATEST(l_min_length, l_title_length);
+    l_line_size     := CASE WHEN l_line_size <= otap_constants.OTAP_NUM_MAX_FILL_LENGTH THEN l_line_size ELSE otap_constants.OTAP_NUM_MAX_FILL_LENGTH END;
+    l_line_size     := CASE WHEN l_line_size >= otap_constants.OTAP_NUM_MIN_FILL_LENGTH THEN l_line_size ELSE otap_constants.OTAP_NUM_MIN_FILL_LENGTH END;
+    l_title         := otap_string.reduce(l_title, l_line_size);
+    IF l_title_length < l_line_size
+    THEN
+      -- padding with middle layout
+      l_padding     := FLOOR((l_line_size - l_title_length) / 2);
+      l_deco_string := LPAD(l_deco, l_padding, l_deco) || l_title;
+      l_deco_string := RPAD(l_deco_string, l_line_size, l_deco);
+    ELSE
+      -- no padding, fills the line
+      l_deco_string := l_title;
+    END IF;
+    RETURN l_deco_string;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, l_script, 'Decorate string with blank');
+      RAISE;
+  END decorate_blank;
 
   FUNCTION borderless( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                      , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH

@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 1068
+SQL> SELECT otap_test.init_test( p_test_count => 1083
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 51
+Test session id: 80
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 1068
+Expected tests: 1083
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 51
-Test start: 2025-03-13 04:49:22
+Current view id: 80
+Test start: 2025-03-15 17:51:23
 
 
 1 row selected.
@@ -816,87 +816,6 @@ SQL> SELECT otap_test.has_column( p_table_name => 'SPERRORLOG'
   6  				, p_nullable => 'Y'
   7  				) FROM dual;
 Passed column SPERRORLOG.STATEMENT exists check (OTAP)
-
-1 row selected.
-
-SQL> -- set test name for table
-SQL> SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
-Current test: table OTAP_LABELS_MV
-
-1 row selected.
-
-SQL> SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
-  2  			       , p_schema => 'OTAP'
-  3  			       ) FROM dual;
-Passed table OTAP_LABELS_MV exists check (OTAP)
-
-1 row selected.
-
-SQL> -- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
-SQL> -- LIKE scope: %
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'ORACLE_TYPE'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_IDENTIFIER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_LOWER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_CAP'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_UPPER'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
-
-1 row selected.
-
-SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-  2  				, p_column_name => 'OTAP_LABEL_SOURCE'
-  3  				, p_schema => 'OTAP'
-  4  				, p_data_type => 'VARCHAR2'
-  5  				, p_data_length => 512
-  6  				, p_nullable => 'Y'
-  7  				) FROM dual;
-Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
 
 1 row selected.
 
@@ -1839,6 +1758,87 @@ Passed index OTAP_TRANSLATE_PK for table OTAP_TRANSLATE.OTAP_IDENTIFIER exists c
 
 1 row selected.
 
+SQL> -- set test name for table
+SQL> SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
+Current test: table OTAP_LABELS_MV
+
+1 row selected.
+
+SQL> SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
+  2  			       , p_schema => 'OTAP'
+  3  			       ) FROM dual;
+Passed table OTAP_LABELS_MV exists check (OTAP)
+
+1 row selected.
+
+SQL> -- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
+SQL> -- LIKE scope: %
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'ORACLE_TYPE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.ORACLE_TYPE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_IDENTIFIER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_IDENTIFIER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_LOWER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_LOWER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_CAP'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_CAP exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_UPPER'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_UPPER exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+  2  				, p_column_name => 'OTAP_LABEL_SOURCE'
+  3  				, p_schema => 'OTAP'
+  4  				, p_data_type => 'VARCHAR2'
+  5  				, p_data_length => 512
+  6  				, p_nullable => 'Y'
+  7  				) FROM dual;
+Passed column OTAP_LABELS_MV.OTAP_LABEL_SOURCE exists check (OTAP)
+
+1 row selected.
+
 SQL> -- otap GENERATE test scripts OTAP trigger
 SQL> -- LIKE scope: %
 SQL> SELECT otap_test.set_test_group('trigger') FROM dual;
@@ -2345,6 +2345,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'DECORATE'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_STRING.DECORATE exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'DECORATE_BLANK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_STRING'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_STRING.DECORATE_BLANK exists check (OTAP)
 
 1 row selected.
 
@@ -3719,6 +3729,16 @@ Passed function OTAP_API.GET_REPORT_FOOTER exists check (OTAP)
 
 1 row selected.
 
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'GET_VERSION_INFO'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.GET_VERSION_INFO exists check (OTAP)
+
+1 row selected.
+
 SQL> SELECT otap_test.has_procedure( p_procedure_name => 'FLATTEN'
   2  				   , p_schema => 'OTAP'
   3  				   , p_procedure_type => 'FUNCTION'
@@ -3986,6 +4006,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_ERROR'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_API.TEST_ERROR exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_ERROR_CHECK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_API'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_API.TEST_ERROR_CHECK exists check (OTAP)
 
 1 row selected.
 
@@ -4700,6 +4730,16 @@ SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_ERROR'
   5  				   , p_return_type => 'VARCHAR2'
   6  				   ) FROM dual;
 Passed function OTAP_TEST.TEST_ERROR exists check (OTAP)
+
+1 row selected.
+
+SQL> SELECT otap_test.has_procedure( p_procedure_name => 'TEST_ERROR_CHECK'
+  2  				   , p_schema => 'OTAP'
+  3  				   , p_procedure_type => 'FUNCTION'
+  4  				   , p_package_name => 'OTAP_TEST'
+  5  				   , p_return_type => 'VARCHAR2'
+  6  				   ) FROM dual;
+Passed function OTAP_TEST.TEST_ERROR_CHECK exists check (OTAP)
 
 1 row selected.
 
@@ -5510,74 +5550,79 @@ SQL> DECLARE
  70    l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');
  71    l_return := otap_test.is_eq(otap_string.line_size(120, 1), 120 + (otap_constants.OTAP_FALLBACK_BORDER * 2), 'otap_string.line_size invalid border parameter');
  72    l_return := otap_test.is_eq(otap_string.line_size(20, 5, 30), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size invalid min fill size');
- 73    l_return := otap_test.is_eq(otap_string.max_size(NULL), 0, 'otap_string.max_size NULL title size');
- 74    l_return := otap_test.is_eq(otap_string.max_size(0), 0, 'otap_string.max_size 0 title size');
- 75    l_return := otap_test.is_eq(otap_string.max_size(-10), 0, 'otap_string.max_size negative title size');
- 76    l_return := otap_test.is_eq(otap_string.max_size(2), 2, 'otap_string.max_size small title size');
- 77    l_return := otap_test.is_eq(otap_string.max_size(120), 120, 'otap_string.max_size typical title size');
- 78    l_return := otap_test.is_eq(otap_string.max_size(5000, 80, 5), 3990, 'otap_string.max_size overflow title size');
- 79    l_return := otap_test.is_eq(otap_string.max_size(120, 20), 120, 'otap_string.max_size invalid line size ignored');
- 80    l_return := otap_test.is_eq(otap_string.max_size(120, 80, 50), 120, 'otap_string.max_size invalid border size ignored');
- 81    l_return := otap_test.is_eq(otap_string.max_size(120, 10, 50), 120, 'otap_string.max_size invalid line and border size ignored');
- 82    l_return := otap_test.is_eq(otap_string.left_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco NULL title size');
- 83    l_return := otap_test.is_eq(otap_string.left_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco 0 title size');
- 84    l_return := otap_test.is_eq(otap_string.left_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco negative title size');
- 85    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'M', 5), LPAD(' ', 10, '-'), 'otap_string.left_deco typical parameter layout M');
- 86    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'M', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout M');
- 87    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'M', 5), LPAD(' ', 8, '-'), 'otap_string.left_deco uneven title size layout M');
- 88    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 5), LPAD(' ', 15, '-'), 'otap_string.left_deco typical parameter layout R');
- 89    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'R', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout R');
- 90    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'R', 5), LPAD(' ', 12, '-'), 'otap_string.left_deco uneven title size layout R');
- 91    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco typical parameter layout L');
- 92    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout L');
- 93    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco uneven title size layout L');
- 94    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 2), LPAD(' ', 2, '-'), 'otap_string.left_deco minimum border layout L');
- 95    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 2), LPAD(' ', 18, '-'), 'otap_string.left_deco minimum border layout R');
- 96    l_return := otap_test.is_eq(otap_string.left_deco(60, NULL, NULL, NULL, NULL), LPAD(' ', 10, '-'), 'otap_string.left_deco default optional parameter NULL');
- 97    l_return := otap_test.is_eq(otap_string.right_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco NULL title size');
- 98    l_return := otap_test.is_eq(otap_string.right_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco 0 title size');
- 99    l_return := otap_test.is_eq(otap_string.right_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco negative title size');
-100    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'M', 5), RPAD(' ', 10, '-'), 'otap_string.right_deco typical parameter layout M');
-101    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'M', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout M');
-102    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'M', 5), RPAD(' ', 9, '-'), 'otap_string.right_deco uneven title size layout M');
-103    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco typical parameter layout R');
-104    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout R');
-105    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco uneven title size layout R');
-106    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 5), RPAD(' ', 15, '-'), 'otap_string.right_deco typical parameter layout L');
-107    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'L', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout L');
-108    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'L', 5), RPAD(' ', 12, '-'), 'otap_string.right_deco uneven title size layout L');
-109    l_return := otap_test.is_eq(otap_string.right_deco(60, NULL, NULL, NULL, NULL), RPAD(' ', 10, '-'), 'otap_string.right_deco default optional parameter NULL');
-110    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 2), RPAD(' ', 18, '-'), 'otap_string.right_deco minimum border layout L');
-111    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 2), RPAD(' ', 2, '-'), 'otap_string.right_deco minimum border layout R');
-112    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'M', 3), (LPAD(' ', 38, '-') || 'test' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M typical');
-113    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'test' || RPAD(' ', 73, '-')), 'otap_string.decorate layout L typical');
-114    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'R', 3), (LPAD(' ', 73, '-') || 'test' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R typical');
-115    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'M', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout M oversize cutted');
-116    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'L', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout L oversize cutted');
-117    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'R', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout R oversize cutted');
-118    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'M', 3), (LPAD(' ', 37, '-') || 'teste' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M uneven title size');
-119    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'teste' || RPAD(' ', 72, '-')), 'otap_string.decorate layout L uneven title size');
-120    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'R', 3), (LPAD(' ', 72, '-') || 'teste' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R uneven title size');
-121    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'L'), RPAD('test', 80, ' '), 'otap_string.borderless layout L typical');
-122    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'M'), RPAD('test', 80, ' '), 'otap_string.borderless layout M fallback');
-123    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'R'), LPAD('test', 80, ' '), 'otap_string.borderless layout R typical');
-124    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'L'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout L oversize cutted');
-125    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'R'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout R oversize cutted');
-126    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'M'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout M oversize cutted');
-127    l_return := otap_test.ok(otap_string.is_sys_object('SYS_'), 'otap_string.is_sys_object simple SYS_ value');
-128    l_return := otap_test.ok(otap_string.is_sys_object('sys_'), 'otap_string.is_sys_object sys_ value');
-129    l_return := otap_test.ok(otap_string.is_sys_object('$'), 'otap_string.is_sys_object simple $ value');
-130    l_return := otap_test.ok(otap_string.is_sys_object('#'), 'otap_string.is_sys_object simple # value');
-131    l_return := otap_test.ok(otap_string.is_sys_object('Sys_blabla$bla#'), 'otap_string.is_sys_object mixed case Sys_blabla$bla# value');
-132    l_return := otap_test.ok(otap_string.is_sys_object('SYSAUTH$'), 'otap_string.is_sys_object typical sys object $');
-133    l_return := otap_test.ok(otap_string.is_sys_object('SYS_LOB0000000157C00003$$'), 'otap_string.is_sys_object typical sys object lobs');
-134    l_return := otap_test.ok(otap_string.is_sys_object('I_FILE#_BLOCK#'), 'otap_string.is_sys_object typical sys object #');
-135  EXCEPTION
-136    WHEN OTHERS THEN
-137  	 otap_log.log('Test block OTAP_STRING failed', 'otap_string.sql', SQLERRM);
-138  	 l_return := otap_test.test_error('Complete test block OTAP_STRING failed', SQLERRM);
-139  END;
-140  /
+ 73    l_return := otap_test.is_eq(otap_string.line_size(20, 5, 130), 130, 'otap_string.line_size respect min length');
+ 74    l_return := otap_test.is_eq(otap_string.max_size(NULL), 0, 'otap_string.max_size NULL title size');
+ 75    l_return := otap_test.is_eq(otap_string.max_size(0), 0, 'otap_string.max_size 0 title size');
+ 76    l_return := otap_test.is_eq(otap_string.max_size(-10), 0, 'otap_string.max_size negative title size');
+ 77    l_return := otap_test.is_eq(otap_string.max_size(2), 2, 'otap_string.max_size small title size');
+ 78    l_return := otap_test.is_eq(otap_string.max_size(120), 120, 'otap_string.max_size typical title size');
+ 79    l_return := otap_test.is_eq(otap_string.max_size(5000, 80, 5), 3990, 'otap_string.max_size overflow title size');
+ 80    l_return := otap_test.is_eq(otap_string.max_size(120, 20), 120, 'otap_string.max_size invalid line size ignored');
+ 81    l_return := otap_test.is_eq(otap_string.max_size(120, 80, 50), 120, 'otap_string.max_size invalid border size ignored');
+ 82    l_return := otap_test.is_eq(otap_string.max_size(120, 10, 50), 120, 'otap_string.max_size invalid line and border size ignored');
+ 83    l_return := otap_test.is_eq(otap_string.left_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco NULL title size');
+ 84    l_return := otap_test.is_eq(otap_string.left_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco 0 title size');
+ 85    l_return := otap_test.is_eq(otap_string.left_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.left_deco negative title size');
+ 86    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'M', 5), LPAD(' ', 10, '-'), 'otap_string.left_deco typical parameter layout M');
+ 87    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'M', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout M');
+ 88    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'M', 5), LPAD(' ', 8, '-'), 'otap_string.left_deco uneven title size layout M');
+ 89    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 5), LPAD(' ', 15, '-'), 'otap_string.left_deco typical parameter layout R');
+ 90    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'R', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout R');
+ 91    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'R', 5), LPAD(' ', 12, '-'), 'otap_string.left_deco uneven title size layout R');
+ 92    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco typical parameter layout L');
+ 93    l_return := otap_test.is_eq(otap_string.left_deco(5000, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco title overflow title size layout L');
+ 94    l_return := otap_test.is_eq(otap_string.left_deco(63, 80, '-', 'L', 5), LPAD(' ', 5, '-'), 'otap_string.left_deco uneven title size layout L');
+ 95    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'L', 2), LPAD(' ', 2, '-'), 'otap_string.left_deco minimum border layout L');
+ 96    l_return := otap_test.is_eq(otap_string.left_deco(60, 80, '-', 'R', 2), LPAD(' ', 18, '-'), 'otap_string.left_deco minimum border layout R');
+ 97    l_return := otap_test.is_eq(otap_string.left_deco(60, NULL, NULL, NULL, NULL), LPAD(' ', 10, '-'), 'otap_string.left_deco default optional parameter NULL');
+ 98    l_return := otap_test.is_eq(otap_string.right_deco(NULL), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco NULL title size');
+ 99    l_return := otap_test.is_eq(otap_string.right_deco(0), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco 0 title size');
+100    l_return := otap_test.is_eq(otap_string.right_deco(-10), RPAD(otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR, (otap_constants.OTAP_NUM_MIN_FILL_LENGTH / 2), otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR), 'otap_string.right_deco negative title size');
+101    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'M', 5), RPAD(' ', 10, '-'), 'otap_string.right_deco typical parameter layout M');
+102    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'M', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout M');
+103    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'M', 5), RPAD(' ', 9, '-'), 'otap_string.right_deco uneven title size layout M');
+104    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco typical parameter layout R');
+105    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout R');
+106    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'R', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco uneven title size layout R');
+107    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 5), RPAD(' ', 15, '-'), 'otap_string.right_deco typical parameter layout L');
+108    l_return := otap_test.is_eq(otap_string.right_deco(5000, 80, '-', 'L', 5), RPAD(' ', 5, '-'), 'otap_string.right_deco title overflow title size layout L');
+109    l_return := otap_test.is_eq(otap_string.right_deco(63, 80, '-', 'L', 5), RPAD(' ', 12, '-'), 'otap_string.right_deco uneven title size layout L');
+110    l_return := otap_test.is_eq(otap_string.right_deco(60, NULL, NULL, NULL, NULL), RPAD(' ', 10, '-'), 'otap_string.right_deco default optional parameter NULL');
+111    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'L', 2), RPAD(' ', 18, '-'), 'otap_string.right_deco minimum border layout L');
+112    l_return := otap_test.is_eq(otap_string.right_deco(60, 80, '-', 'R', 2), RPAD(' ', 2, '-'), 'otap_string.right_deco minimum border layout R');
+113    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'M', 3), (LPAD(' ', 38, '-') || 'test' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M typical');
+114    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'test' || RPAD(' ', 73, '-')), 'otap_string.decorate layout L typical');
+115    l_return := otap_test.is_eq(otap_string.decorate('test', '-', 80, 'R', 3), (LPAD(' ', 73, '-') || 'test' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R typical');
+116    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'M', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout M oversize cutted');
+117    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'L', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout L oversize cutted');
+118    l_return := otap_test.is_eq(otap_string.decorate(RPAD('test', 5000, 'a'), '-', 80, 'R', 3), (LPAD(' ', 3, '-') || RPAD('test', 3994, 'a') || RPAD(' ', 3, '-')), 'otap_string.decorate layout R oversize cutted');
+119    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'M', 3), (LPAD(' ', 37, '-') || 'teste' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M uneven title size');
+120    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'teste' || RPAD(' ', 72, '-')), 'otap_string.decorate layout L uneven title size');
+121    l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'R', 3), (LPAD(' ', 72, '-') || 'teste' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R uneven title size');
+122    l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 80, 'M', 5), RPAD('-', 80, '-'), 'otap_string.decorate NULL string only decoration minimum size');
+123    l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'M', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size');
+124    l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'R', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size no effect layout change to R');
+125    l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'L', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size no effect layout change to L');
+126    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'L'), RPAD('test', 80, ' '), 'otap_string.borderless layout L typical');
+127    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'M'), RPAD('test', 80, ' '), 'otap_string.borderless layout M fallback');
+128    l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'R'), LPAD('test', 80, ' '), 'otap_string.borderless layout R typical');
+129    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'L'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout L oversize cutted');
+130    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'R'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout R oversize cutted');
+131    l_return := otap_test.is_eq(otap_string.borderless(RPAD('test', 5000, 'a'), 80, 'M'), RPAD('test', 4000, 'a'), 'otap_string.borderless layout M oversize cutted');
+132    l_return := otap_test.ok(otap_string.is_sys_object('SYS_'), 'otap_string.is_sys_object simple SYS_ value');
+133    l_return := otap_test.ok(otap_string.is_sys_object('sys_'), 'otap_string.is_sys_object sys_ value');
+134    l_return := otap_test.ok(otap_string.is_sys_object('$'), 'otap_string.is_sys_object simple $ value');
+135    l_return := otap_test.ok(otap_string.is_sys_object('#'), 'otap_string.is_sys_object simple # value');
+136    l_return := otap_test.ok(otap_string.is_sys_object('Sys_blabla$bla#'), 'otap_string.is_sys_object mixed case Sys_blabla$bla# value');
+137    l_return := otap_test.ok(otap_string.is_sys_object('SYSAUTH$'), 'otap_string.is_sys_object typical sys object $');
+138    l_return := otap_test.ok(otap_string.is_sys_object('SYS_LOB0000000157C00003$$'), 'otap_string.is_sys_object typical sys object lobs');
+139    l_return := otap_test.ok(otap_string.is_sys_object('I_FILE#_BLOCK#'), 'otap_string.is_sys_object typical sys object #');
+140  EXCEPTION
+141    WHEN OTHERS THEN
+142  	 otap_log.log('Test block OTAP_STRING failed', 'otap_string.sql', SQLERRM);
+143  	 l_return := otap_test.test_error('Complete test block OTAP_STRING failed', SQLERRM);
+144  END;
+145  /
 
 PL/SQL procedure successfully completed.
 
@@ -6852,6 +6897,50 @@ SQL> DECLARE
 
 PL/SQL procedure successfully completed.
 
+SQL> @@otap_report.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- sets the test name and calls the tests for this test name
+SQL> SELECT otap_test.set_test_name('Verify otap_report functionality') FROM dual;
+Current test: Verify otap_report functionality
+
+1 row selected.
+
+SQL> -- to verify package constants we use a anonymous PLSQL block
+SQL> -- to not overload DBMS_OUTPUT only minimal summary output
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return      VARCHAR2(4000);
+  3    l_stamp	     TIMESTAMP;
+  4    l_finish      TIMESTAMP;
+  5    l_layout      VARCHAR2(4000);
+  6    l_border      INTEGER;
+  7    l_want	     VARCHAR2(4000);
+  8    l_have	     VARCHAR2(4000);
+  9    l_strlen      INTEGER;
+ 10  BEGIN
+ 11    -- otap_report uses configured values, get current values and build non intrusive tests on the current values
+ 12    l_layout := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT);
+ 13    l_border := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
+ 14  -- should be independent from layout
+ 15    l_return := otap_test.is_eq(otap_report.decorate(NULL, NULL, '-'), RPAD('-', otap_constants.OTAP_NUM_MIN_FILL_LENGTH, '-'), 'otap_report.decorate NULL parameter');
+ 16    l_return := otap_test.is_eq(otap_report.decorate(NULL, 120, '-'), RPAD('-', 120, '-'), 'otap_report.decorate NULL parameter respect min length');
+ 17    l_return := otap_test.is_eq(otap_report.decorate(NULL, 150, '*'), RPAD('*', 150, '*'), 'otap_report.decorate NULL parameter respect min length and decoration');
+ 18    l_return := otap_test.is_eq(otap_report.decorate(NULL, 60, '-'), RPAD('-', otap_constants.OTAP_NUM_MIN_FILL_LENGTH, '-'), 'otap_report.decorate NULL parameter guarantee otap min length');
+ 19    -- get decorate string for later checks
+ 20    l_strlen := otap_constants.OTAP_NUM_MIN_FILL_LENGTH - (2 * l_border);
+ 21    l_have	:= otap_report.decorate(RPAD('a', l_strlen, 'a'), 80, '-');
+ 22    l_return := otap_test.is_eq(LENGTH(l_have), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_report.decorate length full min size min border');
+ 23    l_want	:= LPAD(' ', l_border, '-') || RPAD('a', l_strlen, 'a') || RPAD(' ', l_border, '-');
+ 24    l_return := otap_test.is_eq(l_have, l_want, 'otap_report.decorate string full min size min border');
+ 25  -- depends on layout
+ 26  
+ 27  END;
+ 28  /
+
+PL/SQL procedure successfully completed.
+
 SQL> -- table triggers
 SQL> -- table contents
 SQL> -- packages
@@ -7126,10 +7215,77 @@ old 138:   IF '&ORG_MAINTENANCE_JOB' = 'TRUE'
 new 138:   IF 'TRUE' = 'TRUE'
 old 144:   otap_util.set_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '&ORG_DEBUG_MODE');
 new 144:   otap_util.set_config_value(otap_constants.OTAP_CFG_DEBUG_MODE, '0');
-Processed 1001 records for delete. Started at 2025-03-13 04:50:45 finished at 2025-03-13 04:50:55
+Processed 1001 records for delete. Started at 2025-03-15 17:52:15 finished at 2025-03-15 17:52:25
 
 PL/SQL procedure successfully completed.
 
+SQL> /*
+SQL> SELECT otap_test.set_test_name('Verify otap_report functionality intrusive') FROM dual;
+SQL> DECLARE
+SQL>   l_return      VARCHAR2(4000);
+SQL>   l_stamp	     TIMESTAMP;
+SQL>   l_finish      TIMESTAMP;
+SQL>   l_layout_bkp  VARCHAR2(4000);
+SQL>   l_border_bkp  VARCHAR2(4000);
+SQL> BEGIN
+SQL>   -- otap_report uses configured values, get current values and build non intrusive tests on the current values
+SQL>   l_layout_bkp := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT);
+SQL>   l_border_bkp := otap_util.get_config_value(otap_util.CFG_DEFAULT_BORDER);
+SQL>   -- set defined defaults
+SQL>   UPDATE otap_config SET config_value = otap_constants.OTAP_LAYOUT_MIDDLE WHERE config_name = otap_util.CFG_DEFAULT_LAYOUT;
+SQL>   UPDATE otap_config SET config_value = TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER)) WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
+SQL>   COMMIT; -- needed to be visible for autonomous transactions
+SQL>   l_return := otap_test.is_eq( otap_report.decorate(NULL, NULL, '-')
+SQL> 				  , RPAD('-', otap_constants.OTAP_NUM_MIN_FILL_LENGTH, '-')
+SQL> 				  , 'otap_report.decorate NULL parameter'
+SQL> 				  )
+SQL>   ;
+SQL>   l_return := otap_test.is_eq(otap_report.decorate(NULL, 120, '-'), RPAD('-', 120, '-'), 'otap_report.decorate NULL parameter respect min length');
+SQL>   l_return := otap_test.is_eq(otap_report.decorate(NULL, 150, '*'), RPAD('*', 150, '*'), 'otap_report.decorate NULL parameter respect min length and decoration');
+SQL>   l_return := otap_test.is_eq( otap_report.decorate(NULL, 60, '-')
+SQL> 				  , RPAD('-', otap_constants.OTAP_NUM_MIN_FILL_LENGTH, '-')
+SQL> 				  , 'otap_report.decorate NULL parameter guarantee otap min length'
+SQL> 				  )
+SQL>   ;
+SQL>   l_return := otap_test.is_eq(otap_report.decorate('test', 80, '-'), (LPAD(' ', 38, '-') || 'test' || RPAD(' ', 38, '-')), 'otap_report.decorate even short title length');
+SQL>   l_return := otap_test.is_eq(otap_report.decorate('teste', 80, '-'), (LPAD(' ', 37, '-') || 'teste' || RPAD(' ', 38, '-')), 'otap_report.decorate uneven short title length');
+SQL>   l_return := otap_test.is_eq( otap_report.decorate(RPAD('test', 5000, 'a'), 80, '-')
+SQL> 				  , (LPAD(' ', otap_constants.OTAP_FALLBACK_BORDER, '-') || RPAD('test', 3990, 'a') || RPAD(' ', otap_constants.OTAP_FALLBACK_BORDER, '-'))
+SQL> 				  , 'otap_report.decorate overflow and border default'
+SQL> 				  )
+SQL>   ;
+SQL>   -- set border to minimum
+SQL>   UPDATE otap_config SET config_value = TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER_MIN)) WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
+SQL>   COMMIT; -- needed to be visible for autonomous transactions
+SQL>   l_return := otap_test.is_eq( otap_report.decorate(RPAD('test', 5000, 'a'), 80, '-')
+SQL> 				  , (LPAD(' ', otap_constants.OTAP_FALLBACK_BORDER_MIN, '-') || RPAD('test', 3996, 'a') || RPAD(' ', otap_constants.OTAP_FALLBACK_BORDER_MIN, '-'))
+SQL> 				  , 'otap_report.decorate overflow and border min'
+SQL> 				  )
+SQL>   ;
+SQL>   -- set border to maximum
+SQL>   UPDATE otap_config SET config_value = TRIM(TO_CHAR(otap_constants.OTAP_FALLBACK_BORDER_MAX)) WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
+SQL>   COMMIT; -- needed to be visible for autonomous transactions
+SQL>   l_return := otap_test.is_eq( otap_report.decorate(RPAD('test', 5000, 'a'), 80, '-')
+SQL> 				  , (LPAD(' ', otap_constants.OTAP_FALLBACK_BORDER_MAX, '-') || RPAD('test', 3980, 'a') || RPAD(' ', otap_constants.OTAP_FALLBACK_BORDER_MAX, '-'))
+SQL> 				  , 'otap_report.decorate overflow and border max'
+SQL> 				  )
+SQL>   ;
+SQL>   -- reset defaults
+SQL>   UPDATE otap_config SET config_value = l_layout_bkp WHERE config_name = otap_util.CFG_DEFAULT_LAYOUT;
+SQL>   UPDATE otap_config SET config_value = l_border_bkp WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
+SQL>   COMMIT;
+SQL> EXCEPTION
+SQL>   WHEN OTHERS THEN
+SQL> 	 -- try reset defaults
+SQL> 	 UPDATE otap_config SET config_value = l_layout_bkp WHERE config_name = otap_util.CFG_DEFAULT_LAYOUT;
+SQL> 	 UPDATE otap_config SET config_value = l_border_bkp WHERE config_name = otap_util.CFG_DEFAULT_BORDER;
+SQL> 	 COMMIT;
+SQL> 	 otap_log.log('Test block OTAP_REPORT failed', 'otap_report.sql', SQLERRM);
+SQL> 	 l_return := otap_test.test_error('Complete test block OTAP_REPORT failed', SQLERRM);
+SQL> END;
+SQL> /
+SQL> 
+SQL> */
 SQL> 
 SQL> -- get setup test script execution summary
 SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPERRORLOG')
@@ -7137,7 +7293,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250313044922'
+new   3:  WHERE identifier = 'otap_test_run20250315175123'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -7149,16 +7305,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250313044922'
+new   3:  WHERE identifier = 'otap_test_run20250315175123'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 51 tests: 1069 from 1068 errors: 0 run time: +000000000 00:01:34.000000000 started: 2025-03-13 04:49:22
+Summary id: 80 tests: 1084 from 1083 errors: 0 run time: +000000000 00:01:03.000000000 started: 2025-03-15 17:51:23
 Current test settings
-Test session id: 52
+Test session id: 81
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -7172,8 +7328,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 51
-Test start: 2025-03-13 04:50:56
+Current view id: 80
+Test start: 2025-03-15 17:52:26
 
 
 1 row selected.

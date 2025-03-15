@@ -243,6 +243,22 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_string.decorate_blank
+  * Builds half decorated report lines, like copyright and version messages, with given layout orientation. Will decorate
+  * with blanks if needed. String cutting only if 4000 char are exceeded. Border setting and layout is ignored. Layout is
+  * always Middle.
+  *
+  * @param p_string The string to format with the given orientation.
+  * @param p_min_length The minimum string size to use for padding. Limited by otap_constants.OTAP_NUM_MIN_FILL_LENGTH. Lower values translate to minimum fill length.
+  *
+  * @return The string with a center orientation, decorated with blank if needed.
+  */
+  FUNCTION decorate_blank( p_string      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+                         , p_min_length  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                         )
+    RETURN VARCHAR2
+  ;
+
   /** FUNCTION otap_string.borderless
   * Builds not decorated report lines, like results or result headers, with given layout orientation. Only left and right allowed. Middle
   * will translate to the default otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT. Cutting string is always on the right.

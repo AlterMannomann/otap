@@ -750,6 +750,28 @@ AS
     RETURN l_message;
   END get_report_footer;
 
+  FUNCTION get_version_info( p_info        IN VARCHAR2
+                           , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+                           )
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.get_version_info';
+    l_message VARCHAR2(4000 CHAR);
+  BEGIN
+    l_message := otap_constants.OTAP_INTERNAL_ERROR;
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_message := otap_string.decorate_blank(p_info, p_min_fill);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_report.get_version_info');
+        l_message := otap_string.reduce('Internal otap error get version info: ' || SQLERRM, 4000);
+    END;
+    -- return or let exception happen
+    RETURN l_message;
+  END get_version_info;
+
   FUNCTION flatten( p_string VARCHAR2 DEFAULT NULL
                   , p_size   INTEGER  DEFAULT 0
                   )
@@ -1033,6 +1055,8 @@ AS
           l_text_column := otap_api.get_group_text(rec_grp.test_group, l_report_size, p_language_id);
           PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           -- build test set summary
+          l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
+          PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           l_text_column := otap_api.get_summary(rec_grp.run_time, rec_grp.exec_time, rec_grp.test_runs, rec_grp.test_errors, rec_grp.setup_errors, l_report_size, p_language_id);
           PIPE ROW (otap_view_result_rec(l_text_column, NULL));
           -- loop through the names
@@ -1048,8 +1072,8 @@ AS
             -- build header
             l_text_column := otap_api.get_result_header(l_report_size, p_language_id);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-            l_text_column := otap_api.get_result_underline(l_report_size, p_language_id);
-            PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+            --l_text_column := otap_api.get_result_underline(l_report_size, p_language_id);
+            --PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- loop through the tests
             FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name, p_language_id)
             LOOP
@@ -1114,8 +1138,8 @@ AS
             -- build header
             l_text_column := otap_api.get_result_header(l_report_size, p_language_id);
             PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-            l_text_column := otap_api.get_result_underline(l_report_size, p_language_id);
-            PIPE ROW (otap_view_result_rec(l_text_column, NULL));
+            --l_text_column := otap_api.get_result_underline(l_report_size, p_language_id);
+            --PIPE ROW (otap_view_result_rec(l_text_column, NULL));
             -- loop through the tests
             FOR rec_tst IN cur_tests(p_session_id, rec_set.test_set, rec_grp.test_group, rec_nam.test_name, p_language_id)
             LOOP
@@ -1168,15 +1192,15 @@ AS
     l_text_column := otap_api.get_report_footer(l_report_size, p_language_id);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     -- add AI and copyright
-    l_text_column := LPAD(otap_constants.OTAP_INTERNAL_NAME, 59, ' ');
+    l_text_column := otap_api.get_version_info(otap_constants.OTAP_INTERNAL_NAME, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := LPAD(otap_constants.OTAP_INTERNAL_VERSION_NR, 47, ' ');
+    l_text_column := otap_api.get_version_info(otap_constants.OTAP_INTERNAL_VERSION_NR, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT1;
+    l_text_column := otap_api.get_version_info(otap_constants.OTAP_INTERNAL_COPYRIGHT1, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT2;
+    l_text_column := otap_api.get_version_info(otap_constants.OTAP_INTERNAL_COPYRIGHT2, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
-    l_text_column := otap_constants.OTAP_INTERNAL_COPYRIGHT3;
+    l_text_column := otap_api.get_version_info(otap_constants.OTAP_INTERNAL_COPYRIGHT3, l_report_size);
     PIPE ROW (otap_view_result_rec(l_text_column, NULL));
     RETURN;
   EXCEPTION

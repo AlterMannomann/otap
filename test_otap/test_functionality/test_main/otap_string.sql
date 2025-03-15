@@ -80,6 +80,7 @@ BEGIN
   l_return := otap_test.is_eq(otap_string.line_size(5000, 5), otap_constants.OTAP_NUM_MAX_FILL_LENGTH, 'otap_string.line_size invalid max size');
   l_return := otap_test.is_eq(otap_string.line_size(120, 1), 120 + (otap_constants.OTAP_FALLBACK_BORDER * 2), 'otap_string.line_size invalid border parameter');
   l_return := otap_test.is_eq(otap_string.line_size(20, 5, 30), otap_constants.OTAP_NUM_MIN_FILL_LENGTH, 'otap_string.line_size invalid min fill size');
+  l_return := otap_test.is_eq(otap_string.line_size(20, 5, 130), 130, 'otap_string.line_size respect min length');
   l_return := otap_test.is_eq(otap_string.max_size(NULL), 0, 'otap_string.max_size NULL title size');
   l_return := otap_test.is_eq(otap_string.max_size(0), 0, 'otap_string.max_size 0 title size');
   l_return := otap_test.is_eq(otap_string.max_size(-10), 0, 'otap_string.max_size negative title size');
@@ -128,6 +129,10 @@ BEGIN
   l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'M', 3), (LPAD(' ', 37, '-') || 'teste' || RPAD(' ', 38, '-')), 'otap_string.decorate layout M uneven title size');
   l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'L', 3), (LPAD(' ', 3, '-') || 'teste' || RPAD(' ', 72, '-')), 'otap_string.decorate layout L uneven title size');
   l_return := otap_test.is_eq(otap_string.decorate('teste', '-', 80, 'R', 3), (LPAD(' ', 72, '-') || 'teste' || RPAD(' ', 3, '-')), 'otap_string.decorate layout R uneven title size');
+  l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 80, 'M', 5), RPAD('-', 80, '-'), 'otap_string.decorate NULL string only decoration minimum size');
+  l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'M', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size');
+  l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'R', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size no effect layout change to R');
+  l_return := otap_test.is_eq(otap_string.decorate(NULL, '-', 120, 'L', 5), RPAD('-', 120, '-'), 'otap_string.decorate NULL string only decoration different size no effect layout change to L');
   l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'L'), RPAD('test', 80, ' '), 'otap_string.borderless layout L typical');
   l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'M'), RPAD('test', 80, ' '), 'otap_string.borderless layout M fallback');
   l_return := otap_test.is_eq(otap_string.borderless('test', 80, 'R'), LPAD('test', 80, ' '), 'otap_string.borderless layout R typical');

@@ -22,11 +22,14 @@ AS
     l_string           VARCHAR2(32767 CHAR);
     l_return_text      VARCHAR2(32767 CHAR);
   BEGIN
-    l_border           := otap_util.get_config_value(otap_util.CFG_DEFAULT_BORDER, p_language_id);
+    l_border           := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
     l_layout           := otap_string.check_layout(otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id));
     l_decoration       := otap_string.check_decoration(p_decoration);
     l_string_size      := otap_string.check_string_size(NVL(LENGTH(p_string), 0));
+    -- limit the string if necessary
     l_string           := otap_string.reduce(p_string, l_string_size);
+    -- get final title length
+    l_string_size      := NVL(LENGTH(l_string), 0);
     l_max_title_length := otap_string.check_title_size(l_string_size, l_border);
     l_min_fill         := GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), l_max_title_length);
     l_min_length       := GREATEST(otap_string.line_size(l_max_title_length, l_border), l_min_fill);
@@ -52,7 +55,7 @@ AS
     l_string      VARCHAR2(32767 CHAR);
     l_return_text VARCHAR2(32767 CHAR);
   BEGIN
-    l_border      := otap_util.get_config_value(otap_util.CFG_DEFAULT_BORDER, p_language_id);
+    l_border      := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
     l_layout      := otap_string.check_layout(otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id));
     l_string_size := otap_string.check_string_size(NVL(LENGTH(p_string), 0));
     l_string      := otap_string.reduce(p_string, l_string_size);
