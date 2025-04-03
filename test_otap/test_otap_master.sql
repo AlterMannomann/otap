@@ -5,8 +5,20 @@
 -- The master test script, which calls the master scripts in the directories below.
 -- Directories are organized equivalent to test set, test group and test name.
 -- It will initialize the test session and save the test report to disk.
--- It also contains intrusive tests which change configurations and scheduler jobs for testing.
+-- Expected structure within a test name directory is
+-- - directory master script
+-- -- otap_(unit)(_intrusive).sql script handle test name and manage configuration if _intrusive
+-- --- otap_(unit)_code.sql The code block and sql scripts that can run with any given configuration
+-- This script also calls intrusive tests which change configurations and scheduler jobs for testing.
 -- Therefore it should not be executed if other users are actively testing.
+
+-- REWORK TESTS. Test code should run without expectations, based on the current setup
+-- should have current setup in test description to distinguish intrusive and non intrusive runs
+-- Intrusive only has additional setup changes before calling the test code otherwise only set the test name
+-- otap_x.sql or otap_x_instrusive.sql
+--- otap_x_code.sql
+-- intrusive must check current configuration and avoid setting this configuration as it will only duplicate tests already done
+-- WRITING LOG ENTRIES is NOT INTRUSIVE
 
 -- setup SQLPlus
 WHENEVER SQLERROR CONTINUE
@@ -23,7 +35,7 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 SPOOL otap_test_run.log
 -- init the session
 -- do not make a count test, set some defaults
-SELECT otap_test.init_test( p_test_count => 1083
+SELECT otap_test.init_test( p_test_count => 1906
                           , p_test_set => 'OTAP full system test'
                           )
   FROM dual

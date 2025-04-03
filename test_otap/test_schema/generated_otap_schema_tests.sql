@@ -254,6 +254,55 @@ SELECT otap_test.has_index( p_table_name => 'OTAP_CONFIG'
                           , p_partitioned => 'NO'
                           ) FROM dual;
 -- set test name for table
+SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
+SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
+                          , p_schema => 'OTAP'
+                          ) FROM dual;
+-- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
+-- LIKE scope: %
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'ORACLE_TYPE'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'OTAP_IDENTIFIER'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'OTAP_LABEL_LOWER'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'OTAP_LABEL_CAP'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'OTAP_LABEL_UPPER'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
+                           , p_column_name => 'OTAP_LABEL_SOURCE'
+                           , p_schema => 'OTAP'
+                           , p_data_type => 'VARCHAR2'
+                           , p_data_length => 512
+                           , p_nullable => 'Y'
+                           ) FROM dual;
+-- set test name for table
 SELECT otap_test.set_test_name('table OTAP_RESULTS') FROM dual;
 SELECT otap_test.has_table( p_table_name => 'OTAP_RESULTS'
                           , p_schema => 'OTAP'
@@ -641,55 +690,6 @@ SELECT otap_test.has_index( p_table_name => 'OTAP_TRANSLATE'
                           , p_tablespace_name => 'OTAP_TABLESPACE'
                           , p_partitioned => 'NO'
                           ) FROM dual;
--- set test name for table
-SELECT otap_test.set_test_name('table OTAP_LABELS_MV') FROM dual;
-SELECT otap_test.has_table( p_table_name => 'OTAP_LABELS_MV'
-                          , p_schema => 'OTAP'
-                          ) FROM dual;
--- otap GENERATE test scripts OTAP columns OTAP_LABELS_MV
--- LIKE scope: %
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'ORACLE_TYPE'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'OTAP_IDENTIFIER'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'OTAP_LABEL_LOWER'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'OTAP_LABEL_CAP'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'OTAP_LABEL_UPPER'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
-SELECT otap_test.has_column( p_table_name => 'OTAP_LABELS_MV'
-                           , p_column_name => 'OTAP_LABEL_SOURCE'
-                           , p_schema => 'OTAP'
-                           , p_data_type => 'VARCHAR2'
-                           , p_data_length => 512
-                           , p_nullable => 'Y'
-                           ) FROM dual;
 -- otap GENERATE test scripts OTAP trigger
 -- LIKE scope: %
 SELECT otap_test.set_test_group('trigger') FROM dual;

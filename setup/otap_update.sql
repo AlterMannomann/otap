@@ -135,7 +135,7 @@ EXEC DBMS_UTILITY.COMPILE_SCHEMA(SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), FALSE
 -- check errors and display them, if so
 SELECT CASE
          WHEN COUNT(*) = 0
-         THEN 'SUCCESS - no errors found during package update'
+         THEN 'SUCCESS - no errors found during otap update'
          ELSE 'ERROR - update script has errors'
        END AS info
   FROM sperrorlog

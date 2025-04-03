@@ -842,7 +842,6 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
-                                   , p_runtime      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    , p_language_id  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    )
@@ -854,7 +853,7 @@ AS
     l_message := otap_constants.OTAP_INTERNAL_ERROR;
     -- execute the wrapped function in an extra block
     BEGIN
-      l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_runtime, p_min_fill, p_language_id);
+      l_message := otap_report.get_report_total_details(p_sets, p_groups, p_names, p_descriptions, p_min_fill, p_language_id);
     EXCEPTION
       WHEN OTHERS THEN
         -- consume error
@@ -1177,7 +1176,7 @@ AS
       PIPE ROW (otap_view_result_rec(l_text_column, NULL));
       FOR rec IN cur_session_total(p_session_id)
       LOOP
-        l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, rec.exec_time, l_report_size, p_language_id);
+        l_text_column := otap_api.get_report_total_details(rec.test_sets, rec.test_groups, rec.test_names, rec.test_descs, l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));
         l_text_column := otap_api.get_summary_header(l_report_size, p_language_id);
         PIPE ROW (otap_view_result_rec(l_text_column, NULL));

@@ -51,17 +51,18 @@ AS
     l_layout      VARCHAR2(1 CHAR);
     l_string_size INTEGER;
     l_min_fill    INTEGER;
-    l_min_length  INTEGER;
     l_string      VARCHAR2(32767 CHAR);
     l_return_text VARCHAR2(32767 CHAR);
   BEGIN
     l_border      := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
     l_layout      := otap_string.check_layout(otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id));
     l_string_size := otap_string.check_string_size(NVL(LENGTH(p_string), 0));
+    -- limit the string if necessary
     l_string      := otap_string.reduce(p_string, l_string_size);
+    -- get final title length
+    l_string_size := NVL(LENGTH(l_string), 0);
     l_min_fill    := GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), l_string_size);
-    l_min_length  := otap_string.line_size(l_string_size, l_border);
-    l_return_text := otap_string.borderless(l_string, l_min_length, l_layout);
+    l_return_text := otap_string.borderless(l_string, l_min_fill, l_layout);
     RETURN l_return_text;
   EXCEPTION
     WHEN OTHERS THEN
@@ -113,7 +114,6 @@ AS
                                    , p_groups       IN INTEGER  DEFAULT 0
                                    , p_names        IN INTEGER  DEFAULT 0
                                    , p_descriptions IN INTEGER  DEFAULT 0
-                                   , p_runtime      IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    , p_min_fill     IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
                                    , p_language_id  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
                                    )
@@ -129,7 +129,6 @@ AS
     l_template_text := REPLACE(l_template_text, '@groups@', TRIM(TO_CHAR(NVL(p_groups, 0))));
     l_template_text := REPLACE(l_template_text, '@names@', TRIM(TO_CHAR(NVL(p_names, 0))));
     l_template_text := REPLACE(l_template_text, '@descs@', TRIM(TO_CHAR(NVL(p_descriptions, 0))));
-    l_template_text := REPLACE(l_template_text, '@runtime@', NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA));
     -- get borderless
     l_return_text := otap_report.borderless( l_template_text
                                            , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
