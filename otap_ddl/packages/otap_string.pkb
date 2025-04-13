@@ -443,6 +443,8 @@ AS
     END IF;
     l_line_size   := GREATEST(l_min_length, otap_string.check_string_size(NVL(LENGTH(p_string), 0)));
     l_string      := otap_string.reduce(p_string, l_line_size);
+    -- if null (e.g. p_string was a space char), no need to recheck linesize as min length is active in that case
+    l_string      := NVL(l_string, otap_constants.OTAP_INTERNAL_NA);
     -- now pad the string for the right or left side
     IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
     THEN

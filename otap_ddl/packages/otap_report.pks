@@ -27,7 +27,7 @@ AS
   * Main functionality to create a borderless output using the defined defaults in OTAP_CONFIG.
   * Limited to layout orientation left and right. See also otap_constants.OTAP_FALLBACK_LAYOUT_RESULT_DEFAULT.
   *
-  * @param p_string The string to display borderless in a report line using left or right layout.
+  * @param p_string The string to display borderless in a report line using left or right layout. If NULL or empty string, a space char is used.
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
   * @param p_language_id A valid or existing language id.
   *
@@ -125,7 +125,8 @@ AS
 
   /** FUNCTION otap_report.get_result_underline
   * Build a padded result header underline using the configured defaults in OTAP_CONFIG for text, layout
-  * and border. Padding char is space for result header underline.
+  * and border. Padding char is space for result header underline. Currently not in use. Adjust otap_api
+  * package if needed.
   *
   * @param p_min_fill Allows overwrite of minimum length for reports. Only considered if greater than current header maximum size.
   * @param p_language_id A valid or existing language id.

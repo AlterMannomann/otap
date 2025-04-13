@@ -56,9 +56,10 @@ AS
   BEGIN
     l_border      := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
     l_layout      := otap_string.check_layout(otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id));
-    l_string_size := otap_string.check_string_size(NVL(LENGTH(p_string), 0));
+    l_string      := NVL(p_string, ' ');
+    l_string_size := otap_string.check_string_size(LENGTH(l_string));
     -- limit the string if necessary
-    l_string      := otap_string.reduce(p_string, l_string_size);
+    l_string      := otap_string.reduce(l_string, l_string_size);
     -- get final title length
     l_string_size := NVL(LENGTH(l_string), 0);
     l_min_fill    := GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), l_string_size);
