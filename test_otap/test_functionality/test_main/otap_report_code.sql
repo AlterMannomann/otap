@@ -19,15 +19,19 @@ DECLARE
   l_lpad        INTEGER;
   l_rpad        INTEGER;
   l_fmt_len     INTEGER;
+  l_iv_len      INTEGER;
   l_deco        VARCHAR2(1 CHAR);
   l_title       VARCHAR2(4000 CHAR);
   l_template    VARCHAR2(256 CHAR);
   l_variable    VARCHAR2(4000 CHAR);
+  l_time1       VARCHAR2(128 CHAR);
+  l_time2       VARCHAR2(128 CHAR);
   l_ext         VARCHAR2(128 CHAR);
 BEGIN
   -- otap_report uses configured values, get current values and build non intrusive tests on the current values
   l_layout := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, otap_constants.OTAP_INTERNAL_NA);
   l_border := otap_util.get_config_number(otap_util.CFG_DEFAULT_BORDER);
+  l_iv_len := otap_util.interval_size;
   l_ext    := ' layout/border(' || l_layout || '/' || TRIM(TO_CHAR(l_border)) || ')';
   l_return := otap_test.ok((l_layout IN (otap_constants.OTAP_LAYOUT_MIDDLE, otap_constants.OTAP_LAYOUT_LEFT, otap_constants.OTAP_LAYOUT_RIGHT)), 'otap_report loaded layout check' || l_ext);
   l_return := otap_test.ok((l_border BETWEEN 1 AND 10), 'otap_report loaded border check' || l_ext);
@@ -351,11 +355,13 @@ BEGIN
   IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
   THEN
     l_title := REPLACE(l_template, '@status@', LPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   ELSE
     l_title := REPLACE(l_template, '@status@', RPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   END IF;
-  l_title    := REPLACE(l_title, '@runtime@', otap_constants.OTAP_INTERNAL_NA);
-  l_title    := REPLACE(l_title, '@exectime@', otap_constants.OTAP_INTERNAL_NA);
   l_title    := REPLACE(l_title, '@runs@', otap_constants.OTAP_INTERNAL_NA);
   l_title    := REPLACE(l_title, '@errors@', otap_constants.OTAP_INTERNAL_NA);
   l_title    := REPLACE(l_title, '@issues@', otap_constants.OTAP_INTERNAL_NA);
@@ -375,11 +381,13 @@ BEGIN
   IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
   THEN
     l_title := REPLACE(l_template, '@status@', LPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   ELSE
     l_title := REPLACE(l_template, '@status@', RPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   END IF;
-  l_title    := REPLACE(l_title, '@runtime@', otap_constants.OTAP_INTERNAL_NA);
-  l_title    := REPLACE(l_title, '@exectime@', otap_constants.OTAP_INTERNAL_NA);
   l_title    := REPLACE(l_title, '@runs@', '0');
   l_title    := REPLACE(l_title, '@errors@', '0');
   l_title    := REPLACE(l_title, '@issues@', '0');
@@ -412,11 +420,13 @@ BEGIN
   IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
   THEN
     l_title := REPLACE(l_template, '@status@', LPAD('-1', l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD('Bla', l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', LPAD('Bla', l_iv_len, ' '));
   ELSE
     l_title := REPLACE(l_template, '@status@', RPAD('-1', l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD('Bla', l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@exectime@', RPAD('Bla', l_iv_len, ' '));
   END IF;
-  l_title    := REPLACE(l_title, '@runtime@', 'Bla');
-  l_title    := REPLACE(l_title, '@exectime@', 'Bla');
   l_title    := REPLACE(l_title, '@runs@', '-1');
   l_title    := REPLACE(l_title, '@errors@', '0');
   l_title    := REPLACE(l_title, '@issues@', '-2');
@@ -587,8 +597,7 @@ BEGIN
                 END
   ;
   l_return := otap_test.is_eq(otap_report.get_session_id_text(1, l_strlen), l_want, 'otap_report.get_session_id_text with min fill ' || l_strlen || l_ext);
-  -- get_set_text, CFG_TEMPLATE_SET, CFG_FORMAT_SET_CHAR
-
+  -- get_set_text
   l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SET, otap_constants.OTAP_INTERNAL_NA);
   l_deco     := otap_util.get_config_value(otap_util.CFG_FORMAT_SET_CHAR, otap_constants.OTAP_INTERNAL_NA);
   l_title    := REPLACE(l_template, '@testset@', otap_constants.OTAP_INTERNAL_NA);
@@ -608,6 +617,91 @@ BEGIN
   ;
   l_return   := otap_test.is_eq(otap_report.get_set_text(otap_constants.OTAP_INTERNAL_NA), l_want, 'otap_report.get_set_text check' || l_ext);
   l_return   := otap_test.is_eq(otap_report.get_set_text(NULL, NULL, NULL), l_want, 'otap_report.get_set_text full null check' || l_ext);
-
+  l_strlen   := GREATEST(150, (LENGTH(l_title) + (2 * l_border)));
+  l_xpad     := l_strlen - (LENGTH(l_title) + l_border);
+  l_lpad     := FLOOR((l_strlen - LENGTH(l_title)) / 2);
+  l_rpad     := l_strlen - LENGTH(l_title) - l_lpad;
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(' ', l_xpad, l_deco) || l_title || RPAD(' ', l_border, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN LPAD(' ', l_border, l_deco) || l_title || RPAD(' ', l_xpad, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN LPAD(' ', l_lpad, l_deco) || l_title || RPAD(' ', l_rpad, l_deco)
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return := otap_test.is_eq(otap_report.get_set_text(otap_constants.OTAP_INTERNAL_NA, l_strlen), l_want, 'otap_report.get_set_text with min fill ' || l_strlen || l_ext);
+  -- get_group_text
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_GROUP, otap_constants.OTAP_INTERNAL_NA);
+  l_deco     := otap_util.get_config_value(otap_util.CFG_FORMAT_GROUP_CHAR, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@testgroup@', otap_constants.OTAP_INTERNAL_NA);
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, (LENGTH(l_title) + (2 * l_border)));
+  l_xpad     := l_strlen - (LENGTH(l_title) + l_border);
+  l_lpad     := FLOOR((l_strlen - LENGTH(l_title)) / 2);
+  l_rpad     := l_strlen - LENGTH(l_title) - l_lpad;
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(' ', l_xpad, l_deco) || l_title || RPAD(' ', l_border, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN LPAD(' ', l_border, l_deco) || l_title || RPAD(' ', l_xpad, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN LPAD(' ', l_lpad, l_deco) || l_title || RPAD(' ', l_rpad, l_deco)
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_group_text(otap_constants.OTAP_INTERNAL_NA), l_want, 'otap_report.get_group_text check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_group_text(NULL, NULL, NULL), l_want, 'otap_report.get_group_text full null check' || l_ext);
+  l_strlen   := GREATEST(150, (LENGTH(l_title) + (2 * l_border)));
+  l_xpad     := l_strlen - (LENGTH(l_title) + l_border);
+  l_lpad     := FLOOR((l_strlen - LENGTH(l_title)) / 2);
+  l_rpad     := l_strlen - LENGTH(l_title) - l_lpad;
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(' ', l_xpad, l_deco) || l_title || RPAD(' ', l_border, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN LPAD(' ', l_border, l_deco) || l_title || RPAD(' ', l_xpad, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN LPAD(' ', l_lpad, l_deco) || l_title || RPAD(' ', l_rpad, l_deco)
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return := otap_test.is_eq(otap_report.get_group_text(otap_constants.OTAP_INTERNAL_NA, l_strlen), l_want, 'otap_report.get_group_text with min fill ' || l_strlen || l_ext);
+  -- get_test_name_text
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_TEST_NAME, otap_constants.OTAP_INTERNAL_NA);
+  l_deco     := otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@testname@', otap_constants.OTAP_INTERNAL_NA);
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, (LENGTH(l_title) + (2 * l_border)));
+  l_xpad     := l_strlen - (LENGTH(l_title) + l_border);
+  l_lpad     := FLOOR((l_strlen - LENGTH(l_title)) / 2);
+  l_rpad     := l_strlen - LENGTH(l_title) - l_lpad;
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(' ', l_xpad, l_deco) || l_title || RPAD(' ', l_border, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN LPAD(' ', l_border, l_deco) || l_title || RPAD(' ', l_xpad, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN LPAD(' ', l_lpad, l_deco) || l_title || RPAD(' ', l_rpad, l_deco)
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_test_name_text(otap_constants.OTAP_INTERNAL_NA), l_want, 'otap_report.get_test_name_text check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_test_name_text(NULL, NULL, NULL), l_want, 'otap_report.get_test_name_text full null check' || l_ext);
+  l_strlen   := GREATEST(150, (LENGTH(l_title) + (2 * l_border)));
+  l_xpad     := l_strlen - (LENGTH(l_title) + l_border);
+  l_lpad     := FLOOR((l_strlen - LENGTH(l_title)) / 2);
+  l_rpad     := l_strlen - LENGTH(l_title) - l_lpad;
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(' ', l_xpad, l_deco) || l_title || RPAD(' ', l_border, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN LPAD(' ', l_border, l_deco) || l_title || RPAD(' ', l_xpad, l_deco)
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN LPAD(' ', l_lpad, l_deco) || l_title || RPAD(' ', l_rpad, l_deco)
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return := otap_test.is_eq(otap_report.get_test_name_text(otap_constants.OTAP_INTERNAL_NA, l_strlen), l_want, 'otap_report.get_test_name_text with min fill ' || l_strlen || l_ext);
+  -- get_result_line
 END;
 /

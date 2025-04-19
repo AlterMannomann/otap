@@ -462,5 +462,15 @@ AS
     RETURN NUMBER
   ;
 
+  /** FUNCTION otap_util.interval_size
+  * Returns the length of time interval as returned by SQL. PLSQL can differ, usually SQL gives a short from of the days passed.
+  * Used expression is (SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND.
+  *
+  * @return The interval text size as displayed in SQL.
+  */
+  FUNCTION interval_size
+    RETURN NUMBER
+  ;
+
 END;
 /

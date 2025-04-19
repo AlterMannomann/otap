@@ -2005,8 +2005,18 @@ SQL> CREATE OR REPLACE PACKAGE otap_util
 459  	 RETURN NUMBER
 460    ;
 461  
-462  END;
-463  /
+462    /** FUNCTION otap_util.interval_size
+463    * Returns the length of time interval as returned by SQL. PLSQL can differ, usually SQL gives a short from of the days passed.
+464    * Used expression is (SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND.
+465    *
+466    * @return The interval text size as displayed in SQL.
+467    */
+468    FUNCTION interval_size
+469  	 RETURN NUMBER
+470    ;
+471  
+472  END;
+473  /
 
 Package created.
 
@@ -3036,8 +3046,21 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_util
 1020  	    RAISE;
 1021  	END max_text_size;
 1022  
-1023  END;
-1024  /
+1023  	FUNCTION interval_size
+1024  	  RETURN NUMBER
+1025  	IS
+1026  	  l_interval_size NUMBER;
+1027  	BEGIN
+1028  	  SELECT LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_interval_size FROM dual;
+1029  	  RETURN l_interval_size;
+1030  	EXCEPTION
+1031  	  WHEN OTHERS THEN
+1032  	    otap_log.log(SQLERRM, 'otap_util.interval_size', 'Get interval text size as displayed in SQL');
+1033  	    RAISE;
+1034  	END interval_size;
+1035  
+1036  END;
+1037  /
 
 Package body created.
 
@@ -3768,525 +3791,530 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 252  	 l_template_text VARCHAR2(32767 CHAR);
 253  	 l_fallback	 VARCHAR2(4000 CHAR);
 254  	 l_fmt_text	 VARCHAR2(4000 CHAR);
-255  	 l_layout	 VARCHAR2(1 CHAR);
-256  	 l_fmt_len	 INTEGER;
-257    BEGIN
-258  	 -- fetch template
-259  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY, p_language_id);
-260  	 -- replace variables and format them before USE TEST_PASSED (also undefined) delete SUMMARY text
-261  	 l_fallback := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, p_language_id);
-262  	 l_layout   := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id);
-263  	 l_fmt_len  := otap_util.get_length_test_state(p_language_id);
-264  	 l_fmt_text := NVL(p_status, l_fallback);
-265  	 IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
-266  	 THEN
-267  	   l_fmt_text := LPAD(l_fmt_text, l_fmt_len, ' ');
-268  	 ELSE
-269  	   l_fmt_text := RPAD(l_fmt_text, l_fmt_len, ' ');
-270  	 END IF;
-271  	 l_template_text := REPLACE(l_template_text, '@status@', l_fmt_text);
-272  	 l_template_text := REPLACE(l_template_text, '@runtime@', NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA));
-273  	 l_template_text := REPLACE(l_template_text, '@exectime@', NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA));
-274  	 l_template_text := REPLACE(l_template_text, '@runs@', NVL(TRIM(TO_CHAR(p_runs)), otap_constants.OTAP_INTERNAL_NA) );
-275  	 l_template_text := REPLACE(l_template_text, '@errors@', NVL(TRIM(TO_CHAR(p_errors)), otap_constants.OTAP_INTERNAL_NA));
-276  	 l_template_text := REPLACE(l_template_text, '@issues@', NVL(TRIM(TO_CHAR(p_issues)), otap_constants.OTAP_INTERNAL_NA));
-277  	 -- get borderless
-278  	 l_return_text := otap_report.borderless( l_template_text
-279  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-280  						, p_language_id
-281  						)
-282  	 ;
-283  	 RETURN l_return_text;
-284    EXCEPTION
-285  	 WHEN OTHERS THEN
-286  	   otap_log.log(SQLERRM, 'otap_report.get_summary', 'Summary template replacement');
-287  	   RAISE;
-288    END get_summary;
-289  
-290    FUNCTION get_error_result_header( p_test_name   IN VARCHAR2
-291  				       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-292  				       , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-293  				       )
-294  	 RETURN VARCHAR2
-295    IS
-296  	 l_return_text	 VARCHAR2(32767 CHAR);
-297  	 l_template_text VARCHAR2(32767 CHAR);
-298    BEGIN
-299  	 -- get and fill template
-300  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERRORS, p_language_id);
-301  	 l_template_text := REPLACE(l_template_text, '@testname@', NVL(p_test_name, otap_constants.OTAP_INTERNAL_NA));
-302  	 -- get decorated
-303  	 l_return_text := otap_report.decorate( l_template_text
-304  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-305  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, p_language_id)
-306  					      , p_language_id
-307  					      )
-308  	 ;
-309  	 RETURN l_return_text;
-310    EXCEPTION
-311  	 WHEN OTHERS THEN
-312  	   otap_log.log(SQLERRM, 'otap_report.get_error_result_header', 'Build error result header by template');
-313  	   RAISE;
-314    END get_error_result_header;
-315  
-316    FUNCTION get_error_details( p_test_desc	 IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-317  				 , p_error_info  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-318  				 , p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-319  				 , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-320  				 )
-321  	 RETURN VARCHAR2
-322    IS
-323  	 l_return_text	 VARCHAR2(32767 CHAR);
-324  	 l_template_text VARCHAR2(32767 CHAR);
-325    BEGIN
-326  	 -- get and fill template
-327  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERROR_DETAILS, p_language_id);
-328  	 l_template_text := REPLACE(l_template_text, '@testdesc@', NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA));
-329  	 l_template_text := REPLACE(l_template_text, '@errorinfo@', NVL(p_error_info, otap_constants.OTAP_INTERNAL_NA));
-330  	 -- get borderless
-331  	 l_return_text := otap_report.borderless( l_template_text
-332  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-333  						, p_language_id
-334  						)
-335  	 ;
-336  	 RETURN l_return_text;
-337    EXCEPTION
-338  	 WHEN OTHERS THEN
-339  	   otap_log.log(SQLERRM, 'otap_report.get_error_details', 'Build error detail row by template');
-340  	   RAISE;
-341    END get_error_details;
-342  
-343    FUNCTION get_no_data_text( p_session_id	IN NUMBER
-344  				, p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-345  				, p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-346  				)
-347  	 RETURN VARCHAR2
-348    IS
-349  	 l_return_text	 VARCHAR2(32767 CHAR);
-350  	 l_template_text VARCHAR2(32767 CHAR);
-351    BEGIN
-352  	 -- get and fill template
-353  	 l_template_text    := otap_util.get_config_value(otap_util.CFG_TEMPLATE_NO_DATA, p_language_id);
-354  	 l_template_text    := REPLACE(l_template_text, '@sessionid@', NVL(TRIM(TO_CHAR(p_session_id)), otap_constants.OTAP_INTERNAL_NA));
-355  	 -- get borderless
-356  	 l_return_text := otap_report.borderless( l_template_text
-357  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-358  						, p_language_id
-359  						)
-360  	 ;
-361  	 RETURN l_return_text;
-362    EXCEPTION
-363  	 WHEN OTHERS THEN
-364  	   otap_log.log(SQLERRM, 'otap_report.get_no_data_text', 'Build no data message by template');
-365  	   RAISE;
-366    END get_no_data_text;
-367  
-368    FUNCTION get_session_id_text( p_session_id  IN NUMBER
-369  				   , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-370  				   , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-371  				   )
-372  	 RETURN VARCHAR2
-373    IS
-374  	 l_return_text	 VARCHAR2(32767 CHAR);
-375  	 l_template_text VARCHAR2(32767 CHAR);
-376    BEGIN
-377  	 -- get and fill template
-378  	 l_template_text    := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SESSION_ID, p_language_id);
-379  	 l_template_text    := REPLACE(l_template_text, '@sessionid@', NVL(TRIM(TO_CHAR(p_session_id)), otap_constants.OTAP_INTERNAL_NA));
-380  	 -- get borderless
-381  	 l_return_text := otap_report.borderless( l_template_text
-382  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-383  						, p_language_id
-384  						)
-385  	 ;
-386  	 RETURN l_return_text;
-387    EXCEPTION
-388  	 WHEN OTHERS THEN
-389  	   otap_log.log(SQLERRM, 'otap_report.get_session_id_text', 'Build session id message by template');
-390  	   RAISE;
-391    END get_session_id_text;
-392  
-393    FUNCTION get_set_text( p_test_set    IN VARCHAR2
-394  			    , p_min_fill    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-395  			    , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-396  			    )
-397  	 RETURN VARCHAR2
-398    IS
-399  	 l_return_text	 VARCHAR2(32767 CHAR);
-400  	 l_template_text VARCHAR2(32767 CHAR);
-401    BEGIN
-402  	 -- get and fill template
-403  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SET, p_language_id);
-404  	 l_template_text := REPLACE(l_template_text, '@testset@', NVL(TRIM(p_test_set), otap_constants.OTAP_INTERNAL_NA));
-405  	 -- get decorated
-406  	 l_return_text := otap_report.decorate( l_template_text
-407  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-408  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_SET_CHAR, p_language_id)
-409  					      , p_language_id
-410  					      )
-411  	 ;
-412  	 RETURN l_return_text;
-413    EXCEPTION
-414  	 WHEN OTHERS THEN
-415  	   otap_log.log(SQLERRM, 'otap_report.get_set_text', 'Build test set message by template');
-416  	   RAISE;
-417    END get_set_text;
-418  
-419    FUNCTION get_group_text( p_test_group  IN VARCHAR2
-420  			      , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-421  			      , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-422  			      )
-423  	 RETURN VARCHAR2
-424    IS
-425  	 l_return_text	 VARCHAR2(32767 CHAR);
-426  	 l_template_text VARCHAR2(32767 CHAR);
-427    BEGIN
-428  	 -- get and fill template
-429  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_GROUP, p_language_id);
-430  	 l_template_text := REPLACE(l_template_text, '@testgroup@', NVL(TRIM(p_test_group), otap_constants.OTAP_INTERNAL_NA));
-431  	 -- get decorated
-432  	 l_return_text := otap_report.decorate( l_template_text
-433  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-434  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_GROUP_CHAR, p_language_id)
-435  					      , p_language_id
-436  					      )
-437  	 ;
-438  	 RETURN l_return_text;
-439    EXCEPTION
-440  	 WHEN OTHERS THEN
-441  	   otap_log.log(SQLERRM, 'otap_report.get_group_text', 'Build test group message by template');
-442  	   RAISE;
-443    END get_group_text;
-444  
-445    FUNCTION get_test_name_text( p_test_name   IN VARCHAR2
-446  				  , p_min_fill	  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-447  				  , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-448  				  )
-449  	 RETURN VARCHAR2
-450    IS
-451  	 l_return_text	 VARCHAR2(32767 CHAR);
-452  	 l_template_text VARCHAR2(32767 CHAR);
-453    BEGIN
-454  	 -- get and fill template
-455  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_TEST_NAME, p_language_id);
-456  	 l_template_text := REPLACE(l_template_text, '@testname@', NVL(TRIM(p_test_name), otap_constants.OTAP_INTERNAL_NA));
-457  	 -- get decorated
-458  	 l_return_text := otap_report.decorate( l_template_text
-459  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-460  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, p_language_id)
-461  					      , p_language_id
-462  					      )
-463  	 ;
-464  	 RETURN l_return_text;
-465    EXCEPTION
-466  	 WHEN OTHERS THEN
-467  	   otap_log.log(SQLERRM, 'otap_report.get_test_name_text', 'Build test name message by template');
-468  	   RAISE;
-469    END get_test_name_text;
-470  
-471    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-472  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
-473  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-474  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-475  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-476  			       , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-477  			       )
-478  	 RETURN VARCHAR2
-479    IS
-480  	 l_return_text	 VARCHAR2(32767 CHAR);
-481  	 l_template_text VARCHAR2(32767 CHAR);
-482  	 l_test_state	 VARCHAR2(32767 CHAR);
-483  	 l_issue_state	 VARCHAR2(32767 CHAR);
-484  	 l_runtime	 VARCHAR2(32767 CHAR);
-485  	 l_desc 	 VARCHAR2(32767 CHAR);
-486  	 l_runtime_len	 INTEGER;
-487  	 l_desc_len	 INTEGER;
-488    BEGIN
-489  	 -- get and prepare template
-490  	 -- assigning directly the runtime length leads to different result 29 instead of 19 which is the expected value
-491  	 -- fetch by SQL
-492  	 SELECT LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_runtime_len FROM dual;
-493  	 -- DOES NOT WORK correct: l_runtime_len := LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND));
-494  	 l_desc_len    := NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH) - ((2 * otap_util.get_length_test_state(p_language_id)) + l_runtime_len + 3);
-495  	 IF l_desc_len <= 0
-496  	 THEN
-497  	   -- wrong configuration, use a default, display will be not correct but possible
-498  	   l_desc_len := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
-499  	 END IF;
-500  	 -- states must be padded to max state size for correct formatting and consider the layout
-501  	 IF otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT) = otap_constants.OTAP_LAYOUT_RIGHT
-502  	 THEN
-503  	   l_test_state  := otap_string.cut(LPAD(NVL(p_test_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
-504  	   l_issue_state := otap_string.cut(LPAD(NVL(p_issue_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
-505  	   l_runtime	 := otap_string.cut(LPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_runtime_len, ' '), l_runtime_len);
-506  	   l_desc	 := otap_string.cut(LPAD(NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA), l_desc_len, ' '), l_desc_len);
-507  	 ELSE
-508  	   -- treat middle and left the same way
-509  	   l_test_state  := otap_string.cut(RPAD(NVL(p_test_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
-510  	   l_issue_state := otap_string.cut(RPAD(NVL(p_issue_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
-511  	   l_runtime	 := otap_string.cut(RPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_runtime_len, ' '), l_runtime_len);
-512  	   l_desc	 := otap_string.cut(RPAD(NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA), l_desc_len, ' '), l_desc_len);
-513  	 END IF;
-514  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_RESULT_LINE, p_language_id);
-515  	 l_template_text := REPLACE(l_template_text, '@teststate@', l_test_state);
-516  	 l_template_text := REPLACE(l_template_text, '@issuestate@', l_issue_state);
-517  	 l_template_text := REPLACE(l_template_text, '@runtime@', l_runtime);
-518  	 l_template_text := REPLACE(l_template_text, '@testdesc@', l_desc);
-519  	 -- get borderless
-520  	 l_return_text := otap_report.borderless( l_template_text
-521  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
-522  						, p_language_id
-523  						)
-524  	 ;
-525  	 RETURN l_return_text;
-526    EXCEPTION
-527  	 WHEN OTHERS THEN
-528  	   otap_log.log(SQLERRM, 'otap_report.get_result_line', 'Build result line by template');
-529  	   RAISE;
-530    END get_result_line;
-531  
-532    FUNCTION get_count_desc( p_tests_run	  IN INTEGER  DEFAULT 0
-533  			      , p_tests_expected  IN INTEGER  DEFAULT 0
-534  			      , p_language_id	  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-535  			      )
-536  	 RETURN VARCHAR2
-537    IS
-538  	 l_return_text	 VARCHAR2(32767 CHAR);
-539    BEGIN
-540  	 -- get and fill template
-541  	 l_return_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_COUNT_DESC, p_language_id);
-542  	 l_return_text := REPLACE(l_return_text, '@testsrun@', TRIM(TO_CHAR(NVL(p_tests_run, 0))));
-543  	 l_return_text := REPLACE(l_return_text, '@testsexpected@', TRIM(TO_CHAR(NVL(p_tests_expected, 0))));
-544  	 RETURN l_return_text;
-545    EXCEPTION
-546  	 WHEN OTHERS THEN
-547  	   otap_log.log(SQLERRM, 'otap_report.get_count_desc', 'Build test count result by template');
-548  	   RAISE;
-549    END get_count_desc;
-550  
-551    FUNCTION get_separator_line( p_char	  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
-552  				  , p_min_fill	  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
-553  				  , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-554  				  )
-555  	 RETURN VARCHAR2
-556    IS
-557  	 l_char        VARCHAR2(1 CHAR);
-558  	 l_return_text VARCHAR2(32767 CHAR);
-559  	 l_line 	    otap_config.config_value%TYPE;
-560    BEGIN
-561  	 l_char := otap_string.check_decoration(p_char);
-562  	 l_return_text := otap_report.decorate( NULL
-563  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), otap_util.get_length_headers(p_language_id))
-564  					      , l_char
-565  					      , p_language_id
-566  					      )
-567  	 ;
-568  	 RETURN l_return_text;
-569    EXCEPTION
-570  	 WHEN OTHERS THEN
-571  	   otap_log.log(SQLERRM, 'otap_report.get_separator_line', 'Build separator line');
-572  	   RAISE;
-573    END get_separator_line;
-574  
-575    FUNCTION get_exists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-576  			      , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-577  			      , p_object_type IN VARCHAR2 DEFAULT NULL
-578  			      , p_sub_object  IN VARCHAR2 DEFAULT NULL
-579  			      , p_test_desc   IN VARCHAR2 DEFAULT NULL
-580  			      , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-581  			      )
-582  	 RETURN VARCHAR2
-583    IS
-584  	 l_template_text VARCHAR2(32767 CHAR); -- '@type@ @object@ exists check (@schema@)'
-585    BEGIN
-586  	 IF p_sub_object IS NOT NULL
-587  	 THEN
-588  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTSX
-589  						 , p_type_label => p_object_type
-590  						 , p_param1 => '@object@'
-591  						 , p_param1_value => p_object_name
-592  						 , p_param2 => '@schema@'
-593  						 , p_param2_value => p_schema_name
-594  						 , p_param3 => '@subobject@'
-595  						 , p_param3_value => p_sub_object
-596  						 , p_description => p_test_desc
-597  						 , p_language_id => p_language_id
-598  						 )
-599  	   ;
-600  	 ELSE
-601  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-602  						 , p_type_label => p_object_type
-603  						 , p_param1 => '@object@'
-604  						 , p_param1_value => p_object_name
-605  						 , p_param2 => '@schema@'
-606  						 , p_param2_value => p_schema_name
-607  						 , p_description => p_test_desc
-608  						 , p_language_id => p_language_id
-609  						 )
-610  	   ;
-611  	 END IF;
-612  	 RETURN l_template_text;
-613    EXCEPTION
-614  	 WHEN OTHERS THEN
-615  	   otap_log.log(SQLERRM, 'otap_report.get_exists_msg', 'Build exists result message');
-616  	   RAISE;
-617    END get_exists_msg;
-618  
-619    FUNCTION get_exists_c_msg( p_table_name	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-620  				, p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-621  				, p_cons_type	IN VARCHAR2 DEFAULT NULL
-622  				, p_column	IN VARCHAR2 DEFAULT NULL
-623  				, p_constraint	IN VARCHAR2 DEFAULT NULL
-624  				, p_test_desc	IN VARCHAR2 DEFAULT NULL
-625  				, p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-626  				)
-627  	 RETURN VARCHAR2
-628    IS
-629  	 l_template_text VARCHAR2(32767 CHAR);
-630  	 -- '@ctype@ @type@ @cname@ for @otype@ @object@ exists check (@schema@)'
-631  	 -- '@ctype@ @type@ @cname@ for @otype@ @object@.@subobject@ exists check (@schema@)'
-632    BEGIN
-633  	 IF p_column IS NOT NULL
-634  	 THEN
-635  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_CX
-636  						 , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
-637  						 , p_param1 => '@object@'
-638  						 , p_param1_value => p_table_name
-639  						 , p_param2 => '@schema@'
-640  						 , p_param2_value => p_schema_name
-641  						 , p_param3 => '@subobject@'
-642  						 , p_param3_value => p_column
-643  						 , p_param4 => '@ctype@'
-644  						 , p_param4_value => otap_util.get_config_value(p_cons_type)
-645  						 , p_param5 => '@otype@'
-646  						 , p_param5_value => otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN)
-647  						 , p_param6n => '@cname@'
-648  						 , p_param6n_value => p_constraint
-649  						 , p_description => p_test_desc
-650  						 , p_language_id => p_language_id
-651  						 )
-652  	   ;
-653  	 ELSE
-654  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_C
-655  						 , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
-656  						 , p_param1 => '@object@'
-657  						 , p_param1_value => p_table_name
-658  						 , p_param2 => '@schema@'
-659  						 , p_param2_value => p_schema_name
-660  						 , p_param3 => '@ctype@'
-661  						 , p_param3_value => otap_util.get_config_value(p_cons_type)
-662  						 , p_param4 => '@otype@'
-663  						 , p_param4_value => otap_util.get_config_value(otap_util.CFG_LABEL_TABLE)
-664  						 , p_param6n => '@cname@'
-665  						 , p_param6n_value => p_constraint
-666  						 , p_description => p_test_desc
-667  						 , p_language_id => p_language_id
-668  						 )
-669  	   ;
-670  	 END IF;
-671  	 RETURN l_template_text;
-672    EXCEPTION
-673  	 WHEN OTHERS THEN
-674  	   otap_log.log(SQLERRM, 'otap_report.get_exists_c_msg', 'Build constraint exists result message');
-675  	   RAISE;
-676    END get_exists_c_msg;
-677  
-678    FUNCTION get_exists_f_msg( p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-679  				, p_check_object    IN VARCHAR2 DEFAULT NULL
-680  				, p_check_type	    IN VARCHAR2 DEFAULT NULL
-681  				, p_rel_object_type IN VARCHAR2 DEFAULT NULL
-682  				, p_rel_object	    IN VARCHAR2 DEFAULT NULL
-683  				, p_rel_subobject   IN VARCHAR2 DEFAULT NULL
-684  				, p_test_desc	    IN VARCHAR2 DEFAULT NULL
-685  				, p_language_id     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-686  				)
-687  	 RETURN VARCHAR2
-688    IS
-689  	 l_template_text VARCHAR2(32767 CHAR);
-690  	 -- '@type@ @name@ for @otype@ @object@.@subobject@ exists check (@schema@)'
-691    BEGIN
-692  	 IF	p_rel_object	IS NOT NULL
-693  	    AND p_rel_subobject IS NOT NULL
-694  	 THEN
-695  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_FX
-696  						 , p_type_label => p_check_type
-697  						 , p_param1 => '@otype@'
-698  						 , p_param1_value => otap_util.get_config_value(p_rel_object_type)
-699  						 , p_param2 => '@schema@'
-700  						 , p_param2_value => p_schema_name
-701  						 , p_param3 => '@object@'
-702  						 , p_param3_value => p_rel_object
-703  						 , p_param4 => '@subobject@'
-704  						 , p_param4_value => p_rel_subobject
-705  						 , p_param6n => '@name@'
-706  						 , p_param6n_value => p_check_object
-707  						 , p_description => p_test_desc
-708  						 , p_language_id => p_language_id
-709  						 )
-710  	   ;
-711  	 ELSE
-712  	   IF p_rel_object IS NOT NULL
-713  	   THEN
-714  	     l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_F
-715  						   , p_type_label => p_check_type
-716  						   , p_param1 => '@otype@'
-717  						   , p_param1_value => otap_util.get_config_value(p_rel_object_type)
-718  						   , p_param2 => '@schema@'
-719  						   , p_param2_value => p_schema_name
-720  						   , p_param3 => '@object@'
-721  						   , p_param3_value => p_rel_object
-722  						   , p_param6n => '@name@'
-723  						   , p_param6n_value => p_check_object
-724  						   , p_description => p_test_desc
-725  						   , p_language_id => p_language_id
-726  						   )
-727  	     ;
-728  	   ELSE
-729  	     l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
-730  						   , p_type_label => p_check_type
-731  						   , p_param1 => '@object@'
-732  						   , p_param1_value => p_check_object
-733  						   , p_param2 => '@schema@'
-734  						   , p_param2_value => p_schema_name
-735  						   , p_description => p_test_desc
-736  						   , p_language_id => p_language_id
-737  						   )
-738  	     ;
-739  	   END IF;
-740  	 END IF;
-741  	 RETURN l_template_text;
-742    EXCEPTION
-743  	 WHEN OTHERS THEN
-744  	   otap_log.log(SQLERRM, 'otap_report.get_exists_f_msg', 'Build related object exists result message');
-745  	   RAISE;
-746    END get_exists_f_msg;
-747  
-748    FUNCTION get_match_msg( p_match_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-749  			     , p_match_data  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-750  			     , p_test_desc   IN VARCHAR2 DEFAULT NULL
-751  			     , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
-752  			     )
-753  	 RETURN VARCHAR2
-754    IS
-755  	 l_template_text VARCHAR2(32767 CHAR); -- '@type@ match (@data@)'
-756    BEGIN
-757  	 l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_MATCH
-758  					       , p_type_label => p_match_type
-759  					       , p_param1 => '@data@'
-760  					       , p_param1_value => p_match_data
-761  					       , p_description => p_test_desc
-762  					       , p_language_id => p_language_id
-763  					       )
-764  	 ;
-765  	 RETURN l_template_text;
-766    EXCEPTION
-767  	 WHEN OTHERS THEN
-768  	   otap_log.log(SQLERRM, 'otap_report.get_match_msg', 'Build match compare result message');
-769  	   RAISE;
-770    END get_match_msg;
-771  
-772  END;
-773  /
+255  	 l_runtime	 VARCHAR2(128 CHAR);
+256  	 l_exectime	 VARCHAR2(128 CHAR);
+257  	 l_layout	 VARCHAR2(1 CHAR);
+258  	 l_fmt_len	 INTEGER;
+259  	 l_time_len	 INTEGER;
+260    BEGIN
+261  	 -- fetch template
+262  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY, p_language_id);
+263  	 -- replace variables and format them before USE TEST_PASSED (also undefined) delete SUMMARY text
+264  	 l_fallback := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, p_language_id);
+265  	 l_layout   := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id);
+266  	 l_fmt_len  := otap_util.get_length_test_state(p_language_id);
+267  	 l_fmt_text := NVL(p_status, l_fallback);
+268  	 l_time_len := otap_util.interval_size;
+269  	 IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+270  	 THEN
+271  	   l_fmt_text := LPAD(l_fmt_text, l_fmt_len, ' ');
+272  	   l_runtime  := LPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+273  	   l_exectime := LPAD(NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+274  	 ELSE
+275  	   l_fmt_text := RPAD(l_fmt_text, l_fmt_len, ' ');
+276  	   l_runtime  := RPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+277  	   l_exectime := RPAD(NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+278  	 END IF;
+279  	 l_template_text := REPLACE(l_template_text, '@status@', l_fmt_text);
+280  	 l_template_text := REPLACE(l_template_text, '@runtime@', l_runtime);
+281  	 l_template_text := REPLACE(l_template_text, '@exectime@', l_exectime);
+282  	 l_template_text := REPLACE(l_template_text, '@runs@', NVL(TRIM(TO_CHAR(p_runs)), otap_constants.OTAP_INTERNAL_NA) );
+283  	 l_template_text := REPLACE(l_template_text, '@errors@', NVL(TRIM(TO_CHAR(p_errors)), otap_constants.OTAP_INTERNAL_NA));
+284  	 l_template_text := REPLACE(l_template_text, '@issues@', NVL(TRIM(TO_CHAR(p_issues)), otap_constants.OTAP_INTERNAL_NA));
+285  	 -- get borderless
+286  	 l_return_text := otap_report.borderless( l_template_text
+287  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+288  						, p_language_id
+289  						)
+290  	 ;
+291  	 RETURN l_return_text;
+292    EXCEPTION
+293  	 WHEN OTHERS THEN
+294  	   otap_log.log(SQLERRM, 'otap_report.get_summary', 'Summary template replacement');
+295  	   RAISE;
+296    END get_summary;
+297  
+298    FUNCTION get_error_result_header( p_test_name   IN VARCHAR2
+299  				       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+300  				       , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+301  				       )
+302  	 RETURN VARCHAR2
+303    IS
+304  	 l_return_text	 VARCHAR2(32767 CHAR);
+305  	 l_template_text VARCHAR2(32767 CHAR);
+306    BEGIN
+307  	 -- get and fill template
+308  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERRORS, p_language_id);
+309  	 l_template_text := REPLACE(l_template_text, '@testname@', NVL(p_test_name, otap_constants.OTAP_INTERNAL_NA));
+310  	 -- get decorated
+311  	 l_return_text := otap_report.decorate( l_template_text
+312  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+313  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, p_language_id)
+314  					      , p_language_id
+315  					      )
+316  	 ;
+317  	 RETURN l_return_text;
+318    EXCEPTION
+319  	 WHEN OTHERS THEN
+320  	   otap_log.log(SQLERRM, 'otap_report.get_error_result_header', 'Build error result header by template');
+321  	   RAISE;
+322    END get_error_result_header;
+323  
+324    FUNCTION get_error_details( p_test_desc	 IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+325  				 , p_error_info  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+326  				 , p_min_fill	 IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+327  				 , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+328  				 )
+329  	 RETURN VARCHAR2
+330    IS
+331  	 l_return_text	 VARCHAR2(32767 CHAR);
+332  	 l_template_text VARCHAR2(32767 CHAR);
+333    BEGIN
+334  	 -- get and fill template
+335  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_ERROR_DETAILS, p_language_id);
+336  	 l_template_text := REPLACE(l_template_text, '@testdesc@', NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA));
+337  	 l_template_text := REPLACE(l_template_text, '@errorinfo@', NVL(p_error_info, otap_constants.OTAP_INTERNAL_NA));
+338  	 -- get borderless
+339  	 l_return_text := otap_report.borderless( l_template_text
+340  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+341  						, p_language_id
+342  						)
+343  	 ;
+344  	 RETURN l_return_text;
+345    EXCEPTION
+346  	 WHEN OTHERS THEN
+347  	   otap_log.log(SQLERRM, 'otap_report.get_error_details', 'Build error detail row by template');
+348  	   RAISE;
+349    END get_error_details;
+350  
+351    FUNCTION get_no_data_text( p_session_id	IN NUMBER
+352  				, p_min_fill	IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+353  				, p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+354  				)
+355  	 RETURN VARCHAR2
+356    IS
+357  	 l_return_text	 VARCHAR2(32767 CHAR);
+358  	 l_template_text VARCHAR2(32767 CHAR);
+359    BEGIN
+360  	 -- get and fill template
+361  	 l_template_text    := otap_util.get_config_value(otap_util.CFG_TEMPLATE_NO_DATA, p_language_id);
+362  	 l_template_text    := REPLACE(l_template_text, '@sessionid@', NVL(TRIM(TO_CHAR(p_session_id)), otap_constants.OTAP_INTERNAL_NA));
+363  	 -- get borderless
+364  	 l_return_text := otap_report.borderless( l_template_text
+365  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+366  						, p_language_id
+367  						)
+368  	 ;
+369  	 RETURN l_return_text;
+370    EXCEPTION
+371  	 WHEN OTHERS THEN
+372  	   otap_log.log(SQLERRM, 'otap_report.get_no_data_text', 'Build no data message by template');
+373  	   RAISE;
+374    END get_no_data_text;
+375  
+376    FUNCTION get_session_id_text( p_session_id  IN NUMBER
+377  				   , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+378  				   , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+379  				   )
+380  	 RETURN VARCHAR2
+381    IS
+382  	 l_return_text	 VARCHAR2(32767 CHAR);
+383  	 l_template_text VARCHAR2(32767 CHAR);
+384    BEGIN
+385  	 -- get and fill template
+386  	 l_template_text    := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SESSION_ID, p_language_id);
+387  	 l_template_text    := REPLACE(l_template_text, '@sessionid@', NVL(TRIM(TO_CHAR(p_session_id)), otap_constants.OTAP_INTERNAL_NA));
+388  	 -- get borderless
+389  	 l_return_text := otap_report.borderless( l_template_text
+390  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+391  						, p_language_id
+392  						)
+393  	 ;
+394  	 RETURN l_return_text;
+395    EXCEPTION
+396  	 WHEN OTHERS THEN
+397  	   otap_log.log(SQLERRM, 'otap_report.get_session_id_text', 'Build session id message by template');
+398  	   RAISE;
+399    END get_session_id_text;
+400  
+401    FUNCTION get_set_text( p_test_set    IN VARCHAR2
+402  			    , p_min_fill    IN INTEGER	DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+403  			    , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+404  			    )
+405  	 RETURN VARCHAR2
+406    IS
+407  	 l_return_text	 VARCHAR2(32767 CHAR);
+408  	 l_template_text VARCHAR2(32767 CHAR);
+409    BEGIN
+410  	 -- get and fill template
+411  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SET, p_language_id);
+412  	 l_template_text := REPLACE(l_template_text, '@testset@', NVL(TRIM(p_test_set), otap_constants.OTAP_INTERNAL_NA));
+413  	 -- get decorated
+414  	 l_return_text := otap_report.decorate( l_template_text
+415  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+416  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_SET_CHAR, p_language_id)
+417  					      , p_language_id
+418  					      )
+419  	 ;
+420  	 RETURN l_return_text;
+421    EXCEPTION
+422  	 WHEN OTHERS THEN
+423  	   otap_log.log(SQLERRM, 'otap_report.get_set_text', 'Build test set message by template');
+424  	   RAISE;
+425    END get_set_text;
+426  
+427    FUNCTION get_group_text( p_test_group  IN VARCHAR2
+428  			      , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+429  			      , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+430  			      )
+431  	 RETURN VARCHAR2
+432    IS
+433  	 l_return_text	 VARCHAR2(32767 CHAR);
+434  	 l_template_text VARCHAR2(32767 CHAR);
+435    BEGIN
+436  	 -- get and fill template
+437  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_GROUP, p_language_id);
+438  	 l_template_text := REPLACE(l_template_text, '@testgroup@', NVL(TRIM(p_test_group), otap_constants.OTAP_INTERNAL_NA));
+439  	 -- get decorated
+440  	 l_return_text := otap_report.decorate( l_template_text
+441  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+442  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_GROUP_CHAR, p_language_id)
+443  					      , p_language_id
+444  					      )
+445  	 ;
+446  	 RETURN l_return_text;
+447    EXCEPTION
+448  	 WHEN OTHERS THEN
+449  	   otap_log.log(SQLERRM, 'otap_report.get_group_text', 'Build test group message by template');
+450  	   RAISE;
+451    END get_group_text;
+452  
+453    FUNCTION get_test_name_text( p_test_name   IN VARCHAR2
+454  				  , p_min_fill	  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+455  				  , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+456  				  )
+457  	 RETURN VARCHAR2
+458    IS
+459  	 l_return_text	 VARCHAR2(32767 CHAR);
+460  	 l_template_text VARCHAR2(32767 CHAR);
+461    BEGIN
+462  	 -- get and fill template
+463  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_TEST_NAME, p_language_id);
+464  	 l_template_text := REPLACE(l_template_text, '@testname@', NVL(TRIM(p_test_name), otap_constants.OTAP_INTERNAL_NA));
+465  	 -- get decorated
+466  	 l_return_text := otap_report.decorate( l_template_text
+467  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+468  					      , otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, p_language_id)
+469  					      , p_language_id
+470  					      )
+471  	 ;
+472  	 RETURN l_return_text;
+473    EXCEPTION
+474  	 WHEN OTHERS THEN
+475  	   otap_log.log(SQLERRM, 'otap_report.get_test_name_text', 'Build test name message by template');
+476  	   RAISE;
+477    END get_test_name_text;
+478  
+479    FUNCTION get_result_line( p_test_state  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+480  			       , p_issue_state IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED
+481  			       , p_runtime     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+482  			       , p_test_desc   IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+483  			       , p_min_fill    IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+484  			       , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+485  			       )
+486  	 RETURN VARCHAR2
+487    IS
+488  	 l_return_text	 VARCHAR2(32767 CHAR);
+489  	 l_template_text VARCHAR2(32767 CHAR);
+490  	 l_test_state	 VARCHAR2(32767 CHAR);
+491  	 l_issue_state	 VARCHAR2(32767 CHAR);
+492  	 l_runtime	 VARCHAR2(32767 CHAR);
+493  	 l_desc 	 VARCHAR2(32767 CHAR);
+494  	 l_runtime_len	 INTEGER;
+495  	 l_desc_len	 INTEGER;
+496    BEGIN
+497  	 -- get and prepare template
+498  	 l_runtime_len := otap_util.interval_size;
+499  	 l_desc_len    := NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH) - ((2 * otap_util.get_length_test_state(p_language_id)) + l_runtime_len + 3);
+500  	 IF l_desc_len <= 0
+501  	 THEN
+502  	   -- wrong configuration, use a default, display will be not correct but possible
+503  	   l_desc_len := otap_constants.OTAP_NUM_MIN_FILL_LENGTH;
+504  	 END IF;
+505  	 -- states must be padded to max state size for correct formatting and consider the layout
+506  	 IF otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT) = otap_constants.OTAP_LAYOUT_RIGHT
+507  	 THEN
+508  	   l_test_state  := otap_string.cut(LPAD(NVL(p_test_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
+509  	   l_issue_state := otap_string.cut(LPAD(NVL(p_issue_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
+510  	   l_runtime	 := otap_string.cut(LPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_runtime_len, ' '), l_runtime_len);
+511  	   l_desc	 := otap_string.cut(LPAD(NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA), l_desc_len, ' '), l_desc_len);
+512  	 ELSE
+513  	   -- treat middle and left the same way
+514  	   l_test_state  := otap_string.cut(RPAD(NVL(p_test_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
+515  	   l_issue_state := otap_string.cut(RPAD(NVL(p_issue_state, otap_constants.OTAP_INTERNAL_NA), otap_util.get_length_test_state(p_language_id), ' '), otap_util.get_length_test_state(p_language_id));
+516  	   l_runtime	 := otap_string.cut(RPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_runtime_len, ' '), l_runtime_len);
+517  	   l_desc	 := otap_string.cut(RPAD(NVL(p_test_desc, otap_constants.OTAP_INTERNAL_NA), l_desc_len, ' '), l_desc_len);
+518  	 END IF;
+519  	 l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_RESULT_LINE, p_language_id);
+520  	 l_template_text := REPLACE(l_template_text, '@teststate@', l_test_state);
+521  	 l_template_text := REPLACE(l_template_text, '@issuestate@', l_issue_state);
+522  	 l_template_text := REPLACE(l_template_text, '@runtime@', l_runtime);
+523  	 l_template_text := REPLACE(l_template_text, '@testdesc@', l_desc);
+524  	 -- get borderless
+525  	 l_return_text := otap_report.borderless( l_template_text
+526  						, GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), NVL(LENGTH(l_template_text), 0), otap_util.get_length_headers(p_language_id))
+527  						, p_language_id
+528  						)
+529  	 ;
+530  	 RETURN l_return_text;
+531    EXCEPTION
+532  	 WHEN OTHERS THEN
+533  	   otap_log.log(SQLERRM, 'otap_report.get_result_line', 'Build result line by template');
+534  	   RAISE;
+535    END get_result_line;
+536  
+537    FUNCTION get_count_desc( p_tests_run	  IN INTEGER  DEFAULT 0
+538  			      , p_tests_expected  IN INTEGER  DEFAULT 0
+539  			      , p_language_id	  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+540  			      )
+541  	 RETURN VARCHAR2
+542    IS
+543  	 l_return_text	 VARCHAR2(32767 CHAR);
+544    BEGIN
+545  	 -- get and fill template
+546  	 l_return_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_COUNT_DESC, p_language_id);
+547  	 l_return_text := REPLACE(l_return_text, '@testsrun@', TRIM(TO_CHAR(NVL(p_tests_run, 0))));
+548  	 l_return_text := REPLACE(l_return_text, '@testsexpected@', TRIM(TO_CHAR(NVL(p_tests_expected, 0))));
+549  	 RETURN l_return_text;
+550    EXCEPTION
+551  	 WHEN OTHERS THEN
+552  	   otap_log.log(SQLERRM, 'otap_report.get_count_desc', 'Build test count result by template');
+553  	   RAISE;
+554    END get_count_desc;
+555  
+556    FUNCTION get_separator_line( p_char	  IN VARCHAR2 DEFAULT otap_constants.OTAP_FALLBACK_FORMAT_NAME_CHAR
+557  				  , p_min_fill	  IN INTEGER  DEFAULT otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+558  				  , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+559  				  )
+560  	 RETURN VARCHAR2
+561    IS
+562  	 l_char        VARCHAR2(1 CHAR);
+563  	 l_return_text VARCHAR2(32767 CHAR);
+564  	 l_line 	    otap_config.config_value%TYPE;
+565    BEGIN
+566  	 l_char := otap_string.check_decoration(p_char);
+567  	 l_return_text := otap_report.decorate( NULL
+568  					      , GREATEST(NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH), otap_util.get_length_headers(p_language_id))
+569  					      , l_char
+570  					      , p_language_id
+571  					      )
+572  	 ;
+573  	 RETURN l_return_text;
+574    EXCEPTION
+575  	 WHEN OTHERS THEN
+576  	   otap_log.log(SQLERRM, 'otap_report.get_separator_line', 'Build separator line');
+577  	   RAISE;
+578    END get_separator_line;
+579  
+580    FUNCTION get_exists_msg( p_object_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+581  			      , p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+582  			      , p_object_type IN VARCHAR2 DEFAULT NULL
+583  			      , p_sub_object  IN VARCHAR2 DEFAULT NULL
+584  			      , p_test_desc   IN VARCHAR2 DEFAULT NULL
+585  			      , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+586  			      )
+587  	 RETURN VARCHAR2
+588    IS
+589  	 l_template_text VARCHAR2(32767 CHAR); -- '@type@ @object@ exists check (@schema@)'
+590    BEGIN
+591  	 IF p_sub_object IS NOT NULL
+592  	 THEN
+593  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTSX
+594  						 , p_type_label => p_object_type
+595  						 , p_param1 => '@object@'
+596  						 , p_param1_value => p_object_name
+597  						 , p_param2 => '@schema@'
+598  						 , p_param2_value => p_schema_name
+599  						 , p_param3 => '@subobject@'
+600  						 , p_param3_value => p_sub_object
+601  						 , p_description => p_test_desc
+602  						 , p_language_id => p_language_id
+603  						 )
+604  	   ;
+605  	 ELSE
+606  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+607  						 , p_type_label => p_object_type
+608  						 , p_param1 => '@object@'
+609  						 , p_param1_value => p_object_name
+610  						 , p_param2 => '@schema@'
+611  						 , p_param2_value => p_schema_name
+612  						 , p_description => p_test_desc
+613  						 , p_language_id => p_language_id
+614  						 )
+615  	   ;
+616  	 END IF;
+617  	 RETURN l_template_text;
+618    EXCEPTION
+619  	 WHEN OTHERS THEN
+620  	   otap_log.log(SQLERRM, 'otap_report.get_exists_msg', 'Build exists result message');
+621  	   RAISE;
+622    END get_exists_msg;
+623  
+624    FUNCTION get_exists_c_msg( p_table_name	IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+625  				, p_schema_name IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+626  				, p_cons_type	IN VARCHAR2 DEFAULT NULL
+627  				, p_column	IN VARCHAR2 DEFAULT NULL
+628  				, p_constraint	IN VARCHAR2 DEFAULT NULL
+629  				, p_test_desc	IN VARCHAR2 DEFAULT NULL
+630  				, p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+631  				)
+632  	 RETURN VARCHAR2
+633    IS
+634  	 l_template_text VARCHAR2(32767 CHAR);
+635  	 -- '@ctype@ @type@ @cname@ for @otype@ @object@ exists check (@schema@)'
+636  	 -- '@ctype@ @type@ @cname@ for @otype@ @object@.@subobject@ exists check (@schema@)'
+637    BEGIN
+638  	 IF p_column IS NOT NULL
+639  	 THEN
+640  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_CX
+641  						 , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
+642  						 , p_param1 => '@object@'
+643  						 , p_param1_value => p_table_name
+644  						 , p_param2 => '@schema@'
+645  						 , p_param2_value => p_schema_name
+646  						 , p_param3 => '@subobject@'
+647  						 , p_param3_value => p_column
+648  						 , p_param4 => '@ctype@'
+649  						 , p_param4_value => otap_util.get_config_value(p_cons_type)
+650  						 , p_param5 => '@otype@'
+651  						 , p_param5_value => otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN)
+652  						 , p_param6n => '@cname@'
+653  						 , p_param6n_value => p_constraint
+654  						 , p_description => p_test_desc
+655  						 , p_language_id => p_language_id
+656  						 )
+657  	   ;
+658  	 ELSE
+659  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_C
+660  						 , p_type_label => otap_util.CFG_LABEL_CONSTRAINT
+661  						 , p_param1 => '@object@'
+662  						 , p_param1_value => p_table_name
+663  						 , p_param2 => '@schema@'
+664  						 , p_param2_value => p_schema_name
+665  						 , p_param3 => '@ctype@'
+666  						 , p_param3_value => otap_util.get_config_value(p_cons_type)
+667  						 , p_param4 => '@otype@'
+668  						 , p_param4_value => otap_util.get_config_value(otap_util.CFG_LABEL_TABLE)
+669  						 , p_param6n => '@cname@'
+670  						 , p_param6n_value => p_constraint
+671  						 , p_description => p_test_desc
+672  						 , p_language_id => p_language_id
+673  						 )
+674  	   ;
+675  	 END IF;
+676  	 RETURN l_template_text;
+677    EXCEPTION
+678  	 WHEN OTHERS THEN
+679  	   otap_log.log(SQLERRM, 'otap_report.get_exists_c_msg', 'Build constraint exists result message');
+680  	   RAISE;
+681    END get_exists_c_msg;
+682  
+683    FUNCTION get_exists_f_msg( p_schema_name     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+684  				, p_check_object    IN VARCHAR2 DEFAULT NULL
+685  				, p_check_type	    IN VARCHAR2 DEFAULT NULL
+686  				, p_rel_object_type IN VARCHAR2 DEFAULT NULL
+687  				, p_rel_object	    IN VARCHAR2 DEFAULT NULL
+688  				, p_rel_subobject   IN VARCHAR2 DEFAULT NULL
+689  				, p_test_desc	    IN VARCHAR2 DEFAULT NULL
+690  				, p_language_id     IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+691  				)
+692  	 RETURN VARCHAR2
+693    IS
+694  	 l_template_text VARCHAR2(32767 CHAR);
+695  	 -- '@type@ @name@ for @otype@ @object@.@subobject@ exists check (@schema@)'
+696    BEGIN
+697  	 IF	p_rel_object	IS NOT NULL
+698  	    AND p_rel_subobject IS NOT NULL
+699  	 THEN
+700  	   l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_FX
+701  						 , p_type_label => p_check_type
+702  						 , p_param1 => '@otype@'
+703  						 , p_param1_value => otap_util.get_config_value(p_rel_object_type)
+704  						 , p_param2 => '@schema@'
+705  						 , p_param2_value => p_schema_name
+706  						 , p_param3 => '@object@'
+707  						 , p_param3_value => p_rel_object
+708  						 , p_param4 => '@subobject@'
+709  						 , p_param4_value => p_rel_subobject
+710  						 , p_param6n => '@name@'
+711  						 , p_param6n_value => p_check_object
+712  						 , p_description => p_test_desc
+713  						 , p_language_id => p_language_id
+714  						 )
+715  	   ;
+716  	 ELSE
+717  	   IF p_rel_object IS NOT NULL
+718  	   THEN
+719  	     l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS_F
+720  						   , p_type_label => p_check_type
+721  						   , p_param1 => '@otype@'
+722  						   , p_param1_value => otap_util.get_config_value(p_rel_object_type)
+723  						   , p_param2 => '@schema@'
+724  						   , p_param2_value => p_schema_name
+725  						   , p_param3 => '@object@'
+726  						   , p_param3_value => p_rel_object
+727  						   , p_param6n => '@name@'
+728  						   , p_param6n_value => p_check_object
+729  						   , p_description => p_test_desc
+730  						   , p_language_id => p_language_id
+731  						   )
+732  	     ;
+733  	   ELSE
+734  	     l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS
+735  						   , p_type_label => p_check_type
+736  						   , p_param1 => '@object@'
+737  						   , p_param1_value => p_check_object
+738  						   , p_param2 => '@schema@'
+739  						   , p_param2_value => p_schema_name
+740  						   , p_description => p_test_desc
+741  						   , p_language_id => p_language_id
+742  						   )
+743  	     ;
+744  	   END IF;
+745  	 END IF;
+746  	 RETURN l_template_text;
+747    EXCEPTION
+748  	 WHEN OTHERS THEN
+749  	   otap_log.log(SQLERRM, 'otap_report.get_exists_f_msg', 'Build related object exists result message');
+750  	   RAISE;
+751    END get_exists_f_msg;
+752  
+753    FUNCTION get_match_msg( p_match_type  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+754  			     , p_match_data  IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+755  			     , p_test_desc   IN VARCHAR2 DEFAULT NULL
+756  			     , p_language_id IN VARCHAR2 DEFAULT otap_constants.OTAP_INTERNAL_NA
+757  			     )
+758  	 RETURN VARCHAR2
+759    IS
+760  	 l_template_text VARCHAR2(32767 CHAR); -- '@type@ match (@data@)'
+761    BEGIN
+762  	 l_template_text := otap_util.build_msg( p_cfg_template => otap_util.CFG_TEMPLATE_MATCH
+763  					       , p_type_label => p_match_type
+764  					       , p_param1 => '@data@'
+765  					       , p_param1_value => p_match_data
+766  					       , p_description => p_test_desc
+767  					       , p_language_id => p_language_id
+768  					       )
+769  	 ;
+770  	 RETURN l_template_text;
+771    EXCEPTION
+772  	 WHEN OTHERS THEN
+773  	   otap_log.log(SQLERRM, 'otap_report.get_match_msg', 'Build match compare result message');
+774  	   RAISE;
+775    END get_match_msg;
+776  
+777  END;
+778  /
 
 Package body created.
 

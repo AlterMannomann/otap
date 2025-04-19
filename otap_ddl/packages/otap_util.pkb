@@ -1023,5 +1023,18 @@ AS
       RAISE;
   END max_text_size;
 
+  FUNCTION interval_size
+    RETURN NUMBER
+  IS
+    l_interval_size NUMBER;
+  BEGIN
+    SELECT LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_interval_size FROM dual;
+    RETURN l_interval_size;
+  EXCEPTION
+    WHEN OTHERS THEN
+      otap_log.log(SQLERRM, 'otap_util.interval_size', 'Get interval text size as displayed in SQL');
+      RAISE;
+  END interval_size;
+
 END;
 /

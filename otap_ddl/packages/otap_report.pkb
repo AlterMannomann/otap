@@ -255,8 +255,11 @@ AS
     l_template_text VARCHAR2(32767 CHAR);
     l_fallback      VARCHAR2(4000 CHAR);
     l_fmt_text      VARCHAR2(4000 CHAR);
+    l_runtime       VARCHAR2(128 CHAR);
+    l_exectime      VARCHAR2(128 CHAR);
     l_layout        VARCHAR2(1 CHAR);
     l_fmt_len       INTEGER;
+    l_time_len      INTEGER;
   BEGIN
     -- fetch template
     l_template_text := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY, p_language_id);
@@ -265,15 +268,20 @@ AS
     l_layout   := otap_util.get_config_value(otap_util.CFG_DEFAULT_LAYOUT, p_language_id);
     l_fmt_len  := otap_util.get_length_test_state(p_language_id);
     l_fmt_text := NVL(p_status, l_fallback);
+    l_time_len := otap_util.interval_size;
     IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
     THEN
       l_fmt_text := LPAD(l_fmt_text, l_fmt_len, ' ');
+      l_runtime  := LPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+      l_exectime := LPAD(NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
     ELSE
       l_fmt_text := RPAD(l_fmt_text, l_fmt_len, ' ');
+      l_runtime  := RPAD(NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
+      l_exectime := RPAD(NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA), l_time_len, ' ');
     END IF;
     l_template_text := REPLACE(l_template_text, '@status@', l_fmt_text);
-    l_template_text := REPLACE(l_template_text, '@runtime@', NVL(p_runtime, otap_constants.OTAP_INTERNAL_NA));
-    l_template_text := REPLACE(l_template_text, '@exectime@', NVL(p_exectime, otap_constants.OTAP_INTERNAL_NA));
+    l_template_text := REPLACE(l_template_text, '@runtime@', l_runtime);
+    l_template_text := REPLACE(l_template_text, '@exectime@', l_exectime);
     l_template_text := REPLACE(l_template_text, '@runs@', NVL(TRIM(TO_CHAR(p_runs)), otap_constants.OTAP_INTERNAL_NA) );
     l_template_text := REPLACE(l_template_text, '@errors@', NVL(TRIM(TO_CHAR(p_errors)), otap_constants.OTAP_INTERNAL_NA));
     l_template_text := REPLACE(l_template_text, '@issues@', NVL(TRIM(TO_CHAR(p_issues)), otap_constants.OTAP_INTERNAL_NA));
@@ -490,10 +498,7 @@ AS
     l_desc_len      INTEGER;
   BEGIN
     -- get and prepare template
-    -- assigning directly the runtime length leads to different result 29 instead of 19 which is the expected value
-    -- fetch by SQL
-    SELECT LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND)) INTO l_runtime_len FROM dual;
-    -- DOES NOT WORK correct: l_runtime_len := LENGTH(TRIM((SYSTIMESTAMP - SYSTIMESTAMP) DAY TO SECOND));
+    l_runtime_len := otap_util.interval_size;
     l_desc_len    := NVL(p_min_fill, otap_constants.OTAP_NUM_MIN_FILL_LENGTH) - ((2 * otap_util.get_length_test_state(p_language_id)) + l_runtime_len + 3);
     IF l_desc_len <= 0
     THEN
