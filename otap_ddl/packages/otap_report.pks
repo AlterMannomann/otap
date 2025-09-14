@@ -334,8 +334,8 @@ AS
   ;
 
   /** FUNCTION otap_report.get_count_desc
-  * Builds the test count result string from template. Does minor NVL handling, N/A for NULL. Used as test description when
-  * writing the count result.
+  * Builds the test count result string from template. Does minor NVL handling, N/A for NULL char, 0 for NULL number parameter.
+  * Used as test description when writing the count result.
   *
   * @param p_tests_run The issue state as text representation for a test result report, e.g. passed, failed or undefined.
   * @param p_tests_expected The runtime of the test as string.

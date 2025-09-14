@@ -748,7 +748,7 @@ AS
     l_label         VARCHAR2(256 CHAR);
     l_var_count     INTEGER;
   BEGIN
-    IF p_description IS NOT NULL
+    IF TRIM(p_description) IS NOT NULL
     THEN
       l_text_result := otap_string.reduce(p_description, 4000);
     ELSE

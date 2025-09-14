@@ -2771,7 +2771,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_util
 745  	 l_label	 VARCHAR2(256 CHAR);
 746  	 l_var_count	 INTEGER;
 747    BEGIN
-748  	 IF p_description IS NOT NULL
+748  	 IF TRIM(p_description) IS NOT NULL
 749  	 THEN
 750  	   l_text_result := otap_string.reduce(p_description, 4000);
 751  	 ELSE
@@ -3401,8 +3401,8 @@ SQL> CREATE OR REPLACE PACKAGE otap_report
 330    ;
 331  
 332    /** FUNCTION otap_report.get_count_desc
-333    * Builds the test count result string from template. Does minor NVL handling, N/A for NULL. Used as test description when
-334    * writing the count result.
+333    * Builds the test count result string from template. Does minor NVL handling, N/A for NULL char, 0 for NULL number parameter.
+334    * Used as test description when writing the count result.
 335    *
 336    * @param p_tests_run The issue state as text representation for a test result report, e.g. passed, failed or undefined.
 337    * @param p_tests_expected The runtime of the test as string.
@@ -4100,7 +4100,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_report
 561    IS
 562  	 l_char        VARCHAR2(1 CHAR);
 563  	 l_return_text VARCHAR2(32767 CHAR);
-564  	 l_line 	    otap_config.config_value%TYPE;
+564  	 l_line        otap_config.config_value%TYPE;
 565    BEGIN
 566  	 l_char := otap_string.check_decoration(p_char);
 567  	 l_return_text := otap_report.decorate( NULL

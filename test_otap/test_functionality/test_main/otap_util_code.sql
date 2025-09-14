@@ -543,6 +543,18 @@ BEGIN
      AND message            LIKE '%missing%template identifier%'
   ;
   l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS, p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule given template' || l_ext);
+  l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => otap_util.CFG_TEMPLATE_EXISTS, p_description => '  '), otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS), 'otap_util.build_msg empty description with spaces ignored' || l_ext);
+  l_stamp  := SYSTIMESTAMP;
+  l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => NULL, p_description => ' '), 'OTAP_ERROR otap_util.build_msg missing description and template identifier', 'otap_util.build_msg empty description and template' || l_ext);
+  l_finish := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'otap_util.build_msg description log entry missing description and template identifier' || l_ext)
+    INTO l_return
+    FROM sperrorlog
+   WHERE timestamp            >= l_stamp
+     AND timestamp            <= l_finish
+     AND TRIM(TO_CHAR(script)) = 'otap_util.build_msg'
+     AND message            LIKE '%missing%description%template identifier%'
+  ;
   l_stamp  := SYSTIMESTAMP;
   l_return := otap_test.is_eq(otap_util.build_msg(p_cfg_template => 'I DO NOT EXIST', p_description => 'Individual message'), 'Individual message', 'otap_util.build_msg description overrule invalid template' || l_ext);
   l_finish := SYSTIMESTAMP;

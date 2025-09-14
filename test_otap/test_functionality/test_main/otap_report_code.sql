@@ -23,7 +23,7 @@ DECLARE
   l_deco        VARCHAR2(1 CHAR);
   l_title       VARCHAR2(4000 CHAR);
   l_template    VARCHAR2(256 CHAR);
-  l_variable    VARCHAR2(4000 CHAR);
+  l_par1        VARCHAR2(4000 CHAR);
   l_time1       VARCHAR2(128 CHAR);
   l_time2       VARCHAR2(128 CHAR);
   l_ext         VARCHAR2(128 CHAR);
@@ -351,14 +351,14 @@ BEGIN
   l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_SUMMARY, otap_constants.OTAP_INTERNAL_NA);
   l_fmt_len  := otap_util.get_length_test_state(otap_constants.OTAP_INTERNAL_NA);
   -- replace variables before getting length
-  l_variable := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, otap_constants.OTAP_INTERNAL_NA);
+  l_par1     := otap_util.get_config_value(otap_util.CFG_TEXT_TEST_UNDEFINED, otap_constants.OTAP_INTERNAL_NA);
   IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
   THEN
-    l_title := REPLACE(l_template, '@status@', LPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_template, '@status@', LPAD(l_par1, l_fmt_len, ' '));
     l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
     l_title := REPLACE(l_title, '@exectime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   ELSE
-    l_title := REPLACE(l_template, '@status@', RPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_template, '@status@', RPAD(l_par1, l_fmt_len, ' '));
     l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
     l_title := REPLACE(l_title, '@exectime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   END IF;
@@ -380,11 +380,11 @@ BEGIN
   l_return   := otap_test.is_eq(otap_report.get_summary(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL), l_want, 'otap_report.get_summary full NULL check' || l_ext);
   IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
   THEN
-    l_title := REPLACE(l_template, '@status@', LPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_template, '@status@', LPAD(l_par1, l_fmt_len, ' '));
     l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
     l_title := REPLACE(l_title, '@exectime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   ELSE
-    l_title := REPLACE(l_template, '@status@', RPAD(l_variable, l_fmt_len, ' '));
+    l_title := REPLACE(l_template, '@status@', RPAD(l_par1, l_fmt_len, ' '));
     l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
     l_title := REPLACE(l_title, '@exectime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
   END IF;
@@ -703,5 +703,229 @@ BEGIN
   ;
   l_return := otap_test.is_eq(otap_report.get_test_name_text(otap_constants.OTAP_INTERNAL_NA, l_strlen), l_want, 'otap_report.get_test_name_text with min fill ' || l_strlen || l_ext);
   -- get_result_line
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_RESULT_LINE, otap_constants.OTAP_INTERNAL_NA);
+  l_fmt_len  := otap_util.get_length_test_state(otap_constants.OTAP_INTERNAL_NA);
+  -- may fail if test state length and interval length > 80
+  IF ((2 * l_fmt_len) + l_iv_len + 3) > otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  THEN
+    l_xpad := LENGTH(otap_constants.OTAP_INTERNAL_NA);
+  ELSE
+    l_xpad := otap_constants.OTAP_NUM_MIN_FILL_LENGTH - ((2 * l_fmt_len) + l_iv_len + 3); -- 3 space chars
+  END IF;
+  IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+  THEN
+    l_title := REPLACE(l_template, '@teststate@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  ELSE
+    l_title := REPLACE(l_template, '@teststate@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  END IF;
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, LENGTH(l_title));
+  -- might be left or right oriented
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_result_line(NULL, NULL, NULL, NULL, NULL, NULL), l_want, 'otap_report.get_result_line full NULL check' || l_ext);
+  IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+  THEN
+    l_title := REPLACE(l_template, '@teststate@', LPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', LPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  ELSE
+    l_title := REPLACE(l_template, '@teststate@', RPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', RPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  END IF;
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, LENGTH(l_title));
+  -- might be left or right oriented
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_result_line, l_want, 'otap_report.get_result_line check' || l_ext);
+  IF ((2 * l_fmt_len) + l_iv_len + 3) > 150
+  THEN
+    l_xpad := LENGTH(otap_constants.OTAP_INTERNAL_NA);
+  ELSE
+    l_xpad := 150 - ((2 * l_fmt_len) + l_iv_len + 3); -- 3 space chars
+  END IF;
+  IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+  THEN
+    l_title := REPLACE(l_template, '@teststate@', LPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', LPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  ELSE
+    l_title := REPLACE(l_template, '@teststate@', RPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@issuestate@', RPAD(otap_constants.OTAP_FALLBACK_TEXT_TEST_UNDEFINED, l_fmt_len, ' '));
+    l_title := REPLACE(l_title, '@runtime@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_iv_len, ' '));
+    l_title := REPLACE(l_title, '@testdesc@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  END IF;
+  l_strlen   := GREATEST(150, LENGTH(l_title));
+  -- might be left or right oriented
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_result_line(p_min_fill => l_strlen), l_want, 'otap_report.get_result_line with min fill ' || l_strlen || l_ext);
+  -- cutted strings
+  IF ((2 * l_fmt_len) + l_iv_len + 3) > otap_constants.OTAP_NUM_MIN_FILL_LENGTH
+  THEN
+    l_xpad := LENGTH(otap_constants.OTAP_INTERNAL_NA);
+  ELSE
+    l_xpad := otap_constants.OTAP_NUM_MIN_FILL_LENGTH - ((2 * l_fmt_len) + l_iv_len + 3); -- 3 space chars
+  END IF;
+  IF l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+  THEN
+    l_title := REPLACE(l_template, '@teststate@', LPAD('a', l_fmt_len, 'a'));
+    l_title := REPLACE(l_title, '@issuestate@', LPAD('a', l_fmt_len, 'a'));
+    l_title := REPLACE(l_title, '@runtime@', LPAD('a', l_iv_len, 'a'));
+    l_title := REPLACE(l_title, '@testdesc@', LPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  ELSE
+    l_title := REPLACE(l_template, '@teststate@', RPAD('a', l_fmt_len, 'a'));
+    l_title := REPLACE(l_title, '@issuestate@', RPAD('a', l_fmt_len, 'a'));
+    l_title := REPLACE(l_title, '@runtime@', RPAD('a', l_iv_len, 'a'));
+    l_title := REPLACE(l_title, '@testdesc@', RPAD(otap_constants.OTAP_INTERNAL_NA, l_xpad, ' '));
+  END IF;
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, LENGTH(l_title));
+  -- might be left or right oriented
+  l_want     := CASE
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_RIGHT
+                  THEN LPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_LEFT
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  WHEN l_layout = otap_constants.OTAP_LAYOUT_MIDDLE
+                  THEN RPAD(l_title, l_strlen, ' ')
+                  ELSE 'INVALID LAYOUT'
+                END
+  ;
+  l_return   := otap_test.is_eq(otap_report.get_result_line(LPAD('a', l_fmt_len + 10, 'a'), LPAD('a', l_fmt_len + 10, 'a'), LPAD('a', l_iv_len + 10, 'a')), l_want, 'otap_report.get_result_line cutted strings check' || l_ext);
+  -- get_count_desc
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_COUNT_DESC, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@testsrun@', '0');
+  l_title    := REPLACE(l_title, '@testsexpected@', '0');
+  l_return   := otap_test.is_eq(otap_report.get_count_desc, l_title, 'otap_report.get_count_desc check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_count_desc(NULL, NULL, NULL), l_title, 'otap_report.get_count_desc full NULL check' || l_ext);
+  -- get_separator_line
+  l_deco     := otap_util.get_config_value(otap_util.CFG_FORMAT_NAME_CHAR, otap_constants.OTAP_INTERNAL_NA);
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, otap_util.get_length_headers);
+  l_want     := LPAD(l_deco, l_strlen, l_deco);
+  l_return   := otap_test.is_eq(otap_report.get_separator_line, l_want, 'otap_report.get_separator_line check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_separator_line(NULL, NULL, NULL), l_want, 'otap_report.get_separator_line full NULL check' || l_ext);
+  l_strlen   := GREATEST(150, otap_util.get_length_headers);
+  l_want     := LPAD(l_deco, l_strlen, l_deco);
+  l_return   := otap_test.is_eq(otap_report.get_separator_line(p_min_fill => l_strlen), l_want, 'otap_report.get_separator_line with min fill ' || l_strlen || l_ext);
+  l_deco     := '@';
+  l_strlen   := GREATEST(otap_constants.OTAP_NUM_MIN_FILL_LENGTH, otap_util.get_length_headers);
+  l_want     := LPAD(l_deco, l_strlen, l_deco);
+  l_return   := otap_test.is_eq(otap_report.get_separator_line('@aaa'), l_want, 'otap_report.get_separator_line use only first char of string' || l_ext);
+  -- get_exists_msg
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_msg, l_title, 'otap_report.get_exists_msg check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_exists_msg(NULL, NULL, NULL, NULL, NULL, NULL), l_template, 'otap_report.get_exists_msg full NULL check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_exists_msg(p_object_type => otap_constants.OTAP_INTERNAL_NA), l_title, 'otap_report.get_exists_msg invalid object check' || l_ext);
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_BOOLEAN));
+  l_return   := otap_test.is_eq(otap_report.get_exists_msg(p_object_type => otap_util.CFG_LABEL_BOOLEAN), l_title, 'otap_report.get_exists_msg valid type check' || l_ext);
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTSX, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@subobject@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_msg(p_sub_object => otap_constants.OTAP_INTERNAL_NA), l_title, 'otap_report.get_exists_msg subobject check' || l_ext);
+  -- get_exists_c_msg - otap_report.get_exists_c_msg(p_cons_type => 'LABEL_CHECK')
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS_C, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@ctype@', otap_constants.OTAP_INTERNAL_ERROR);
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_CONSTRAINT));
+  l_title    := REPLACE(l_title, '@cname@ ', ''); -- add a space to compensate space optimization
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_c_msg, l_title, 'otap_report.get_exists_c_msg check' || l_ext);
+  l_title    := REPLACE(l_template, '@ctype@', otap_constants.OTAP_INTERNAL_ERROR);
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_CONSTRAINT));
+  l_title    := REPLACE(l_title, '@cname@ ', ''); -- add a space to compensate space optimization
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_return   := otap_test.is_eq(otap_report.get_exists_c_msg(NULL, NULL, NULL, NULL, NULL, NULL, NULL), l_title, 'otap_report.get_exists_c_msg full NULL check' || l_ext);
+  l_title    := REPLACE(l_template, '@ctype@', otap_util.get_config_value(otap_util.CFG_LABEL_CHECK));
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_CONSTRAINT));
+  l_title    := REPLACE(l_title, '@cname@ ', ''); -- add a space to compensate space optimization
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_c_msg(p_cons_type => otap_util.CFG_LABEL_CHECK), l_title, 'otap_report.get_exists_c_msg constraint type check' || l_ext);
+  l_title    := REPLACE(l_template, '@ctype@', otap_util.get_config_value(otap_util.CFG_LABEL_CHECK));
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_CONSTRAINT));
+  l_title    := REPLACE(l_title, '@cname@', 'bla bla');
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_c_msg(p_cons_type => otap_util.CFG_LABEL_CHECK, p_constraint => 'bla bla'), l_title, 'otap_report.get_exists_c_msg constraint name check' || l_ext);
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS_CX, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@ctype@', otap_util.get_config_value(otap_util.CFG_LABEL_CHECK));
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_CONSTRAINT));
+  l_title    := REPLACE(l_title, '@cname@', 'bla bla');
+  l_title    := REPLACE(l_title, '@subobject@', 'bla bla');
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_COLUMN));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_c_msg(p_cons_type => otap_util.CFG_LABEL_CHECK, p_constraint => 'bla bla', p_column => 'bla bla'), l_title, 'otap_report.get_exists_c_msg constraint column check' || l_ext);
+  -- get_exists_f_msg
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_f_msg, l_title, 'otap_report.get_exists_f_msg check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_exists_f_msg(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL), l_template, 'otap_report.get_exists_f_msg full NULL check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_exists_f_msg('bla', 'bla', 'bla', 'bla', 'bla', 'bla', 'my message', 'bla'), 'my message', 'otap_report.get_exists_f_msg overwrite message check' || l_ext);
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS_FX, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_INDEX));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@subobject@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@name@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_f_msg(p_schema_name => otap_constants.OTAP_INTERNAL_NA, p_check_object => otap_constants.OTAP_INTERNAL_NA, p_check_type => otap_util.CFG_LABEL_INDEX, p_rel_object_type => otap_util.CFG_LABEL_TABLE, p_rel_object => otap_constants.OTAP_INTERNAL_NA, p_rel_subobject => otap_constants.OTAP_INTERNAL_NA), l_title, 'otap_report.get_exists_f_msg related subobject check' || l_ext);
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_EXISTS_F, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@schema@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@otype@', otap_util.get_config_value(otap_util.CFG_LABEL_TABLE));
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_INDEX));
+  l_title    := REPLACE(l_title, '@object@', otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_title, '@name@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_exists_f_msg(p_schema_name => otap_constants.OTAP_INTERNAL_NA, p_check_object => otap_constants.OTAP_INTERNAL_NA, p_check_type => otap_util.CFG_LABEL_INDEX, p_rel_object_type => otap_util.CFG_LABEL_TABLE, p_rel_object => otap_constants.OTAP_INTERNAL_NA), l_title, 'otap_report.get_exists_f_msg related object check' || l_ext);
+  -- get_match_msg
+  l_template := otap_util.get_config_value(otap_util.CFG_TEMPLATE_MATCH, otap_constants.OTAP_INTERNAL_NA);
+  l_title    := REPLACE(l_template, '@data@', otap_constants.OTAP_INTERNAL_NA);
+  l_return   := otap_test.is_eq(otap_report.get_match_msg, l_title, 'otap_report.get_match_msg check' || l_ext);
+  l_return   := otap_test.is_eq(otap_report.get_match_msg(NULL, NULL, NULL, NULL), l_template, 'otap_report.get_match_msg full NULL check' || l_ext);
+  l_title    := REPLACE(l_title, '@type@', otap_util.get_config_value(otap_util.CFG_LABEL_BOOLEAN));
+  l_return   := otap_test.is_eq(otap_report.get_match_msg(otap_util.CFG_LABEL_BOOLEAN,otap_constants.OTAP_INTERNAL_NA), l_title, 'otap_report.get_match_msg full check' || l_ext);
+EXCEPTION
+  WHEN OTHERS THEN
+    otap_log.log('Test block OTAP_REPORT failed', 'otap_report.sql', SQLERRM);
+    l_return := otap_test.test_error('Complete test block OTAP_REPORT failed', SQLERRM);
 END;
 /

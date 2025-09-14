@@ -564,7 +564,7 @@ AS
   IS
     l_char        VARCHAR2(1 CHAR);
     l_return_text VARCHAR2(32767 CHAR);
-    l_line             otap_config.config_value%TYPE;
+    l_line        otap_config.config_value%TYPE;
   BEGIN
     l_char := otap_string.check_decoration(p_char);
     l_return_text := otap_report.decorate( NULL
