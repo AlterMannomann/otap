@@ -262,7 +262,7 @@ AS
   FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_language';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_language';
     l_return  VARCHAR2(3 CHAR);
   BEGIN
     l_return := otap_constants.OTAP_INTERNAL_NA;

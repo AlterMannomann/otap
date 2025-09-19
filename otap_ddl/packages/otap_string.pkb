@@ -12,11 +12,11 @@ AS
     l_script VARCHAR2(256 CHAR) := 'otap_string.reduce';
     l_string VARCHAR2(32767 CHAR);
   BEGIN
-    l_string := CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
+    l_string := CASE WHEN NVL(LENGTH(TRIM(p_string)), 0) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
     RETURN l_string;
   EXCEPTION
     WHEN OTHERS THEN
-      otap_log.log(SQLERRM, l_script, 'CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END');
+      otap_log.log(SQLERRM, l_script, 'CASE WHEN NVL(LENGTH(TRIM(p_string)), 0) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END');
       RAISE;
   END reduce;
 

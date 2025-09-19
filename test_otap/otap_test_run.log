@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2274
+SQL> SELECT otap_test.init_test( p_test_count => 2314
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 30
+Test session id: 96
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2274
+Expected tests: 2314
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 30
-Test start: 2025-09-14 15:23:48
+Current view id: 96
+Test start: 2025-09-19 02:18:03
 
 
 1 row selected.
@@ -7975,6 +7975,610 @@ SQL> DECLARE
 
 PL/SQL procedure successfully completed.
 
+SQL> @@otap_objects.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- sets the test name and calls the tests for this test name
+SQL> SELECT otap_test.set_test_name('Verify otap_objects functionality') FROM dual;
+Current test: Verify otap_objects functionality
+
+1 row selected.
+
+SQL> -- call the independend code block without changing the current setup
+SQL> @@otap_objects_code.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- independent code block, able to deal with different setup settings
+SQL> 
+SQL> -- to verify package constants we use a anonymous PLSQL block
+SQL> -- to not overload DBMS_OUTPUT only minimal summary output
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return        VARCHAR2(4000 CHAR);
+  3    l_stamp	       TIMESTAMP;
+  4    l_finish        TIMESTAMP;
+  5    l_otap_session  OTAP_SESSION;
+  6  BEGIN
+  7    -- use init defaults for fake session
+  8    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+  9  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+ 10  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+ 11  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+ 12  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+ 13  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 14  				     , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+ 15  				     , otap_constants.OTAP_INTERNAL_NA
+ 16  				     , 0
+ 17  				     , 0
+ 18  				     , FALSE
+ 19  				     , TRUE
+ 20  				     , FALSE
+ 21  				     , SYSDATE
+ 22  				     , 0
+ 23  				     , 0
+ 24  				     , 0
+ 25  				     )
+ 26    ;
+ 27    l_return := otap_test.throws_ok( 'otap_objects.otap_session_verify(NULL);'
+ 28  				      , -20099
+ 29  				      , NULL
+ 30  				      , 'otap_objects.otap_session_verify parameter NULL exception'
+ 31  				      )
+ 32    ;
+ 33    -- must be handled in plsql blocks to verify possible exceptions, putting them in code blocks for throws_ok
+ 34    -- makes code almost unreadable and unmanageable.
+ 35    BEGIN
+ 36  	 otap_objects.otap_session_verify(l_otap_session);
+ 37  	 l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify default session record');
+ 38    EXCEPTION
+ 39  	 WHEN OTHERS THEN
+ 40  	   l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify default session record unexpected exception');
+ 41    END;
+ 42    l_otap_session.test_executor := NULL;
+ 43    BEGIN
+ 44  	 otap_objects.otap_session_verify(l_otap_session);
+ 45  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor NULL');
+ 46    EXCEPTION
+ 47  	 WHEN OTHERS THEN
+ 48  	   IF sqlcode = -20099
+ 49  	   THEN
+ 50  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify executor NULL');
+ 51  	   ELSE
+ 52  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor NULL unexpected exception');
+ 53  	   END IF;
+ 54    END;
+ 55    l_otap_session.test_executor := ' ';
+ 56    BEGIN
+ 57  	 otap_objects.otap_session_verify(l_otap_session);
+ 58  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor empty string');
+ 59    EXCEPTION
+ 60  	 WHEN OTHERS THEN
+ 61  	   IF sqlcode = -20099
+ 62  	   THEN
+ 63  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify executor empty string');
+ 64  	   ELSE
+ 65  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor empty string unexpected exception');
+ 66  	   END IF;
+ 67    END;
+ 68    -- check oversize, THIS WILL GET A PROBLEM IF A USERNAME IS LONGER THAN 128 CHARS
+ 69    BEGIN
+ 70  	 l_otap_session.test_executor := RPAD('A', 128, 'a') || 'oversize';
+ 71  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor too long');
+ 72    EXCEPTION
+ 73  	 WHEN OTHERS THEN
+ 74  	   IF sqlcode = -6502
+ 75  	   THEN
+ 76  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify executor too long');
+ 77  	   ELSE
+ 78  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify executor too long unexpected exception');
+ 79  	   END IF;
+ 80    END;
+ 81    -- reset test executor
+ 82    l_otap_session.test_executor := SYS_CONTEXT('USERENV', 'SESSION_USER');
+ 83    -- check test set
+ 84    -- check test set
+ 85    l_otap_session.test_set := NULL;
+ 86    BEGIN
+ 87  	 otap_objects.otap_session_verify(l_otap_session);
+ 88  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set NULL');
+ 89    EXCEPTION
+ 90  	 WHEN OTHERS THEN
+ 91  	   IF sqlcode = -20099
+ 92  	   THEN
+ 93  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_set NULL');
+ 94  	   ELSE
+ 95  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set NULL unexpected exception');
+ 96  	   END IF;
+ 97    END;
+ 98    l_otap_session.test_set := ' ';
+ 99    BEGIN
+100  	 otap_objects.otap_session_verify(l_otap_session);
+101  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set empty string');
+102    EXCEPTION
+103  	 WHEN OTHERS THEN
+104  	   IF sqlcode = -20099
+105  	   THEN
+106  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_set empty string');
+107  	   ELSE
+108  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set empty string unexpected exception');
+109  	   END IF;
+110    END;
+111    BEGIN
+112  	 l_otap_session.test_set := RPAD('A', 256, 'a') || 'oversize';
+113  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set too long');
+114    EXCEPTION
+115  	 WHEN OTHERS THEN
+116  	   IF sqlcode = -6502
+117  	   THEN
+118  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_set too long');
+119  	   ELSE
+120  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_set too long unexpected exception');
+121  	   END IF;
+122    END;
+123    -- reset test set
+124    l_otap_session.test_set := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET;
+125    -- check test group
+126    l_otap_session.test_group := NULL;
+127    BEGIN
+128  	 otap_objects.otap_session_verify(l_otap_session);
+129  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group NULL');
+130    EXCEPTION
+131  	 WHEN OTHERS THEN
+132  	   IF sqlcode = -20099
+133  	   THEN
+134  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_group NULL');
+135  	   ELSE
+136  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group NULL unexpected exception');
+137  	   END IF;
+138    END;
+139    l_otap_session.test_group := ' ';
+140    BEGIN
+141  	 otap_objects.otap_session_verify(l_otap_session);
+142  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group empty string');
+143    EXCEPTION
+144  	 WHEN OTHERS THEN
+145  	   IF sqlcode = -20099
+146  	   THEN
+147  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_group empty string');
+148  	   ELSE
+149  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group empty string unexpected exception');
+150  	   END IF;
+151    END;
+152    BEGIN
+153  	 l_otap_session.test_group := RPAD('A', 256, 'a') || 'oversize';
+154  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group too long');
+155    EXCEPTION
+156  	 WHEN OTHERS THEN
+157  	   IF sqlcode = -6502
+158  	   THEN
+159  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_group too long');
+160  	   ELSE
+161  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_group too long unexpected exception');
+162  	   END IF;
+163    END;
+164    -- reset test_group
+165    l_otap_session.test_group := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP;
+166    -- check test_name
+167    l_otap_session.test_name := NULL;
+168    BEGIN
+169  	 otap_objects.otap_session_verify(l_otap_session);
+170  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name NULL');
+171    EXCEPTION
+172  	 WHEN OTHERS THEN
+173  	   IF sqlcode = -20099
+174  	   THEN
+175  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_name NULL');
+176  	   ELSE
+177  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name NULL unexpected exception');
+178  	   END IF;
+179    END;
+180    l_otap_session.test_name := ' ';
+181    BEGIN
+182  	 otap_objects.otap_session_verify(l_otap_session);
+183  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name empty string');
+184    EXCEPTION
+185  	 WHEN OTHERS THEN
+186  	   IF sqlcode = -20099
+187  	   THEN
+188  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_name empty string');
+189  	   ELSE
+190  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name empty string unexpected exception');
+191  	   END IF;
+192    END;
+193    BEGIN
+194  	 l_otap_session.test_name := RPAD('A', 256, 'a') || 'oversize';
+195  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name too long');
+196    EXCEPTION
+197  	 WHEN OTHERS THEN
+198  	   IF sqlcode = -6502
+199  	   THEN
+200  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_name too long');
+201  	   ELSE
+202  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_name too long unexpected exception');
+203  	   END IF;
+204    END;
+205    -- reset test_name
+206    l_otap_session.test_name := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME;
+207    -- check db_user
+208    l_otap_session.db_user := NULL;
+209    BEGIN
+210  	 otap_objects.otap_session_verify(l_otap_session);
+211  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user NULL');
+212    EXCEPTION
+213  	 WHEN OTHERS THEN
+214  	   IF sqlcode = -20099
+215  	   THEN
+216  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_user NULL');
+217  	   ELSE
+218  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user NULL unexpected exception');
+219  	   END IF;
+220    END;
+221    l_otap_session.db_user := ' ';
+222    BEGIN
+223  	 otap_objects.otap_session_verify(l_otap_session);
+224  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user empty string');
+225    EXCEPTION
+226  	 WHEN OTHERS THEN
+227  	   IF sqlcode = -20099
+228  	   THEN
+229  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_user empty string');
+230  	   ELSE
+231  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user empty string unexpected exception');
+232  	   END IF;
+233    END;
+234    BEGIN
+235  	 l_otap_session.db_user := RPAD('A', 128, 'a') || 'oversize';
+236  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user too long');
+237    EXCEPTION
+238  	 WHEN OTHERS THEN
+239  	   IF sqlcode = -6502
+240  	   THEN
+241  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_user too long');
+242  	   ELSE
+243  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_user too long unexpected exception');
+244  	   END IF;
+245    END;
+246    -- reset db_user
+247    l_otap_session.db_user := SYS_CONTEXT('USERENV', 'CURRENT_USER');
+248    -- check db_schema
+249    l_otap_session.db_schema := NULL;
+250    BEGIN
+251  	 otap_objects.otap_session_verify(l_otap_session);
+252  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema NULL');
+253    EXCEPTION
+254  	 WHEN OTHERS THEN
+255  	   IF sqlcode = -20099
+256  	   THEN
+257  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_schema NULL');
+258  	   ELSE
+259  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema NULL unexpected exception');
+260  	   END IF;
+261    END;
+262    l_otap_session.db_schema := ' ';
+263    BEGIN
+264  	 otap_objects.otap_session_verify(l_otap_session);
+265  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema empty string');
+266    EXCEPTION
+267  	 WHEN OTHERS THEN
+268  	   IF sqlcode = -20099
+269  	   THEN
+270  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_schema empty string');
+271  	   ELSE
+272  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema empty string unexpected exception');
+273  	   END IF;
+274    END;
+275    BEGIN
+276  	 l_otap_session.db_schema := RPAD('A', 128, 'a') || 'oversize';
+277  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema too long');
+278    EXCEPTION
+279  	 WHEN OTHERS THEN
+280  	   IF sqlcode = -6502
+281  	   THEN
+282  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify db_schema too long');
+283  	   ELSE
+284  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify db_schema too long unexpected exception');
+285  	   END IF;
+286    END;
+287    -- reset db_schema
+288    l_otap_session.db_schema := SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA');
+289    -- check test_prefix
+290    l_otap_session.test_prefix := NULL;
+291    BEGIN
+292  	 otap_objects.otap_session_verify(l_otap_session);
+293  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix NULL');
+294    EXCEPTION
+295  	 WHEN OTHERS THEN
+296  	   IF sqlcode = -20099
+297  	   THEN
+298  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_prefix NULL');
+299  	   ELSE
+300  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix NULL unexpected exception');
+301  	   END IF;
+302    END;
+303    l_otap_session.test_prefix := ' ';
+304    BEGIN
+305  	 otap_objects.otap_session_verify(l_otap_session);
+306  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix empty string');
+307    EXCEPTION
+308  	 WHEN OTHERS THEN
+309  	   IF sqlcode = -20099
+310  	   THEN
+311  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_prefix empty string');
+312  	   ELSE
+313  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix empty string unexpected exception');
+314  	   END IF;
+315    END;
+316    BEGIN
+317  	 l_otap_session.test_prefix := RPAD('A', 4, 'a') || 'oversize';
+318  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix too long');
+319    EXCEPTION
+320  	 WHEN OTHERS THEN
+321  	   IF sqlcode = -6502
+322  	   THEN
+323  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_prefix too long');
+324  	   ELSE
+325  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_prefix too long unexpected exception');
+326  	   END IF;
+327    END;
+328    -- reset test_prefix
+329    l_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
+330    -- check session_language
+331    l_otap_session.session_language := NULL;
+332    BEGIN
+333  	 otap_objects.otap_session_verify(l_otap_session);
+334  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language NULL');
+335    EXCEPTION
+336  	 WHEN OTHERS THEN
+337  	   IF sqlcode = -20099
+338  	   THEN
+339  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_language NULL');
+340  	   ELSE
+341  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language NULL unexpected exception');
+342  	   END IF;
+343    END;
+344    l_otap_session.session_language := ' ';
+345    BEGIN
+346  	 otap_objects.otap_session_verify(l_otap_session);
+347  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language empty string');
+348    EXCEPTION
+349  	 WHEN OTHERS THEN
+350  	   IF sqlcode = -20099
+351  	   THEN
+352  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_language empty string');
+353  	   ELSE
+354  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language empty string unexpected exception');
+355  	   END IF;
+356    END;
+357    BEGIN
+358  	 l_otap_session.session_language := RPAD('A', 3, 'a') || 'oversize';
+359  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language too long');
+360    EXCEPTION
+361  	 WHEN OTHERS THEN
+362  	   IF sqlcode = -6502
+363  	   THEN
+364  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_language too long');
+365  	   ELSE
+366  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_language too long unexpected exception');
+367  	   END IF;
+368    END;
+369    -- reset session_language
+370    l_otap_session.session_language := otap_constants.OTAP_INTERNAL_NA;
+371    -- check test_count
+372    l_otap_session.test_count := NULL;
+373    BEGIN
+374  	 otap_objects.otap_session_verify(l_otap_session);
+375  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_count NULL');
+376    EXCEPTION
+377  	 WHEN OTHERS THEN
+378  	   IF sqlcode = -20099
+379  	   THEN
+380  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_count NULL');
+381  	   ELSE
+382  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_count NULL unexpected exception');
+383  	   END IF;
+384    END;
+385    BEGIN
+386  	 l_otap_session.test_count := 9999999999999999999999999999999999999999;
+387  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_count numeric overflow');
+388    EXCEPTION
+389  	 WHEN OTHERS THEN
+390  	   IF sqlcode = -6502
+391  	   THEN
+392  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify test_count numeric overflow');
+393  	   ELSE
+394  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify test_count numeric overflow unexpected exception');
+395  	   END IF;
+396    END;
+397    -- reset test_count
+398    l_otap_session.test_count := 0;
+399    -- check intended_count
+400    l_otap_session.intended_count := NULL;
+401    BEGIN
+402  	 otap_objects.otap_session_verify(l_otap_session);
+403  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify intended_count NULL');
+404    EXCEPTION
+405  	 WHEN OTHERS THEN
+406  	   IF sqlcode = -20099
+407  	   THEN
+408  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify intended_count NULL');
+409  	   ELSE
+410  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify intended_count NULL unexpected exception');
+411  	   END IF;
+412    END;
+413    BEGIN
+414  	 l_otap_session.intended_count := 9999999999999999999999999999999999999999;
+415  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify intended_count numeric overflow');
+416    EXCEPTION
+417  	 WHEN OTHERS THEN
+418  	   IF sqlcode = -6502
+419  	   THEN
+420  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify intended_count numeric overflow');
+421  	   ELSE
+422  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify intended_count numeric overflow unexpected exception');
+423  	   END IF;
+424    END;
+425    -- reset intended_count
+426    l_otap_session.intended_count := 0;
+427    -- check session_id
+428    l_otap_session.session_id := NULL;
+429    BEGIN
+430  	 otap_objects.otap_session_verify(l_otap_session);
+431  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_id NULL');
+432    EXCEPTION
+433  	 WHEN OTHERS THEN
+434  	   IF sqlcode = -20099
+435  	   THEN
+436  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_id NULL');
+437  	   ELSE
+438  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_id NULL unexpected exception');
+439  	   END IF;
+440    END;
+441    BEGIN
+442  	 l_otap_session.session_id := 9999999999999999999999999999999999999999;
+443  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_id numeric overflow');
+444    EXCEPTION
+445  	 WHEN OTHERS THEN
+446  	   IF sqlcode = -6502
+447  	   THEN
+448  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_id numeric overflow');
+449  	   ELSE
+450  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_id numeric overflow unexpected exception');
+451  	   END IF;
+452    END;
+453    -- reset session_id
+454    l_otap_session.session_id := 0;
+455    -- check error_count
+456    l_otap_session.error_count := NULL;
+457    BEGIN
+458  	 otap_objects.otap_session_verify(l_otap_session);
+459  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify error_count NULL');
+460    EXCEPTION
+461  	 WHEN OTHERS THEN
+462  	   IF sqlcode = -20099
+463  	   THEN
+464  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify error_count NULL');
+465  	   ELSE
+466  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify error_count NULL unexpected exception');
+467  	   END IF;
+468    END;
+469    BEGIN
+470  	 l_otap_session.error_count := 9999999999999999999999999999999999999999;
+471  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify error_count numeric overflow');
+472    EXCEPTION
+473  	 WHEN OTHERS THEN
+474  	   IF sqlcode = -6502
+475  	   THEN
+476  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify error_count numeric overflow');
+477  	   ELSE
+478  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify error_count numeric overflow unexpected exception');
+479  	   END IF;
+480    END;
+481    -- reset error_count
+482    l_otap_session.error_count := 0;
+483    -- check session_view_id
+484    l_otap_session.session_view_id := NULL;
+485    BEGIN
+486  	 otap_objects.otap_session_verify(l_otap_session);
+487  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_view_id NULL');
+488    EXCEPTION
+489  	 WHEN OTHERS THEN
+490  	   IF sqlcode = -20099
+491  	   THEN
+492  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_view_id NULL');
+493  	   ELSE
+494  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_view_id NULL unexpected exception');
+495  	   END IF;
+496    END;
+497    BEGIN
+498  	 l_otap_session.session_view_id := 9999999999999999999999999999999999999999;
+499  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_view_id numeric overflow');
+500    EXCEPTION
+501  	 WHEN OTHERS THEN
+502  	   IF sqlcode = -6502
+503  	   THEN
+504  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_view_id numeric overflow');
+505  	   ELSE
+506  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_view_id numeric overflow unexpected exception');
+507  	   END IF;
+508    END;
+509    -- reset session_view_id
+510    l_otap_session.session_view_id := 0;
+511    -- check persist_test
+512    l_otap_session.persist_test := NULL;
+513    BEGIN
+514  	 otap_objects.otap_session_verify(l_otap_session);
+515  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify persist_test NULL');
+516    EXCEPTION
+517  	 WHEN OTHERS THEN
+518  	   IF sqlcode = -20099
+519  	   THEN
+520  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify persist_test NULL');
+521  	   ELSE
+522  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify persist_test NULL unexpected exception');
+523  	   END IF;
+524    END;
+525    -- reset persist_test
+526    l_otap_session.persist_test := FALSE;
+527    -- check name_precedence
+528    l_otap_session.name_precedence := NULL;
+529    BEGIN
+530  	 otap_objects.otap_session_verify(l_otap_session);
+531  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify name_precedence NULL');
+532    EXCEPTION
+533  	 WHEN OTHERS THEN
+534  	   IF sqlcode = -20099
+535  	   THEN
+536  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify name_precedence NULL');
+537  	   ELSE
+538  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify name_precedence NULL unexpected exception');
+539  	   END IF;
+540    END;
+541    -- reset name_precedence
+542    l_otap_session.name_precedence := TRUE;
+543    -- check include_packages
+544    l_otap_session.include_packages := NULL;
+545    BEGIN
+546  	 otap_objects.otap_session_verify(l_otap_session);
+547  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify include_packages NULL');
+548    EXCEPTION
+549  	 WHEN OTHERS THEN
+550  	   IF sqlcode = -20099
+551  	   THEN
+552  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify include_packages NULL');
+553  	   ELSE
+554  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify include_packages NULL unexpected exception');
+555  	   END IF;
+556    END;
+557    -- reset include_packages
+558    l_otap_session.include_packages := FALSE;
+559    -- check session_start
+560    l_otap_session.session_start := NULL;
+561    BEGIN
+562  	 otap_objects.otap_session_verify(l_otap_session);
+563  	 l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_start NULL');
+564    EXCEPTION
+565  	 WHEN OTHERS THEN
+566  	   IF sqlcode = -20099
+567  	   THEN
+568  	     l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_verify session_start NULL');
+569  	   ELSE
+570  	     l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_verify session_start NULL unexpected exception');
+571  	   END IF;
+572    END;
+573    -- reset session_start
+574    l_otap_session.session_start := SYSDATE;
+575  
+576  EXCEPTION
+577    WHEN OTHERS THEN
+578  	 otap_log.log('Test block OTAP_OBJECTS failed', 'otap_objects.sql', SQLERRM);
+579  	 l_return := otap_test.test_error('Complete test block OTAP_OBJECTS failed', SQLERRM);
+580  END;
+581  /
+
+PL/SQL procedure successfully completed.
+
 SQL> -- table triggers
 SQL> -- table contents
 SQL> -- packages
@@ -11041,7 +11645,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-14 15:26:09 finished at 2025-09-14 15:26:19
+Processed 1001 records for delete. Started at 2025-09-19 02:20:57 finished at 2025-09-19 02:21:07
 
 PL/SQL procedure successfully completed.
 
@@ -15107,7 +15711,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250914152347'
+new   3:  WHERE identifier = 'otap_test_run20250919021803'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -15119,16 +15723,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250914152347'
+new   3:  WHERE identifier = 'otap_test_run20250919021803'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 30 tests: 2275 from 2274 errors: 0 run time: +000000000 00:02:47.000000000 started: 2025-09-14 15:23:48
+Summary id: 96 tests: 2315 from 2314 errors: 0 run time: +000000000 00:03:36.000000000 started: 2025-09-19 02:18:03
 Current test settings
-Test session id: 31
+Test session id: 97
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -15142,8 +15746,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 30
-Test start: 2025-09-14 15:26:35
+Current view id: 96
+Test start: 2025-09-19 02:21:39
 
 
 1 row selected.

@@ -1067,11 +1067,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_string
   9  	 l_script VARCHAR2(256 CHAR) := 'otap_string.reduce';
  10  	 l_string VARCHAR2(32767 CHAR);
  11    BEGIN
- 12  	 l_string := CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
+ 12  	 l_string := CASE WHEN NVL(LENGTH(TRIM(p_string)), 0) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END;
  13  	 RETURN l_string;
  14    EXCEPTION
  15  	 WHEN OTHERS THEN
- 16  	   otap_log.log(SQLERRM, l_script, 'CASE WHEN LENGTH(TRIM(p_string)) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END');
+ 16  	   otap_log.log(SQLERRM, l_script, 'CASE WHEN NVL(LENGTH(TRIM(p_string)), 0) > p_size THEN TRIM(SUBSTR(TRIM(p_string), 1, p_size)) ELSE TRIM(p_string) END');
  17  	   RAISE;
  18    END reduce;
  19  
@@ -4337,268 +4337,271 @@ SQL> CREATE OR REPLACE PACKAGE otap_objects
  12  
  13    /** PROCEDURE otap_objects.otap_session_verify
  14    * Verifies the OTAP_SESSION object and checks for NULL or 0 string length, no NULL values allowed.
- 15    *
- 16    * @param p_otap_session The OTAP_SESSION object to verify.
- 17    *
- 18    * @exception -20099 Internal error, invalid OTAP_SESSION object.
- 19    */
- 20    PROCEDURE otap_session_verify(p_otap_session IN OTAP_SESSION);
- 21  
- 22    /** FUNCTION otap_objects.otap_session_show
- 23    * Return the current package variables of OTAP_TEST as LF delimited text.
- 24    *
- 25    * @param p_otap_session The otap_session object from package OTAP_TEST.
- 26    *
- 27    * @return A text message, LF delimited, listing current settings of OTAP_SESSION object.
- 28    *
- 29    * @exception -20099 Internal error, invalid OTAP_SESSION object.
- 30    */
- 31    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
- 32  	 RETURN VARCHAR2
- 33    ;
- 34  
- 35    /** FUNCTION otap_objects.otap_session_set
- 36    * Sets the package session variables of a valid OTAP_SESSION object. Errors will get logged.
- 37    *
- 38    * @param p_test_count The amount of tests expected to be executed when called.
- 39    * @param p_test_set The name of the test set applied if the name of the executed test procedure or function does not provide a test set name or name precendence is disabled.
- 40    * @param p_test_group The name of the test group applied if the name of the executed test procedure or function does not provide a test group name or name precendence is disabled.
- 41    * @param p_test_name The name of the test name applied if the name of the executed test procedure or function does not provide a test name or name precendence is disabled.
- 42    * @param p_prefix The prefix to use for identifying test functions and procedures. Limited to 4 chars. Test functions and procedures must have a trailing delimiter _ after the prefix to be identified.
- 43    * @param p_language_id The session language id to use for test reports and results. Limited to 3 chars. If language has no translation, default is used.
- 44    * @param p_name_precedence Can disable the naming conventions for otap. If set to otap_constants.OTAP_NUM_FALSE, all tests will run under the defined test set and group, set by init_test.
- 45    * @param p_include_pkg Can enable to search also packages and package procedures and functions that fit the naming convention with the given prefix, if set to otap_constants.OTAP_NUM_TRUE.
- 46    * @param p_persist Can enable to persist the test results longer than the current default of PRESERVE_DAYS in OTAP_CONFIG, if set to otap_constants.OTAP_NUM_TRUE.
- 47    * The following parameters are expected from OTAP_TEST package. Caller should not set this variables.
- 48    * @param p_schema The current schema from caller environment as reported from otap_test.
- 49    * @param p_user The current user from caller environment as reported from otap_test.
- 50    * @param p_executor The session user from caller environment as reported from otap_test.
- 51    * @param o_otap_session The OTAP_SESSION object to set.
- 52    *
- 53    * @return The current test session settings as text LF delimited.
- 54    *
- 55    * @exception -20099 ERROR otap_objects.otap_session_set. Invalid OTAP_SESSION initialization.
- 56    */
- 57    FUNCTION otap_session_set( p_test_count		IN	      NUMBER
- 58  				, p_test_set		IN	      VARCHAR2
- 59  				, p_test_group		IN	      VARCHAR2
- 60  				, p_test_name		IN	      VARCHAR2
- 61  				, p_prefix		IN	      VARCHAR2
- 62  				, p_language_id 	IN	      VARCHAR2
- 63  				, p_name_precedence	IN	      NUMBER
- 64  				, p_include_pkg 	IN	      NUMBER
- 65  				, p_persist		IN	      NUMBER
- 66  				, p_schema		IN	      VARCHAR2
- 67  				, p_user		IN	      VARCHAR2
- 68  				, p_executor		IN	      VARCHAR2
- 69  				, o_otap_session	IN OUT NOCOPY OTAP_SESSION
- 70  				)
- 71  	 RETURN VARCHAR2
- 72    ;
- 73  
- 74    /** FUNCTION otap_objects.otap_session_copy
- 75    * Create a copy of the OTAP_SESSION object.
- 76    *
- 77    * @param p_otap_session The otap_session object from package OTAP_TEST.
- 78    *
- 79    * @return A copy of the OTAP_SESSION object.
- 80    *
- 81    * @exception -20099 Internal error, invalid OTAP_SESSION object.
- 82    */
- 83    FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
- 84  	 RETURN OTAP_SESSION
- 85    ;
- 86  
- 87    /** FUNCTION otap_objects.otap_session_set_test_set
- 88    * Sets the current active test set. If test set name is longer than 256 chars
- 89    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
- 90    * is used.
- 91    *
- 92    * @param p_test_set The test set name to use for the next tests.
- 93    * @param o_otap_session The current session_record from otap_test package.
+ 15    * Does NOT verify if given test_executor, db_user and db_schema exist for runtime reasons. You may
+ 16    * want to extend this, if having security issues. The user assignment is capsulated and should be
+ 17    * stable.
+ 18    *
+ 19    * @param p_otap_session The OTAP_SESSION object to verify.
+ 20    *
+ 21    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+ 22    */
+ 23    PROCEDURE otap_session_verify(p_otap_session IN OTAP_SESSION);
+ 24  
+ 25    /** FUNCTION otap_objects.otap_session_show
+ 26    * Return the current package variables of OTAP_TEST as LF delimited text.
+ 27    *
+ 28    * @param p_otap_session The otap_session object from package OTAP_TEST.
+ 29    *
+ 30    * @return A text message, LF delimited, listing current settings of OTAP_SESSION object.
+ 31    *
+ 32    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+ 33    */
+ 34    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
+ 35  	 RETURN VARCHAR2
+ 36    ;
+ 37  
+ 38    /** FUNCTION otap_objects.otap_session_set
+ 39    * Sets the package session variables of a valid OTAP_SESSION object. Errors will get logged.
+ 40    *
+ 41    * @param p_test_count The amount of tests expected to be executed when called.
+ 42    * @param p_test_set The name of the test set applied if the name of the executed test procedure or function does not provide a test set name or name precendence is disabled.
+ 43    * @param p_test_group The name of the test group applied if the name of the executed test procedure or function does not provide a test group name or name precendence is disabled.
+ 44    * @param p_test_name The name of the test name applied if the name of the executed test procedure or function does not provide a test name or name precendence is disabled.
+ 45    * @param p_prefix The prefix to use for identifying test functions and procedures. Limited to 4 chars. Test functions and procedures must have a trailing delimiter _ after the prefix to be identified.
+ 46    * @param p_language_id The session language id to use for test reports and results. Limited to 3 chars. If language has no translation, default is used.
+ 47    * @param p_name_precedence Can disable the naming conventions for otap. If set to otap_constants.OTAP_NUM_FALSE, all tests will run under the defined test set and group, set by init_test.
+ 48    * @param p_include_pkg Can enable to search also packages and package procedures and functions that fit the naming convention with the given prefix, if set to otap_constants.OTAP_NUM_TRUE.
+ 49    * @param p_persist Can enable to persist the test results longer than the current default of PRESERVE_DAYS in OTAP_CONFIG, if set to otap_constants.OTAP_NUM_TRUE.
+ 50    * The following parameters are expected from OTAP_TEST package. Caller should not set this variables.
+ 51    * @param p_schema The current schema from caller environment as reported from otap_test.
+ 52    * @param p_user The current user from caller environment as reported from otap_test.
+ 53    * @param p_executor The session user from caller environment as reported from otap_test.
+ 54    * @param o_otap_session The OTAP_SESSION object to set.
+ 55    *
+ 56    * @return The current test session settings as text LF delimited.
+ 57    *
+ 58    * @exception -20099 ERROR otap_objects.otap_session_set. Invalid OTAP_SESSION initialization.
+ 59    */
+ 60    FUNCTION otap_session_set( p_test_count		IN	      NUMBER
+ 61  				, p_test_set		IN	      VARCHAR2
+ 62  				, p_test_group		IN	      VARCHAR2
+ 63  				, p_test_name		IN	      VARCHAR2
+ 64  				, p_prefix		IN	      VARCHAR2
+ 65  				, p_language_id 	IN	      VARCHAR2
+ 66  				, p_name_precedence	IN	      NUMBER
+ 67  				, p_include_pkg 	IN	      NUMBER
+ 68  				, p_persist		IN	      NUMBER
+ 69  				, p_schema		IN	      VARCHAR2
+ 70  				, p_user		IN	      VARCHAR2
+ 71  				, p_executor		IN	      VARCHAR2
+ 72  				, o_otap_session	IN OUT NOCOPY OTAP_SESSION
+ 73  				)
+ 74  	 RETURN VARCHAR2
+ 75    ;
+ 76  
+ 77    /** FUNCTION otap_objects.otap_session_copy
+ 78    * Create a copy of the OTAP_SESSION object.
+ 79    *
+ 80    * @param p_otap_session The otap_session object from package OTAP_TEST.
+ 81    *
+ 82    * @return A copy of the OTAP_SESSION object.
+ 83    *
+ 84    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+ 85    */
+ 86    FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
+ 87  	 RETURN OTAP_SESSION
+ 88    ;
+ 89  
+ 90    /** FUNCTION otap_objects.otap_session_set_test_set
+ 91    * Sets the current active test set. If test set name is longer than 256 chars
+ 92    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+ 93    * is used.
  94    *
- 95    * @return The test set currently active as text message.
- 96    *
- 97    * @exception -20099 Internal error, invalid OTAP_SESSION object.
- 98    */
- 99    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
-100  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-101  					 )
-102  	 RETURN VARCHAR2
-103    ;
-104  
-105    /** FUNCTION otap_objects.otap_session_set_test_group
-106    * Sets the current active test group. If test group name is longer than 256 chars
-107    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
-108    * is used.
-109    *
-110    * @param p_test_group The test group name to use for the next tests.
-111    * @param o_otap_session The current session_record from OTAP_TEST package.
+ 95    * @param p_test_set The test set name to use for the next tests.
+ 96    * @param o_otap_session The current session_record from otap_test package.
+ 97    *
+ 98    * @return The test set currently active as text message.
+ 99    *
+100    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+101    */
+102    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
+103  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+104  					 )
+105  	 RETURN VARCHAR2
+106    ;
+107  
+108    /** FUNCTION otap_objects.otap_session_set_test_group
+109    * Sets the current active test group. If test group name is longer than 256 chars
+110    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+111    * is used.
 112    *
-113    * @return The test group currently active as text message.
-114    *
-115    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-116    */
-117    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
-118  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
-119  					   )
-120  	 RETURN VARCHAR2
-121    ;
-122  
-123    /** FUNCTION otap_objects.otap_session_set_test_name
-124    * Sets the current active test. If test name is longer than 256 chars
-125    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
-126    * is used.
-127    *
-128    * @param p_test_name The test name to use for the next tests.
-129    * @param o_otap_session The current session_record from OTAP_TEST package.
+113    * @param p_test_group The test group name to use for the next tests.
+114    * @param o_otap_session The current session_record from OTAP_TEST package.
+115    *
+116    * @return The test group currently active as text message.
+117    *
+118    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+119    */
+120    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
+121  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
+122  					   )
+123  	 RETURN VARCHAR2
+124    ;
+125  
+126    /** FUNCTION otap_objects.otap_session_set_test_name
+127    * Sets the current active test. If test name is longer than 256 chars
+128    * it is cutted to 256 chars. If NULL is given than, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+129    * is used.
 130    *
-131    * @return The test name currently active as text message.
-132    *
-133    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-134    */
-135    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
-136  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
-137  					  )
-138  	 RETURN VARCHAR2
-139    ;
-140  
-141    /** FUNCTION otap_objects.otap_session_set_language
-142    * Sets the current session language, limited to 3 chars, always converted to upper case.
-143    * Longer values are cutted to 3 chars. If NULL is given than, otap_constants.OTAP_INTERNAL_NA
-144    * is used. If the language does not exist in OTAP_TRANSLATE it is ignored and defaults are used.
-145    *
-146    * @param p_language_id The 3 char language id to use. No effect if OTAP_TRANSLATE is empty.
-147    * @param o_otap_session The current session_record from OTAP_TEST package.
+131    * @param p_test_name The test name to use for the next tests.
+132    * @param o_otap_session The current session_record from OTAP_TEST package.
+133    *
+134    * @return The test name currently active as text message.
+135    *
+136    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+137    */
+138    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
+139  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
+140  					  )
+141  	 RETURN VARCHAR2
+142    ;
+143  
+144    /** FUNCTION otap_objects.otap_session_set_language
+145    * Sets the current session language, limited to 3 chars, always converted to upper case.
+146    * Longer values are cutted to 3 chars. If NULL is given than, otap_constants.OTAP_INTERNAL_NA
+147    * is used. If the language does not exist in OTAP_TRANSLATE it is ignored and defaults are used.
 148    *
-149    * @return The session language id currently active.
-150    *
-151    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-152    */
-153    FUNCTION otap_session_set_language( p_language_id  IN		VARCHAR2
-154  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-155  					 )
-156  	 RETURN VARCHAR2
-157    ;
-158  
-159    /** FUNCTION otap_objects.otap_session_get_language
-160    * Gets the current active session language id from OTAP_SESSION object.
-161    *
-162    * @param p_otap_session The current session_record from OTAP_TEST package.
-163    *
-164    * @return The current active session language id.
-165    *
-166    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-167    */
-168    FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
-169  	 RETURN VARCHAR2
-170    ;
-171  
-172    /** FUNCTION otap_objects.otap_session_get_test_id
-173    * Gets the current active test session id from OTAP_SESSION object.
-174    *
-175    * @param p_otap_session The current session_record from OTAP_TEST package.
-176    *
-177    * @return The current active test session id.
-178    *
-179    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-180    */
-181    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
-182  	 RETURN NUMBER
-183    ;
-184  
-185    /** FUNCTION otap_objects.otap_session_get_report_id
-186    * Gets the last view id if available or the current active test session id
-187    * from OTAP_SESSION object.
-188    *
-189    * @param p_otap_session The current session_record from OTAP_TEST package.
-190    *
-191    * @return The last view id if available or the current active test session id.
-192    *
-193    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-194    */
-195    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
-196  	 RETURN NUMBER
-197    ;
-198  
-199    /** FUNCTION otap_objects.otap_session_set_session_view_id
-200    * Sets the current active session_view_id.
-201    *
-202    * @param p_session_view_id The session view id as is. No checks if valid.
-203    * @param o_otap_session The current session_record from OTAP_TEST package.
+149    * @param p_language_id The 3 char language id to use. No effect if OTAP_TRANSLATE is empty.
+150    * @param o_otap_session The current session_record from OTAP_TEST package.
+151    *
+152    * @return The session language id currently active.
+153    *
+154    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+155    */
+156    FUNCTION otap_session_set_language( p_language_id  IN		VARCHAR2
+157  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+158  					 )
+159  	 RETURN VARCHAR2
+160    ;
+161  
+162    /** FUNCTION otap_objects.otap_session_get_language
+163    * Gets the current active session language id from OTAP_SESSION object.
+164    *
+165    * @param p_otap_session The current session_record from OTAP_TEST package.
+166    *
+167    * @return The current active session language id.
+168    *
+169    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+170    */
+171    FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
+172  	 RETURN VARCHAR2
+173    ;
+174  
+175    /** FUNCTION otap_objects.otap_session_get_test_id
+176    * Gets the current active test session id from OTAP_SESSION object.
+177    *
+178    * @param p_otap_session The current session_record from OTAP_TEST package.
+179    *
+180    * @return The current active test session id.
+181    *
+182    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+183    */
+184    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
+185  	 RETURN NUMBER
+186    ;
+187  
+188    /** FUNCTION otap_objects.otap_session_get_report_id
+189    * Gets the last view id if available or the current active test session id
+190    * from OTAP_SESSION object.
+191    *
+192    * @param p_otap_session The current session_record from OTAP_TEST package.
+193    *
+194    * @return The last view id if available or the current active test session id.
+195    *
+196    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+197    */
+198    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+199  	 RETURN NUMBER
+200    ;
+201  
+202    /** FUNCTION otap_objects.otap_session_set_session_view_id
+203    * Sets the current active session_view_id.
 204    *
-205    * @return The active session_view_id. Unchanged on errors.
-206    *
-207    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-208    */
-209    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
-210  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
-211  						)
-212  	 RETURN NUMBER
-213    ;
-214  
-215    /** PROCEDURE otap_objects.otap_session_add_test
-216    * Adds a test run to the OTAP_SESSION object. If the test is not passed, raises
-217    * the error count for this test session.
-218    *
-219    * @param p_test_passed The test state as defined in otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED and otap_constants.OTAP_NUM_TEST_UNDEFINED.
-220    * @param o_otap_session The current session_record from OTAP_TEST package.
+205    * @param p_session_view_id The session view id as is. No checks if valid.
+206    * @param o_otap_session The current session_record from OTAP_TEST package.
+207    *
+208    * @return The active session_view_id. Unchanged on errors.
+209    *
+210    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+211    */
+212    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
+213  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
+214  						)
+215  	 RETURN NUMBER
+216    ;
+217  
+218    /** PROCEDURE otap_objects.otap_session_add_test
+219    * Adds a test run to the OTAP_SESSION object. If the test is not passed, raises
+220    * the error count for this test session.
 221    *
-222    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-223    */
-224    PROCEDURE otap_session_add_test( p_test_passed  IN	     NUMBER
-225  				      , o_otap_session IN OUT NOCOPY OTAP_SESSION
-226  				      )
-227    ;
-228  
-229    /** FUNCTION otap_objects.otap_session_summary
-230    * Gets a current summary from OTAP_SESSION object. Lists session id, session start, test runs and errors.
-231    *
-232    * @param p_otap_session The current session_record from OTAP_TEST package.
-233    *
-234    * @return The current test session summary as text.
-235    *
-236    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-237    */
-238    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
-239  	 RETURN VARCHAR2
-240    ;
-241  
-242    /** FUNCTION otap_objects.otap_session_finish
-243    * Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names
-244    * for test set, group and name. When a test session is finished, the test session view will not
-245    * longer show the tests from the old session.
-246    *
-247    * @param o_otap_session The current session_record from OTAP_TEST package.
-248    *
-249    * @return A summary of the old session and details of the new session as text message LF delimited.
-250    *
-251    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-252    */
-253    FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
-254  	 RETURN VARCHAR2
-255    ;
-256  
-257    /** FUNCTION otap_objects.otap_session_test_setup
-258    * Copies the given session record object and changes set, group and name as given for the returned session object.
-259    *
-260    * @param p_otap_session The current session_record to get a modified copy from.
-261    * @param p_set_name The temporary set name to use in the returned session record copy.
-262    * @param p_group_name The temporary group name to use in the returned session record copy.
-263    * @param p_test_name The temporary test name to use in the returned session record copy.
-264    *
-265    * @exception -20099 Internal error, invalid OTAP_SESSION object.
-266    */
-267    FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
-268  				       , p_set_name	IN VARCHAR2
-269  				       , p_group_name	IN VARCHAR2
-270  				       , p_test_name	IN VARCHAR2
-271  				       )
-272  	 RETURN OTAP_SESSION
-273    ;
-274  
-275  END;
-276  /
+222    * @param p_test_passed The test state as defined in otap_constants.OTAP_NUM_TEST_PASSED, otap_constants.OTAP_NUM_TEST_FAILED and otap_constants.OTAP_NUM_TEST_UNDEFINED.
+223    * @param o_otap_session The current session_record from OTAP_TEST package.
+224    *
+225    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+226    */
+227    PROCEDURE otap_session_add_test( p_test_passed  IN	     NUMBER
+228  				      , o_otap_session IN OUT NOCOPY OTAP_SESSION
+229  				      )
+230    ;
+231  
+232    /** FUNCTION otap_objects.otap_session_summary
+233    * Gets a current summary from OTAP_SESSION object. Lists session id, session start, test runs and errors.
+234    *
+235    * @param p_otap_session The current session_record from OTAP_TEST package.
+236    *
+237    * @return The current test session summary as text.
+238    *
+239    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+240    */
+241    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
+242  	 RETURN VARCHAR2
+243    ;
+244  
+245    /** FUNCTION otap_objects.otap_session_finish
+246    * Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names
+247    * for test set, group and name. When a test session is finished, the test session view will not
+248    * longer show the tests from the old session.
+249    *
+250    * @param o_otap_session The current session_record from OTAP_TEST package.
+251    *
+252    * @return A summary of the old session and details of the new session as text message LF delimited.
+253    *
+254    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+255    */
+256    FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
+257  	 RETURN VARCHAR2
+258    ;
+259  
+260    /** FUNCTION otap_objects.otap_session_test_setup
+261    * Copies the given session record object and changes set, group and name as given for the returned session object.
+262    *
+263    * @param p_otap_session The current session_record to get a modified copy from.
+264    * @param p_set_name The temporary set name to use in the returned session record copy.
+265    * @param p_group_name The temporary group name to use in the returned session record copy.
+266    * @param p_test_name The temporary test name to use in the returned session record copy.
+267    *
+268    * @exception -20099 Internal error, invalid OTAP_SESSION object.
+269    */
+270    FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
+271  				       , p_set_name	IN VARCHAR2
+272  				       , p_group_name	IN VARCHAR2
+273  				       , p_test_name	IN VARCHAR2
+274  				       )
+275  	 RETURN OTAP_SESSION
+276    ;
+277  
+278  END;
+279  /
 
 Package created.
 
@@ -4618,647 +4621,651 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
   9  	 l_delimiter VARCHAR2(1 CHAR);
  10    BEGIN
  11  	 -- we expect all fields to be NOT NULL including empty strings
- 12  	 IF    p_otap_session				  IS NULL
- 13  	    OR p_otap_session.test_executor		  IS NULL
- 14  	    OR LENGTH(TRIM(p_otap_session.test_executor))  = 0
- 15  	    OR p_otap_session.test_set			  IS NULL
- 16  	    OR LENGTH(TRIM(p_otap_session.test_set))	   = 0
- 17  	    OR p_otap_session.test_group		  IS NULL
- 18  	    OR LENGTH(TRIM(p_otap_session.test_group))	   = 0
- 19  	    OR p_otap_session.test_name 		  IS NULL
- 20  	    OR LENGTH(TRIM(p_otap_session.test_name))	   = 0
- 21  	    OR p_otap_session.db_user			  IS NULL
- 22  	    OR LENGTH(TRIM(p_otap_session.db_user))	   = 0
- 23  	    OR p_otap_session.db_schema 		  IS NULL
- 24  	    OR LENGTH(TRIM(p_otap_session.db_schema))	   = 0
- 25  	    OR p_otap_session.test_prefix		  IS NULL
- 26  	    OR p_otap_session.session_language		  IS NULL
- 27  	    OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
- 28  	    OR p_otap_session.test_count		  IS NULL
- 29  	    OR p_otap_session.intended_count		  IS NULL
- 30  	    OR p_otap_session.persist_test		  IS NULL
- 31  	    OR p_otap_session.name_precedence		  IS NULL
- 32  	    OR p_otap_session.include_packages		  IS NULL
- 33  	    OR p_otap_session.session_start		  IS NULL
- 34  	    OR p_otap_session.session_id		  IS NULL
- 35  	    OR p_otap_session.error_count		  IS NULL
- 36  	    OR p_otap_session.session_view_id		  IS NULL
- 37  	 THEN
- 38  	   l_delimiter := '';
- 39  	   l_statement := q'[p_otap_session				IS NULL
- 40  OR p_otap_session.test_executor		   IS NULL
- 41  OR LENGTH(TRIM(p_otap_session.test_executor))  = 0
- 42  OR p_otap_session.test_set 		   IS NULL
- 43  OR LENGTH(TRIM(p_otap_session.test_set))	    = 0
- 44  OR p_otap_session.test_group		   IS NULL
- 45  OR LENGTH(TRIM(p_otap_session.test_group))     = 0
- 46  OR p_otap_session.test_name		   IS NULL
- 47  OR LENGTH(TRIM(p_otap_session.test_name))	    = 0
- 48  OR p_otap_session.db_user			   IS NULL
- 49  OR LENGTH(TRIM(p_otap_session.db_user))	    = 0
- 50  OR p_otap_session.db_schema		   IS NULL
- 51  OR LENGTH(TRIM(p_otap_session.db_schema))	    = 0
- 52  OR p_otap_session.test_prefix		   IS NULL
- 53  OR p_otap_session.session_language 	   IS NULL
- 54  OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
- 55  OR p_otap_session.test_count		   IS NULL
- 56  OR p_otap_session.intended_count		   IS NULL
- 57  OR p_otap_session.persist_test		   IS NULL
- 58  OR p_otap_session.name_precedence		   IS NULL
- 59  OR p_otap_session.include_packages 	   IS NULL
- 60  OR p_otap_session.session_start		   IS NULL
- 61  OR p_otap_session.session_id		   IS NULL
- 62  OR p_otap_session.error_count		   IS NULL
- 63  OR p_otap_session.session_view_id		   IS NULL]'
- 64  	   ;
- 65  	   -- if we fail, find out the columns that are NULL
- 66  	   l_message := 'ERROR otap_objects.otap_session_verify. Invalid OTAP_SESSION object. NULL errors: ';
- 67  	   IF p_otap_session IS NULL
- 68  	   THEN
- 69  	     l_message := l_message || 'Complete OTAP_SESSION object NULL';
- 70  	   ELSE
- 71  	     -- check the fields
- 72  	     IF p_otap_session.test_executor IS NULL OR LENGTH(TRIM(p_otap_session.test_executor)) = 0
- 73  	     THEN
- 74  	       l_message := l_message || l_delimiter || 'test_executor';
- 75  	       l_delimiter := ',';
- 76  	     END IF;
- 77  	     IF p_otap_session.test_set IS NULL OR LENGTH(TRIM(p_otap_session.test_set)) = 0
- 78  	     THEN
- 79  	       l_message := l_message || l_delimiter || 'test_set';
- 80  	       l_delimiter := ',';
- 81  	     END IF;
- 82  	     IF p_otap_session.test_group IS NULL OR LENGTH(TRIM(p_otap_session.test_group)) = 0
- 83  	     THEN
- 84  	       l_message := l_message || l_delimiter || 'test_group';
- 85  	       l_delimiter := ',';
- 86  	     END IF;
- 87  	     IF p_otap_session.test_name IS NULL OR LENGTH(TRIM(p_otap_session.test_name)) = 0
- 88  	     THEN
- 89  	       l_message := l_message || l_delimiter || 'test_name';
- 90  	       l_delimiter := ',';
- 91  	     END IF;
- 92  	     IF p_otap_session.db_user IS NULL OR LENGTH(TRIM(p_otap_session.db_user)) = 0
- 93  	     THEN
- 94  	       l_message := l_message || l_delimiter || 'db_user';
- 95  	       l_delimiter := ',';
- 96  	     END IF;
- 97  	     IF p_otap_session.db_schema IS NULL OR LENGTH(TRIM(p_otap_session.db_schema)) = 0
- 98  	     THEN
- 99  	       l_message := l_message || l_delimiter || 'db_schema';
-100  	       l_delimiter := ',';
-101  	     END IF;
-102  	     IF p_otap_session.test_prefix IS NULL OR LENGTH(TRIM(p_otap_session.test_prefix)) = 0
-103  	     THEN
-104  	       l_message := l_message || l_delimiter || 'test_prefix';
-105  	       l_delimiter := ',';
-106  	     END IF;
-107  	     IF p_otap_session.session_language IS NULL OR LENGTH(TRIM(p_otap_session.session_language)) = 0
-108  	     THEN
-109  	       l_message := l_message || l_delimiter || 'session_language';
-110  	       l_delimiter := ',';
-111  	     END IF;
-112  	     IF p_otap_session.test_count IS NULL
-113  	     THEN
-114  	       l_message := l_message || l_delimiter || 'test_count';
-115  	       l_delimiter := ',';
-116  	     END IF;
-117  	     IF p_otap_session.intended_count IS NULL
-118  	     THEN
-119  	       l_message := l_message || l_delimiter || 'intended_count';
-120  	       l_delimiter := ',';
-121  	     END IF;
-122  	     IF p_otap_session.persist_test IS NULL
-123  	     THEN
-124  	       l_message := l_message || l_delimiter || 'persist_test';
-125  	       l_delimiter := ',';
-126  	     END IF;
-127  	     IF p_otap_session.name_precedence IS NULL
-128  	     THEN
-129  	       l_message := l_message || l_delimiter || 'name_precedence';
-130  	       l_delimiter := ',';
-131  	     END IF;
-132  	     IF p_otap_session.include_packages IS NULL
-133  	     THEN
-134  	       l_message := l_message || l_delimiter || 'include_packages';
-135  	       l_delimiter := ',';
-136  	     END IF;
-137  	     IF p_otap_session.session_start IS NULL
-138  	     THEN
-139  	       l_message := l_message || l_delimiter || 'session_start';
-140  	       l_delimiter := ',';
-141  	     END IF;
-142  	     IF p_otap_session.session_id IS NULL
-143  	     THEN
-144  	       l_message := l_message || l_delimiter || 'session_id';
-145  	       l_delimiter := ',';
-146  	     END IF;
-147  	     IF p_otap_session.error_count IS NULL
-148  	     THEN
-149  	       l_message := l_message || l_delimiter || 'error_count';
-150  	       l_delimiter := ',';
-151  	     END IF;
-152  	     IF p_otap_session.session_view_id IS NULL
-153  	     THEN
-154  	       l_message := l_message || l_delimiter || 'session_view_id';
-155  	       l_delimiter := ',';
-156  	     END IF;
-157  	   END IF;
-158  	   otap_log.log('EXCEPTION -20099 ' || l_message, 'otap_objects.otap_session_verify', l_statement);
-159  	   RAISE_APPLICATION_ERROR(-20099, l_message);
-160  	 END IF;
-161    EXCEPTION
-162  	 WHEN OTHERS THEN
-163  	   IF SQLCODE != -20099
-164  	   THEN
-165  	     -- log unhandled exceptions
-166  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-167  	   END IF;
-168  	   RAISE;
-169    END otap_session_verify;
-170  
-171    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
-172  	 RETURN VARCHAR2
-173    IS
-174  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_show';
-175  	 l_message VARCHAR2(4000 CHAR);
-176    BEGIN
-177  	 -- verify the current object
-178  	 otap_objects.otap_session_verify(p_otap_session);
-179  	 -- build the message
-180  	 l_message := 'Current test settings' || otap_constants.OTAP_INTERNAL_LF ||
-181  		      'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_INTERNAL_LF ||
-182  		      'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_INTERNAL_LF ||
-183  		      'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_INTERNAL_LF ||
-184  		      'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_INTERNAL_LF ||
-185  		      'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_INTERNAL_LF ||
-186  		      'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_INTERNAL_LF ||
-187  		      'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_INTERNAL_LF ||
-188  		      'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_INTERNAL_LF ||
-189  		      'Session language: ' || p_otap_session.session_language || otap_constants.OTAP_INTERNAL_LF ||
-190  		      'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_INTERNAL_LF ||
-191  		      'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_INTERNAL_LF ||
-192  		      'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
-193  		      'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
-194  		      'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
-195  		      'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE TO_CHAR(p_otap_session.session_view_id) END || otap_constants.OTAP_INTERNAL_LF ||
-196  		      'Test start: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
-197  	 ;
-198  	 l_message := otap_string.reduce(l_message, 4000);
-199  	 RETURN l_message;
-200    EXCEPTION
-201  	 WHEN OTHERS THEN
-202  	   IF SQLCODE != -20099
-203  	   THEN
-204  	     -- log unhandled exceptions
-205  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-206  	   END IF;
-207  	   RAISE;
-208    END otap_session_show;
-209  
-210    FUNCTION otap_session_set( p_test_count		IN	      NUMBER
-211  				, p_test_set		IN	      VARCHAR2
-212  				, p_test_group		IN	      VARCHAR2
-213  				, p_test_name		IN	      VARCHAR2
-214  				, p_prefix		IN	      VARCHAR2
-215  				, p_language_id 	IN	      VARCHAR2
-216  				, p_name_precedence	IN	      NUMBER
-217  				, p_include_pkg 	IN	      NUMBER
-218  				, p_persist		IN	      NUMBER
-219  				, p_schema		IN	      VARCHAR2
-220  				, p_user		IN	      VARCHAR2
-221  				, p_executor		IN	      VARCHAR2
-222  				, o_otap_session	IN OUT NOCOPY OTAP_SESSION
-223  				)
-224  	 RETURN VARCHAR2
-225    IS
-226  	 l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set';
-227  	 l_message   VARCHAR2(32767 CHAR);
-228  	 l_delimiter VARCHAR2(1 CHAR);
-229    BEGIN
-230  	 -- verify the current object
-231  	 otap_objects.otap_session_verify(o_otap_session);
-232  	 -- now verify the input
-233  	 IF    p_schema    IS NULL
-234  	    OR p_user	   IS NULL
-235  	    OR p_executor  IS NULL
-236  	 THEN
-237  	   l_message := 'ERROR otap_objects.otap_session_set. Invalid OTAP_SESSION initialization. NULL errors: ';
-238  	   l_delimiter := '';
-239  	   IF p_schema IS NULL
-240  	   THEN
-241  	     l_message := l_message || l_delimiter || 'p_schema';
-242  	     l_delimiter := ',';
-243  	   END IF;
-244  	   IF p_user IS NULL
-245  	   THEN
-246  	     l_message := l_message || l_delimiter || 'p_user';
-247  	     l_delimiter := ',';
-248  	   END IF;
-249  	   IF p_executor IS NULL
-250  	   THEN
-251  	     l_message := l_message || l_delimiter || 'p_executor';
+ 12  	 -- the NVL(LENGTH(TRIM)) construct exists for compatibility with older versions
+ 13  	 -- in current 23ai version TRIM(x) IS NULL would be enough
+ 14  	 IF    p_otap_session					    IS NULL
+ 15  	    OR p_otap_session.test_executor			    IS NULL
+ 16  	    OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0)    = 0
+ 17  	    OR p_otap_session.test_set				    IS NULL
+ 18  	    OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0)	     = 0
+ 19  	    OR p_otap_session.test_group			    IS NULL
+ 20  	    OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0)	     = 0
+ 21  	    OR p_otap_session.test_name 			    IS NULL
+ 22  	    OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0)	     = 0
+ 23  	    OR p_otap_session.db_user				    IS NULL
+ 24  	    OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0)	     = 0
+ 25  	    OR p_otap_session.db_schema 			    IS NULL
+ 26  	    OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0)	     = 0
+ 27  	    OR p_otap_session.test_prefix			    IS NULL
+ 28  	    OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0)      = 0
+ 29  	    OR p_otap_session.session_language			    IS NULL
+ 30  	    OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
+ 31  	    OR p_otap_session.test_count			    IS NULL
+ 32  	    OR p_otap_session.intended_count			    IS NULL
+ 33  	    OR p_otap_session.persist_test			    IS NULL
+ 34  	    OR p_otap_session.name_precedence			    IS NULL
+ 35  	    OR p_otap_session.include_packages			    IS NULL
+ 36  	    OR p_otap_session.session_start			    IS NULL
+ 37  	    OR p_otap_session.session_id			    IS NULL
+ 38  	    OR p_otap_session.error_count			    IS NULL
+ 39  	    OR p_otap_session.session_view_id			    IS NULL
+ 40  	 THEN
+ 41  	   l_delimiter := '';
+ 42  	   l_statement := q'[p_otap_session					  IS NULL
+ 43  OR p_otap_session.test_executor			     IS NULL
+ 44  OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0)    = 0
+ 45  OR p_otap_session.test_set 			     IS NULL
+ 46  OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0)	      = 0
+ 47  OR p_otap_session.test_group			     IS NULL
+ 48  OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0)       = 0
+ 49  OR p_otap_session.test_name			     IS NULL
+ 50  OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0)	      = 0
+ 51  OR p_otap_session.db_user				     IS NULL
+ 52  OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0)	      = 0
+ 53  OR p_otap_session.db_schema			     IS NULL
+ 54  OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0)	      = 0
+ 55  OR p_otap_session.test_prefix			     IS NULL
+ 56  OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0)      = 0
+ 57  OR p_otap_session.session_language 		     IS NULL
+ 58  OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
+ 59  OR p_otap_session.test_count			     IS NULL
+ 60  OR p_otap_session.intended_count			     IS NULL
+ 61  OR p_otap_session.persist_test			     IS NULL
+ 62  OR p_otap_session.name_precedence			     IS NULL
+ 63  OR p_otap_session.include_packages 		     IS NULL
+ 64  OR p_otap_session.session_start			     IS NULL
+ 65  OR p_otap_session.session_id			     IS NULL
+ 66  OR p_otap_session.error_count			     IS NULL
+ 67  OR p_otap_session.session_view_id			     IS NULL]'
+ 68  	   ;
+ 69  	   -- if we fail, find out the columns that are NULL
+ 70  	   l_message := 'ERROR otap_objects.otap_session_verify. Invalid OTAP_SESSION object. NULL errors: ';
+ 71  	   IF p_otap_session IS NULL
+ 72  	   THEN
+ 73  	     l_message := l_message || 'Complete OTAP_SESSION object NULL';
+ 74  	   ELSE
+ 75  	     -- check the fields
+ 76  	     IF p_otap_session.test_executor IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0) = 0
+ 77  	     THEN
+ 78  	       l_message := l_message || l_delimiter || 'test_executor';
+ 79  	       l_delimiter := ',';
+ 80  	     END IF;
+ 81  	     IF p_otap_session.test_set IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0) = 0
+ 82  	     THEN
+ 83  	       l_message := l_message || l_delimiter || 'test_set';
+ 84  	       l_delimiter := ',';
+ 85  	     END IF;
+ 86  	     IF p_otap_session.test_group IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0) = 0
+ 87  	     THEN
+ 88  	       l_message := l_message || l_delimiter || 'test_group';
+ 89  	       l_delimiter := ',';
+ 90  	     END IF;
+ 91  	     IF p_otap_session.test_name IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0) = 0
+ 92  	     THEN
+ 93  	       l_message := l_message || l_delimiter || 'test_name';
+ 94  	       l_delimiter := ',';
+ 95  	     END IF;
+ 96  	     IF p_otap_session.db_user IS NULL OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0) = 0
+ 97  	     THEN
+ 98  	       l_message := l_message || l_delimiter || 'db_user';
+ 99  	       l_delimiter := ',';
+100  	     END IF;
+101  	     IF p_otap_session.db_schema IS NULL OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0) = 0
+102  	     THEN
+103  	       l_message := l_message || l_delimiter || 'db_schema';
+104  	       l_delimiter := ',';
+105  	     END IF;
+106  	     IF p_otap_session.test_prefix IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0) = 0
+107  	     THEN
+108  	       l_message := l_message || l_delimiter || 'test_prefix';
+109  	       l_delimiter := ',';
+110  	     END IF;
+111  	     IF p_otap_session.session_language IS NULL OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
+112  	     THEN
+113  	       l_message := l_message || l_delimiter || 'session_language';
+114  	       l_delimiter := ',';
+115  	     END IF;
+116  	     IF p_otap_session.test_count IS NULL
+117  	     THEN
+118  	       l_message := l_message || l_delimiter || 'test_count';
+119  	       l_delimiter := ',';
+120  	     END IF;
+121  	     IF p_otap_session.intended_count IS NULL
+122  	     THEN
+123  	       l_message := l_message || l_delimiter || 'intended_count';
+124  	       l_delimiter := ',';
+125  	     END IF;
+126  	     IF p_otap_session.persist_test IS NULL
+127  	     THEN
+128  	       l_message := l_message || l_delimiter || 'persist_test';
+129  	       l_delimiter := ',';
+130  	     END IF;
+131  	     IF p_otap_session.name_precedence IS NULL
+132  	     THEN
+133  	       l_message := l_message || l_delimiter || 'name_precedence';
+134  	       l_delimiter := ',';
+135  	     END IF;
+136  	     IF p_otap_session.include_packages IS NULL
+137  	     THEN
+138  	       l_message := l_message || l_delimiter || 'include_packages';
+139  	       l_delimiter := ',';
+140  	     END IF;
+141  	     IF p_otap_session.session_start IS NULL
+142  	     THEN
+143  	       l_message := l_message || l_delimiter || 'session_start';
+144  	       l_delimiter := ',';
+145  	     END IF;
+146  	     IF p_otap_session.session_id IS NULL
+147  	     THEN
+148  	       l_message := l_message || l_delimiter || 'session_id';
+149  	       l_delimiter := ',';
+150  	     END IF;
+151  	     IF p_otap_session.error_count IS NULL
+152  	     THEN
+153  	       l_message := l_message || l_delimiter || 'error_count';
+154  	       l_delimiter := ',';
+155  	     END IF;
+156  	     IF p_otap_session.session_view_id IS NULL
+157  	     THEN
+158  	       l_message := l_message || l_delimiter || 'session_view_id';
+159  	       l_delimiter := ',';
+160  	     END IF;
+161  	   END IF;
+162  	   otap_log.log('EXCEPTION -20099 ' || l_message, 'otap_objects.otap_session_verify', l_statement);
+163  	   RAISE_APPLICATION_ERROR(-20099, l_message);
+164  	 END IF;
+165    EXCEPTION
+166  	 WHEN OTHERS THEN
+167  	   IF SQLCODE != -20099
+168  	   THEN
+169  	     -- log unhandled exceptions
+170  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+171  	   END IF;
+172  	   RAISE;
+173    END otap_session_verify;
+174  
+175    FUNCTION otap_session_show(p_otap_session IN OTAP_SESSION)
+176  	 RETURN VARCHAR2
+177    IS
+178  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_show';
+179  	 l_message VARCHAR2(4000 CHAR);
+180    BEGIN
+181  	 -- verify the current object
+182  	 otap_objects.otap_session_verify(p_otap_session);
+183  	 -- build the message
+184  	 l_message := 'Current test settings' || otap_constants.OTAP_INTERNAL_LF ||
+185  		      'Test session id: ' || p_otap_session.session_id || otap_constants.OTAP_INTERNAL_LF ||
+186  		      'Test set: ' || p_otap_session.test_set || otap_constants.OTAP_INTERNAL_LF ||
+187  		      'Test group: ' || p_otap_session.test_group || otap_constants.OTAP_INTERNAL_LF ||
+188  		      'Test name: ' || p_otap_session.test_name || otap_constants.OTAP_INTERNAL_LF ||
+189  		      'Executor: ' || p_otap_session.test_executor || otap_constants.OTAP_INTERNAL_LF ||
+190  		      'DB user: ' || p_otap_session.db_user || otap_constants.OTAP_INTERNAL_LF ||
+191  		      'DB schema: ' || p_otap_session.db_schema || otap_constants.OTAP_INTERNAL_LF ||
+192  		      'Test identifier prefix: ' || p_otap_session.test_prefix || otap_constants.OTAP_INTERNAL_LF ||
+193  		      'Session language: ' || p_otap_session.session_language || otap_constants.OTAP_INTERNAL_LF ||
+194  		      'Current tests:' || p_otap_session.test_count || otap_constants.OTAP_INTERNAL_LF ||
+195  		      'Expected tests: ' || CASE WHEN p_otap_session.intended_count > 0 THEN TO_CHAR(p_otap_session.intended_count) ELSE 'Not set' END || otap_constants.OTAP_INTERNAL_LF ||
+196  		      'Name precedence: ' || CASE WHEN p_otap_session.name_precedence THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+197  		      'Include packages: ' || CASE WHEN p_otap_session.include_packages THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+198  		      'Persist: ' || CASE WHEN p_otap_session.persist_test THEN otap_constants.OTAP_FALLBACK_TEXT_TRUE_YES ELSE otap_constants.OTAP_FALLBACK_TEXT_FALSE_NO END || otap_constants.OTAP_INTERNAL_LF ||
+199  		      'Current view id: ' || CASE WHEN p_otap_session.session_view_id = 0 THEN 'Not set' ELSE TO_CHAR(p_otap_session.session_view_id) END || otap_constants.OTAP_INTERNAL_LF ||
+200  		      'Test start: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
+201  	 ;
+202  	 l_message := otap_string.reduce(l_message, 4000);
+203  	 RETURN l_message;
+204    EXCEPTION
+205  	 WHEN OTHERS THEN
+206  	   IF SQLCODE != -20099
+207  	   THEN
+208  	     -- log unhandled exceptions
+209  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+210  	   END IF;
+211  	   RAISE;
+212    END otap_session_show;
+213  
+214    FUNCTION otap_session_set( p_test_count		IN	      NUMBER
+215  				, p_test_set		IN	      VARCHAR2
+216  				, p_test_group		IN	      VARCHAR2
+217  				, p_test_name		IN	      VARCHAR2
+218  				, p_prefix		IN	      VARCHAR2
+219  				, p_language_id 	IN	      VARCHAR2
+220  				, p_name_precedence	IN	      NUMBER
+221  				, p_include_pkg 	IN	      NUMBER
+222  				, p_persist		IN	      NUMBER
+223  				, p_schema		IN	      VARCHAR2
+224  				, p_user		IN	      VARCHAR2
+225  				, p_executor		IN	      VARCHAR2
+226  				, o_otap_session	IN OUT NOCOPY OTAP_SESSION
+227  				)
+228  	 RETURN VARCHAR2
+229    IS
+230  	 l_script    VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set';
+231  	 l_message   VARCHAR2(32767 CHAR);
+232  	 l_delimiter VARCHAR2(1 CHAR);
+233    BEGIN
+234  	 -- verify the current object
+235  	 otap_objects.otap_session_verify(o_otap_session);
+236  	 -- now verify the input
+237  	 IF    p_schema    IS NULL
+238  	    OR p_user	   IS NULL
+239  	    OR p_executor  IS NULL
+240  	 THEN
+241  	   l_message := 'ERROR otap_objects.otap_session_set. Invalid OTAP_SESSION initialization. NULL errors: ';
+242  	   l_delimiter := '';
+243  	   IF p_schema IS NULL
+244  	   THEN
+245  	     l_message := l_message || l_delimiter || 'p_schema';
+246  	     l_delimiter := ',';
+247  	   END IF;
+248  	   IF p_user IS NULL
+249  	   THEN
+250  	     l_message := l_message || l_delimiter || 'p_user';
+251  	     l_delimiter := ',';
 252  	   END IF;
-253  	   l_message := l_message || ' The variable default should never be overwritten by users.';
-254  	   otap_log.log('EXCEPTION -20099 ' || l_message, l_script, 'p_schema IS NULL OR p_user IS NULL OR p_executor IS NULL');
-255  	   RAISE_APPLICATION_ERROR(-20099, l_message);
-256  	 END IF;
-257  	 -- check prefix length
-258  	 IF    LENGTH(p_prefix) <= 4
-259  	    OR LENGTH(p_prefix) > 0
-260  	 THEN
-261  	   -- no delimiter allowed
-262  	   IF REGEXP_INSTR(p_prefix, '[_|$|#]') = 0
-263  	   THEN
-264  	     o_otap_session.test_prefix := UPPER(TRIM(p_prefix));
-265  	   ELSE
-266  	     o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
-267  	     otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' delimiters _, $, # not allowed', l_script, 'REGEXP_INSTR(p_prefix, ''[_|$|#]'') = 0');
-268  	   END IF;
-269  	 ELSE
-270  	   -- leave prefix as defined, log error
-271  	   o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
-272  	   otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' length, only length 1-4 allowed', l_script, 'LENGTH(p_prefix) <= 4 OR LENGTH(p_prefix) > 0');
-273  	 END IF;
-274  	 -- check bool values
-275  	 IF NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
-276  	 THEN
-277  	   o_otap_session.name_precedence := (NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE) = otap_constants.OTAP_NUM_TRUE);
-278  	 END IF;
-279  	 IF NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
+253  	   IF p_executor IS NULL
+254  	   THEN
+255  	     l_message := l_message || l_delimiter || 'p_executor';
+256  	   END IF;
+257  	   l_message := l_message || ' The variable default should never be overwritten by users.';
+258  	   otap_log.log('EXCEPTION -20099 ' || l_message, l_script, 'p_schema IS NULL OR p_user IS NULL OR p_executor IS NULL');
+259  	   RAISE_APPLICATION_ERROR(-20099, l_message);
+260  	 END IF;
+261  	 -- check prefix length
+262  	 IF    LENGTH(p_prefix) <= 4
+263  	    OR LENGTH(p_prefix) > 0
+264  	 THEN
+265  	   -- no delimiter allowed
+266  	   IF REGEXP_INSTR(p_prefix, '[_|$|#]') = 0
+267  	   THEN
+268  	     o_otap_session.test_prefix := UPPER(TRIM(p_prefix));
+269  	   ELSE
+270  	     o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
+271  	     otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' delimiters _, $, # not allowed', l_script, 'REGEXP_INSTR(p_prefix, ''[_|$|#]'') = 0');
+272  	   END IF;
+273  	 ELSE
+274  	   -- leave prefix as defined, log error
+275  	   o_otap_session.test_prefix := otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX;
+276  	   otap_log.log('ERROR checking otap test prefix ' || p_prefix || ' length, only length 1-4 allowed', l_script, 'LENGTH(p_prefix) <= 4 OR LENGTH(p_prefix) > 0');
+277  	 END IF;
+278  	 -- check bool values
+279  	 IF NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
 280  	 THEN
-281  	   o_otap_session.include_packages := (NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE) = otap_constants.OTAP_NUM_TRUE);
+281  	   o_otap_session.name_precedence := (NVL(p_name_precedence, otap_constants.OTAP_NUM_TRUE) = otap_constants.OTAP_NUM_TRUE);
 282  	 END IF;
-283  	 IF NVL(p_persist, otap_constants.OTAP_NUM_FALSE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
+283  	 IF NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
 284  	 THEN
-285  	   o_otap_session.persist_test := (NVL(p_persist, otap_constants.OTAP_NUM_FALSE) = otap_constants.OTAP_NUM_TRUE);
+285  	   o_otap_session.include_packages := (NVL(p_include_pkg, otap_constants.OTAP_NUM_FALSE) = otap_constants.OTAP_NUM_TRUE);
 286  	 END IF;
-287  	 -- check language, must be a 3 char code
-288  	 IF LENGTH(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)) > 3
-289  	 THEN
-290  	   o_otap_session.session_language := otap_constants.OTAP_INTERNAL_NA;
-291  	 ELSE
-292  	   o_otap_session.session_language := UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA));
-293  	 END IF;
-294  	 -- now start setting the new values
-295  	 o_otap_session.test_executor	:= p_executor;
-296  	 o_otap_session.db_user 	:= p_user;
-297  	 o_otap_session.db_schema	:= p_schema;
-298  	 o_otap_session.intended_count	:= NVL(p_test_count, 0);
-299  	 -- keep old values if not specified
-300  	 o_otap_session.test_set	:= NVL(p_test_set, o_otap_session.test_set);
-301  	 o_otap_session.test_group	:= NVL(p_test_group, o_otap_session.test_group);
-302  	 o_otap_session.test_name	:= NVL(p_test_name, o_otap_session.test_name);
-303  	 -- reset other session values
-304  	 o_otap_session.test_count	:= 0;
-305  	 o_otap_session.error_count	:= 0;
-306  	 o_otap_session.session_start	:= SYSDATE;
-307  	 o_otap_session.session_id	:= otap_test_session_seq.NEXTVAL;
-308  	 -- set view id equal to session id
-309  	 o_otap_session.session_view_id := o_otap_session.session_id;
-310  	 l_message := otap_objects.otap_session_show(o_otap_session);
-311  	 RETURN l_message;
-312    EXCEPTION
-313  	 WHEN OTHERS THEN
-314  	   IF SQLCODE != -20099
-315  	   THEN
-316  	     -- log unhandled exceptions
-317  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-318  	   END IF;
-319  	   RAISE;
-320    END otap_session_set;
-321  
-322    FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
-323  	 RETURN OTAP_SESSION
-324    IS
-325  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_copy';
-326  	 l_otap_session  OTAP_SESSION;
-327    BEGIN
-328  	 -- verify the current object
-329  	 otap_objects.otap_session_verify(p_otap_session);
-330  	 l_otap_session := otap_session( p_otap_session.test_executor
-331  				       , p_otap_session.test_set
-332  				       , p_otap_session.test_group
-333  				       , p_otap_session.test_name
-334  				       , p_otap_session.db_user
-335  				       , p_otap_session.db_schema
-336  				       , p_otap_session.test_prefix
-337  				       , p_otap_session.session_language
-338  				       , p_otap_session.test_count
-339  				       , p_otap_session.intended_count
-340  				       , p_otap_session.persist_test
-341  				       , p_otap_session.name_precedence
-342  				       , p_otap_session.include_packages
-343  				       , p_otap_session.session_start
-344  				       , p_otap_session.session_id
-345  				       , p_otap_session.error_count
-346  				       , p_otap_session.session_view_id
-347  				       )
-348  	 ;
-349  	 RETURN l_otap_session;
-350    EXCEPTION
-351  	 WHEN OTHERS THEN
-352  	   IF SQLCODE != -20099
-353  	   THEN
-354  	     -- log unhandled exceptions
-355  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-356  	   END IF;
-357  	   RAISE;
-358    END otap_session_copy;
-359  
-360    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
-361  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-362  					 )
-363  	 RETURN VARCHAR2
-364    IS
-365  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_set';
-366  	 l_message VARCHAR2(4000 CHAR);
-367    BEGIN
-368  	 otap_objects.otap_session_verify(o_otap_session);
-369  	 IF LENGTH(p_test_set) > 256
-370  	 THEN
-371  	   o_otap_session.test_set := SUBSTR(p_test_set, 1, 256);
-372  	   otap_log.log('ERROR test set name length exceed 256 chars. Test set ' || p_test_set || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_set) > 256');
-373  	 ELSE
-374  	   o_otap_session.test_set := NVL(p_test_set, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET);
-375  	 END IF;
-376  	 l_message := otap_string.reduce('Current test set: ' || o_otap_session.test_set, 4000);
-377  	 RETURN l_message;
-378    EXCEPTION
-379  	 WHEN OTHERS THEN
-380  	   IF SQLCODE != -20099
-381  	   THEN
-382  	     -- log unhandled exceptions
-383  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-384  	   END IF;
-385  	   RAISE;
-386    END otap_session_set_test_set;
-387  
-388    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
-389  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
-390  					   )
-391  	 RETURN VARCHAR2
-392    IS
-393  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
-394  	 l_message VARCHAR2(4000 CHAR);
-395    BEGIN
-396  	 otap_objects.otap_session_verify(o_otap_session);
-397  	 IF LENGTH(p_test_group) > 256
-398  	 THEN
-399  	   o_otap_session.test_group := SUBSTR(p_test_group, 1, 256);
-400  	   otap_log.log('ERROR test group name length exceed 256 chars. Test group ' || p_test_group || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_group) > 256');
-401  	 ELSE
-402  	   o_otap_session.test_group := NVL(p_test_group, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP);
-403  	 END IF;
-404  	 l_message := otap_string.reduce('Current test group: ' || o_otap_session.test_group, 4000);
-405  	 RETURN l_message;
-406    EXCEPTION
-407  	 WHEN OTHERS THEN
-408  	   IF SQLCODE != -20099
-409  	   THEN
-410  	     -- log unhandled exceptions
-411  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-412  	   END IF;
-413  	   RAISE;
-414    END otap_session_set_test_group;
-415  
-416    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
-417  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
-418  					  )
-419  	 RETURN VARCHAR2
-420    IS
-421  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_name';
-422  	 l_message VARCHAR2(4000 CHAR);
-423    BEGIN
-424  	 otap_objects.otap_session_verify(o_otap_session);
-425  	 IF LENGTH(p_test_name) > 256
-426  	 THEN
-427  	   o_otap_session.test_name := SUBSTR(p_test_name, 1, 256);
-428  	   otap_log.log('ERROR test name length exceed 256 chars. Test name ' || p_test_name || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_name) > 256');
-429  	 ELSE
-430  	   o_otap_session.test_name := NVL(p_test_name, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME);
-431  	 END IF;
-432  	 l_message := otap_string.reduce('Current test: ' || o_otap_session.test_name, 4000);
-433  	 RETURN l_message;
-434    EXCEPTION
-435  	 WHEN OTHERS THEN
-436  	   IF SQLCODE != -20099
-437  	   THEN
-438  	     -- log unhandled exceptions
-439  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-440  	   END IF;
-441  	   RAISE;
-442    END otap_session_set_test_name;
-443  
-444    FUNCTION otap_session_set_language( p_language_id  IN		VARCHAR2
-445  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
-446  					 )
-447  	 RETURN VARCHAR2
-448    IS
-449  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_language';
-450  	 l_message VARCHAR2(4000 CHAR);
-451    BEGIN
-452  	 otap_objects.otap_session_verify(o_otap_session);
-453  	 IF LENGTH(p_language_id) > 3
-454  	 THEN
-455  	   o_otap_session.session_language := UPPER(SUBSTR(TRIM(p_language_id), 1, 3));
-456  	   otap_log.log('ERROR language id length exceed 3 chars. Language id ' || p_language_id || ' cutted to 3 chars.', l_script, 'LENGTH(p_language_id) > 3');
-457  	 ELSE
-458  	   o_otap_session.session_language := UPPER(NVL(TRIM(p_language_id), otap_constants.OTAP_INTERNAL_NA));
-459  	 END IF;
-460  	 l_message := otap_string.reduce('Current language: ' || o_otap_session.session_language, 4000);
-461  	 RETURN l_message;
-462    EXCEPTION
-463  	 WHEN OTHERS THEN
-464  	   IF SQLCODE != -20099
-465  	   THEN
-466  	     -- log unhandled exceptions
-467  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-468  	   END IF;
-469  	   RAISE;
-470    END otap_session_set_language;
-471  
-472    FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
-473  	 RETURN VARCHAR2
-474    IS
-475  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
-476    BEGIN
-477  	 otap_objects.otap_session_verify(p_otap_session);
-478  	 RETURN p_otap_session.session_language;
-479    EXCEPTION
-480  	 WHEN OTHERS THEN
-481  	   IF SQLCODE != -20099
-482  	   THEN
-483  	     -- log unhandled exceptions
-484  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-485  	   END IF;
-486  	   RAISE;
-487    END otap_session_get_language;
-488  
-489    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
-490  	 RETURN NUMBER
-491    IS
-492  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
-493    BEGIN
-494  	 otap_objects.otap_session_verify(p_otap_session);
-495  	 RETURN p_otap_session.session_id;
-496    EXCEPTION
-497  	 WHEN OTHERS THEN
-498  	   IF SQLCODE != -20099
-499  	   THEN
-500  	     -- log unhandled exceptions
-501  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-502  	   END IF;
-503  	   RAISE;
-504    END otap_session_get_test_id;
-505  
-506    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
-507  	 RETURN NUMBER
-508    IS
-509  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_report_id';
-510  	 l_view_id NUMBER;
-511    BEGIN
-512  	 otap_objects.otap_session_verify(p_otap_session);
-513  	 l_view_id := CASE WHEN p_otap_session.session_view_id != 0 THEN p_otap_session.session_view_id ELSE p_otap_session.session_id END;
-514  	 RETURN l_view_id;
-515    EXCEPTION
-516  	 WHEN OTHERS THEN
-517  	   IF SQLCODE != -20099
-518  	   THEN
-519  	     -- log unhandled exceptions
-520  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-521  	   END IF;
-522  	   RAISE;
-523    END otap_session_get_report_id;
-524  
-525    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
-526  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
-527  						)
-528  	 RETURN NUMBER
-529    IS
-530  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_session_view_id';
-531    BEGIN
-532  	 otap_objects.otap_session_verify(o_otap_session);
-533  	 o_otap_session.session_view_id := p_session_view_id;
-534  	 RETURN o_otap_session.session_view_id;
-535    EXCEPTION
-536  	 WHEN OTHERS THEN
-537  	   IF SQLCODE != -20099
-538  	   THEN
-539  	     -- log unhandled exceptions
-540  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-541  	   END IF;
-542  	   RAISE;
-543    END otap_session_set_session_view_id;
-544  
-545    PROCEDURE otap_session_add_test( p_test_passed  IN NUMBER
-546  				      , o_otap_session IN OUT NOCOPY OTAP_SESSION
-547  				      )
-548    IS
-549  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_add_test';
-550    BEGIN
-551  	 otap_objects.otap_session_verify(o_otap_session);
-552  	 o_otap_session.test_count := o_otap_session.test_count + 1;
-553  	 IF p_test_passed != otap_constants.OTAP_NUM_TEST_PASSED
-554  	 THEN
-555  	   o_otap_session.error_count := o_otap_session.error_count + 1;
-556  	 END IF;
-557    EXCEPTION
-558  	 WHEN OTHERS THEN
-559  	   IF SQLCODE != -20099
-560  	   THEN
-561  	     -- log unhandled exceptions
-562  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-563  	   END IF;
-564  	   RAISE;
-565    END otap_session_add_test;
-566  
-567    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
-568  	 RETURN VARCHAR2
-569    IS
-570  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_summary';
-571  	 l_message VARCHAR2(4000 CHAR);
-572    BEGIN
-573  	 otap_objects.otap_session_verify(p_otap_session);
-574  	 l_message := otap_string.reduce( 'Summary id: ' || TRIM(TO_CHAR(p_otap_session.session_id)) ||
-575  					  ' tests: ' || TRIM(TO_CHAR(p_otap_session.test_count)) ||
-576  					  CASE WHEN p_otap_session.intended_count > 0 THEN ' from ' || TRIM(TO_CHAR(p_otap_session.intended_count)) END ||
-577  					  ' errors: ' || TRIM(TO_CHAR(p_otap_session.error_count)) ||
-578  					  ' run time: ' || TRIM(TO_CHAR(((SYSDATE - p_otap_session.session_start) DAY TO SECOND))) ||
-579  					  ' started: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
-580  					, 4000
-581  					)
-582  	 ;
-583  	 RETURN l_message;
-584    EXCEPTION
-585  	 WHEN OTHERS THEN
-586  	   IF SQLCODE != -20099
-587  	   THEN
-588  	     -- log unhandled exceptions
-589  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-590  	   END IF;
-591  	   RAISE;
-592    END otap_session_summary;
-593  
-594    FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
-595  	 RETURN VARCHAR2
-596    IS
-597  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_finish';
-598  	 l_message VARCHAR2(4000 CHAR);
-599    BEGIN
-600  	 -- object gets verified by summary for old session
-601  	 l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_INTERNAL_LF;
-602  	 -- reset values
-603  	 o_otap_session.test_count     := 0;
-604  	 o_otap_session.error_count    := 0;
-605  	 o_otap_session.intended_count := 0;
-606  	 o_otap_session.test_set       := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET;
-607  	 o_otap_session.test_group     := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP;
-608  	 o_otap_session.test_name      := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME;
-609  	 o_otap_session.session_start  := SYSDATE;
-610  	 o_otap_session.session_id     := otap_test_session_seq.NEXTVAL;
-611  	 -- do not update the session_view_id so it will keep the old or any set value
-612  	 -- every init will set the session_view_id to the current session id
-613  	 l_message := l_message || otap_objects.otap_session_show(o_otap_session);
-614  	 RETURN l_message;
-615    EXCEPTION
-616  	 WHEN OTHERS THEN
-617  	   IF SQLCODE != -20099
-618  	   THEN
-619  	     -- log unhandled exceptions
-620  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-621  	   END IF;
-622  	   RAISE;
-623    END otap_session_finish;
-624  
-625    FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
-626  				       , p_set_name	IN VARCHAR2
-627  				       , p_group_name	IN VARCHAR2
-628  				       , p_test_name	IN VARCHAR2
-629  				       )
-630  	 RETURN OTAP_SESSION
-631    IS
-632  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_test_setup';
-633  	 l_message VARCHAR2(4000 CHAR);
-634  	 l_copy    OTAP_SESSION;
-635    BEGIN
-636  	 l_copy 	   := otap_objects.otap_session_copy(p_otap_session);
-637  	 l_copy.test_set   := NVL(p_set_name, 'Test setup');
-638  	 l_copy.test_group := NVL(p_group_name, 'Session test setup');
-639  	 l_copy.test_name  := NVL(p_test_name, 'Session test setup checks');
-640  	 RETURN l_copy;
-641    EXCEPTION
-642  	 WHEN OTHERS THEN
-643  	   IF SQLCODE != -20099
-644  	   THEN
-645  	     -- log unhandled exceptions
-646  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-647  	   END IF;
-648  	   RAISE;
-649    END otap_session_test_setup;
-650  
-651  END;
-652  /
+287  	 IF NVL(p_persist, otap_constants.OTAP_NUM_FALSE) IN (otap_constants.OTAP_NUM_TRUE, otap_constants.OTAP_NUM_FALSE)
+288  	 THEN
+289  	   o_otap_session.persist_test := (NVL(p_persist, otap_constants.OTAP_NUM_FALSE) = otap_constants.OTAP_NUM_TRUE);
+290  	 END IF;
+291  	 -- check language, must be a 3 char code
+292  	 IF LENGTH(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA)) > 3
+293  	 THEN
+294  	   o_otap_session.session_language := otap_constants.OTAP_INTERNAL_NA;
+295  	 ELSE
+296  	   o_otap_session.session_language := UPPER(NVL(p_language_id, otap_constants.OTAP_INTERNAL_NA));
+297  	 END IF;
+298  	 -- now start setting the new values
+299  	 o_otap_session.test_executor	:= p_executor;
+300  	 o_otap_session.db_user 	:= p_user;
+301  	 o_otap_session.db_schema	:= p_schema;
+302  	 o_otap_session.intended_count	:= NVL(p_test_count, 0);
+303  	 -- keep old values if not specified
+304  	 o_otap_session.test_set	:= NVL(p_test_set, o_otap_session.test_set);
+305  	 o_otap_session.test_group	:= NVL(p_test_group, o_otap_session.test_group);
+306  	 o_otap_session.test_name	:= NVL(p_test_name, o_otap_session.test_name);
+307  	 -- reset other session values
+308  	 o_otap_session.test_count	:= 0;
+309  	 o_otap_session.error_count	:= 0;
+310  	 o_otap_session.session_start	:= SYSDATE;
+311  	 o_otap_session.session_id	:= otap_test_session_seq.NEXTVAL;
+312  	 -- set view id equal to session id
+313  	 o_otap_session.session_view_id := o_otap_session.session_id;
+314  	 l_message := otap_objects.otap_session_show(o_otap_session);
+315  	 RETURN l_message;
+316    EXCEPTION
+317  	 WHEN OTHERS THEN
+318  	   IF SQLCODE != -20099
+319  	   THEN
+320  	     -- log unhandled exceptions
+321  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+322  	   END IF;
+323  	   RAISE;
+324    END otap_session_set;
+325  
+326    FUNCTION otap_session_copy(p_otap_session IN OTAP_SESSION)
+327  	 RETURN OTAP_SESSION
+328    IS
+329  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_copy';
+330  	 l_otap_session  OTAP_SESSION;
+331    BEGIN
+332  	 -- verify the current object
+333  	 otap_objects.otap_session_verify(p_otap_session);
+334  	 l_otap_session := otap_session( p_otap_session.test_executor
+335  				       , p_otap_session.test_set
+336  				       , p_otap_session.test_group
+337  				       , p_otap_session.test_name
+338  				       , p_otap_session.db_user
+339  				       , p_otap_session.db_schema
+340  				       , p_otap_session.test_prefix
+341  				       , p_otap_session.session_language
+342  				       , p_otap_session.test_count
+343  				       , p_otap_session.intended_count
+344  				       , p_otap_session.persist_test
+345  				       , p_otap_session.name_precedence
+346  				       , p_otap_session.include_packages
+347  				       , p_otap_session.session_start
+348  				       , p_otap_session.session_id
+349  				       , p_otap_session.error_count
+350  				       , p_otap_session.session_view_id
+351  				       )
+352  	 ;
+353  	 RETURN l_otap_session;
+354    EXCEPTION
+355  	 WHEN OTHERS THEN
+356  	   IF SQLCODE != -20099
+357  	   THEN
+358  	     -- log unhandled exceptions
+359  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+360  	   END IF;
+361  	   RAISE;
+362    END otap_session_copy;
+363  
+364    FUNCTION otap_session_set_test_set( p_test_set	  IN		VARCHAR2
+365  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+366  					 )
+367  	 RETURN VARCHAR2
+368    IS
+369  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_set';
+370  	 l_message VARCHAR2(4000 CHAR);
+371    BEGIN
+372  	 otap_objects.otap_session_verify(o_otap_session);
+373  	 IF LENGTH(p_test_set) > 256
+374  	 THEN
+375  	   o_otap_session.test_set := SUBSTR(p_test_set, 1, 256);
+376  	   otap_log.log('ERROR test set name length exceed 256 chars. Test set ' || p_test_set || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_set) > 256');
+377  	 ELSE
+378  	   o_otap_session.test_set := NVL(p_test_set, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET);
+379  	 END IF;
+380  	 l_message := otap_string.reduce('Current test set: ' || o_otap_session.test_set, 4000);
+381  	 RETURN l_message;
+382    EXCEPTION
+383  	 WHEN OTHERS THEN
+384  	   IF SQLCODE != -20099
+385  	   THEN
+386  	     -- log unhandled exceptions
+387  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+388  	   END IF;
+389  	   RAISE;
+390    END otap_session_set_test_set;
+391  
+392    FUNCTION otap_session_set_test_group( p_test_group   IN		  VARCHAR2
+393  					   , o_otap_session IN OUT NOCOPY OTAP_SESSION
+394  					   )
+395  	 RETURN VARCHAR2
+396    IS
+397  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_group';
+398  	 l_message VARCHAR2(4000 CHAR);
+399    BEGIN
+400  	 otap_objects.otap_session_verify(o_otap_session);
+401  	 IF LENGTH(p_test_group) > 256
+402  	 THEN
+403  	   o_otap_session.test_group := SUBSTR(p_test_group, 1, 256);
+404  	   otap_log.log('ERROR test group name length exceed 256 chars. Test group ' || p_test_group || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_group) > 256');
+405  	 ELSE
+406  	   o_otap_session.test_group := NVL(p_test_group, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP);
+407  	 END IF;
+408  	 l_message := otap_string.reduce('Current test group: ' || o_otap_session.test_group, 4000);
+409  	 RETURN l_message;
+410    EXCEPTION
+411  	 WHEN OTHERS THEN
+412  	   IF SQLCODE != -20099
+413  	   THEN
+414  	     -- log unhandled exceptions
+415  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+416  	   END IF;
+417  	   RAISE;
+418    END otap_session_set_test_group;
+419  
+420    FUNCTION otap_session_set_test_name( p_test_name    IN		 VARCHAR2
+421  					  , o_otap_session IN OUT NOCOPY OTAP_SESSION
+422  					  )
+423  	 RETURN VARCHAR2
+424    IS
+425  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_test_name';
+426  	 l_message VARCHAR2(4000 CHAR);
+427    BEGIN
+428  	 otap_objects.otap_session_verify(o_otap_session);
+429  	 IF LENGTH(p_test_name) > 256
+430  	 THEN
+431  	   o_otap_session.test_name := SUBSTR(p_test_name, 1, 256);
+432  	   otap_log.log('ERROR test name length exceed 256 chars. Test name ' || p_test_name || ' cutted to 256 chars.', l_script, 'LENGTH(p_test_name) > 256');
+433  	 ELSE
+434  	   o_otap_session.test_name := NVL(p_test_name, otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME);
+435  	 END IF;
+436  	 l_message := otap_string.reduce('Current test: ' || o_otap_session.test_name, 4000);
+437  	 RETURN l_message;
+438    EXCEPTION
+439  	 WHEN OTHERS THEN
+440  	   IF SQLCODE != -20099
+441  	   THEN
+442  	     -- log unhandled exceptions
+443  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+444  	   END IF;
+445  	   RAISE;
+446    END otap_session_set_test_name;
+447  
+448    FUNCTION otap_session_set_language( p_language_id  IN		VARCHAR2
+449  					 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+450  					 )
+451  	 RETURN VARCHAR2
+452    IS
+453  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_language';
+454  	 l_message VARCHAR2(4000 CHAR);
+455    BEGIN
+456  	 otap_objects.otap_session_verify(o_otap_session);
+457  	 IF LENGTH(p_language_id) > 3
+458  	 THEN
+459  	   o_otap_session.session_language := UPPER(SUBSTR(TRIM(p_language_id), 1, 3));
+460  	   otap_log.log('ERROR language id length exceed 3 chars. Language id ' || p_language_id || ' cutted to 3 chars.', l_script, 'LENGTH(p_language_id) > 3');
+461  	 ELSE
+462  	   o_otap_session.session_language := UPPER(NVL(TRIM(p_language_id), otap_constants.OTAP_INTERNAL_NA));
+463  	 END IF;
+464  	 l_message := otap_string.reduce('Current language: ' || o_otap_session.session_language, 4000);
+465  	 RETURN l_message;
+466    EXCEPTION
+467  	 WHEN OTHERS THEN
+468  	   IF SQLCODE != -20099
+469  	   THEN
+470  	     -- log unhandled exceptions
+471  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+472  	   END IF;
+473  	   RAISE;
+474    END otap_session_set_language;
+475  
+476    FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
+477  	 RETURN VARCHAR2
+478    IS
+479  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
+480    BEGIN
+481  	 otap_objects.otap_session_verify(p_otap_session);
+482  	 RETURN p_otap_session.session_language;
+483    EXCEPTION
+484  	 WHEN OTHERS THEN
+485  	   IF SQLCODE != -20099
+486  	   THEN
+487  	     -- log unhandled exceptions
+488  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+489  	   END IF;
+490  	   RAISE;
+491    END otap_session_get_language;
+492  
+493    FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
+494  	 RETURN NUMBER
+495    IS
+496  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
+497    BEGIN
+498  	 otap_objects.otap_session_verify(p_otap_session);
+499  	 RETURN p_otap_session.session_id;
+500    EXCEPTION
+501  	 WHEN OTHERS THEN
+502  	   IF SQLCODE != -20099
+503  	   THEN
+504  	     -- log unhandled exceptions
+505  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+506  	   END IF;
+507  	   RAISE;
+508    END otap_session_get_test_id;
+509  
+510    FUNCTION otap_session_get_report_id(p_otap_session IN OTAP_SESSION)
+511  	 RETURN NUMBER
+512    IS
+513  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_report_id';
+514  	 l_view_id NUMBER;
+515    BEGIN
+516  	 otap_objects.otap_session_verify(p_otap_session);
+517  	 l_view_id := CASE WHEN p_otap_session.session_view_id != 0 THEN p_otap_session.session_view_id ELSE p_otap_session.session_id END;
+518  	 RETURN l_view_id;
+519    EXCEPTION
+520  	 WHEN OTHERS THEN
+521  	   IF SQLCODE != -20099
+522  	   THEN
+523  	     -- log unhandled exceptions
+524  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+525  	   END IF;
+526  	   RAISE;
+527    END otap_session_get_report_id;
+528  
+529    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
+530  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
+531  						)
+532  	 RETURN NUMBER
+533    IS
+534  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_set_session_view_id';
+535    BEGIN
+536  	 otap_objects.otap_session_verify(o_otap_session);
+537  	 o_otap_session.session_view_id := p_session_view_id;
+538  	 RETURN o_otap_session.session_view_id;
+539    EXCEPTION
+540  	 WHEN OTHERS THEN
+541  	   IF SQLCODE != -20099
+542  	   THEN
+543  	     -- log unhandled exceptions
+544  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+545  	   END IF;
+546  	   RAISE;
+547    END otap_session_set_session_view_id;
+548  
+549    PROCEDURE otap_session_add_test( p_test_passed  IN NUMBER
+550  				      , o_otap_session IN OUT NOCOPY OTAP_SESSION
+551  				      )
+552    IS
+553  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_add_test';
+554    BEGIN
+555  	 otap_objects.otap_session_verify(o_otap_session);
+556  	 o_otap_session.test_count := o_otap_session.test_count + 1;
+557  	 IF p_test_passed != otap_constants.OTAP_NUM_TEST_PASSED
+558  	 THEN
+559  	   o_otap_session.error_count := o_otap_session.error_count + 1;
+560  	 END IF;
+561    EXCEPTION
+562  	 WHEN OTHERS THEN
+563  	   IF SQLCODE != -20099
+564  	   THEN
+565  	     -- log unhandled exceptions
+566  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+567  	   END IF;
+568  	   RAISE;
+569    END otap_session_add_test;
+570  
+571    FUNCTION otap_session_summary(p_otap_session IN OTAP_SESSION)
+572  	 RETURN VARCHAR2
+573    IS
+574  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_summary';
+575  	 l_message VARCHAR2(4000 CHAR);
+576    BEGIN
+577  	 otap_objects.otap_session_verify(p_otap_session);
+578  	 l_message := otap_string.reduce( 'Summary id: ' || TRIM(TO_CHAR(p_otap_session.session_id)) ||
+579  					  ' tests: ' || TRIM(TO_CHAR(p_otap_session.test_count)) ||
+580  					  CASE WHEN p_otap_session.intended_count > 0 THEN ' from ' || TRIM(TO_CHAR(p_otap_session.intended_count)) END ||
+581  					  ' errors: ' || TRIM(TO_CHAR(p_otap_session.error_count)) ||
+582  					  ' run time: ' || TRIM(TO_CHAR(((SYSDATE - p_otap_session.session_start) DAY TO SECOND))) ||
+583  					  ' started: ' || TO_CHAR(p_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
+584  					, 4000
+585  					)
+586  	 ;
+587  	 RETURN l_message;
+588    EXCEPTION
+589  	 WHEN OTHERS THEN
+590  	   IF SQLCODE != -20099
+591  	   THEN
+592  	     -- log unhandled exceptions
+593  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+594  	   END IF;
+595  	   RAISE;
+596    END otap_session_summary;
+597  
+598    FUNCTION otap_session_finish(o_otap_session IN OUT NOCOPY OTAP_SESSION)
+599  	 RETURN VARCHAR2
+600    IS
+601  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_finish';
+602  	 l_message VARCHAR2(4000 CHAR);
+603    BEGIN
+604  	 -- object gets verified by summary for old session
+605  	 l_message := otap_objects.otap_session_summary(o_otap_session) || otap_constants.OTAP_INTERNAL_LF;
+606  	 -- reset values
+607  	 o_otap_session.test_count     := 0;
+608  	 o_otap_session.error_count    := 0;
+609  	 o_otap_session.intended_count := 0;
+610  	 o_otap_session.test_set       := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET;
+611  	 o_otap_session.test_group     := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP;
+612  	 o_otap_session.test_name      := otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME;
+613  	 o_otap_session.session_start  := SYSDATE;
+614  	 o_otap_session.session_id     := otap_test_session_seq.NEXTVAL;
+615  	 -- do not update the session_view_id so it will keep the old or any set value
+616  	 -- every init will set the session_view_id to the current session id
+617  	 l_message := l_message || otap_objects.otap_session_show(o_otap_session);
+618  	 RETURN l_message;
+619    EXCEPTION
+620  	 WHEN OTHERS THEN
+621  	   IF SQLCODE != -20099
+622  	   THEN
+623  	     -- log unhandled exceptions
+624  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+625  	   END IF;
+626  	   RAISE;
+627    END otap_session_finish;
+628  
+629    FUNCTION otap_session_test_setup( p_otap_session IN OTAP_SESSION
+630  				       , p_set_name	IN VARCHAR2
+631  				       , p_group_name	IN VARCHAR2
+632  				       , p_test_name	IN VARCHAR2
+633  				       )
+634  	 RETURN OTAP_SESSION
+635    IS
+636  	 l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_test_setup';
+637  	 l_message VARCHAR2(4000 CHAR);
+638  	 l_copy    OTAP_SESSION;
+639    BEGIN
+640  	 l_copy 	   := otap_objects.otap_session_copy(p_otap_session);
+641  	 l_copy.test_set   := NVL(p_set_name, 'Test setup');
+642  	 l_copy.test_group := NVL(p_group_name, 'Session test setup');
+643  	 l_copy.test_name  := NVL(p_test_name, 'Session test setup checks');
+644  	 RETURN l_copy;
+645    EXCEPTION
+646  	 WHEN OTHERS THEN
+647  	   IF SQLCODE != -20099
+648  	   THEN
+649  	     -- log unhandled exceptions
+650  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+651  	   END IF;
+652  	   RAISE;
+653    END otap_session_test_setup;
+654  
+655  END;
+656  /
 
 Package body created.
 
@@ -5456,7 +5463,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_plan
  19  	 l_return	     VARCHAR2(4000 CHAR);
  20    BEGIN
  21  	 otap_objects.otap_session_verify(o_otap_session);
- 22  	 IF LENGTH(TRIM(l_errors)) > 4000
+ 22  	 IF NVL(LENGTH(TRIM(l_errors)), 0) > 4000
  23  	 THEN
  24  	   l_errors := otap_string.reduce(p_test_errors, 4000);
  25  	 ELSE
@@ -9459,7 +9466,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 259    FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
 260  	 RETURN VARCHAR2
 261    IS
-262  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_set_language';
+262  	 l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_language';
 263  	 l_return  VARCHAR2(3 CHAR);
 264    BEGIN
 265  	 l_return := otap_constants.OTAP_INTERNAL_NA;

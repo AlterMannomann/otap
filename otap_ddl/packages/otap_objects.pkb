@@ -12,58 +12,62 @@ AS
     l_delimiter VARCHAR2(1 CHAR);
   BEGIN
     -- we expect all fields to be NOT NULL including empty strings
-    IF    p_otap_session                             IS NULL
-       OR p_otap_session.test_executor               IS NULL
-       OR LENGTH(TRIM(p_otap_session.test_executor))  = 0
-       OR p_otap_session.test_set                    IS NULL
-       OR LENGTH(TRIM(p_otap_session.test_set))       = 0
-       OR p_otap_session.test_group                  IS NULL
-       OR LENGTH(TRIM(p_otap_session.test_group))     = 0
-       OR p_otap_session.test_name                   IS NULL
-       OR LENGTH(TRIM(p_otap_session.test_name))      = 0
-       OR p_otap_session.db_user                     IS NULL
-       OR LENGTH(TRIM(p_otap_session.db_user))        = 0
-       OR p_otap_session.db_schema                   IS NULL
-       OR LENGTH(TRIM(p_otap_session.db_schema))      = 0
-       OR p_otap_session.test_prefix                 IS NULL
-       OR p_otap_session.session_language            IS NULL
-       OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
-       OR p_otap_session.test_count                  IS NULL
-       OR p_otap_session.intended_count              IS NULL
-       OR p_otap_session.persist_test                IS NULL
-       OR p_otap_session.name_precedence             IS NULL
-       OR p_otap_session.include_packages            IS NULL
-       OR p_otap_session.session_start               IS NULL
-       OR p_otap_session.session_id                  IS NULL
-       OR p_otap_session.error_count                 IS NULL
-       OR p_otap_session.session_view_id             IS NULL
+    -- the NVL(LENGTH(TRIM)) construct exists for compatibility with older versions
+    -- in current 23ai version TRIM(x) IS NULL would be enough
+    IF    p_otap_session                                       IS NULL
+       OR p_otap_session.test_executor                         IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0)    = 0
+       OR p_otap_session.test_set                              IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0)         = 0
+       OR p_otap_session.test_group                            IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0)       = 0
+       OR p_otap_session.test_name                             IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0)        = 0
+       OR p_otap_session.db_user                               IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0)          = 0
+       OR p_otap_session.db_schema                             IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0)        = 0
+       OR p_otap_session.test_prefix                           IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0)      = 0
+       OR p_otap_session.session_language                      IS NULL
+       OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
+       OR p_otap_session.test_count                            IS NULL
+       OR p_otap_session.intended_count                        IS NULL
+       OR p_otap_session.persist_test                          IS NULL
+       OR p_otap_session.name_precedence                       IS NULL
+       OR p_otap_session.include_packages                      IS NULL
+       OR p_otap_session.session_start                         IS NULL
+       OR p_otap_session.session_id                            IS NULL
+       OR p_otap_session.error_count                           IS NULL
+       OR p_otap_session.session_view_id                       IS NULL
     THEN
       l_delimiter := '';
-      l_statement := q'[p_otap_session                             IS NULL
-OR p_otap_session.test_executor               IS NULL
-OR LENGTH(TRIM(p_otap_session.test_executor))  = 0
-OR p_otap_session.test_set                    IS NULL
-OR LENGTH(TRIM(p_otap_session.test_set))       = 0
-OR p_otap_session.test_group                  IS NULL
-OR LENGTH(TRIM(p_otap_session.test_group))     = 0
-OR p_otap_session.test_name                   IS NULL
-OR LENGTH(TRIM(p_otap_session.test_name))      = 0
-OR p_otap_session.db_user                     IS NULL
-OR LENGTH(TRIM(p_otap_session.db_user))        = 0
-OR p_otap_session.db_schema                   IS NULL
-OR LENGTH(TRIM(p_otap_session.db_schema))      = 0
-OR p_otap_session.test_prefix                 IS NULL
-OR p_otap_session.session_language            IS NULL
-OR LENGTH(TRIM(p_otap_session.test_prefix))    = 0
-OR p_otap_session.test_count                  IS NULL
-OR p_otap_session.intended_count              IS NULL
-OR p_otap_session.persist_test                IS NULL
-OR p_otap_session.name_precedence             IS NULL
-OR p_otap_session.include_packages            IS NULL
-OR p_otap_session.session_start               IS NULL
-OR p_otap_session.session_id                  IS NULL
-OR p_otap_session.error_count                 IS NULL
-OR p_otap_session.session_view_id             IS NULL]'
+      l_statement := q'[p_otap_session                                       IS NULL
+OR p_otap_session.test_executor                         IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0)    = 0
+OR p_otap_session.test_set                              IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0)         = 0
+OR p_otap_session.test_group                            IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0)       = 0
+OR p_otap_session.test_name                             IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0)        = 0
+OR p_otap_session.db_user                               IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0)          = 0
+OR p_otap_session.db_schema                             IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0)        = 0
+OR p_otap_session.test_prefix                           IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0)      = 0
+OR p_otap_session.session_language                      IS NULL
+OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
+OR p_otap_session.test_count                            IS NULL
+OR p_otap_session.intended_count                        IS NULL
+OR p_otap_session.persist_test                          IS NULL
+OR p_otap_session.name_precedence                       IS NULL
+OR p_otap_session.include_packages                      IS NULL
+OR p_otap_session.session_start                         IS NULL
+OR p_otap_session.session_id                            IS NULL
+OR p_otap_session.error_count                           IS NULL
+OR p_otap_session.session_view_id                       IS NULL]'
       ;
       -- if we fail, find out the columns that are NULL
       l_message := 'ERROR otap_objects.otap_session_verify. Invalid OTAP_SESSION object. NULL errors: ';
@@ -72,42 +76,42 @@ OR p_otap_session.session_view_id             IS NULL]'
         l_message := l_message || 'Complete OTAP_SESSION object NULL';
       ELSE
         -- check the fields
-        IF p_otap_session.test_executor IS NULL OR LENGTH(TRIM(p_otap_session.test_executor)) = 0
+        IF p_otap_session.test_executor IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_executor)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_executor';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.test_set IS NULL OR LENGTH(TRIM(p_otap_session.test_set)) = 0
+        IF p_otap_session.test_set IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_set)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_set';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.test_group IS NULL OR LENGTH(TRIM(p_otap_session.test_group)) = 0
+        IF p_otap_session.test_group IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_group)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_group';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.test_name IS NULL OR LENGTH(TRIM(p_otap_session.test_name)) = 0
+        IF p_otap_session.test_name IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_name)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_name';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.db_user IS NULL OR LENGTH(TRIM(p_otap_session.db_user)) = 0
+        IF p_otap_session.db_user IS NULL OR NVL(LENGTH(TRIM(p_otap_session.db_user)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'db_user';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.db_schema IS NULL OR LENGTH(TRIM(p_otap_session.db_schema)) = 0
+        IF p_otap_session.db_schema IS NULL OR NVL(LENGTH(TRIM(p_otap_session.db_schema)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'db_schema';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.test_prefix IS NULL OR LENGTH(TRIM(p_otap_session.test_prefix)) = 0
+        IF p_otap_session.test_prefix IS NULL OR NVL(LENGTH(TRIM(p_otap_session.test_prefix)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'test_prefix';
           l_delimiter := ',';
         END IF;
-        IF p_otap_session.session_language IS NULL OR LENGTH(TRIM(p_otap_session.session_language)) = 0
+        IF p_otap_session.session_language IS NULL OR NVL(LENGTH(TRIM(p_otap_session.session_language)), 0) = 0
         THEN
           l_message := l_message || l_delimiter || 'session_language';
           l_delimiter := ',';

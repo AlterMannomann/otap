@@ -16,6 +16,9 @@ AS
 
   /** PROCEDURE otap_objects.otap_session_verify
   * Verifies the OTAP_SESSION object and checks for NULL or 0 string length, no NULL values allowed.
+  * Does NOT verify if given test_executor, db_user and db_schema exist for runtime reasons. You may
+  * want to extend this, if having security issues. The user assignment is capsulated and should be
+  * stable.
   *
   * @param p_otap_session The OTAP_SESSION object to verify.
   *

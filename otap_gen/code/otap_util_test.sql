@@ -8,7 +8,7 @@ SPOOL tmp_generated.sql
        (SELECT text AS src
              , INSTR(text, 'CONSTANT ') - 1 AS cut_pos1
              , INSTR(text, ':= ') + 3 AS cut_pos2
-             , LENGTH(TRIM(text)) + 1  AS str_end
+             , NVL(LENGTH(TRIM(text)), 0) + 1  AS str_end
           FROM user_source
          WHERE name = 'OTAP_UTIL'
            AND type = 'PACKAGE'
