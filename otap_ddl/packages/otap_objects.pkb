@@ -262,8 +262,8 @@ OR p_otap_session.session_view_id                       IS NULL]'
       RAISE_APPLICATION_ERROR(-20099, l_message);
     END IF;
     -- check prefix length
-    IF    LENGTH(p_prefix) <= 4
-       OR LENGTH(p_prefix) > 0
+    IF     NVL(LENGTH(p_prefix), 0) <= 4
+       AND NVL(LENGTH(p_prefix), 0) > 0
     THEN
       -- no delimiter allowed
       IF REGEXP_INSTR(p_prefix, '[_|$|#]') = 0
@@ -302,7 +302,10 @@ OR p_otap_session.session_view_id                       IS NULL]'
     o_otap_session.test_executor   := p_executor;
     o_otap_session.db_user         := p_user;
     o_otap_session.db_schema       := p_schema;
-    o_otap_session.intended_count  := NVL(p_test_count, 0);
+    IF NVL(p_test_count, 0) > 0
+    THEN
+      o_otap_session.intended_count  := p_test_count;
+    END IF;
     -- keep old values if not specified
     o_otap_session.test_set        := NVL(p_test_set, o_otap_session.test_set);
     o_otap_session.test_group      := NVL(p_test_group, o_otap_session.test_group);

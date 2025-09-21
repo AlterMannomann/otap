@@ -42,7 +42,7 @@ AS
   /** FUNCTION otap_objects.otap_session_set
   * Sets the package session variables of a valid OTAP_SESSION object. Errors will get logged.
   *
-  * @param p_test_count The amount of tests expected to be executed when called.
+  * @param p_test_count The amount of tests expected to be executed when called. Negative values ignored.
   * @param p_test_set The name of the test set applied if the name of the executed test procedure or function does not provide a test set name or name precendence is disabled.
   * @param p_test_group The name of the test group applied if the name of the executed test procedure or function does not provide a test group name or name precendence is disabled.
   * @param p_test_name The name of the test name applied if the name of the executed test procedure or function does not provide a test name or name precendence is disabled.
