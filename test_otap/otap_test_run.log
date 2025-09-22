@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2398
+SQL> SELECT otap_test.init_test( p_test_count => 2399
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 1004
+Test session id: 1054
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2398
+Expected tests: 2399
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1004
-Test start: 2025-09-22 18:04:38
+Current view id: 1054
+Test start: 2025-09-22 18:25:36
 
 
 1 row selected.
@@ -12442,7 +12442,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-22 18:07:32 finished at 2025-09-22 18:07:42
+Processed 1001 records for delete. Started at 2025-09-22 18:28:20 finished at 2025-09-22 18:28:31
 
 PL/SQL procedure successfully completed.
 
@@ -16459,6 +16459,7 @@ Current test: Verify otap_plan intrusive
 
 1 row selected.
 
+SQL> -- only test the parts of wrappers that are not tested already
 SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
 SQL> DECLARE
   2    l_return        VARCHAR2(4000 CHAR);
@@ -16578,13 +16579,26 @@ SQL> DECLARE
 116  	  AND test_start     >= l_stamp
 117  	  AND test_end	     <= l_finish
 118    ;
-119  
-120  EXCEPTION
-121    WHEN OTHERS THEN
-122  	 otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
-123  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN intrusive failed', SQLERRM);
-124  END;
-125  /
+119    l_stamp	:= SYSTIMESTAMP;
+120    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, RPAD('Failed', 6000, 'a'));
+121    l_finish := SYSTIMESTAMP;
+122    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check error too long')
+123  	 INTO l_return
+124  	 FROM otap_results
+125  	WHERE test_session_id = l_testing_id
+126  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+127  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+128  	  AND test_desc       = 'Sample failed test'
+129  	  AND test_errors     = RPAD('Failed', 4000, 'a')
+130  	  AND test_start     >= l_stamp
+131  	  AND test_end	     <= l_finish
+132    ;
+133  EXCEPTION
+134    WHEN OTHERS THEN
+135  	 otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
+136  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN intrusive failed', SQLERRM);
+137  END;
+138  /
 
 PL/SQL procedure successfully completed.
 
@@ -16647,7 +16661,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250922180438'
+new   3:  WHERE identifier = 'otap_test_run20250922182536'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16659,16 +16673,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250922180438'
+new   3:  WHERE identifier = 'otap_test_run20250922182536'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 1004 tests: 2399 from 2398 errors: 0 run time: +000000000 00:03:34.000000000 started: 2025-09-22 18:04:38
+Summary id: 1054 tests: 2400 from 2399 errors: 0 run time: +000000000 00:03:21.000000000 started: 2025-09-22 18:25:36
 Current test settings
-Test session id: 1027
+Test session id: 1077
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16682,8 +16696,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1004
-Test start: 2025-09-22 18:08:12
+Current view id: 1054
+Test start: 2025-09-22 18:28:57
 
 
 1 row selected.

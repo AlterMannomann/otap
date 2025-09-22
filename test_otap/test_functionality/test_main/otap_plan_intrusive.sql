@@ -122,7 +122,20 @@ BEGIN
      AND test_start     >= l_stamp
      AND test_end       <= l_finish
   ;
-
+  l_stamp  := SYSTIMESTAMP;
+  l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, RPAD('Failed', 6000, 'a'));
+  l_finish := SYSTIMESTAMP;
+  SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check error too long')
+    INTO l_return
+    FROM otap_results
+   WHERE test_session_id = l_testing_id
+     AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+     AND to_delete       = otap_constants.OTAP_NUM_TRUE
+     AND test_desc       = 'Sample failed test'
+     AND test_errors     = RPAD('Failed', 4000, 'a')
+     AND test_start     >= l_stamp
+     AND test_end       <= l_finish
+  ;
 EXCEPTION
   WHEN OTHERS THEN
     otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);

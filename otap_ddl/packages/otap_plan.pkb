@@ -22,7 +22,7 @@ AS
     l_return            VARCHAR2(4000 CHAR);
   BEGIN
     otap_objects.otap_session_verify(o_otap_session);
-    IF NVL(LENGTH(TRIM(l_errors)), 0) > 4000
+    IF NVL(LENGTH(TRIM(p_test_errors)), 0) > 4000
     THEN
       l_errors := otap_string.reduce(p_test_errors, 4000);
     ELSE
