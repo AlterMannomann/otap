@@ -27,7 +27,6 @@ AS
   * @param p_used_schema The schema used for the test. May differ from session object.
   * @param p_test_passed A valid test passed ID, allowed values are otap_constants.OTAP_NUM_TEST_FAILED, otap_constants.OTAP_NUM_TEST_PASSED and otap_constants.OTAP_NUM_TEST_UNDEFINED.
   * @param p_test_start The timestamp of the test start, must be provided by test functions.
-  * @param p_test_end The timestamp of the test end, must be provided by test functions.
   * @param p_test_errors Test error information limited to 4000 chars.
   *
   * @return The result as message to display, limited to 4000 char.

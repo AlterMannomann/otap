@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2384
+SQL> SELECT otap_test.init_test( p_test_count => 2398
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 755
+Test session id: 1004
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2384
+Expected tests: 2398
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 755
-Test start: 2025-09-22 03:37:27
+Current view id: 1004
+Test start: 2025-09-22 18:04:38
 
 
 1 row selected.
@@ -9155,19 +9155,19 @@ SQL> DECLARE
 1158  	;
 1159  	l_return := otap_objects.otap_session_set_test_set('Oha', l_otap_session);
 1160  	l_return := otap_test.ok((l_otap_session.test_set = 'Oha'), 'otap_objects.otap_session_set_test_set check');
-1161  	l_return := otap_objects.otap_session_set_test_set(RPAD('Oha', 300), l_otap_session);
+1161  	l_return := otap_objects.otap_session_set_test_set(RPAD('Oha', 300, 'a'), l_otap_session);
 1162  	l_return := otap_test.ok((LENGTH(l_otap_session.test_set) = 256), 'otap_objects.otap_session_set_test_set check length cut');
 1163  	l_return := otap_objects.otap_session_set_test_set(NULL, l_otap_session);
 1164  	l_return := otap_test.ok((l_otap_session.test_set = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET), 'otap_objects.otap_session_set_test_set check NULL fallback');
 1165  	l_return := otap_objects.otap_session_set_test_group('Oha', l_otap_session);
 1166  	l_return := otap_test.ok((l_otap_session.test_group = 'Oha'), 'otap_objects.otap_session_set_test_group check ');
-1167  	l_return := otap_objects.otap_session_set_test_group(RPAD('Oha', 300), l_otap_session);
+1167  	l_return := otap_objects.otap_session_set_test_group(RPAD('Oha', 300, 'a'), l_otap_session);
 1168  	l_return := otap_test.ok((LENGTH(l_otap_session.test_group) = 256), 'otap_objects.otap_session_set_test_group check length cut');
 1169  	l_return := otap_objects.otap_session_set_test_group(NULL, l_otap_session);
 1170  	l_return := otap_test.ok((l_otap_session.test_group = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP), 'otap_objects.otap_session_set_test_group check NULL fallback');
 1171  	l_return := otap_objects.otap_session_set_test_name('Oha', l_otap_session);
 1172  	l_return := otap_test.ok((l_otap_session.test_name = 'Oha'), 'otap_objects.otap_session_set_test_name check ');
-1173  	l_return := otap_objects.otap_session_set_test_name(RPAD('Oha', 300), l_otap_session);
+1173  	l_return := otap_objects.otap_session_set_test_name(RPAD('Oha', 300, 'a'), l_otap_session);
 1174  	l_return := otap_test.ok((LENGTH(l_otap_session.test_name) = 256), 'otap_objects.otap_session_set_test_name check length cut');
 1175  	l_return := otap_objects.otap_session_set_test_name(NULL, l_otap_session);
 1176  	l_return := otap_test.ok((l_otap_session.test_name = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME), 'otap_objects.otap_session_set_test_name check NULL fallback');
@@ -9290,6 +9290,89 @@ SQL> DECLARE
 1293  	  l_return := otap_test.test_error('Complete test block OTAP_OBJECTS failed', SQLERRM);
 1294  END;
 1295  /
+
+PL/SQL procedure successfully completed.
+
+SQL> @@otap_plan.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- sets the test name and calls the tests for this test name
+SQL> SELECT otap_test.set_test_name('Verify otap_plan functionality') FROM dual;
+Current test: Verify otap_plan functionality
+
+1 row selected.
+
+SQL> -- call the independend code block without changing the current setup
+SQL> @@otap_plan_code.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- independent code block, able to deal with different setup settings
+SQL> 
+SQL> -- to verify package constants we use a anonymous PLSQL block
+SQL> -- to not overload DBMS_OUTPUT only minimal summary output
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return        VARCHAR2(4000 CHAR);
+  3    l_stamp	       TIMESTAMP;
+  4    l_finish        TIMESTAMP;
+  5    l_otap_session  OTAP_SESSION;
+  6    l_alt_session   OTAP_SESSION;
+  7    l_want	       VARCHAR2(4000 CHAR);
+  8    l_have	       VARCHAR2(4000 CHAR);
+  9  BEGIN
+ 10    -- session object fake
+ 11    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+ 12  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+ 13  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+ 14  				     , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+ 15  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+ 16  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 17  				     , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+ 18  				     , otap_constants.OTAP_INTERNAL_NA
+ 19  				     , 0
+ 20  				     , 0
+ 21  				     , FALSE
+ 22  				     , TRUE
+ 23  				     , FALSE
+ 24  				     , SYSDATE
+ 25  				     , 0
+ 26  				     , 0
+ 27  				     , 0
+ 28  				     )
+ 29    ;
+ 30  
+ 31    -- init_test is the only function, that has some options to be not intrusive
+ 32    -- not intrusive it is only a wrapper for otap_objects.otap_session_set
+ 33    l_return := otap_plan.init_test( 1
+ 34  				      , 'Moin'
+ 35  				      , 'MoinMoin'
+ 36  				      , 'Mooooin'
+ 37  				      , 'moin'
+ 38  				      , 'eng'
+ 39  				      , otap_constants.OTAP_NUM_TRUE
+ 40  				      , otap_constants.OTAP_NUM_FALSE
+ 41  				      , otap_constants.OTAP_NUM_FALSE
+ 42  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 43  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+ 44  				      , SYS_CONTEXT('USERENV', 'SESSION_USER')
+ 45  				      , l_otap_session
+ 46  				      )
+ 47    ;
+ 48    l_return := otap_test.ok((l_otap_session.intended_count = 1), 'otap_plan.init_test check intended_count');
+ 49    l_return := otap_test.ok((l_otap_session.test_set = 'Moin'), 'otap_plan.init_test check test_set');
+ 50    l_return := otap_test.ok((l_otap_session.test_group = 'MoinMoin'), 'otap_plan.init_test check test_group');
+ 51    l_return := otap_test.ok((l_otap_session.test_name = 'Mooooin'), 'otap_plan.init_test check test_name');
+ 52    l_return := otap_test.ok((l_otap_session.test_prefix = 'MOIN'), 'otap_plan.init_test check test_prefix');
+ 53    l_return := otap_test.ok((l_otap_session.session_language = 'ENG'), 'otap_plan.init_test check session_language');
+ 54    l_return := otap_test.ok((l_otap_session.session_id != 0 AND l_otap_session.session_id = l_otap_session.session_view_id), 'otap_plan.init_test check session_id');
+ 55  EXCEPTION
+ 56    WHEN OTHERS THEN
+ 57  	 otap_log.log('Test block OTAP_PLAN failed', 'otap_plan.sql', SQLERRM);
+ 58  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN failed', SQLERRM);
+ 59  END;
+ 60  /
 
 PL/SQL procedure successfully completed.
 
@@ -12359,7 +12442,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-22 03:40:15 finished at 2025-09-22 03:40:26
+Processed 1001 records for delete. Started at 2025-09-22 18:07:32 finished at 2025-09-22 18:07:42
 
 PL/SQL procedure successfully completed.
 
@@ -16366,6 +16449,145 @@ SQL> DECLARE
 
 PL/SQL procedure successfully completed.
 
+SQL> -- otap_plan
+SQL> @@otap_plan_intrusive.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> SELECT otap_test.set_test_name('Verify otap_plan intrusive') FROM dual;
+Current test: Verify otap_plan intrusive
+
+1 row selected.
+
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return        VARCHAR2(4000 CHAR);
+  3    l_stamp	       TIMESTAMP;
+  4    l_finish        TIMESTAMP;
+  5    l_start	       DATE;
+  6    l_otap_session  OTAP_SESSION;
+  7    l_want	       VARCHAR2(4000 CHAR);
+  8    l_have	       VARCHAR2(4000 CHAR);
+  9    l_testing_id    NUMBER;
+ 10  BEGIN
+ 11    -- use a negative session id for test writes
+ 12    l_testing_id := otap_test.get_session_id * -1;
+ 13    l_start	    := SYSDATE;
+ 14    -- session object fake
+ 15    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+ 16  				     , 'otap_plan intrusive'
+ 17  				     , 'otap_plan intrusive'
+ 18  				     , 'otap_plan intrusive'
+ 19  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+ 20  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 21  				     , 'INTR'
+ 22  				     , otap_constants.OTAP_INTERNAL_NA
+ 23  				     , 0
+ 24  				     , 0
+ 25  				     , FALSE
+ 26  				     , TRUE
+ 27  				     , FALSE
+ 28  				     , l_start
+ 29  				     , l_testing_id
+ 30  				     , 0
+ 31  				     , l_testing_id
+ 32  				     )
+ 33    ;
+ 34    -- otap_plan.write_test_result
+ 35    l_stamp	:= SYSTIMESTAMP;
+ 36    l_return := otap_plan.write_test_result('Sample test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 37    l_finish := SYSTIMESTAMP;
+ 38    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check passed')
+ 39  	 INTO l_return
+ 40  	 FROM otap_results
+ 41  	WHERE test_session_id = l_testing_id
+ 42  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+ 43  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 44  	  AND test_desc       = 'Sample test'
+ 45  	  AND test_start     >= l_stamp
+ 46  	  AND test_end	     <= l_finish
+ 47    ;
+ 48    l_stamp	:= SYSTIMESTAMP;
+ 49    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, 'Failed');
+ 50    l_finish := SYSTIMESTAMP;
+ 51    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check failed')
+ 52  	 INTO l_return
+ 53  	 FROM otap_results
+ 54  	WHERE test_session_id = l_testing_id
+ 55  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+ 56  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 57  	  AND test_desc       = 'Sample failed test'
+ 58  	  AND test_errors     = 'Failed'
+ 59  	  AND test_start     >= l_stamp
+ 60  	  AND test_end	     <= l_finish
+ 61    ;
+ 62    l_return := otap_test.ok((l_otap_session.test_count = 2 AND l_otap_session.error_count = 1), 'otap_plan.write_test_result check session var counts');
+ 63    l_stamp	:= SYSTIMESTAMP;
+ 64    l_return := otap_plan.write_test_result('Sample undefined test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_UNDEFINED, l_stamp, 'Undefined');
+ 65    l_finish := SYSTIMESTAMP;
+ 66    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check undefined')
+ 67  	 INTO l_return
+ 68  	 FROM otap_results
+ 69  	WHERE test_session_id = l_testing_id
+ 70  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_UNDEFINED
+ 71  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 72  	  AND test_desc       = 'Sample undefined test'
+ 73  	  AND test_errors     = 'Undefined'
+ 74  	  AND test_start     >= l_stamp
+ 75  	  AND test_end	     <= l_finish
+ 76    ;
+ 77    l_stamp	:= SYSTIMESTAMP;
+ 78    l_return := otap_plan.write_test_result(NULL, l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 79    l_finish := SYSTIMESTAMP;
+ 80    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description fallback')
+ 81  	 INTO l_return
+ 82  	 FROM otap_results
+ 83  	WHERE test_session_id = l_testing_id
+ 84  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+ 85  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 86  	  AND test_desc    LIKE 'Unspecified test%'
+ 87  	  AND test_errors  LIKE 'Missing test description%'
+ 88  	  AND test_start     >= l_stamp
+ 89  	  AND test_end	     <= l_finish
+ 90    ;
+ 91    l_stamp	:= SYSTIMESTAMP;
+ 92    l_return := otap_plan.write_test_result(RPAD('Oje', 300, 'a'), l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 93    l_finish := SYSTIMESTAMP;
+ 94    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description too long')
+ 95  	 INTO l_return
+ 96  	 FROM otap_results
+ 97  	WHERE test_session_id = l_testing_id
+ 98  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+ 99  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+100  	  AND test_desc       = RPAD('Oje', 256, 'a')
+101  	  AND test_errors  LIKE 'Test description too long, cutted%'
+102  	  AND test_start     >= l_stamp
+103  	  AND test_end	     <= l_finish
+104    ;
+105    l_stamp	:= SYSTIMESTAMP;
+106    l_return := otap_plan.write_test_result('Sample test wrong state', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 100, l_stamp, NULL);
+107    l_finish := SYSTIMESTAMP;
+108    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check invalid test state')
+109  	 INTO l_return
+110  	 FROM otap_results
+111  	WHERE test_session_id = l_testing_id
+112  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+113  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+114  	  AND test_desc       = 'Sample test wrong state'
+115  	  AND test_errors  LIKE 'Invalid test passed value%'
+116  	  AND test_start     >= l_stamp
+117  	  AND test_end	     <= l_finish
+118    ;
+119  
+120  EXCEPTION
+121    WHEN OTHERS THEN
+122  	 otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
+123  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN intrusive failed', SQLERRM);
+124  END;
+125  /
+
+PL/SQL procedure successfully completed.
+
 SQL> 
 SQL> -- restore from backup
 SQL> @@otap_config_restore.sql
@@ -16425,7 +16647,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250922033727'
+new   3:  WHERE identifier = 'otap_test_run20250922180438'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16437,16 +16659,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250922033727'
+new   3:  WHERE identifier = 'otap_test_run20250922180438'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 755 tests: 2385 from 2384 errors: 0 run time: +000000000 00:03:21.000000000 started: 2025-09-22 03:37:27
+Summary id: 1004 tests: 2399 from 2398 errors: 0 run time: +000000000 00:03:34.000000000 started: 2025-09-22 18:04:38
 Current test settings
-Test session id: 777
+Test session id: 1027
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16460,8 +16682,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 755
-Test start: 2025-09-22 03:40:48
+Current view id: 1004
+Test start: 2025-09-22 18:08:12
 
 
 1 row selected.

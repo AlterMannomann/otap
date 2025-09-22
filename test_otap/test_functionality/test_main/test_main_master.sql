@@ -12,6 +12,7 @@ SELECT otap_test.set_test_group('OTAP basic package functionality') FROM dual;
 @@otap_util.sql
 @@otap_report.sql
 @@otap_objects.sql
+@@otap_plan.sql
 -- table triggers
 -- table contents
 -- packages

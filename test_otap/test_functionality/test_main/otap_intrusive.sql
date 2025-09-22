@@ -36,6 +36,8 @@ COMMIT;
 @@otap_util_intrusive.sql
 -- otap_report
 @@otap_report_intrusive.sql
+-- otap_plan
+@@otap_plan_intrusive.sql
 
 -- restore from backup
 @@otap_config_restore.sql

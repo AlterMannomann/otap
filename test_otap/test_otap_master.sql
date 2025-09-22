@@ -35,7 +35,7 @@ SET ERRORLOGGING ON IDENTIFIER &IDENT
 SPOOL otap_test_run.log
 -- init the session
 -- do not make a count test, set some defaults
-SELECT otap_test.init_test( p_test_count => 2384
+SELECT otap_test.init_test( p_test_count => 2398
                           , p_test_set => 'OTAP full system test'
                           )
   FROM dual
