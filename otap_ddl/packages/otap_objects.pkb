@@ -532,7 +532,7 @@ OR p_otap_session.session_view_id                       IS NULL]'
       RAISE;
   END otap_session_get_report_id;
 
-  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            VARCHAR2
+  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            NUMBER
                                            , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                                            )
     RETURN NUMBER
@@ -644,9 +644,9 @@ OR p_otap_session.session_view_id                       IS NULL]'
     l_copy    OTAP_SESSION;
   BEGIN
     l_copy            := otap_objects.otap_session_copy(p_otap_session);
-    l_copy.test_set   := NVL(p_set_name, 'Test setup');
-    l_copy.test_group := NVL(p_group_name, 'Session test setup');
-    l_copy.test_name  := NVL(p_test_name, 'Session test setup checks');
+    l_copy.test_set   := otap_string.reduce(NVL(p_set_name, 'Test setup'), 256);
+    l_copy.test_group := otap_string.reduce(NVL(p_group_name, 'Session test setup'), 256);
+    l_copy.test_name  := otap_string.reduce(NVL(p_test_name, 'Session test setup checks'), 256);
     RETURN l_copy;
   EXCEPTION
     WHEN OTHERS THEN

@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2341
+SQL> SELECT otap_test.init_test( p_test_count => 2384
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 377
+Test session id: 755
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2341
+Expected tests: 2384
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 377
-Test start: 2025-09-21 13:15:17
+Current view id: 755
+Test start: 2025-09-22 03:37:27
 
 
 1 row selected.
@@ -9091,12 +9091,205 @@ SQL> DECLARE
 1094  	l_return := otap_test.ok((l_otap_session.session_id != l_alt_session.session_id), 'otap_objects.otap_session_set check new session id');
 1095  	l_return := otap_test.ok((l_otap_session.session_view_id != l_alt_session.session_view_id), 'otap_objects.otap_session_set check new session view id');
 1096  	l_return := otap_test.ok((l_otap_session.session_start != l_alt_session.session_start), 'otap_objects.otap_session_set check new session start');
-1097  EXCEPTION
-1098  	WHEN OTHERS THEN
-1099  	  otap_log.log('Test block OTAP_OBJECTS failed', 'otap_objects.sql', SQLERRM);
-1100  	  l_return := otap_test.test_error('Complete test block OTAP_OBJECTS failed', SQLERRM);
-1101  END;
-1102  /
+1097  	-- check otap_session_copy
+1098  	l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+1099  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1100  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1101  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1102  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+1103  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1104  				      , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+1105  				      , otap_constants.OTAP_INTERNAL_NA
+1106  				      , 0
+1107  				      , 0
+1108  				      , FALSE
+1109  				      , TRUE
+1110  				      , FALSE
+1111  				      , SYSDATE
+1112  				      , 0
+1113  				      , 0
+1114  				      , 0
+1115  				      )
+1116  	;
+1117  	l_alt_session := otap_objects.otap_session_copy(l_otap_session);
+1118  	l_return := otap_test.ok((l_otap_session.test_executor = l_alt_session.test_executor), 'otap_objects.otap_session_copy check test_executor');
+1119  	l_return := otap_test.ok((l_otap_session.test_set = l_alt_session.test_set), 'otap_objects.otap_session_copy check test_set');
+1120  	l_return := otap_test.ok((l_otap_session.test_group = l_alt_session.test_group), 'otap_objects.otap_session_copy check test_group');
+1121  	l_return := otap_test.ok((l_otap_session.test_name = l_alt_session.test_name), 'otap_objects.otap_session_copy check test_name');
+1122  	l_return := otap_test.ok((l_otap_session.db_user = l_alt_session.db_user), 'otap_objects.otap_session_copy check db_user');
+1123  	l_return := otap_test.ok((l_otap_session.db_schema = l_alt_session.db_schema), 'otap_objects.otap_session_copy check db_schema');
+1124  	l_return := otap_test.ok((l_otap_session.test_prefix = l_alt_session.test_prefix), 'otap_objects.otap_session_copy check test_prefix');
+1125  	l_return := otap_test.ok((l_otap_session.session_language = l_alt_session.session_language), 'otap_objects.otap_session_copy check session_language');
+1126  	l_return := otap_test.ok((l_otap_session.test_count = l_alt_session.test_count), 'otap_objects.otap_session_copy check test_count');
+1127  	l_return := otap_test.ok((l_otap_session.intended_count = l_alt_session.intended_count), 'otap_objects.otap_session_copy check intended_count');
+1128  	l_return := otap_test.ok((l_otap_session.persist_test = l_alt_session.persist_test), 'otap_objects.otap_session_copy check persist_test');
+1129  	l_return := otap_test.ok((l_otap_session.name_precedence = l_alt_session.name_precedence), 'otap_objects.otap_session_copy check name_precedence');
+1130  	l_return := otap_test.ok((l_otap_session.include_packages = l_alt_session.include_packages), 'otap_objects.otap_session_copy check include_packages');
+1131  	l_return := otap_test.ok((l_otap_session.session_start = l_alt_session.session_start), 'otap_objects.otap_session_copy check session_start');
+1132  	l_return := otap_test.ok((l_otap_session.session_id = l_alt_session.session_id), 'otap_objects.otap_session_copy check session_id');
+1133  	l_return := otap_test.ok((l_otap_session.error_count = l_alt_session.error_count), 'otap_objects.otap_session_copy check error_count');
+1134  	l_return := otap_test.ok((l_otap_session.session_view_id = l_alt_session.session_view_id), 'otap_objects.otap_session_copy check session_view_id');
+1135  	l_alt_session.test_executor := 'Oha';
+1136  	l_return := otap_test.ok((l_otap_session.test_executor != l_alt_session.test_executor AND l_alt_session.test_executor = 'Oha'), 'otap_objects.otap_session_copy check copy object independent');
+1137  	l_otap_session.test_executor := 'Olala';
+1138  	l_return := otap_test.ok((l_otap_session.test_executor != l_alt_session.test_executor AND l_alt_session.test_executor = 'Oha' AND l_otap_session.test_executor = 'Olala'), 'otap_objects.otap_session_copy check source object independent');
+1139  	-- check otap_session_set_test_xxx
+1140  	l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+1141  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1142  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1143  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1144  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+1145  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1146  				      , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+1147  				      , otap_constants.OTAP_INTERNAL_NA
+1148  				      , 0
+1149  				      , 0
+1150  				      , FALSE
+1151  				      , TRUE
+1152  				      , FALSE
+1153  				      , SYSDATE
+1154  				      , 0
+1155  				      , 0
+1156  				      , 0
+1157  				      )
+1158  	;
+1159  	l_return := otap_objects.otap_session_set_test_set('Oha', l_otap_session);
+1160  	l_return := otap_test.ok((l_otap_session.test_set = 'Oha'), 'otap_objects.otap_session_set_test_set check');
+1161  	l_return := otap_objects.otap_session_set_test_set(RPAD('Oha', 300), l_otap_session);
+1162  	l_return := otap_test.ok((LENGTH(l_otap_session.test_set) = 256), 'otap_objects.otap_session_set_test_set check length cut');
+1163  	l_return := otap_objects.otap_session_set_test_set(NULL, l_otap_session);
+1164  	l_return := otap_test.ok((l_otap_session.test_set = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET), 'otap_objects.otap_session_set_test_set check NULL fallback');
+1165  	l_return := otap_objects.otap_session_set_test_group('Oha', l_otap_session);
+1166  	l_return := otap_test.ok((l_otap_session.test_group = 'Oha'), 'otap_objects.otap_session_set_test_group check ');
+1167  	l_return := otap_objects.otap_session_set_test_group(RPAD('Oha', 300), l_otap_session);
+1168  	l_return := otap_test.ok((LENGTH(l_otap_session.test_group) = 256), 'otap_objects.otap_session_set_test_group check length cut');
+1169  	l_return := otap_objects.otap_session_set_test_group(NULL, l_otap_session);
+1170  	l_return := otap_test.ok((l_otap_session.test_group = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP), 'otap_objects.otap_session_set_test_group check NULL fallback');
+1171  	l_return := otap_objects.otap_session_set_test_name('Oha', l_otap_session);
+1172  	l_return := otap_test.ok((l_otap_session.test_name = 'Oha'), 'otap_objects.otap_session_set_test_name check ');
+1173  	l_return := otap_objects.otap_session_set_test_name(RPAD('Oha', 300), l_otap_session);
+1174  	l_return := otap_test.ok((LENGTH(l_otap_session.test_name) = 256), 'otap_objects.otap_session_set_test_name check length cut');
+1175  	l_return := otap_objects.otap_session_set_test_name(NULL, l_otap_session);
+1176  	l_return := otap_test.ok((l_otap_session.test_name = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME), 'otap_objects.otap_session_set_test_name check NULL fallback');
+1177  	l_return := otap_objects.otap_session_set_language('eng', l_otap_session);
+1178  	l_return := otap_test.ok((l_otap_session.session_language = 'ENG'), 'otap_objects.otap_session_set_language check');
+1179  	l_return := otap_objects.otap_session_set_language('deutsch', l_otap_session);
+1180  	l_return := otap_test.ok((l_otap_session.session_language = 'DEU'), 'otap_objects.otap_session_set_language check length cut');
+1181  	l_return := otap_objects.otap_session_set_language(NULL, l_otap_session);
+1182  	l_return := otap_test.ok((l_otap_session.session_language = otap_constants.OTAP_INTERNAL_NA), 'otap_objects.otap_session_set_language check NULL fallback');
+1183  	-- get functions
+1184  	l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+1185  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1186  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1187  				      , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1188  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+1189  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1190  				      , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+1191  				      , otap_constants.OTAP_INTERNAL_NA
+1192  				      , 0
+1193  				      , 0
+1194  				      , FALSE
+1195  				      , TRUE
+1196  				      , FALSE
+1197  				      , SYSDATE
+1198  				      , 11
+1199  				      , 0
+1200  				      , 12
+1201  				      )
+1202  	;
+1203  	l_return := otap_test.ok((otap_objects.otap_session_get_language(l_otap_session) = otap_constants.OTAP_INTERNAL_NA), 'otap_objects.otap_session_get_language check');
+1204  	l_return := otap_test.ok((otap_objects.otap_session_get_test_id(l_otap_session) = 11), 'otap_objects.otap_session_get_test_id check');
+1205  	l_return := otap_test.ok((otap_objects.otap_session_get_report_id(l_otap_session) = 12), 'otap_objects.otap_session_get_report_id check');
+1206  	l_return := otap_objects.otap_session_set_session_view_id(13, l_otap_session);
+1207  	l_return := otap_test.ok((otap_objects.otap_session_get_report_id(l_otap_session) = 13), 'otap_objects.otap_session_set_session_view_id check');
+1208  	otap_objects.otap_session_add_test(otap_constants.OTAP_NUM_TEST_PASSED, l_otap_session);
+1209  	otap_objects.otap_session_add_test(otap_constants.OTAP_NUM_TEST_FAILED, l_otap_session);
+1210  	l_return := otap_test.ok((l_otap_session.test_count = 2 AND l_otap_session.error_count = 1), 'otap_objects.otap_session_add_test check');
+1211  	otap_objects.otap_session_add_test(256, l_otap_session);
+1212  	l_return := otap_test.ok((l_otap_session.test_count = 3 AND l_otap_session.error_count = 2), 'otap_objects.otap_session_add_test check any value for failed');
+1213  	l_want := 'Summary id: ' || TRIM(TO_CHAR(l_otap_session.session_id)) ||
+1214  		  ' tests: ' || TRIM(TO_CHAR(l_otap_session.test_count)) ||
+1215  		  CASE WHEN l_otap_session.intended_count > 0 THEN ' from ' || TRIM(TO_CHAR(l_otap_session.intended_count)) END ||
+1216  		  ' errors: ' || TRIM(TO_CHAR(l_otap_session.error_count)) ||
+1217  		  ' run time: ' || TRIM(TO_CHAR(((SYSDATE - l_otap_session.session_start) DAY TO SECOND))) ||
+1218  		  ' started: ' || TO_CHAR(l_otap_session.session_start, 'YYYY-MM-DD HH24:MI:SS')
+1219  	;
+1220  	l_return := otap_test.is_eq(otap_objects.otap_session_summary(l_otap_session), l_want, 'otap_objects.otap_session_summary check');
+1221  	l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+1222  				      , 'Set1'
+1223  				      , 'Group1'
+1224  				      , 'Name1'
+1225  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+1226  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1227  				      , otap_constants.OTAP_FALLBACK_DEFAULT_PREFIX
+1228  				      , otap_constants.OTAP_INTERNAL_NA
+1229  				      , 10
+1230  				      , 10
+1231  				      , FALSE
+1232  				      , TRUE
+1233  				      , FALSE
+1234  				      , SYSDATE-10
+1235  				      , 0
+1236  				      , 5
+1237  				      , 0
+1238  				      )
+1239  	;
+1240  	l_alt_session := otap_objects.otap_session_copy(l_otap_session);
+1241  	l_return := otap_objects.otap_session_finish(l_otap_session);
+1242  	l_return := otap_test.ok( (    l_otap_session.test_count = 0
+1243  				   AND l_otap_session.error_count = 0
+1244  				   AND l_otap_session.intended_count = 0
+1245  				   AND l_otap_session.test_set = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET
+1246  				   AND l_otap_session.test_group = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_GROUP
+1247  				   AND l_otap_session.test_name = otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME
+1248  				   AND l_otap_session.session_id > l_alt_session.session_id
+1249  				   AND l_otap_session.session_start > l_alt_session.session_start
+1250  				  )
+1251  				, 'otap_objects.otap_session_finish check'
+1252  				)
+1253  	;
+1254  	l_otap_session := otap_objects.otap_session_test_setup(l_alt_session, 'Jo', 'Jo', 'Jo');
+1255  	l_return := otap_test.ok( (    l_otap_session.test_set = 'Jo'
+1256  				   AND l_otap_session.test_group = 'Jo'
+1257  				   AND l_otap_session.test_name = 'Jo'
+1258  				  )
+1259  				, 'otap_objects.otap_session_test_setup check'
+1260  				)
+1261  	;
+1262  	l_otap_session := otap_objects.otap_session_test_setup(l_alt_session, NULL, NULL, NULL);
+1263  	l_return := otap_test.ok( (    l_otap_session.test_set = 'Test setup'
+1264  				   AND l_otap_session.test_group = 'Session test setup'
+1265  				   AND l_otap_session.test_name = 'Session test setup checks'
+1266  				  )
+1267  				, 'otap_objects.otap_session_test_setup default check'
+1268  				)
+1269  	;
+1270  	l_otap_session := otap_objects.otap_session_test_setup(l_alt_session, RPAD('Jo', 300, 'a'), RPAD('Jo', 300, 'a'), RPAD('Jo', 300, 'a'));
+1271  	l_return := otap_test.ok( (    LENGTH(l_otap_session.test_set) = 256
+1272  				   AND LENGTH(l_otap_session.test_group) = 256
+1273  				   AND LENGTH(l_otap_session.test_name) = 256
+1274  				  )
+1275  				, 'otap_objects.otap_session_test_setup check cut strings'
+1276  				)
+1277  	;
+1278  	BEGIN
+1279  	  l_otap_session := otap_objects.otap_session_test_setup(NULL, NULL, NULL, NULL);
+1280  	  l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_test_setup check full NULL');
+1281  	EXCEPTION
+1282  	  WHEN OTHERS THEN
+1283  	    IF sqlcode = -20099
+1284  	    THEN
+1285  	      l_return := otap_test.ok(TRUE, 'otap_objects.otap_session_test_setup check full NULL');
+1286  	    ELSE
+1287  	      l_return := otap_test.ok(FALSE, 'otap_objects.otap_session_test_setup check full NULL unexpected exception');
+1288  	    END IF;
+1289  	END;
+1290  EXCEPTION
+1291  	WHEN OTHERS THEN
+1292  	  otap_log.log('Test block OTAP_OBJECTS failed', 'otap_objects.sql', SQLERRM);
+1293  	  l_return := otap_test.test_error('Complete test block OTAP_OBJECTS failed', SQLERRM);
+1294  END;
+1295  /
 
 PL/SQL procedure successfully completed.
 
@@ -12166,7 +12359,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-21 13:18:04 finished at 2025-09-21 13:18:15
+Processed 1001 records for delete. Started at 2025-09-22 03:40:15 finished at 2025-09-22 03:40:26
 
 PL/SQL procedure successfully completed.
 
@@ -16232,7 +16425,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250921131517'
+new   3:  WHERE identifier = 'otap_test_run20250922033727'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16244,16 +16437,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250921131517'
+new   3:  WHERE identifier = 'otap_test_run20250922033727'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 377 tests: 2342 from 2341 errors: 0 run time: +000000000 00:03:19.000000000 started: 2025-09-21 13:15:17
+Summary id: 755 tests: 2385 from 2384 errors: 0 run time: +000000000 00:03:21.000000000 started: 2025-09-22 03:37:27
 Current test settings
-Test session id: 398
+Test session id: 777
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16267,8 +16460,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 377
-Test start: 2025-09-21 13:18:36
+Current view id: 755
+Test start: 2025-09-22 03:40:48
 
 
 1 row selected.

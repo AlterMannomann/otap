@@ -213,7 +213,7 @@ AS
   *
   * @exception -20099 Internal error, invalid OTAP_SESSION object.
   */
-  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            VARCHAR2
+  FUNCTION otap_session_set_session_view_id( p_session_view_id IN            NUMBER
                                            , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                                            )
     RETURN NUMBER

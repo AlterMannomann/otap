@@ -4534,7 +4534,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_objects
 209    *
 210    * @exception -20099 Internal error, invalid OTAP_SESSION object.
 211    */
-212    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
+212    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  NUMBER
 213  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
 214  						)
 215  	 RETURN NUMBER
@@ -5141,7 +5141,7 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 529  	   RAISE;
 530    END otap_session_get_report_id;
 531  
-532    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  VARCHAR2
+532    FUNCTION otap_session_set_session_view_id( p_session_view_id IN		  NUMBER
 533  						, o_otap_session    IN OUT NOCOPY OTAP_SESSION
 534  						)
 535  	 RETURN NUMBER
@@ -5253,9 +5253,9 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_objects
 641  	 l_copy    OTAP_SESSION;
 642    BEGIN
 643  	 l_copy 	   := otap_objects.otap_session_copy(p_otap_session);
-644  	 l_copy.test_set   := NVL(p_set_name, 'Test setup');
-645  	 l_copy.test_group := NVL(p_group_name, 'Session test setup');
-646  	 l_copy.test_name  := NVL(p_test_name, 'Session test setup checks');
+644  	 l_copy.test_set   := otap_string.reduce(NVL(p_set_name, 'Test setup'), 256);
+645  	 l_copy.test_group := otap_string.reduce(NVL(p_group_name, 'Session test setup'), 256);
+646  	 l_copy.test_name  := otap_string.reduce(NVL(p_test_name, 'Session test setup checks'), 256);
 647  	 RETURN l_copy;
 648    EXCEPTION
 649  	 WHEN OTHERS THEN
