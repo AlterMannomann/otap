@@ -279,6 +279,86 @@ AS
     RETURN l_return;
   END otap_session_get_language;
 
+  FUNCTION otap_session_get_schema(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_schema';
+    l_return  VARCHAR2(256 CHAR);
+  BEGIN
+    l_return := SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA');
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_return := otap_objects.otap_session_get_schema(p_otap_session);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_schema');
+        l_return := SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA');
+    END;
+    -- return or let exception happen
+    RETURN l_return;
+  END otap_session_get_schema;
+
+  FUNCTION otap_session_get_prefix(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_get_prefix';
+    l_return  VARCHAR2(4 CHAR);
+  BEGIN
+    l_return := 'TEST';
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_return := otap_objects.otap_session_get_prefix(p_otap_session);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_get_prefix');
+        l_return := 'TEST';
+    END;
+    -- return or let exception happen
+    RETURN l_return;
+  END otap_session_get_prefix;
+
+  FUNCTION otap_session_name_precedence(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_name_precedence';
+    l_return  BOOLEAN;
+  BEGIN
+    l_return := FALSE;
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_return := otap_objects.otap_session_name_precedence(p_otap_session);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_name_precedence');
+        l_return := FALSE;
+    END;
+    -- return or let exception happen
+    RETURN l_return;
+  END otap_session_name_precedence;
+
+  FUNCTION otap_session_include_packages(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_api.otap_session_include_packages';
+    l_return  BOOLEAN;
+  BEGIN
+    l_return := FALSE;
+    -- execute the wrapped function in an extra block
+    BEGIN
+      l_return := otap_objects.otap_session_include_packages(p_otap_session);
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- consume error
+        otap_log.log(SQLERRM, l_script, 'Calling otap_objects.otap_session_include_packages');
+        l_return := FALSE;
+    END;
+    -- return or let exception happen
+    RETURN l_return;
+  END otap_session_include_packages;
+
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER
   IS

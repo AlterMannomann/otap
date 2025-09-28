@@ -131,6 +131,34 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_api.otap_session_get_schema
+  * @see otap_objects.otap_session_get_schema and otap_test.get_schema
+  */
+  FUNCTION otap_session_get_schema(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_get_prefix
+  * @see otap_objects.otap_session_get_prefix and otap_test.get_prefix
+  */
+  FUNCTION otap_session_get_prefix(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_api.otap_session_name_precedence
+  * @see otap_objects.otap_session_name_precedence and otap_test.name_precedence
+  */
+  FUNCTION otap_session_name_precedence(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  ;
+
+  /** FUNCTION otap_api.otap_session_include_packages
+  * @see otap_objects.otap_session_include_packages and otap_test.include_packages
+  */
+  FUNCTION otap_session_include_packages(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  ;
+
   /** FUNCTION otap_api.otap_session_get_test_id
   * @see otap_objects.otap_session_get_test_id and otap_test.otap_session_get_test_id
   */

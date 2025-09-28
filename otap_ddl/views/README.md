@@ -1,4 +1,4 @@
-# otap tables
+# otap views
 This folder contains the view scripts for otap.
 
 - [Back to main](../../README.md)

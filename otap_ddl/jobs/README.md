@@ -1,4 +1,4 @@
-# otap packages
+# otap jobs
 This folder contains the internal scheduler job scripts for otap.
 
 - [Back to main](../../README.md)

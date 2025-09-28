@@ -1,4 +1,4 @@
-# otap packages
+# otap sequences
 This folder contains the sequence scripts for otap.
 
 - [Back to main](../../README.md)

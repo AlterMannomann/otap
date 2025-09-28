@@ -15,6 +15,8 @@ SET ERRORLOGGING ON
 SET ERRORLOGGING ON IDENTIFIER &IDENT
 -- ==============UNINSTALL start==============
 SPOOL logs/otap_cleanup.log
+-- procedures
+@@../otap_ddl/procedures/drop/drop_run_tests.sql
 -- views
 @@../otap_ddl/views/drop/drop_otap_latest_test_results_v.sql
 -- jobs

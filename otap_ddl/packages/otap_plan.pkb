@@ -180,46 +180,6 @@ AS
       RAISE;
   END init_test;
 
-  FUNCTION run_tests( p_like_expression   IN VARCHAR2 DEFAULT '%'
-                    , p_schema_overwrite  IN VARCHAR2 DEFAULT NULL
-                    , p_otap_session      IN OTAP_SESSION
-                    )
-    RETURN VARCHAR2
-  IS
-    l_script  VARCHAR2(1024 CHAR) := 'otap_plan.run_tests';
-    l_message VARCHAR2(4000 CHAR);
-    l_schema  VARCHAR2(128 CHAR);
-    l_like    VARCHAR2(256 CHAR);
-    l_test    VARCHAR2(257 CHAR);
-    CURSOR cur_tests_to_run( cp_schema IN VARCHAR2
-                           , cp_like   IN VARCHAR2
-                           )
-    IS
-      SELECT owner
-           , object_name
-        FROM dba_objects
-       WHERE object_type    = 'PROCEDURE'
-         AND owner          = cp_schema
-         AND object_name LIKE cp_like ESCAPE '\'
-    ;
-  BEGIN
-    l_schema := NVL(p_schema_overwrite, p_otap_session.db_schema);
-    l_like   := p_otap_session.test_prefix || '\' || otap_constants.OTAP_INTERNAL_DELIMITER || NVL(p_like_expression, '%');
-    -- loop over records found
-    FOR rec IN cur_tests_to_run(l_schema, l_like)
-    LOOP
-      NULL;
-    END LOOP;
-    RETURN l_message;
-  EXCEPTION
-    WHEN OTHERS THEN
-      IF SQLCODE != -20099
-      THEN
-        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-      END IF;
-      RAISE;
-  END run_tests;
-
   FUNCTION finish_test( p_write_count_rec IN            NUMBER
                       , o_otap_session    IN OUT NOCOPY OTAP_SESSION
                       )

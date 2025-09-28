@@ -70,6 +70,8 @@ COMMIT;
 @@../otap_ddl/packages/otap_test.pkb
 -- update trigger
 @@../otap_ddl/triggers/otap_translate_trg.sql
+-- update procedures
+@@../otap_ddl/procedures/run_tests.sql
 -- insert new config values after supported by packages, if they do not exist yet
 INSERT INTO otap_config
   (config_name, config_value, config_type, config_max_length, config_description)

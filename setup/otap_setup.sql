@@ -62,6 +62,8 @@ SPOOL logs/otap_setup.log
 @@../otap_ddl/jobs/OTAP_MAINTENANCE.sql
 -- views
 @@../otap_ddl/views/otap_latest_test_results_v.sql
+-- procedures
+@@../otap_ddl/procedures/run_tests.sql
 -- setup defaults
 @@otap_defaults.sql
 -- ==============INSTALL end==============

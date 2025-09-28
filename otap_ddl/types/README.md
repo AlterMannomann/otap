@@ -1,4 +1,4 @@
-# otap tables
+# otap types
 This folder contains the type scripts for otap.
 
 - [Back to main](../../README.md)

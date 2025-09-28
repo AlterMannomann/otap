@@ -237,7 +237,7 @@ AS
   FUNCTION get_language
     RETURN VARCHAR2
   IS
-    l_return VARCHAR2(3);
+    l_return VARCHAR2(3 CHAR);
   BEGIN
     otap_api.validate_otap(session_record);
     l_return := otap_api.otap_session_get_language(session_record);
@@ -250,6 +250,74 @@ AS
       END IF;
       RAISE;
   END get_language;
+
+  FUNCTION get_schema
+    RETURN VARCHAR2
+  IS
+    l_return VARCHAR2(256 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_return := otap_api.otap_session_get_schema(session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.get_schema', 'l_message := otap_api.otap_session_get_schema(session_record)');
+      END IF;
+      RAISE;
+  END get_schema;
+
+  FUNCTION get_prefix
+    RETURN VARCHAR2
+  IS
+    l_return VARCHAR2(4 CHAR);
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_return := otap_api.otap_session_get_prefix(session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.get_prefix', 'l_message := otap_api.otap_session_get_prefix(session_record)');
+      END IF;
+      RAISE;
+  END get_prefix;
+
+  FUNCTION name_precedence
+    RETURN BOOLEAN
+  IS
+    l_return BOOLEAN;
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_return := otap_api.otap_session_name_precedence(session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.name_precedence', 'l_message := otap_api.otap_session_name_precedence(session_record)');
+      END IF;
+      RAISE;
+  END name_precedence;
+
+  FUNCTION include_packages
+    RETURN BOOLEAN
+  IS
+    l_return BOOLEAN;
+  BEGIN
+    otap_api.validate_otap(session_record);
+    l_return := otap_api.otap_session_include_packages(session_record);
+    RETURN l_return;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        otap_log.log(SQLERRM, 'otap_test.include_packages', 'l_message := otap_api.otap_session_include_packages(session_record)');
+      END IF;
+      RAISE;
+  END include_packages;
 
   FUNCTION get_session_id
     RETURN NUMBER

@@ -4,7 +4,7 @@ See also [releases](https://github.com/AlterMannomann/otap/releases).
 # UNDER DEVELOPMENT
 This is currently the not yet finished beta version. Existing tests need rework due to introducing session language support. More tests still needed.
 
-You may use the script [otap_update.sql](./setup/otap_update.sql) for usual updates on the branch. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced.
+You may use the script [otap_update.sql](./setup/otap_update.sql) for usual updates on the branch. DBA install supports update and should be run accordingly before the package update to have the necessary grants. Run [otap_dba_setup.sql](./setup/otap_dba_setup.sql) as SYSDBA. Updates in database structure will get announced. The new IF EXIST functionality for object create and drop in 23ai will not be used in otap, so setup, update and uninstall should work with older Oracle versions.
 ### Current changes
 - Changes in layout, execution time and run time for all summaries
 - Add function to report errors in execution of test scripts and blocks

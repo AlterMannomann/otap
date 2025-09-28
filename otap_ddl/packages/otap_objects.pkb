@@ -482,7 +482,7 @@ OR p_otap_session.session_view_id                       IS NULL]'
   FUNCTION otap_session_get_language(p_otap_session IN OTAP_SESSION)
     RETURN VARCHAR2
   IS
-    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_test_id';
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_language';
   BEGIN
     otap_objects.otap_session_verify(p_otap_session);
     RETURN p_otap_session.session_language;
@@ -495,6 +495,74 @@ OR p_otap_session.session_view_id                       IS NULL]'
       END IF;
       RAISE;
   END otap_session_get_language;
+
+  FUNCTION otap_session_get_schema(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_schema';
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    RETURN p_otap_session.db_schema;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_get_schema;
+
+  FUNCTION otap_session_get_prefix(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_get_prefix';
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    RETURN p_otap_session.test_prefix;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_get_prefix;
+
+  FUNCTION otap_session_name_precedence(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_name_precedence';
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    RETURN p_otap_session.name_precedence;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_name_precedence;
+
+  FUNCTION otap_session_include_packages(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  IS
+    l_script  VARCHAR2(1024 CHAR) := 'otap_objects.otap_session_include_packages';
+  BEGIN
+    otap_objects.otap_session_verify(p_otap_session);
+    RETURN p_otap_session.include_packages;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -20099
+      THEN
+        -- log unhandled exceptions
+        otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+      END IF;
+      RAISE;
+  END otap_session_include_packages;
 
   FUNCTION otap_session_get_test_id(p_otap_session IN OTAP_SESSION)
     RETURN NUMBER

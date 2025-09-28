@@ -176,6 +176,58 @@ AS
     RETURN VARCHAR2
   ;
 
+  /** FUNCTION otap_objects.otap_session_get_schema
+  * Gets the current active session schema to use from OTAP_SESSION object.
+  *
+  * @param p_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The current active session schema.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_get_schema(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_objects.otap_session_get_prefix
+  * Gets the current active session test prefix to use from OTAP_SESSION object.
+  *
+  * @param p_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The current active session test prefix.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_get_prefix(p_otap_session IN OTAP_SESSION)
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_objects.otap_session_name_precedence
+  * Gets the current active session setting for name precedence from OTAP_SESSION object.
+  *
+  * @param p_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The current active session setting for name precedence, TRUE if set otherwise FALSE.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_name_precedence(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  ;
+
+  /** FUNCTION otap_objects.otap_session_include_packages
+  * Gets the current active session setting for include packages from OTAP_SESSION object.
+  *
+  * @param p_otap_session The current session_record from OTAP_TEST package.
+  *
+  * @return The current active session setting for include packages, TRUE if set otherwise FALSE.
+  *
+  * @exception -20099 Internal error, invalid OTAP_SESSION object.
+  */
+  FUNCTION otap_session_include_packages(p_otap_session IN OTAP_SESSION)
+    RETURN BOOLEAN
+  ;
+
   /** FUNCTION otap_objects.otap_session_get_test_id
   * Gets the current active test session id from OTAP_SESSION object.
   *

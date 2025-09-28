@@ -88,38 +88,6 @@ AS
     RETURN VARCHAR2
   ;
 
-  /** FUNCTION otap_plan.run_tests
-  * Identifies and runs test procedures. Test procedures are identified by a prefix with maximum 4 char length.
-  * The prefix can be modified using otap_test.init_test. The delimiter for name components is always underline _.
-  * The escape char used is backslash \. If name precedence is disabled, test set, group and test names are used
-  * from the session record otherwise it tries to extract set, group and test name from the procedure name using
-  * the session record entries as fallback name.
-  *
-  * The like expression is applied AFTER the prefix, complete search expression example with defaults: TEST\_%.
-  *
-  * As test procedure may manipulate the session record with test_init or test_finished, the resulting session
-  * record is not reliable in sense of representing all tests. It represents only the last test run.
-  *
-  * Recommended usage: First run init_test, then call run_tests. In test procedures ensure that NO init_test or finish_test
-  * occurs unless you persist the old test view results before executing finish_test or init_test. You may use the set functions
-  * for test set, group or name within the procedure. After run_tests finished, inspect the test views and persist your test
-  * results before executing init_test and run_tests again.
-  *
-  * @param p_like_expression The like expression (no regex) to limit further the procedures to run.
-  * @param p_schema_overwrite The alternate schema to use for finding test procedures. Will replace the current session value if NOT NULL.
-  * @param p_otap_session A valid OTAP_SESSION object to be used for test runs.
-  *
-  * @return A summary of the executed test procedures and session id at start of execution. Test summary can be found in the test views.
-  *
-  * @exception -20099 Internal error, invalid OTAP_SESSION object.
-  */
-  FUNCTION run_tests( p_like_expression   IN VARCHAR2 DEFAULT '%'
-                    , p_schema_overwrite  IN VARCHAR2 DEFAULT NULL
-                    , p_otap_session      IN OTAP_SESSION
-                    )
-    RETURN VARCHAR2
-  ;
-
   /** FUNCTION otap_plan.finish_test
   * Resets the OTAP_SESSION object. Will set a new session id, reset the counters and the names
   * for test set, group and name. When a test session is finished, the test session view will not

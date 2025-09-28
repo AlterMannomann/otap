@@ -1102,6 +1102,10 @@ BEGIN
   l_return := otap_test.ok((l_otap_session.session_id != l_alt_session.session_id), 'otap_objects.otap_session_set check new session id');
   l_return := otap_test.ok((l_otap_session.session_view_id != l_alt_session.session_view_id), 'otap_objects.otap_session_set check new session view id');
   l_return := otap_test.ok((l_otap_session.session_start != l_alt_session.session_start), 'otap_objects.otap_session_set check new session start');
+  l_return := otap_test.is_eq(otap_objects.otap_session_get_schema(l_otap_session), 'Bla', 'otap_objects.otap_session_get_schema check');
+  l_return := otap_test.is_eq(otap_objects.otap_session_get_prefix(l_otap_session), 'BLA', 'otap_objects.otap_session_get_prefix check');
+  l_return := otap_test.ok(otap_objects.otap_session_name_precedence(l_otap_session), 'otap_objects.otap_session_name_precedenc check', otap_constants.OTAP_NUM_TEST_FAILED);
+  l_return := otap_test.ok(otap_objects.otap_session_include_packages(l_otap_session), 'otap_objects.otap_session_include_packages check');
   -- check otap_session_copy
   l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
                                 , otap_constants.OTAP_FALLBACK_DEFAULT_TEST_SET

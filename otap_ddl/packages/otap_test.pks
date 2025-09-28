@@ -91,7 +91,7 @@ AS
                     -- internal variables from caller environment DO NOT SET them explicitely
                     -- you may want to set p_schema, which is the default schema used for object searches
                     -- but schema test functions provide a schema override, so in general there is no need
-                    -- for overwritting this value
+                    -- for overwritting this value, except for preparing run_tests procedure
                     -- currently no save way exists to get the correct values from inside a procedure of function
                     , p_schema          IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
                     , p_user            IN VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_USER')
@@ -225,6 +225,46 @@ AS
   */
   FUNCTION get_language
     RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.get_schema
+  * Retrieves the current active session schema that is used.
+  * Wrapper for otap_api.otap_session_get_schema.
+  *
+  * @return The session schema currently active.
+  */
+  FUNCTION get_schema
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.get_prefix
+  * Retrieves the current active session test prefix that is used.
+  * Wrapper for otap_api.otap_session_get_prefix.
+  *
+  * @return The test prefix currently active.
+  */
+  FUNCTION get_prefix
+    RETURN VARCHAR2
+  ;
+
+  /** FUNCTION otap_test.name_precedence
+  * Retrieves the current active session setting for name precedence.
+  * Wrapper for otap_api.otap_session_name_precedence.
+  *
+  * @return TRUE if name precedence is set otherwise FALSE.
+  */
+  FUNCTION name_precedence
+    RETURN BOOLEAN
+  ;
+
+  /** FUNCTION otap_test.include_packages
+  * Retrieves the current active session setting for include packages.
+  * Wrapper for otap_api.otap_session_include_packages.
+  *
+  * @return TRUE if include packages is set otherwise FALSE.
+  */
+  FUNCTION include_packages
+    RETURN BOOLEAN
   ;
 
   /** FUNCTION otap_test.get_session_id
