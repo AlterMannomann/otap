@@ -4,12 +4,13 @@ Description of the test options available with package otap_test. For a detailed
 - [init_test](#function-otap_testinit_test)
 - [finish_test](#function-otap_testfinish_test)
 - [finish_test_with_exit_code](#function-otap_testfinish_test_with_exit_code)
+- [result_view](#function-otap_testresult_view)
 - [has_table](#function-otap_testhas_table)
 - [has_column](#function-otap_testhas_column)
 - [has_package](#function-otap_testhas_package)
-- [has_procedure](#function-otap_schemahas_procedure)
+- [has_procedure](#function-otap_testhas_procedure)
 - [has_trigger](#function-otap_testhas_trigger)
-- [has_object](#function-otap_schemahas_object)
+- [has_object](#function-otap_testhas_object)
 - [has_constraint](#function-otap_testhas_constraint)
 - [has_ref_constraint](#function-otap_testhas_ref_constraint)
 - [has_not_null_constraint](#function-otap_testhas_not_null_constraint)
@@ -25,10 +26,20 @@ Description of the test options available with package otap_test. For a detailed
 - [throws_ok](#function-otap_testthrows_ok)
 - [throws_matches](#function-otap_testthrows_matches)
 - [throws_like](#function-otap_testthrows_like)
+- [test_error](#function-otap_testtest_error)
+- [test_error_check](#function-otap_testtest_error_check)
 - [current_summary](#function-otap_testcurrent_summary)
+- [current_settings](#function-otap_testcurrent_settings)
+- [set_active_report_id](#function-otap_testset_active_report_id)
 - [set_test_name](#function-otap_testset_test_name)
 - [set_test_group](#function-otap_testset_test_group)
 - [set_test_set](#function-otap_testset_test_set)
+- [set_language](#function-otap_testset_language)
+- [get_language](#function-otap_testget_language)
+- [get_schema](#function-otap_testget_schema)
+- [get_prefix](#function-otap_testget_prefix)
+- [name_precedence](#function-otap_testname_precedence)
+- [include_packages](#function-otap_testinclude_packages)
 - [get_session_id](#function-otap_testget_session_id)
 - [get_report_id](#function-otap_testget_report_id)
 - [generate functionality](#generate-functionality)
@@ -40,6 +51,14 @@ Description of the test options available with package otap_test. For a detailed
   - [generate_trigger_tests](#function-otap_testgenerate_trigger_tests)
   - [generate_package_tests](#function-otap_testgenerate_package_tests)
   - [generate_procedure_tests](#function-otap_testgenerate_procedure_tests)
+  - [generate_view_tests](#function-otap_testgenerate_view_tests)
+  - [generate_schema_user_tests](#function-otap_testgenerate_schema_user_test)
+  - [generate_scheduler_job_tests](#function-otap_testgenerate_scheduler_job_tests)
+  - [generate_related_user_tests](#function-otap_testgenerate_related_user_tests)
+  - [generate_constraint_tests](#function-otap_testgenerate_constraint_tests)
+  - [generate_index_tests](#function-otap_testgenerate_index_tests)
+  - [generate_type_tests](#function-otap_testgenerate_type_tests)
+  - [generate_sequence_tests](#function-otap_testgenerate_sequence_tests)
 - [disclaimer and AI disclosure](#disclaimer)
 - [Back to main](../../README.md)
 
@@ -128,6 +147,17 @@ Examples:
       RETURN l_return;
     END IF;
 
+## FUNCTION otap_test.result_view
+Allows access to the test result view of a specific session id.
+
+Parameter:
+- *p_session_id* A valid session id. You may want to retrieve session ids with otap_test.get_session_id or otap_test.get_report_id.
+
+Example:
+
+    SELECT * FROM otap_test.result_view(otap_test.get_report_id);
+
+*Return* A view containing the test results for specific session id.
 ## FUNCTION otap_test.has_table
 Tests if a table exists or not and outputs the test result. Wrapper for otap_api.has_table. Writes and adds the test result for the current active test session.
 
@@ -212,7 +242,7 @@ Examples:
                                      , p_expected_result => otap.otap_constants.get_otap_num_test_passed
                                      ) FROM dual;
 
-## FUNCTION otap_schema.has_procedure
+## FUNCTION otap_test.has_procedure
 Checks if a given procedure or function exists. If package is given, the package procedure or function is checked.
 
 Parameter:
@@ -270,7 +300,7 @@ Examples:
                                      , p_expected_result => otap.otap_constants.get_otap_num_test_passed
                                      ) FROM dual;
 
-## FUNCTION otap_schema.has_object
+## FUNCTION otap_test.has_object
 Checks if a given database object exists.
 
 Parameter:
@@ -778,10 +808,59 @@ Example (english message)
 
     SELECT otap_test.throws_like('SELECT 1/0 FROM dual', '%-01476: divisor is equal to zero%') FROM dual;
 
+## FUNCTION otap_test.test_error
+Provides a possibility to report script errors to test sessions, that are not discovered by tests itself. Usually using SPERRORLOG and an error identifier during script runs or in exception blocks. Test errors are always considered as UNDEFINED as tests have not been executed as intended. Does not execute any test only writes an test error record.
+
+Parameter
+- *p_description* Mandatory. The description of the identified error.
+- *p_errors* Mandatory. The identified error messages like SQLERRM or MESSAGE column of SPERRORLOG.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+
+*Return* Always an otap_constants.OTAP_NUM_TEST_UNDEFINED result message using the description given.
+
+Example:
+
+    BEGIN
+      -- test procedure calls
+    EXCEPTION
+      WHEN OTHERS THEN
+        otap_log.log('Test block XX failed', 'my_test.sql', SQLERRM);
+        -- report errors in test design
+        l_return := otap_test.test_error('Complete test block XX failed', SQLERRM);
+    END;
+
+## FUNCTION otap_test.test_error_check
+Provides a possibility to check counts on error tables to be reported in the test setup section. Similar to otap_test.is_eq in the NUMBER parameter version but adjusts automatically the test set, group and name.
+
+Parameter:
+- *p_have* Mandatory. The numeric data to check.
+- *p_want* Mandatory. The expected numeric data.
+- *p_description* Mandatory. The description of the identified error.
+- *p_schema* A schema override of the current test session if needed, taken as is. If given the table must exist in this schema. Case sensitive.
+
+*Return* The test result as text.
+
+Example:
+
+    SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPERRORLOG')
+      FROM sperrorlog
+     WHERE identifier = '&IDENT'
+    ;
+
 ## FUNCTION otap_test.current_summary
 Returns a string with a current summary of the test session. Session id, run time, tests executed and test in error.
 
 *Return* An info message about the current package session variables.
+
+## FUNCTION otap_test.current_settings
+Returns a LF terminated string about the current package session state. Wrapper for otap_api.otap_session_show.
+
+*Return* An info message about the current package session variables.
+## FUNCTION otap_test.set_active_report_id
+Temporarily sets the active report id. Will be overwritten if tests are running afterwards. Used to access specific older or persisted test reports with OTAP_LATEST_TEST_RESULTS_V. Checks if the session id exists. If it does not exist, the report is is not changed.
+Wrapper for otap_api.set_active_report_id.
+
+*Return* An success or error message.
 ## FUNCTION otap_test.set_test_name
 Handles and sets the current active test name. If test name is longer than 256 chars it is cutted to 256 chars. If NULL is given, than otap_constants.OTAP_FALLBACK_DEFAULT_TEST_NAME is used. Only valid within one session, if session ends, test name is reset.
 
@@ -809,12 +888,39 @@ Parameter:
 - *p_test_set* The test set name to use for the next tests.
 
 *Return* The test set currently active as text message.
+## FUNCTION otap_test.set_language
+Sets the current session language, limited to 3 chars, always converted to upper case. Longer values are cutted to 3 chars. If NULL is given than, otap_constants.OTAP_INTERNAL_NA is used. If the language does not exist in OTAP_TRANSLATE it is ignored and defaults are used.
+
+Parameter:
+- *p_language_id* The 3 char language id to use. No effect if OTAP_TRANSLATE is empty.
+
+*Return* The session language id currently active.
+## FUNCTION otap_test.get_language
+Retrieves the current active session language id, limited to 3 chars. Wrapper for otap_api.otap_session_get_language.
+
+*Return* The session language id currently active.
+## FUNCTION otap_test.get_schema
+Retrieves the current schema defined for this test session.
+
+*Return* The active schema used for testing.
+## FUNCTION otap_test.get_prefix
+Retrieves the current prefix defined for this test session.
+
+*Return* The active prefix used for identifying test procedures.
+## FUNCTION otap_test.name_precedence
+Retrieves the current setting of name precedence for this test session.
+
+*Return* TRUE if name precedence is activated, otherwise FALSE.
+## FUNCTION otap_test.include_packages
+Retrieves the current setting of include packages for this test session.
+
+*Return* TRUE if include packages is activated, otherwise FALSE.
 ## FUNCTION otap_test.get_session_id
 Retrieves the current active test session id.
 
 *Return* The current active test session id.
 ## FUNCTION otap_test.get_report_id
-Retrieves the last view id from finsih or the current active test session id. Usually used in views.
+Retrieves the last view id from finish or the current active test session id. Usually used in views.
 
 *Return* The last view id or the current active test session id.
 ## Generate functionality
@@ -896,6 +1002,81 @@ Generates the test scripts for the views of the given schema with the current av
 
 - *p_like_view* The like expression for the views to generate tests for the given schema. Can also be a specific view name. Default is %, all views. Underlying objects are not limited. Case sensitive.
 - *p_schema* The schema to generate the view tests for. Default is current schema.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+- *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_schema_user_test
+Generates the test script for the schema user processed. Provides group (users) and name (simple user checks) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_schema* The schema to generate the user test for.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_scheduler_job_tests
+Generates the test scripts for the scheduler jobs of the given schema with the current available otap schema functions. Provides name (scheduler jobs) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_like_job* The like expression for the scheduler jobs to generate tests for. Can also be a specific scheduler job name. Case sensitive.
+- *p_schema* The schema to generate the scheduler job tests for. Default is current schema.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+- *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_related_user_tests
+Generates the simple test scripts for a user list to be processed. User names will only be checked for user name and open account status. Provides group (schema user) and name (schema user check) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_user_list* The comma separated user list to generate the simple user tests for.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_constraint_tests
+Generates the test scripts for the constraints of a given table. Even if system objects are excluded, the generator will create tests for system generated NOT NULL constraints, using all parameters apart the constraint name. Provides group (constraints) and name (constraint type) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_table* Mandatory. The table name to get constraint tests for. Case sensitive.
+- *p_like_constraints* The like expression for the constraints to generate tests for. Can also be a specific constraint name. Case sensitive.
+- *p_schema* The schema to generate the constraint tests for. Default is current schema.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+- *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_index_tests
+Generates the test scripts for the indexes of a given table. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_table* Mandatory. The table name to get index tests for. Case sensitive.
+- *p_like_index* The like expression for the indexes to generate tests for. Can also be a specific index name. Case sensitive.
+- *p_schema* The schema to generate the index tests for. Default is current schema.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+- *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_type_tests
+Generates the test scripts for the types of the given schema with the current available otap schema functions. Provides name (types) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_like_type* The like expression for the types to generate tests for. Can also be a specific type name. Case sensitive.
+- *p_schema* The schema to generate the type tests for. Default is current schema.
+- *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
+- *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
+- *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.
+
+*Return* An OTAP_VIEW_RESULT_REC object as table type OTAP_VIEW_RESULT_TBL.
+## FUNCTION otap_test.generate_sequence_tests
+Generates the test scripts for the sequences of the given schema with the current available otap schema functions. Provides name (sequences) management. Limited to line size 4000 but not to rows, like DBMS_OUTPUT. It is up to you how you spool the content to files.
+
+Parameter:
+- *p_like_sequence* The like expression for the sequences to generate tests for. Can also be a specific sequence name. Case sensitive.
+- *p_schema* The schema to generate the sequence tests for. Default is current schema.
 - *p_title_prefix* An optional title prefix for group and test names. Limited to 10 chars.
 - *p_show_header* Used to surpress header comments, init, count and finish section. Default 1 will contain all sections, otherwise skipped.
 - *p_excl_sysgen* Used to ignore system generated objects identified by SYS_ or $. Default 1 will ignore system generated objects, otherwise included.

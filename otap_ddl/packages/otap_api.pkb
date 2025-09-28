@@ -2966,11 +2966,11 @@ AS
     RETURN l_return;
   END test_error;
 
-  FUNCTION test_error_check( p_have        IN NUMBER
-                           , p_want        IN NUMBER
-                           , p_description IN VARCHAR2
-                           , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                           , p_schema      IN VARCHAR2 DEFAULT NULL
+  FUNCTION test_error_check( p_have         IN            NUMBER
+                           , p_want         IN            NUMBER
+                           , p_description  IN            VARCHAR2
+                           , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                           , p_schema       IN            VARCHAR2      DEFAULT NULL
                            )
     RETURN VARCHAR2
   IS

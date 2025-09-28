@@ -771,7 +771,7 @@ AS
   ;
 
   /** FUNCTION otap_api.test_error
-  * @see otap_test.test_error
+  * @see otap_test.test_error, otap_objects.otap_session_test_setup and otap_plan.write_test_result
   */
   FUNCTION test_error( p_description     IN            VARCHAR2
                      , p_errors          IN            VARCHAR2
@@ -782,13 +782,13 @@ AS
   ;
 
   /** FUNCTION otap_api.test_error_check
-  * @see otap_test.test_error_check
+  * @see otap_test.test_error_check, otap_objects.otap_session_test_setup and otap_api.is_eq
   */
-  FUNCTION test_error_check( p_have        IN NUMBER
-                           , p_want        IN NUMBER
-                           , p_description IN VARCHAR2
-                           , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-                           , p_schema      IN VARCHAR2 DEFAULT NULL
+  FUNCTION test_error_check( p_have         IN            NUMBER
+                           , p_want         IN            NUMBER
+                           , p_description  IN            VARCHAR2
+                           , o_otap_session IN OUT NOCOPY OTAP_SESSION
+                           , p_schema       IN            VARCHAR2      DEFAULT NULL
                            )
     RETURN VARCHAR2
   ;
