@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2417
+SQL> SELECT otap_test.init_test( p_test_count => 2422
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 1351
+Test session id: 1513
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2417
+Expected tests: 2422
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1351
-Test start: 2025-09-28 13:09:54
+Current view id: 1513
+Test start: 2025-09-29 09:19:36
 
 
 1 row selected.
@@ -12526,7 +12526,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-28 13:12:37 finished at 2025-09-28 13:12:47
+Processed 1001 records for delete. Started at 2025-09-29 09:22:03 finished at 2025-09-29 09:22:13
 
 PL/SQL procedure successfully completed.
 
@@ -16555,222 +16555,258 @@ SQL> DECLARE
   8    l_want	       VARCHAR2(4000 CHAR);
   9    l_have	       VARCHAR2(4000 CHAR);
  10    l_testing_id    NUMBER;
- 11  BEGIN
- 12    -- use a negative session id for test writes
- 13    l_testing_id := otap_test.get_session_id * -1;
- 14    l_start	    := SYSDATE;
- 15    -- session object fake
- 16    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
- 17  				     , 'otap_plan intrusive'
+ 11    l_have_num      NUMBER;
+ 12  BEGIN
+ 13    -- use a negative session id for test writes
+ 14    l_testing_id := otap_test.get_session_id * -1;
+ 15    l_start	    := SYSDATE;
+ 16    -- session object fake
+ 17    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
  18  				     , 'otap_plan intrusive'
  19  				     , 'otap_plan intrusive'
- 20  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
- 21  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 22  				     , 'INTR'
- 23  				     , otap_constants.OTAP_INTERNAL_NA
- 24  				     , 0
+ 20  				     , 'otap_plan intrusive'
+ 21  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+ 22  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 23  				     , 'INTR'
+ 24  				     , otap_constants.OTAP_INTERNAL_NA
  25  				     , 0
- 26  				     , FALSE
- 27  				     , TRUE
- 28  				     , FALSE
- 29  				     , l_start
- 30  				     , l_testing_id
- 31  				     , 0
- 32  				     , l_testing_id
- 33  				     )
- 34    ;
- 35    -- otap_plan.write_test_result
- 36    l_stamp	:= SYSTIMESTAMP;
- 37    l_return := otap_plan.write_test_result('Sample test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
- 38    l_finish := SYSTIMESTAMP;
- 39    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check passed')
- 40  	 INTO l_return
- 41  	 FROM otap_results
- 42  	WHERE test_session_id = l_testing_id
- 43  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
- 44  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
- 45  	  AND test_desc       = 'Sample test'
- 46  	  AND test_start     >= l_stamp
- 47  	  AND test_end	     <= l_finish
- 48    ;
- 49    l_stamp	:= SYSTIMESTAMP;
- 50    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, 'Failed');
- 51    l_finish := SYSTIMESTAMP;
- 52    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check failed')
- 53  	 INTO l_return
- 54  	 FROM otap_results
- 55  	WHERE test_session_id = l_testing_id
- 56  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
- 57  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
- 58  	  AND test_desc       = 'Sample failed test'
- 59  	  AND test_errors     = 'Failed'
- 60  	  AND test_start     >= l_stamp
- 61  	  AND test_end	     <= l_finish
- 62    ;
- 63    l_return := otap_test.ok((l_otap_session.test_count = 2 AND l_otap_session.error_count = 1), 'otap_plan.write_test_result check session var counts');
- 64    l_stamp	:= SYSTIMESTAMP;
- 65    l_return := otap_plan.write_test_result('Sample undefined test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_UNDEFINED, l_stamp, 'Undefined');
- 66    l_finish := SYSTIMESTAMP;
- 67    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check undefined')
- 68  	 INTO l_return
- 69  	 FROM otap_results
- 70  	WHERE test_session_id = l_testing_id
- 71  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_UNDEFINED
- 72  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
- 73  	  AND test_desc       = 'Sample undefined test'
- 74  	  AND test_errors     = 'Undefined'
- 75  	  AND test_start     >= l_stamp
- 76  	  AND test_end	     <= l_finish
- 77    ;
- 78    l_stamp	:= SYSTIMESTAMP;
- 79    l_return := otap_plan.write_test_result(NULL, l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
- 80    l_finish := SYSTIMESTAMP;
- 81    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description fallback')
- 82  	 INTO l_return
- 83  	 FROM otap_results
- 84  	WHERE test_session_id = l_testing_id
- 85  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
- 86  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
- 87  	  AND test_desc    LIKE 'Unspecified test%'
- 88  	  AND test_errors  LIKE 'Missing test description%'
- 89  	  AND test_start     >= l_stamp
- 90  	  AND test_end	     <= l_finish
- 91    ;
- 92    l_stamp	:= SYSTIMESTAMP;
- 93    l_return := otap_plan.write_test_result(RPAD('Oje', 300, 'a'), l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
- 94    l_finish := SYSTIMESTAMP;
- 95    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description too long')
- 96  	 INTO l_return
- 97  	 FROM otap_results
- 98  	WHERE test_session_id = l_testing_id
- 99  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
-100  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
-101  	  AND test_desc       = RPAD('Oje', 256, 'a')
-102  	  AND test_errors  LIKE 'Test description too long, cutted%'
-103  	  AND test_start     >= l_stamp
-104  	  AND test_end	     <= l_finish
-105    ;
-106    l_stamp	:= SYSTIMESTAMP;
-107    l_return := otap_plan.write_test_result('Sample test wrong state', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 100, l_stamp, NULL);
-108    l_finish := SYSTIMESTAMP;
-109    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check invalid test state')
-110  	 INTO l_return
-111  	 FROM otap_results
-112  	WHERE test_session_id = l_testing_id
-113  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
-114  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
-115  	  AND test_desc       = 'Sample test wrong state'
-116  	  AND test_errors  LIKE 'Invalid test passed value%'
-117  	  AND test_start     >= l_stamp
-118  	  AND test_end	     <= l_finish
-119    ;
-120    l_stamp	:= SYSTIMESTAMP;
-121    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, RPAD('Failed', 6000, 'a'));
-122    l_finish := SYSTIMESTAMP;
-123    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check error too long')
-124  	 INTO l_return
-125  	 FROM otap_results
-126  	WHERE test_session_id = l_testing_id
-127  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
-128  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
-129  	  AND test_desc       = 'Sample failed test'
-130  	  AND test_errors     = RPAD('Failed', 4000, 'a')
-131  	  AND test_start     >= l_stamp
-132  	  AND test_end	     <= l_finish
-133    ;
-134    -- write_count_result
-135    l_stamp	:= SYSTIMESTAMP;
-136    otap_plan.write_count_result(l_otap_session);
-137    l_finish := SYSTIMESTAMP;
-138    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_plan.write_count_result check no intended count')
-139  	 INTO l_return
-140  	 FROM otap_results
-141  	WHERE test_session_id = l_testing_id
-142  	  AND test_start     >= l_stamp
-143  	  AND test_end	     <= l_finish
-144    ;
-145    -- will create a failed count due tests run before
-146    l_otap_session.intended_count := 1;
-147    l_stamp	:= SYSTIMESTAMP;
-148    otap_plan.write_count_result(l_otap_session);
-149    l_finish := SYSTIMESTAMP;
-150    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_count_result check intended count failed')
-151  	 INTO l_return
-152  	 FROM otap_results
-153  	WHERE test_session_id = l_testing_id
-154  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
-155  	  AND test_start     >= l_stamp
-156  	  AND test_end	     <= l_finish
-157    ;
-158    l_otap_session.intended_count := 2;
-159    l_otap_session.test_count     := 1;
-160    l_otap_session.error_count    := 0;
-161    l_stamp	:= SYSTIMESTAMP;
-162    otap_plan.write_count_result(l_otap_session);
-163    l_finish := SYSTIMESTAMP;
-164    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_count_result check intended count match')
-165  	 INTO l_return
-166  	 FROM otap_results
-167  	WHERE test_session_id = l_testing_id
-168  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
-169  	  AND test_start     >= l_stamp
-170  	  AND test_end	     <= l_finish
-171    ;
-172    -- init_test reset
-173    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
-174  				     , 'otap_plan init'
+ 26  				     , 0
+ 27  				     , FALSE
+ 28  				     , TRUE
+ 29  				     , FALSE
+ 30  				     , l_start
+ 31  				     , l_testing_id
+ 32  				     , 0
+ 33  				     , l_testing_id
+ 34  				     )
+ 35    ;
+ 36    -- otap_plan.write_test_result
+ 37    l_stamp	:= SYSTIMESTAMP;
+ 38    l_return := otap_plan.write_test_result('Sample test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 39    l_finish := SYSTIMESTAMP;
+ 40    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check passed')
+ 41  	 INTO l_return
+ 42  	 FROM otap_results
+ 43  	WHERE test_session_id = l_testing_id
+ 44  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+ 45  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 46  	  AND test_desc       = 'Sample test'
+ 47  	  AND test_start     >= l_stamp
+ 48  	  AND test_end	     <= l_finish
+ 49    ;
+ 50    l_stamp	:= SYSTIMESTAMP;
+ 51    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, 'Failed');
+ 52    l_finish := SYSTIMESTAMP;
+ 53    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check failed')
+ 54  	 INTO l_return
+ 55  	 FROM otap_results
+ 56  	WHERE test_session_id = l_testing_id
+ 57  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+ 58  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 59  	  AND test_desc       = 'Sample failed test'
+ 60  	  AND test_errors     = 'Failed'
+ 61  	  AND test_start     >= l_stamp
+ 62  	  AND test_end	     <= l_finish
+ 63    ;
+ 64    l_return := otap_test.ok((l_otap_session.test_count = 2 AND l_otap_session.error_count = 1), 'otap_plan.write_test_result check session var counts');
+ 65    l_stamp	:= SYSTIMESTAMP;
+ 66    l_return := otap_plan.write_test_result('Sample undefined test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_UNDEFINED, l_stamp, 'Undefined');
+ 67    l_finish := SYSTIMESTAMP;
+ 68    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check undefined')
+ 69  	 INTO l_return
+ 70  	 FROM otap_results
+ 71  	WHERE test_session_id = l_testing_id
+ 72  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_UNDEFINED
+ 73  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 74  	  AND test_desc       = 'Sample undefined test'
+ 75  	  AND test_errors     = 'Undefined'
+ 76  	  AND test_start     >= l_stamp
+ 77  	  AND test_end	     <= l_finish
+ 78    ;
+ 79    l_stamp	:= SYSTIMESTAMP;
+ 80    l_return := otap_plan.write_test_result(NULL, l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 81    l_finish := SYSTIMESTAMP;
+ 82    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description fallback')
+ 83  	 INTO l_return
+ 84  	 FROM otap_results
+ 85  	WHERE test_session_id = l_testing_id
+ 86  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+ 87  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+ 88  	  AND test_desc    LIKE 'Unspecified test%'
+ 89  	  AND test_errors  LIKE 'Missing test description%'
+ 90  	  AND test_start     >= l_stamp
+ 91  	  AND test_end	     <= l_finish
+ 92    ;
+ 93    l_stamp	:= SYSTIMESTAMP;
+ 94    l_return := otap_plan.write_test_result(RPAD('Oje', 300, 'a'), l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+ 95    l_finish := SYSTIMESTAMP;
+ 96    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check description too long')
+ 97  	 INTO l_return
+ 98  	 FROM otap_results
+ 99  	WHERE test_session_id = l_testing_id
+100  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+101  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+102  	  AND test_desc       = RPAD('Oje', 256, 'a')
+103  	  AND test_errors  LIKE 'Test description too long, cutted%'
+104  	  AND test_start     >= l_stamp
+105  	  AND test_end	     <= l_finish
+106    ;
+107    l_stamp	:= SYSTIMESTAMP;
+108    l_return := otap_plan.write_test_result('Sample test wrong state', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), 100, l_stamp, NULL);
+109    l_finish := SYSTIMESTAMP;
+110    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check invalid test state')
+111  	 INTO l_return
+112  	 FROM otap_results
+113  	WHERE test_session_id = l_testing_id
+114  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+115  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+116  	  AND test_desc       = 'Sample test wrong state'
+117  	  AND test_errors  LIKE 'Invalid test passed value%'
+118  	  AND test_start     >= l_stamp
+119  	  AND test_end	     <= l_finish
+120    ;
+121    l_stamp	:= SYSTIMESTAMP;
+122    l_return := otap_plan.write_test_result('Sample failed test', l_otap_session, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, RPAD('Failed', 6000, 'a'));
+123    l_finish := SYSTIMESTAMP;
+124    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_test_result check error too long')
+125  	 INTO l_return
+126  	 FROM otap_results
+127  	WHERE test_session_id = l_testing_id
+128  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+129  	  AND to_delete       = otap_constants.OTAP_NUM_TRUE
+130  	  AND test_desc       = 'Sample failed test'
+131  	  AND test_errors     = RPAD('Failed', 4000, 'a')
+132  	  AND test_start     >= l_stamp
+133  	  AND test_end	     <= l_finish
+134    ;
+135    -- write_count_result
+136    l_stamp	:= SYSTIMESTAMP;
+137    otap_plan.write_count_result(l_otap_session);
+138    l_finish := SYSTIMESTAMP;
+139    SELECT otap_test.is_eq(COUNT(*), 0, 'otap_plan.write_count_result check no intended count')
+140  	 INTO l_return
+141  	 FROM otap_results
+142  	WHERE test_session_id = l_testing_id
+143  	  AND test_start     >= l_stamp
+144  	  AND test_end	     <= l_finish
+145    ;
+146    -- will create a failed count due tests run before
+147    l_otap_session.intended_count := 1;
+148    l_stamp	:= SYSTIMESTAMP;
+149    otap_plan.write_count_result(l_otap_session);
+150    l_finish := SYSTIMESTAMP;
+151    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_count_result check intended count failed')
+152  	 INTO l_return
+153  	 FROM otap_results
+154  	WHERE test_session_id = l_testing_id
+155  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_FAILED
+156  	  AND test_start     >= l_stamp
+157  	  AND test_end	     <= l_finish
+158    ;
+159    l_otap_session.intended_count := 2;
+160    l_otap_session.test_count     := 1;
+161    l_otap_session.error_count    := 0;
+162    l_stamp	:= SYSTIMESTAMP;
+163    otap_plan.write_count_result(l_otap_session);
+164    l_finish := SYSTIMESTAMP;
+165    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.write_count_result check intended count match')
+166  	 INTO l_return
+167  	 FROM otap_results
+168  	WHERE test_session_id = l_testing_id
+169  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+170  	  AND test_start     >= l_stamp
+171  	  AND test_end	     <= l_finish
+172    ;
+173    -- init_test reset
+174    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
 175  				     , 'otap_plan init'
 176  				     , 'otap_plan init'
-177  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
-178  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-179  				     , 'INTR'
-180  				     , otap_constants.OTAP_INTERNAL_NA
-181  				     , 1
-182  				     , 2
-183  				     , FALSE
-184  				     , TRUE
-185  				     , FALSE
-186  				     , l_start
-187  				     , l_testing_id
-188  				     , 0
-189  				     , l_testing_id
-190  				     )
-191    ;
-192    l_alt_session := otap_objects.otap_session_copy(l_otap_session);
-193    l_stamp	:= SYSTIMESTAMP;
-194    l_return := otap_plan.init_test( 10
-195  				      , 'otap_plan new'
+177  				     , 'otap_plan init'
+178  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+179  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+180  				     , 'INTR'
+181  				     , otap_constants.OTAP_INTERNAL_NA
+182  				     , 1
+183  				     , 2
+184  				     , FALSE
+185  				     , TRUE
+186  				     , FALSE
+187  				     , l_start
+188  				     , l_testing_id
+189  				     , 0
+190  				     , l_testing_id
+191  				     )
+192    ;
+193    l_alt_session := otap_objects.otap_session_copy(l_otap_session);
+194    l_stamp	:= SYSTIMESTAMP;
+195    l_return := otap_plan.init_test( 10
 196  				      , 'otap_plan new'
 197  				      , 'otap_plan new'
-198  				      , 'NEW'
-199  				      , otap_constants.OTAP_INTERNAL_NA
-200  				      , NULL
+198  				      , 'otap_plan new'
+199  				      , 'NEW'
+200  				      , otap_constants.OTAP_INTERNAL_NA
 201  				      , NULL
 202  				      , NULL
-203  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-204  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
-205  				      , SYS_CONTEXT('USERENV', 'SESSION_USER')
-206  				      , l_otap_session
-207  				      )
-208    ;
-209    l_finish := SYSTIMESTAMP;
-210    l_return := otap_test.alike(l_return, 'Closed test session summary%', otap_constants.OTAP_NUM_FALSE, 'otap_plan.init_test reset check return value');
-211    l_return := otap_test.ok((l_alt_session.session_id != l_otap_session.session_id), 'otap_plan.init_test reset check session id change');
-212    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.init_test reset check intended count match')
-213  	 INTO l_return
-214  	 FROM otap_results
-215  	WHERE test_session_id = l_testing_id
-216  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
-217  	  AND test_start     >= l_stamp
-218  	  AND test_end	     <= l_finish
-219    ;
-220  
-221  EXCEPTION
-222    WHEN OTHERS THEN
-223  	 otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
-224  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN intrusive failed', SQLERRM);
-225  END;
-226  /
+203  				      , NULL
+204  				      , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+205  				      , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+206  				      , SYS_CONTEXT('USERENV', 'SESSION_USER')
+207  				      , l_otap_session
+208  				      )
+209    ;
+210    l_finish := SYSTIMESTAMP;
+211    l_return := otap_test.alike(l_return, 'Closed test session summary%', otap_constants.OTAP_NUM_FALSE, 'otap_plan.init_test reset check return value');
+212    l_return := otap_test.ok((l_alt_session.session_id != l_otap_session.session_id), 'otap_plan.init_test reset check session id change');
+213    l_return := otap_test.ok((l_testing_id != l_otap_session.session_id), 'otap_plan.init_test reset check testing id change');
+214    l_return := otap_test.ok((l_otap_session.session_id > 0), 'otap_plan.init_test reset check session id positive number');
+215    SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.init_test reset check intended count match')
+216  	 INTO l_return
+217  	 FROM otap_results
+218  	WHERE test_session_id = l_testing_id
+219  	  AND test_passed     = otap_constants.OTAP_NUM_TEST_PASSED
+220  	  AND test_start     >= l_stamp
+221  	  AND test_end	     <= l_finish
+222    ;
+223    -- for finish tests, we need a new testing id and date
+224    l_testing_id := l_otap_session.session_id * -1;
+225    l_start	    := SYSDATE;
+226    -- build new session record
+227    l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+228  				     , 'otap_plan finish'
+229  				     , 'otap_plan finish'
+230  				     , 'otap_plan finish'
+231  				     , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+232  				     , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+233  				     , 'FIN'
+234  				     , otap_constants.OTAP_INTERNAL_NA
+235  				     , 0
+236  				     , 0
+237  				     , FALSE
+238  				     , TRUE
+239  				     , FALSE
+240  				     , l_start
+241  				     , l_testing_id
+242  				     , 0
+243  				     , l_testing_id
+244  				     )
+245    ;
+246    -- write a successful test
+247    l_stamp	   := SYSTIMESTAMP;
+248    l_return    := otap_plan.write_test_result('Success test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+249    l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+250    l_return    := otap_test.is_eq(l_have_num, 0, 'otap_plan.finish_test_with_exit_code check success');
+251    l_return    := otap_plan.write_test_result('Fail test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, NULL);
+252    l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+253    l_return    := otap_test.is_eq(l_have_num, 1, 'otap_plan.finish_test_with_exit_code check failed');
+254    l_return    := otap_plan.write_test_result('Undefined test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_UNDEFINED, l_stamp, NULL);
+255    l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+256    l_return    := otap_test.is_eq(l_have_num, 2, 'otap_plan.finish_test_with_exit_code check undefined');
+257  EXCEPTION
+258    WHEN OTHERS THEN
+259  	 otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
+260  	 l_return := otap_test.test_error('Complete test block OTAP_PLAN intrusive failed', SQLERRM);
+261  END;
+262  /
 
 PL/SQL procedure successfully completed.
 
@@ -16833,7 +16869,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250928130953'
+new   3:  WHERE identifier = 'otap_test_run20250929091935'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16845,16 +16881,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250928130953'
+new   3:  WHERE identifier = 'otap_test_run20250929091935'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 1351 tests: 2418 from 2417 errors: 0 run time: +000000000 00:03:11.000000000 started: 2025-09-28 13:09:54
+Summary id: 1513 tests: 2423 from 2422 errors: 0 run time: +000000000 00:03:04.000000000 started: 2025-09-29 09:19:36
 Current test settings
-Test session id: 1375
+Test session id: 1540
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16868,8 +16904,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1351
-Test start: 2025-09-28 13:13:05
+Current view id: 1513
+Test start: 2025-09-29 09:22:40
 
 
 1 row selected.

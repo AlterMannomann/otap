@@ -14,6 +14,7 @@ DECLARE
   l_want          VARCHAR2(4000 CHAR);
   l_have          VARCHAR2(4000 CHAR);
   l_testing_id    NUMBER;
+  l_have_num      NUMBER;
 BEGIN
   -- use a negative session id for test writes
   l_testing_id := otap_test.get_session_id * -1;
@@ -215,6 +216,8 @@ BEGIN
   l_finish := SYSTIMESTAMP;
   l_return := otap_test.alike(l_return, 'Closed test session summary%', otap_constants.OTAP_NUM_FALSE, 'otap_plan.init_test reset check return value');
   l_return := otap_test.ok((l_alt_session.session_id != l_otap_session.session_id), 'otap_plan.init_test reset check session id change');
+  l_return := otap_test.ok((l_testing_id != l_otap_session.session_id), 'otap_plan.init_test reset check testing id change');
+  l_return := otap_test.ok((l_otap_session.session_id > 0), 'otap_plan.init_test reset check session id positive number');
   SELECT otap_test.is_eq(COUNT(*), 1, 'otap_plan.init_test reset check intended count match')
     INTO l_return
     FROM otap_results
@@ -223,7 +226,40 @@ BEGIN
      AND test_start     >= l_stamp
      AND test_end       <= l_finish
   ;
-
+  -- for finish tests, we need a new testing id and date
+  l_testing_id := l_otap_session.session_id * -1;
+  l_start      := SYSDATE;
+  -- build new session record
+  l_otap_session := otap_session( SYS_CONTEXT('USERENV', 'SESSION_USER')
+                                , 'otap_plan finish'
+                                , 'otap_plan finish'
+                                , 'otap_plan finish'
+                                , SYS_CONTEXT('USERENV', 'CURRENT_USER')
+                                , SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+                                , 'FIN'
+                                , otap_constants.OTAP_INTERNAL_NA
+                                , 0
+                                , 0
+                                , FALSE
+                                , TRUE
+                                , FALSE
+                                , l_start
+                                , l_testing_id
+                                , 0
+                                , l_testing_id
+                                )
+  ;
+  -- write a successful test
+  l_stamp     := SYSTIMESTAMP;
+  l_return    := otap_plan.write_test_result('Success test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_PASSED, l_stamp, NULL);
+  l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+  l_return    := otap_test.is_eq(l_have_num, 0, 'otap_plan.finish_test_with_exit_code check success');
+  l_return    := otap_plan.write_test_result('Fail test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_FAILED, l_stamp, NULL);
+  l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+  l_return    := otap_test.is_eq(l_have_num, 1, 'otap_plan.finish_test_with_exit_code check failed');
+  l_return    := otap_plan.write_test_result('Undefined test', l_otap_session, l_otap_session.db_schema, otap_constants.OTAP_NUM_TEST_UNDEFINED, l_stamp, NULL);
+  l_have_num  := otap_plan.finish_test_with_exit_code(otap_constants.OTAP_NUM_FALSE, l_otap_session);
+  l_return    := otap_test.is_eq(l_have_num, 2, 'otap_plan.finish_test_with_exit_code check undefined');
 EXCEPTION
   WHEN OTHERS THEN
     otap_log.log('Test block OTAP_PLAN intrusive failed', 'otap_plan.sql', SQLERRM);
