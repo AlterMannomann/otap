@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2422
+SQL> SELECT otap_test.init_test( p_test_count => 2438
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 1513
+Test session id: 1780
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2422
+Expected tests: 2438
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1513
-Test start: 2025-09-29 09:19:36
+Current view id: 1780
+Test start: 2025-10-05 14:12:24
 
 
 1 row selected.
@@ -5353,6 +5353,11 @@ SQL> @@test_functionality/test_main/test_main_master.sql
 SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
 SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
 SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- first non intrusive
+SQL> @@test_main_non_intrusive.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
 SQL> -- set only test set
 SQL> SELECT otap_test.set_test_set('OTAP main functionality') FROM dual;
 Current test set: OTAP main functionality
@@ -9460,10 +9465,60 @@ SQL> DECLARE
 
 PL/SQL procedure successfully completed.
 
+SQL> @@otap_schema.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- sets the test name and calls the tests for this test name
+SQL> SELECT otap_test.set_test_name('Verify otap_schema functionality') FROM dual;
+Current test: Verify otap_schema functionality
+
+1 row selected.
+
+SQL> -- call the independend code block without changing the current setup
+SQL> @@otap_schema_code.sql
+SQL> -- (C) 2024 Michael Lindenau licensed via https://www.gnu.org/licenses/agpl-3.0.txt
+SQL> -- and https://toent.ch/licenses/AI_DISCLOSURE_LICENSE_V1
+SQL> -- Not allowed to be used as AI training material without explicite permission.
+SQL> -- independent code block, able to deal with different setup settings
+SQL> 
+SQL> -- non intrusive tests on otap_schema
+SQL> SET SERVEROUTPUT ON SIZE UNLIMITED
+SQL> DECLARE
+  2    l_return      VARCHAR2(4000 CHAR);
+  3    l_stamp	     TIMESTAMP;
+  4    l_finish      TIMESTAMP;
+  5    l_want	     VARCHAR2(4000 CHAR);
+  6    l_have	     VARCHAR2(4000 CHAR);
+  7    l_error_msg   VARCHAR2(32767 CHAR);
+  8  BEGIN
+  9    l_return := otap_test.is_eq(otap_schema.has_table('OTAP_RESULTS', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_table simple check');
+ 10    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_table error message check');
+ 11    l_return := otap_test.is_eq(otap_schema.has_table('otap_results', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_table case sensitive check');
+ 12    l_return := otap_test.alike(l_error_msg, 'Table does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_table case sensitive error message check');
+ 13    l_return := otap_test.is_eq(otap_schema.has_table(NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_table NULL check');
+ 14    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_table NULL error message check');
+ 15    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_column simple check');
+ 16    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_column error message check');
+ 17    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'to_delete', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_column case sensitive check');
+ 18    l_return := otap_test.alike(l_error_msg, 'Column does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_column case sensitive error message check');
+ 19    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column column NULL check');
+ 20    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_column_name(NULL)', 'otap_schema.has_column NULL column error message check');
+ 21    l_return := otap_test.is_eq(otap_schema.has_column(NULL, 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column table NULL check');
+ 22    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_column NULL table name error message check');
+ 23    l_return := otap_test.is_eq(otap_schema.has_column(NULL, NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column full NULL check');
+ 24    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL) p_column_name(NULL)', 'otap_schema.has_column full NULL error message check');
+ 25  EXCEPTION
+ 26    WHEN OTHERS THEN
+ 27  	 otap_log.log('Test block OTAP_SCHEMA failed', 'otap_report.sql', SQLERRM);
+ 28  	 l_return := otap_test.test_error('Complete test block OTAP_SCHEMA failed', SQLERRM);
+ 29  END;
+ 30  /
+
+PL/SQL procedure successfully completed.
+
 SQL> -- table triggers
 SQL> -- table contents
-SQL> -- packages
-SQL> 
 SQL> -- intrusive tests changing data
 SQL> SELECT otap_test.set_test_group('OTAP data change functionality') FROM dual;
 Current test group: OTAP data change functionality
@@ -12526,7 +12581,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-09-29 09:22:03 finished at 2025-09-29 09:22:13
+Processed 1001 records for delete. Started at 2025-10-05 14:14:59 finished at 2025-10-05 14:15:09
 
 PL/SQL procedure successfully completed.
 
@@ -16869,7 +16924,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250929091935'
+new   3:  WHERE identifier = 'otap_test_run20251005141223'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16881,16 +16936,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20250929091935'
+new   3:  WHERE identifier = 'otap_test_run20251005141223'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 1513 tests: 2423 from 2422 errors: 0 run time: +000000000 00:03:04.000000000 started: 2025-09-29 09:19:36
+Summary id: 1780 tests: 2439 from 2438 errors: 0 run time: +000000000 00:03:12.000000000 started: 2025-10-05 14:12:24
 Current test settings
-Test session id: 1540
+Test session id: 1807
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16904,8 +16959,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1513
-Test start: 2025-09-29 09:22:40
+Current view id: 1780
+Test start: 2025-10-05 14:15:36
 
 
 1 row selected.

@@ -60,6 +60,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_table, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Table does not exist: ' || l_schema_to_use || '.' || l_table_name;
+      END IF;
     ELSE
       -- invalid table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -73,7 +77,7 @@ AS
     ELSE
       -- overwrite states from before, as we fulfill expected
       l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-      -- overwrite errors expected
+      -- overwrite errors found
       o_errors := NULL;
     END IF;
     RETURN l_test_passed;
@@ -137,6 +141,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_column, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Column does not exist: ' || l_schema_to_use || '.' || l_table_name || '.' || l_column_name;
+      END IF;
     ELSE
       -- invalid table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;

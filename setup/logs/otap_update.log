@@ -6291,1240 +6291,1248 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_schema
  57  	   ;
  58  	   -- we should find one or zero entries
  59  	   l_test_passed := count_chk(l_has_table, l_errors, l_script);
- 60  	 ELSE
- 61  	   -- invalid table name
- 62  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
- 63  	   l_errors	       := 'Missing: p_table_name(NULL)';
- 64  	   otap_log.log(l_errors, l_script, 'NULL test on table name');
- 65  	 END IF;
- 66  	 -- now decide on the expected result the final state and if errors are returned
- 67  	 IF l_test_passed != l_expected
- 68  	 THEN
- 69  	   o_errors := otap_string.reduce(l_errors, 4000);
- 70  	 ELSE
- 71  	   -- overwrite states from before, as we fulfill expected
- 72  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
- 73  	   -- overwrite errors expected
- 74  	   o_errors := NULL;
- 75  	 END IF;
- 76  	 RETURN l_test_passed;
- 77    EXCEPTION
- 78  	 WHEN OTHERS THEN
- 79  	   IF SQLCODE != -20099
- 80  	   THEN
- 81  	     -- log unhandled exceptions
- 82  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
- 83  	   END IF;
- 84  	   RAISE;
- 85    END has_table;
- 86  
- 87    FUNCTION has_column( p_table_name      IN	    VARCHAR2
- 88  			  , p_column_name     IN	    VARCHAR2
- 89  			  , o_errors		 OUT NOCOPY VARCHAR2
- 90  			  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
- 91  			  , p_data_type       IN	    VARCHAR2 DEFAULT NULL
- 92  			  , p_data_length     IN	    NUMBER   DEFAULT NULL
- 93  			  , p_data_precision  IN	    NUMBER   DEFAULT NULL
- 94  			  , p_data_scale      IN	    NUMBER   DEFAULT NULL
- 95  			  , p_nullable	      IN	    VARCHAR2 DEFAULT NULL
- 96  			  , p_data_default    IN	    VARCHAR2 DEFAULT NULL
- 97  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
- 98  			  )
- 99  	 RETURN INTEGER
-100    IS
-101  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_schema.has_column';
-102  	 l_has_column	 INTEGER;
-103  	 l_test_passed	 INTEGER;
-104  	 l_expected	 INTEGER;
-105  	 l_schema_to_use VARCHAR2(128 CHAR);
-106  	 l_table_name	 VARCHAR2(128 CHAR);
-107  	 l_column_name	 VARCHAR2(128 CHAR);
-108  	 l_errors	 VARCHAR2(32767 CHAR);
-109    BEGIN
-110  	 l_errors      := NULL;
-111  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-112  	 l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-113  	 l_table_name  := otap_string.reduce(p_table_name, 128);
-114  	 l_column_name := otap_string.reduce(p_column_name, 128);
-115  	 IF	l_table_name	     IS NOT NULL
-116  	    AND LENGTH(l_table_name)  > 0
-117  	    AND l_column_name	     IS NOT NULL
-118  	    AND LENGTH(l_column_name) > 0
-119  	 THEN
-120  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-121  	   -- test column exists
-122  	   SELECT COUNT(*)
-123  	     INTO l_has_column
-124  	     FROM dba_tab_columns
-125  	    WHERE owner 			     = l_schema_to_use
-126  	      AND table_name			     = l_table_name
-127  	      AND column_name			     = l_column_name
-128  	      AND NVL(data_type, 'n/a') 	     = NVL(UPPER(p_data_type), NVL(data_type, 'n/a'))
-129  	      AND data_length			     = NVL(p_data_length, data_length)
-130  	      AND NVL(nullable, 'n/a')		     = NVL(UPPER(p_nullable), NVL(nullable, 'n/a'))
-131  	      AND NVL(data_precision, -1)	     = NVL(p_data_precision, NVL(data_precision, -1))
-132  	      AND NVL(data_scale, -1)		     = NVL(p_data_scale, NVL(data_scale, -1))
-133  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = NVL(TRIM(p_data_default), TRIM(NVL(data_default_vc, 'n/a')))
-134  	   ;
-135  	   -- we should find one or zero entries
-136  	   l_test_passed := count_chk(l_has_column, l_errors, l_script);
-137  	 ELSE
-138  	   -- invalid table name
-139  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-140  	   l_errors	       := 'Missing: ' ||
-141  				  CASE
-142  				    WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
-143  				    THEN 'p_table_name(NULL) '
-144  				  END ||
-145  				  CASE
-146  				    WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
-147  				    THEN 'p_column_name(NULL) '
-148  				  END
-149  	   ;
-150  	   otap_log.log(l_errors, l_script, 'NULL test on table or column name');
-151  	 END IF;
-152  	 -- now decide on the expected result the final state and if errors are returned
-153  	 IF l_test_passed != l_expected
-154  	 THEN
-155  	   o_errors := otap_string.reduce(l_errors, 4000);
-156  	 ELSE
-157  	   -- overwrite states from before, as we fulfill expected
-158  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-159  	   -- overwrite errors expected
-160  	   o_errors := NULL;
-161  	 END IF;
-162  	 RETURN l_test_passed;
-163    EXCEPTION
-164  	 WHEN OTHERS THEN
-165  	   IF SQLCODE != -20099
-166  	   THEN
-167  	     -- log unhandled exceptions
-168  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-169  	   END IF;
-170  	   RAISE;
-171    END has_column;
-172  
-173    FUNCTION has_package( p_package_name    IN	     VARCHAR2
-174  			   , o_errors		  OUT NOCOPY VARCHAR2
-175  			   , p_schema	       IN	     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-176  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
-177  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-178  			   )
-179  	 RETURN INTEGER
-180    IS
-181  	 l_script	 VARCHAR2(1024 CHAR)	:= 'otap_schema.has_package';
-182  	 l_ignore	 VARCHAR2(6 CHAR)	:= 'IGNORE';
-183  	 l_header	 VARCHAR2(7 CHAR)	:= 'PACKAGE';
-184  	 l_body 	 VARCHAR2(12 CHAR)	:= 'PACKAGE BODY';
-185  	 l_has_package	 INTEGER;
-186  	 l_test_passed	 INTEGER;
-187  	 l_expected	 INTEGER;
-188  	 l_schema_to_use VARCHAR2(128 CHAR);
-189  	 l_package_name  VARCHAR2(128 CHAR);
-190  	 l_package_type  VARCHAR2(12 CHAR);
-191  	 l_errors	 VARCHAR2(32767 CHAR);
-192    BEGIN
-193  	 l_errors	 := NULL;
-194  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-195  	 l_expected	 := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-196  	 l_package_name  := otap_string.reduce(p_package_name, 128);
-197  	 l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
-198  	 IF	l_package_name	       IS NOT NULL
-199  	    AND LENGTH(l_package_name)	> 0
-200  	    AND l_package_type	       IN (l_header, l_body)
-201  	 THEN
-202  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-203  	   SELECT COUNT(*)
-204  	     INTO l_has_package
-205  	     FROM dba_objects
-206  		  -- surprisingly nullable columns
-207  	    WHERE owner       = l_schema_to_use
-208  	      AND object_name = l_package_name
-209  	      AND object_type = l_package_type
-210  	   ;
-211  	   -- we should find one or zero entries
-212  	   l_test_passed := count_chk(l_has_package, l_errors, l_script);
-213  	 ELSE
-214  	   -- invalid package name or type
-215  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-216  	   l_errors	       := 'Not allowed: ' || CASE
-217  						       WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
-218  						       THEN 'p_package_name(NULL) '
-219  						     END ||
-220  						     CASE
-221  						       WHEN l_package_type NOT IN (l_header, l_body)
-222  						       THEN 'p_package_type(' || l_package_type || ') '
-223  						     END
-224  	   ;
-225  	   otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
-226  	 END IF;
-227  	 -- now decide on the expected result the final state and if errors are returned
-228  	 IF l_test_passed != l_expected
-229  	 THEN
-230  	   o_errors := otap_string.reduce(l_errors, 4000);
-231  	 ELSE
-232  	   -- overwrite states from before, as we fulfill expected
-233  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-234  	   -- overwrite errors expected
-235  	   o_errors := NULL;
-236  	 END IF;
-237  	 RETURN l_test_passed;
-238    EXCEPTION
-239  	 WHEN OTHERS THEN
-240  	   IF SQLCODE != -20099
-241  	   THEN
-242  	     -- log unhandled exceptions
-243  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-244  	   END IF;
-245  	   RAISE;
-246    END has_package;
-247  
-248    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
-249  			     , o_errors 	    OUT NOCOPY VARCHAR2
-250  			     , p_schema 	 IN	       VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-251  			     , p_procedure_type  IN	       VARCHAR2 DEFAULT 'FUNCTION'
-252  			     , p_package_name	 IN	       VARCHAR2 DEFAULT NULL
-253  			     , p_return_type	 IN	       VARCHAR2 DEFAULT NULL
-254  			     , p_expected_result IN	       NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-255  			     )
-256  	 RETURN INTEGER
-257    IS
-258  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_procedure';
-259  	 l_procedure	  VARCHAR2(9 CHAR)	 := 'PROCEDURE';
-260  	 l_function	  VARCHAR2(8 CHAR)	 := 'FUNCTION';
-261  	 l_test_passed	  INTEGER;
-262  	 l_expected	  INTEGER;
-263  	 l_has_procedure  INTEGER;
-264  	 l_procedure_name VARCHAR2(128 CHAR);
-265  	 l_package_name   VARCHAR2(128 CHAR);
-266  	 l_procedure_type VARCHAR2(9 CHAR);
-267  	 l_return_type	  VARCHAR2(128 CHAR);
-268  	 l_schema_to_use  VARCHAR2(128 CHAR);
-269  	 l_errors	  VARCHAR2(32767 CHAR);
-270    BEGIN
-271  	 l_errors	   := NULL;
-272  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-273  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-274  	 l_procedure_name  := otap_string.reduce(p_procedure_name, 128);
-275  	 l_package_name    := otap_string.reduce(p_package_name, 128);
-276  	 l_procedure_type  := otap_string.reduce(UPPER(p_procedure_type), 9);
-277  	 l_return_type	   := otap_string.reduce(UPPER(p_return_type), 128);
-278  	 IF	l_procedure_name	IS NOT NULL
-279  	    AND LENGTH(l_procedure_name) > 0
-280  	    AND l_procedure_type	IN (l_procedure, l_function)
-281  	 THEN
-282  	   -- schema
-283  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-284  	   -- check
-285  	     WITH prc AS
-286  		  (SELECT dbo.owner
-287  			, dbp.procedure_name
-288  			, CASE
-289  			    WHEN dbr.position	    = 0
-290  			     AND dbr.argument_name IS NULL
-291  			    THEN 'FUNCTION'
-292  			    ELSE 'PROCEDURE'
-293  			  END AS procedure_type
-294  			, CASE
-295  			    WHEN dbr.position	    = 0
-296  			     AND dbr.argument_name IS NULL
-297  			    THEN dbr.data_type
-298  			    ELSE NULL
-299  			  END AS return_type
-300  			, dbo.status
-301  			, dbo.object_name AS package_name
-302  		     FROM dba_objects dbo
-303  		     LEFT OUTER JOIN dba_procedures dbp
-304  		       ON dbo.owner	  = dbp.owner
-305  		      AND dbo.object_name = dbp.object_name
-306  		      AND dbo.object_type = dbp.object_type
-307  		     LEFT OUTER JOIN dba_arguments dbr
-308  		       ON dbp.owner	     = dbr.owner
-309  		      AND dbp.object_name    = dbr.package_name
-310  		      AND dbp.procedure_name = dbr.object_name
-311  		      AND dbp.object_id      = dbr.object_id
-312  		      AND dbp.subprogram_id  = dbr.subprogram_id
-313  		      AND dbr.sequence	     = 1
-314  		    WHERE dbo.owner	   = l_schema_to_use
-315  		      AND dbo.object_type  = 'PACKAGE'
-316  			  -- exclude package itself
-317  		      AND dbp.procedure_name IS NOT NULL
-318  		    UNION ALL
-319  		   SELECT dbo.owner
-320  			, dbo.object_name AS procedure_name
-321  			, dbo.object_type AS procedure_type
-322  			, CASE
-323  			    WHEN dbr.position	    = 0
-324  			     AND dbr.argument_name IS NULL
-325  			    THEN dbr.data_type
-326  			    ELSE NULL
-327  			  END AS return_type
-328  			, dbo.status
-329  			, NULL AS package_name
-330  		     FROM dba_objects dbo
-331  		     LEFT OUTER JOIN dba_procedures dbp
-332  		       ON dbo.owner	  = dbp.owner
-333  		      AND dbo.object_name = dbp.object_name
-334  		      AND dbo.object_type = dbp.object_type
-335  		     LEFT OUTER JOIN dba_arguments dbr
-336  		       ON dbp.owner	    = dbr.owner
-337  		      AND dbp.object_name   = dbr.object_name
-338  		      AND dbp.object_id     = dbr.object_id
-339  		      AND dbp.subprogram_id = dbr.subprogram_id
-340  		      AND dbr.sequence	    = 1
-341  		    WHERE dbo.owner	   = l_schema_to_use
-342  		      AND dbo.object_type IN ('FUNCTION', 'PROCEDURE')
-343  		  )
-344  	   SELECT COUNT(*)
-345  	     INTO l_has_procedure
-346  	     FROM prc
-347  	    WHERE procedure_name	     = l_procedure_name
-348  	      AND procedure_type	     = l_procedure_type
-349  	      AND NVL(return_type, 'n/a')    = NVL(l_return_type, NVL(return_type, 'n/a'))
-350  	      AND NVL(package_name, 'n/a')   = NVL(l_package_name, NVL(package_name, 'n/a'))
-351  	   ;
-352  	   -- we may find more than 1 entry, if function or procedure has same name but different signature
-353  	   l_test_passed := CASE WHEN l_has_procedure = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
-354  	 ELSE
-355  	   -- invalid package name, type or state
-356  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-357  	   l_errors	       := 'Not allowed: ' || CASE
-358  						       WHEN l_procedure_name IS NULL OR LENGTH(l_procedure_name) = 0
-359  						       THEN 'p_procedure_name(NULL) '
-360  						     END ||
-361  						     CASE
-362  						       WHEN l_procedure_type NOT IN (l_procedure, l_function)
-363  						       THEN 'p_procedure_type(' || l_procedure_type || ') '
-364  						     END
-365  	   ;
-366  	   otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
-367  	 END IF;
-368  	 -- now decide on the expected result the final state and if errors are returned
-369  	 IF l_test_passed != l_expected
-370  	 THEN
-371  	   o_errors := otap_string.reduce(l_errors, 4000);
-372  	 ELSE
-373  	   -- overwrite states from before, as we fulfill expected
-374  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-375  	   -- overwrite errors expected
-376  	   o_errors := NULL;
-377  	 END IF;
-378  	 RETURN l_test_passed;
-379    EXCEPTION
-380  	 WHEN OTHERS THEN
-381  	   IF SQLCODE != -20099
-382  	   THEN
-383  	     -- log unhandled exceptions
-384  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-385  	   END IF;
-386  	   RAISE;
-387    END has_procedure;
-388  
-389    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
-390  			   , o_errors		  OUT NOCOPY VARCHAR2
-391  			   , p_schema	       IN	     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-392  			   , p_trigger_type    IN	     VARCHAR2 DEFAULT NULL
-393  			   , p_trigger_event   IN	     VARCHAR2 DEFAULT NULL
-394  			   , p_table_owner     IN	     VARCHAR2 DEFAULT NULL
-395  			   , p_table_name      IN	     VARCHAR2 DEFAULT NULL
-396  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-397  			   )
-398  	 RETURN INTEGER
-399    IS
-400  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_trigger';
-401  	 l_test_passed	  INTEGER;
-402  	 l_expected	  INTEGER;
-403  	 l_has_trigger	  INTEGER;
-404  	 l_trigger_name   VARCHAR2(128 CHAR);
-405  	 l_trigger_type   VARCHAR2(16 CHAR);
-406  	 l_trigger_event  VARCHAR2(246 CHAR);
-407  	 l_table_owner	  VARCHAR2(128 CHAR);
-408  	 l_table_name	  VARCHAR2(128 CHAR);
-409  	 l_schema_to_use  VARCHAR2(128 CHAR);
-410  	 l_errors	  VARCHAR2(32767 CHAR);
-411    BEGIN
-412  	 l_errors	   := NULL;
-413  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-414  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-415  	 l_trigger_name    := otap_string.reduce(p_trigger_name, 128);
-416  	 l_trigger_type    := otap_string.reduce(UPPER(p_trigger_type), 16);
-417  	 l_trigger_event   := otap_string.reduce(UPPER(p_trigger_event), 246);
-418  	 l_table_owner	   := otap_string.reduce(p_table_owner, 128);
-419  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
-420  	 IF	l_trigger_name	      IS NOT NULL
-421  	    AND LENGTH(l_trigger_name) > 0
-422  	 THEN
-423  	   -- schema
-424  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-425  	   -- check
-426  	   SELECT COUNT(*)
-427  	     INTO l_has_trigger
-428  	     FROM dba_triggers
-429  	    WHERE owner 		       = l_schema_to_use
-430  	      AND trigger_name		       = l_trigger_name
-431  	      AND NVL(trigger_type, 'n/a')     = NVL(l_trigger_type, NVL(trigger_type, 'n/a'))
-432  	      AND NVL(triggering_event, 'n/a') = NVL(l_trigger_event, NVL(triggering_event, 'n/a'))
-433  	      AND NVL(table_owner, 'n/a')      = NVL(l_table_owner, NVL(table_owner, 'n/a'))
-434  	      AND NVL(table_name, 'n/a')       = NVL(l_table_name, NVL(table_name, 'n/a'))
-435  	   ;
-436  	   -- we should find one or zero entries
-437  	   l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
-438  	 ELSE
-439  	   -- invalid package name, type or state
-440  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-441  	   l_errors	       := 'Not allowed: p_trigger_name(NULL)';
-442  	   otap_log.log(l_errors, l_script, 'Trigger name NULL');
-443  	 END IF;
-444  	 -- now decide on the expected result the final state and if errors are returned
-445  	 IF l_test_passed != l_expected
-446  	 THEN
-447  	   o_errors := otap_string.reduce(l_errors, 4000);
-448  	 ELSE
-449  	   -- overwrite states from before, as we fulfill expected
-450  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-451  	   -- overwrite errors expected
-452  	   o_errors := NULL;
-453  	 END IF;
-454  	 RETURN l_test_passed;
-455    EXCEPTION
-456  	 WHEN OTHERS THEN
-457  	   IF SQLCODE != -20099
-458  	   THEN
-459  	     -- log unhandled exceptions
-460  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-461  	   END IF;
-462  	   RAISE;
-463    END has_trigger;
-464  
-465    FUNCTION has_object( p_object_name     IN	    VARCHAR2
-466  			  , p_object_type     IN	    VARCHAR2
-467  			  , o_errors		 OUT NOCOPY VARCHAR2
-468  			  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-469  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-470  			  )
-471  	 RETURN INTEGER
-472    IS
-473  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_object';
-474  	 l_test_passed	  INTEGER;
-475  	 l_expected	  INTEGER;
-476  	 l_has_object	  INTEGER;
-477  	 l_object_name	  VARCHAR2(128 CHAR);
-478  	 l_object_type	  VARCHAR2(23 CHAR);
-479  	 l_schema_to_use  VARCHAR2(128 CHAR);
-480  	 l_errors	  VARCHAR2(32767 CHAR);
-481    BEGIN
-482  	 l_errors	   := NULL;
-483  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-484  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-485  	 l_object_name	   := otap_string.reduce(p_object_name, 128);
-486  	 l_object_type	   := otap_string.reduce(UPPER(p_object_type), 23);
-487  	 IF	l_object_name	     IS NOT NULL
-488  	    AND LENGTH(l_object_name) > 0
-489  	    AND l_object_type	     IS NOT NULL
-490  	    AND LENGTH(l_object_type) > 0
-491  	 THEN
-492  	   -- schema
-493  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-494  	   -- check
-495  	   SELECT COUNT(*)
-496  	     INTO l_has_object
-497  	     FROM dba_objects
-498  	    WHERE owner       = l_schema_to_use
-499  	      AND object_name = l_object_name
-500  	      AND object_type = l_object_type
-501  	   ;
-502  	   -- we should find one or zero entries
-503  	   l_test_passed := count_chk(l_has_object, l_errors, l_script);
-504  	 ELSE
-505  	   -- invalid package name, type or state
-506  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-507  	   l_errors	       := 'Not allowed: ' || CASE
-508  						       WHEN l_object_name IS NULL OR LENGTH(l_object_name) = 0
-509  						       THEN 'p_object_name(NULL) '
-510  						     END ||
-511  						     CASE
-512  						       WHEN l_object_type IS NULL OR LENGTH(l_object_type) = 0
-513  						       THEN 'p_object_type(NULL)'
-514  						     END
-515  	   ;
-516  	   otap_log.log(l_errors, l_script, 'Object name NULL or type NULL');
-517  	 END IF;
-518  	 -- now decide on the expected result the final state and if errors are returned
-519  	 IF l_test_passed != l_expected
-520  	 THEN
-521  	   o_errors := otap_string.reduce(l_errors, 4000);
-522  	 ELSE
-523  	   -- overwrite states from before, as we fulfill expected
-524  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-525  	   -- overwrite errors expected
-526  	   o_errors := NULL;
-527  	 END IF;
-528  	 RETURN l_test_passed;
-529    EXCEPTION
-530  	 WHEN OTHERS THEN
-531  	   IF SQLCODE != -20099
-532  	   THEN
-533  	     -- log unhandled exceptions
-534  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-535  	   END IF;
-536  	   RAISE;
-537    END has_object;
-538  
-539    FUNCTION has_constraint( p_table_name	  IN		VARCHAR2
-540  			      , o_errors	     OUT NOCOPY VARCHAR2
-541  			      , p_constraint_type IN		VARCHAR2 DEFAULT 'C'
-542  			      , p_column_name	  IN		VARCHAR2 DEFAULT NULL
-543  			      , p_constraint	  IN		VARCHAR2 DEFAULT NULL
-544  			      , p_schema	  IN		VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-545  			      , p_expected_result IN		NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-546  			      )
-547  	 RETURN INTEGER
-548    IS
-549  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_constraint';
-550  	 l_test_passed	   INTEGER;
-551  	 l_expected	   INTEGER;
-552  	 l_has_constraint  INTEGER;
-553  	 l_constraint_type CHAR(1 CHAR);
-554  	 l_table_name	   VARCHAR2(128 CHAR);
-555  	 l_column_name	   VARCHAR2(128 CHAR);
-556  	 l_constraint_name VARCHAR2(128 CHAR);
-557  	 l_schema_to_use   VARCHAR2(128 CHAR);
-558  	 l_errors	   VARCHAR2(32767 CHAR);
-559    BEGIN
-560  	 l_errors	   := NULL;
-561  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-562  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-563  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
-564  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
-565  	 l_constraint_name := otap_string.reduce(p_constraint, 128);
-566  	 l_constraint_type := otap_string.reduce(UPPER(p_constraint_type), 1);
-567  	 IF	l_table_name	    IS NOT NULL
-568  	    AND LENGTH(l_table_name) > 0
-569  	    AND l_constraint_type   IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
-570  	 THEN
-571  	   -- schema
-572  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-573  	   -- check
-574  	   SELECT COUNT(*)
-575  	     INTO l_has_constraint
-576  	     FROM dba_constraints dco
-577  	     LEFT OUTER JOIN dba_cons_columns dcc
-578  	       ON dco.owner			   = dcc.owner
-579  	      AND dco.constraint_name		   = dcc.constraint_name
-580  	      AND dco.table_name		   = dcc.table_name
-581  	    WHERE dco.owner			   = l_schema_to_use
-582  	      AND dco.table_name		   = l_table_name
-583  	      AND NVL(dcc.column_name, 'n/a')	   = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
-584  	      AND dco.constraint_name		   = NVL(l_constraint_name, dco.constraint_name)
-585  	      AND dco.constraint_type		   = l_constraint_type
-586  	   ;
-587  	   -- we may find more than one entry for combined primary keys
-588  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
-589  	 ELSE
-590  	   -- missing mandatory table name
-591  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-592  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
-593  						     CASE
-594  						       WHEN l_constraint_type NOT IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
-595  						       THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ') '
-596  						     END
-597  	   ;
-598  	   otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
-599  	 END IF;
-600  	 -- now decide on the expected result the final state and if errors are returned
-601  	 IF l_test_passed != l_expected
-602  	 THEN
-603  	   o_errors := otap_string.reduce(l_errors, 4000);
-604  	 ELSE
-605  	   -- overwrite states from before, as we fulfill expected
-606  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-607  	   -- overwrite errors expected
-608  	   o_errors := NULL;
-609  	 END IF;
-610  	 RETURN l_test_passed;
-611    EXCEPTION
-612  	 WHEN OTHERS THEN
-613  	   IF SQLCODE != -20099
-614  	   THEN
-615  	     -- log unhandled exceptions
-616  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-617  	   END IF;
-618  	   RAISE;
-619    END has_constraint;
-620  
-621    FUNCTION has_ref_constraint( p_table_name      IN	    VARCHAR2
-622  				  , o_errors		 OUT NOCOPY VARCHAR2
-623  				  , p_constraint_type IN	    VARCHAR2 DEFAULT 'R'
-624  				  , p_column_name     IN	    VARCHAR2 DEFAULT NULL
-625  				  , p_constraint      IN	    VARCHAR2 DEFAULT NULL
-626  				  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-627  				  , p_r_table_name    IN	    VARCHAR2 DEFAULT NULL
-628  				  , p_r_column_name   IN	    VARCHAR2 DEFAULT NULL
-629  				  , p_r_constraint    IN	    VARCHAR2 DEFAULT NULL
-630  				  , p_r_schema	      IN	    VARCHAR2 DEFAULT NULL
-631  				  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-632  				  )
-633  	 RETURN INTEGER
-634    IS
-635  	 l_script	     VARCHAR2(1024 CHAR)    := 'otap_schema.has_ref_constraint';
-636  	 l_test_passed	     INTEGER;
-637  	 l_expected	     INTEGER;
-638  	 l_has_constraint    INTEGER;
-639  	 l_constraint_type   CHAR(1 CHAR);
-640  	 l_table_name	     VARCHAR2(128 CHAR);
-641  	 l_column_name	     VARCHAR2(128 CHAR);
-642  	 l_constraint_name   VARCHAR2(128 CHAR);
-643  	 l_schema_to_use     VARCHAR2(128 CHAR);
-644  	 l_r_table_name      VARCHAR2(128 CHAR);
-645  	 l_r_column_name     VARCHAR2(128 CHAR);
-646  	 l_r_constraint_name VARCHAR2(128 CHAR);
-647  	 l_r_schema	     VARCHAR2(128 CHAR);
-648  	 l_errors	     VARCHAR2(32767 CHAR);
-649    BEGIN
-650  	 l_errors	     := NULL;
-651  	 l_test_passed	     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-652  	 l_expected	     := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-653  	 l_table_name	     := otap_string.reduce(p_table_name, 128);
-654  	 l_column_name	     := otap_string.reduce(p_column_name, 128);
-655  	 l_constraint_name   := otap_string.reduce(p_constraint, 128);
-656  	 l_r_table_name      := otap_string.reduce(p_r_table_name, 128);
-657  	 l_r_column_name     := otap_string.reduce(p_r_column_name, 128);
-658  	 l_r_constraint_name := otap_string.reduce(p_r_constraint, 128);
-659  	 l_r_schema	     := otap_string.reduce(p_r_schema, 128);
-660  	 l_constraint_type   := otap_string.reduce(UPPER(p_constraint_type), 1);
-661  	 IF	l_table_name	    IS NOT NULL
-662  	    AND LENGTH(l_table_name) > 0
-663  	    AND l_constraint_type   IN ('R', 'F')
-664  	 THEN
-665  	   -- schema
-666  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-667  	   -- check
-668  	   SELECT COUNT(*)
-669  	     INTO l_has_constraint
-670  	     FROM dba_constraints dco
-671  	     LEFT OUTER JOIN dba_cons_columns dcc
-672  	       ON dco.owner	      = dcc.owner
-673  	      AND dco.constraint_name = dcc.constraint_name
-674  	      AND dco.table_name      = dcc.table_name
-675  	     LEFT OUTER JOIN dba_cons_columns dcr
-676  	       ON dco.r_owner			     = dcr.owner
-677  	      AND dco.r_constraint_name 	     = dcr.constraint_name
-678  	    WHERE dco.owner			     = l_schema_to_use
-679  	      AND dco.table_name		     = l_table_name
-680  	      AND NVL(dcc.column_name, 'n/a')	     = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
-681  	      AND dco.constraint_name		     = NVL(l_constraint_name, dco.constraint_name)
-682  	      AND NVL(dco.r_owner, 'n/a')	     = NVL(l_r_schema, NVL(dco.r_owner, 'n/a'))
-683  	      AND NVL(dco.r_constraint_name, 'n/a')  = NVL(l_r_constraint_name, NVL(dco.r_constraint_name, 'n/a'))
-684  	      AND NVL(dcr.table_name, 'n/a')	     = NVL(l_r_table_name, NVL(dcr.table_name, 'n/a'))
-685  	      AND NVL(dcr.column_name, 'n/a')	     = NVL(l_r_column_name, NVL(dcr.column_name, 'n/a'))
-686  	      AND dco.constraint_type		     = l_constraint_type
-687  	   ;
-688  	   -- we may find more than one entry for combined primary keys
-689  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
-690  	 ELSE
-691  	   -- missing mandatory table name
-692  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-693  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
-694  						     CASE
-695  						       WHEN l_constraint_type NOT IN ('R', 'F')
-696  						       THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ')'
-697  						     END
-698  	   ;
-699  	   otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
-700  	 END IF;
-701  	 -- now decide on the expected result the final state and if errors are returned
-702  	 IF l_test_passed != l_expected
-703  	 THEN
-704  	   o_errors := otap_string.reduce(l_errors, 4000);
-705  	 ELSE
-706  	   -- overwrite states from before, as we fulfill expected
-707  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-708  	   -- overwrite errors expected
-709  	   o_errors := NULL;
-710  	 END IF;
-711  	 RETURN l_test_passed;
-712    EXCEPTION
-713  	 WHEN OTHERS THEN
-714  	   IF SQLCODE != -20099
-715  	   THEN
-716  	     -- log unhandled exceptions
-717  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-718  	   END IF;
-719  	   RAISE;
-720    END has_ref_constraint;
-721  
-722    FUNCTION has_not_null_constraint( p_table_name	   IN		 VARCHAR2
-723  				       , p_column_name	   IN		 VARCHAR2
-724  				       , o_errors	      OUT NOCOPY VARCHAR2
-725  				       , p_constraint	   IN		 VARCHAR2 DEFAULT NULL
-726  				       , p_schema	   IN		 VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-727  				       , p_expected_result IN		 NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-728  				       )
-729  	 RETURN INTEGER
-730    IS
-731  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_not_null_constraint';
-732  	 l_test_passed	   INTEGER;
-733  	 l_expected	   INTEGER;
-734  	 l_has_constraint  INTEGER;
-735  	 l_constraint_type CHAR(1 CHAR);
-736  	 l_table_name	   VARCHAR2(128 CHAR);
-737  	 l_column_name	   VARCHAR2(128 CHAR);
-738  	 l_constraint_name VARCHAR2(128 CHAR);
-739  	 l_schema_to_use   VARCHAR2(128 CHAR);
-740  	 l_errors	   VARCHAR2(32767 CHAR);
-741    BEGIN
-742  	 l_errors	   := NULL;
-743  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-744  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-745  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
-746  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
-747  	 l_constraint_name := otap_string.reduce(p_constraint, 128);
-748  	 l_constraint_type := 'C';
-749  	 IF	l_table_name	     IS NOT NULL
-750  	    AND LENGTH(l_table_name)  > 0
-751  	    AND l_column_name	     IS NOT NULL
-752  	    AND LENGTH(l_column_name) > 0
-753  	 THEN
-754  	   -- schema
-755  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-756  	   -- check
-757  	   SELECT COUNT(*)
-758  	     INTO l_has_constraint
-759  	     FROM dba_constraints dco
-760  	     LEFT OUTER JOIN dba_cons_columns dcc
-761  	       ON dco.owner						      = dcc.owner
-762  	      AND dco.constraint_name					      = dcc.constraint_name
-763  	      AND dco.table_name					      = dcc.table_name
-764  	    WHERE dco.owner						      = l_schema_to_use
-765  	      AND dco.table_name					      = l_table_name
-766  	      AND dcc.column_name					      = l_column_name
-767  	      AND INSTR(UPPER(dco.search_condition_vc), UPPER(l_column_name)) > 0
-768  	      AND INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
-769  					    , 4000)
-770  		       , 'IS NOT NULL'
-771  		       )						      > 0
-772  	      AND dco.constraint_name					      = NVL(l_constraint_name, dco.constraint_name)
-773  	      AND dco.constraint_type					      = l_constraint_type
-774  	   ;
-775  	   -- we may find more than one entry for combined primary keys
-776  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
-777  	 ELSE
-778  	   -- missing mandatory table name
-779  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-780  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
-781  						     CASE WHEN l_column_name IS NULL THEN 'p_column_name(NULL) ' END
+ 60  	   IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+ 61  	   THEN
+ 62  	     l_errors := 'Table does not exist: ' || l_schema_to_use || '.' || l_table_name;
+ 63  	   END IF;
+ 64  	 ELSE
+ 65  	   -- invalid table name
+ 66  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+ 67  	   l_errors	       := 'Missing: p_table_name(NULL)';
+ 68  	   otap_log.log(l_errors, l_script, 'NULL test on table name');
+ 69  	 END IF;
+ 70  	 -- now decide on the expected result the final state and if errors are returned
+ 71  	 IF l_test_passed != l_expected
+ 72  	 THEN
+ 73  	   o_errors := otap_string.reduce(l_errors, 4000);
+ 74  	 ELSE
+ 75  	   -- overwrite states from before, as we fulfill expected
+ 76  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+ 77  	   -- overwrite errors found
+ 78  	   o_errors := NULL;
+ 79  	 END IF;
+ 80  	 RETURN l_test_passed;
+ 81    EXCEPTION
+ 82  	 WHEN OTHERS THEN
+ 83  	   IF SQLCODE != -20099
+ 84  	   THEN
+ 85  	     -- log unhandled exceptions
+ 86  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+ 87  	   END IF;
+ 88  	   RAISE;
+ 89    END has_table;
+ 90  
+ 91    FUNCTION has_column( p_table_name      IN	    VARCHAR2
+ 92  			  , p_column_name     IN	    VARCHAR2
+ 93  			  , o_errors		 OUT NOCOPY VARCHAR2
+ 94  			  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+ 95  			  , p_data_type       IN	    VARCHAR2 DEFAULT NULL
+ 96  			  , p_data_length     IN	    NUMBER   DEFAULT NULL
+ 97  			  , p_data_precision  IN	    NUMBER   DEFAULT NULL
+ 98  			  , p_data_scale      IN	    NUMBER   DEFAULT NULL
+ 99  			  , p_nullable	      IN	    VARCHAR2 DEFAULT NULL
+100  			  , p_data_default    IN	    VARCHAR2 DEFAULT NULL
+101  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+102  			  )
+103  	 RETURN INTEGER
+104    IS
+105  	 l_script	 VARCHAR2(1024 CHAR) := 'otap_schema.has_column';
+106  	 l_has_column	 INTEGER;
+107  	 l_test_passed	 INTEGER;
+108  	 l_expected	 INTEGER;
+109  	 l_schema_to_use VARCHAR2(128 CHAR);
+110  	 l_table_name	 VARCHAR2(128 CHAR);
+111  	 l_column_name	 VARCHAR2(128 CHAR);
+112  	 l_errors	 VARCHAR2(32767 CHAR);
+113    BEGIN
+114  	 l_errors      := NULL;
+115  	 l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+116  	 l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+117  	 l_table_name  := otap_string.reduce(p_table_name, 128);
+118  	 l_column_name := otap_string.reduce(p_column_name, 128);
+119  	 IF	l_table_name	     IS NOT NULL
+120  	    AND LENGTH(l_table_name)  > 0
+121  	    AND l_column_name	     IS NOT NULL
+122  	    AND LENGTH(l_column_name) > 0
+123  	 THEN
+124  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+125  	   -- test column exists
+126  	   SELECT COUNT(*)
+127  	     INTO l_has_column
+128  	     FROM dba_tab_columns
+129  	    WHERE owner 			     = l_schema_to_use
+130  	      AND table_name			     = l_table_name
+131  	      AND column_name			     = l_column_name
+132  	      AND NVL(data_type, 'n/a') 	     = NVL(UPPER(p_data_type), NVL(data_type, 'n/a'))
+133  	      AND data_length			     = NVL(p_data_length, data_length)
+134  	      AND NVL(nullable, 'n/a')		     = NVL(UPPER(p_nullable), NVL(nullable, 'n/a'))
+135  	      AND NVL(data_precision, -1)	     = NVL(p_data_precision, NVL(data_precision, -1))
+136  	      AND NVL(data_scale, -1)		     = NVL(p_data_scale, NVL(data_scale, -1))
+137  	      AND TRIM(NVL(data_default_vc, 'n/a'))  = NVL(TRIM(p_data_default), TRIM(NVL(data_default_vc, 'n/a')))
+138  	   ;
+139  	   -- we should find one or zero entries
+140  	   l_test_passed := count_chk(l_has_column, l_errors, l_script);
+141  	   IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+142  	   THEN
+143  	     l_errors := 'Column does not exist: ' || l_schema_to_use || '.' || l_table_name || '.' || l_column_name;
+144  	   END IF;
+145  	 ELSE
+146  	   -- invalid table name
+147  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+148  	   l_errors	       := 'Missing: ' ||
+149  				  CASE
+150  				    WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
+151  				    THEN 'p_table_name(NULL) '
+152  				  END ||
+153  				  CASE
+154  				    WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
+155  				    THEN 'p_column_name(NULL) '
+156  				  END
+157  	   ;
+158  	   otap_log.log(l_errors, l_script, 'NULL test on table or column name');
+159  	 END IF;
+160  	 -- now decide on the expected result the final state and if errors are returned
+161  	 IF l_test_passed != l_expected
+162  	 THEN
+163  	   o_errors := otap_string.reduce(l_errors, 4000);
+164  	 ELSE
+165  	   -- overwrite states from before, as we fulfill expected
+166  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+167  	   -- overwrite errors expected
+168  	   o_errors := NULL;
+169  	 END IF;
+170  	 RETURN l_test_passed;
+171    EXCEPTION
+172  	 WHEN OTHERS THEN
+173  	   IF SQLCODE != -20099
+174  	   THEN
+175  	     -- log unhandled exceptions
+176  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+177  	   END IF;
+178  	   RAISE;
+179    END has_column;
+180  
+181    FUNCTION has_package( p_package_name    IN	     VARCHAR2
+182  			   , o_errors		  OUT NOCOPY VARCHAR2
+183  			   , p_schema	       IN	     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+184  			   , p_package_type    IN	     VARCHAR2 DEFAULT 'PACKAGE'
+185  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+186  			   )
+187  	 RETURN INTEGER
+188    IS
+189  	 l_script	 VARCHAR2(1024 CHAR)	:= 'otap_schema.has_package';
+190  	 l_ignore	 VARCHAR2(6 CHAR)	:= 'IGNORE';
+191  	 l_header	 VARCHAR2(7 CHAR)	:= 'PACKAGE';
+192  	 l_body 	 VARCHAR2(12 CHAR)	:= 'PACKAGE BODY';
+193  	 l_has_package	 INTEGER;
+194  	 l_test_passed	 INTEGER;
+195  	 l_expected	 INTEGER;
+196  	 l_schema_to_use VARCHAR2(128 CHAR);
+197  	 l_package_name  VARCHAR2(128 CHAR);
+198  	 l_package_type  VARCHAR2(12 CHAR);
+199  	 l_errors	 VARCHAR2(32767 CHAR);
+200    BEGIN
+201  	 l_errors	 := NULL;
+202  	 l_test_passed	 := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+203  	 l_expected	 := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+204  	 l_package_name  := otap_string.reduce(p_package_name, 128);
+205  	 l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
+206  	 IF	l_package_name	       IS NOT NULL
+207  	    AND LENGTH(l_package_name)	> 0
+208  	    AND l_package_type	       IN (l_header, l_body)
+209  	 THEN
+210  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+211  	   SELECT COUNT(*)
+212  	     INTO l_has_package
+213  	     FROM dba_objects
+214  		  -- surprisingly nullable columns
+215  	    WHERE owner       = l_schema_to_use
+216  	      AND object_name = l_package_name
+217  	      AND object_type = l_package_type
+218  	   ;
+219  	   -- we should find one or zero entries
+220  	   l_test_passed := count_chk(l_has_package, l_errors, l_script);
+221  	 ELSE
+222  	   -- invalid package name or type
+223  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+224  	   l_errors	       := 'Not allowed: ' || CASE
+225  						       WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
+226  						       THEN 'p_package_name(NULL) '
+227  						     END ||
+228  						     CASE
+229  						       WHEN l_package_type NOT IN (l_header, l_body)
+230  						       THEN 'p_package_type(' || l_package_type || ') '
+231  						     END
+232  	   ;
+233  	   otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
+234  	 END IF;
+235  	 -- now decide on the expected result the final state and if errors are returned
+236  	 IF l_test_passed != l_expected
+237  	 THEN
+238  	   o_errors := otap_string.reduce(l_errors, 4000);
+239  	 ELSE
+240  	   -- overwrite states from before, as we fulfill expected
+241  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+242  	   -- overwrite errors expected
+243  	   o_errors := NULL;
+244  	 END IF;
+245  	 RETURN l_test_passed;
+246    EXCEPTION
+247  	 WHEN OTHERS THEN
+248  	   IF SQLCODE != -20099
+249  	   THEN
+250  	     -- log unhandled exceptions
+251  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+252  	   END IF;
+253  	   RAISE;
+254    END has_package;
+255  
+256    FUNCTION has_procedure( p_procedure_name  IN	       VARCHAR2
+257  			     , o_errors 	    OUT NOCOPY VARCHAR2
+258  			     , p_schema 	 IN	       VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+259  			     , p_procedure_type  IN	       VARCHAR2 DEFAULT 'FUNCTION'
+260  			     , p_package_name	 IN	       VARCHAR2 DEFAULT NULL
+261  			     , p_return_type	 IN	       VARCHAR2 DEFAULT NULL
+262  			     , p_expected_result IN	       NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+263  			     )
+264  	 RETURN INTEGER
+265    IS
+266  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_procedure';
+267  	 l_procedure	  VARCHAR2(9 CHAR)	 := 'PROCEDURE';
+268  	 l_function	  VARCHAR2(8 CHAR)	 := 'FUNCTION';
+269  	 l_test_passed	  INTEGER;
+270  	 l_expected	  INTEGER;
+271  	 l_has_procedure  INTEGER;
+272  	 l_procedure_name VARCHAR2(128 CHAR);
+273  	 l_package_name   VARCHAR2(128 CHAR);
+274  	 l_procedure_type VARCHAR2(9 CHAR);
+275  	 l_return_type	  VARCHAR2(128 CHAR);
+276  	 l_schema_to_use  VARCHAR2(128 CHAR);
+277  	 l_errors	  VARCHAR2(32767 CHAR);
+278    BEGIN
+279  	 l_errors	   := NULL;
+280  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+281  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+282  	 l_procedure_name  := otap_string.reduce(p_procedure_name, 128);
+283  	 l_package_name    := otap_string.reduce(p_package_name, 128);
+284  	 l_procedure_type  := otap_string.reduce(UPPER(p_procedure_type), 9);
+285  	 l_return_type	   := otap_string.reduce(UPPER(p_return_type), 128);
+286  	 IF	l_procedure_name	IS NOT NULL
+287  	    AND LENGTH(l_procedure_name) > 0
+288  	    AND l_procedure_type	IN (l_procedure, l_function)
+289  	 THEN
+290  	   -- schema
+291  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+292  	   -- check
+293  	     WITH prc AS
+294  		  (SELECT dbo.owner
+295  			, dbp.procedure_name
+296  			, CASE
+297  			    WHEN dbr.position	    = 0
+298  			     AND dbr.argument_name IS NULL
+299  			    THEN 'FUNCTION'
+300  			    ELSE 'PROCEDURE'
+301  			  END AS procedure_type
+302  			, CASE
+303  			    WHEN dbr.position	    = 0
+304  			     AND dbr.argument_name IS NULL
+305  			    THEN dbr.data_type
+306  			    ELSE NULL
+307  			  END AS return_type
+308  			, dbo.status
+309  			, dbo.object_name AS package_name
+310  		     FROM dba_objects dbo
+311  		     LEFT OUTER JOIN dba_procedures dbp
+312  		       ON dbo.owner	  = dbp.owner
+313  		      AND dbo.object_name = dbp.object_name
+314  		      AND dbo.object_type = dbp.object_type
+315  		     LEFT OUTER JOIN dba_arguments dbr
+316  		       ON dbp.owner	     = dbr.owner
+317  		      AND dbp.object_name    = dbr.package_name
+318  		      AND dbp.procedure_name = dbr.object_name
+319  		      AND dbp.object_id      = dbr.object_id
+320  		      AND dbp.subprogram_id  = dbr.subprogram_id
+321  		      AND dbr.sequence	     = 1
+322  		    WHERE dbo.owner	   = l_schema_to_use
+323  		      AND dbo.object_type  = 'PACKAGE'
+324  			  -- exclude package itself
+325  		      AND dbp.procedure_name IS NOT NULL
+326  		    UNION ALL
+327  		   SELECT dbo.owner
+328  			, dbo.object_name AS procedure_name
+329  			, dbo.object_type AS procedure_type
+330  			, CASE
+331  			    WHEN dbr.position	    = 0
+332  			     AND dbr.argument_name IS NULL
+333  			    THEN dbr.data_type
+334  			    ELSE NULL
+335  			  END AS return_type
+336  			, dbo.status
+337  			, NULL AS package_name
+338  		     FROM dba_objects dbo
+339  		     LEFT OUTER JOIN dba_procedures dbp
+340  		       ON dbo.owner	  = dbp.owner
+341  		      AND dbo.object_name = dbp.object_name
+342  		      AND dbo.object_type = dbp.object_type
+343  		     LEFT OUTER JOIN dba_arguments dbr
+344  		       ON dbp.owner	    = dbr.owner
+345  		      AND dbp.object_name   = dbr.object_name
+346  		      AND dbp.object_id     = dbr.object_id
+347  		      AND dbp.subprogram_id = dbr.subprogram_id
+348  		      AND dbr.sequence	    = 1
+349  		    WHERE dbo.owner	   = l_schema_to_use
+350  		      AND dbo.object_type IN ('FUNCTION', 'PROCEDURE')
+351  		  )
+352  	   SELECT COUNT(*)
+353  	     INTO l_has_procedure
+354  	     FROM prc
+355  	    WHERE procedure_name	     = l_procedure_name
+356  	      AND procedure_type	     = l_procedure_type
+357  	      AND NVL(return_type, 'n/a')    = NVL(l_return_type, NVL(return_type, 'n/a'))
+358  	      AND NVL(package_name, 'n/a')   = NVL(l_package_name, NVL(package_name, 'n/a'))
+359  	   ;
+360  	   -- we may find more than 1 entry, if function or procedure has same name but different signature
+361  	   l_test_passed := CASE WHEN l_has_procedure = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+362  	 ELSE
+363  	   -- invalid package name, type or state
+364  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+365  	   l_errors	       := 'Not allowed: ' || CASE
+366  						       WHEN l_procedure_name IS NULL OR LENGTH(l_procedure_name) = 0
+367  						       THEN 'p_procedure_name(NULL) '
+368  						     END ||
+369  						     CASE
+370  						       WHEN l_procedure_type NOT IN (l_procedure, l_function)
+371  						       THEN 'p_procedure_type(' || l_procedure_type || ') '
+372  						     END
+373  	   ;
+374  	   otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
+375  	 END IF;
+376  	 -- now decide on the expected result the final state and if errors are returned
+377  	 IF l_test_passed != l_expected
+378  	 THEN
+379  	   o_errors := otap_string.reduce(l_errors, 4000);
+380  	 ELSE
+381  	   -- overwrite states from before, as we fulfill expected
+382  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+383  	   -- overwrite errors expected
+384  	   o_errors := NULL;
+385  	 END IF;
+386  	 RETURN l_test_passed;
+387    EXCEPTION
+388  	 WHEN OTHERS THEN
+389  	   IF SQLCODE != -20099
+390  	   THEN
+391  	     -- log unhandled exceptions
+392  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+393  	   END IF;
+394  	   RAISE;
+395    END has_procedure;
+396  
+397    FUNCTION has_trigger( p_trigger_name    IN	     VARCHAR2
+398  			   , o_errors		  OUT NOCOPY VARCHAR2
+399  			   , p_schema	       IN	     VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+400  			   , p_trigger_type    IN	     VARCHAR2 DEFAULT NULL
+401  			   , p_trigger_event   IN	     VARCHAR2 DEFAULT NULL
+402  			   , p_table_owner     IN	     VARCHAR2 DEFAULT NULL
+403  			   , p_table_name      IN	     VARCHAR2 DEFAULT NULL
+404  			   , p_expected_result IN	     NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+405  			   )
+406  	 RETURN INTEGER
+407    IS
+408  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_trigger';
+409  	 l_test_passed	  INTEGER;
+410  	 l_expected	  INTEGER;
+411  	 l_has_trigger	  INTEGER;
+412  	 l_trigger_name   VARCHAR2(128 CHAR);
+413  	 l_trigger_type   VARCHAR2(16 CHAR);
+414  	 l_trigger_event  VARCHAR2(246 CHAR);
+415  	 l_table_owner	  VARCHAR2(128 CHAR);
+416  	 l_table_name	  VARCHAR2(128 CHAR);
+417  	 l_schema_to_use  VARCHAR2(128 CHAR);
+418  	 l_errors	  VARCHAR2(32767 CHAR);
+419    BEGIN
+420  	 l_errors	   := NULL;
+421  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+422  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+423  	 l_trigger_name    := otap_string.reduce(p_trigger_name, 128);
+424  	 l_trigger_type    := otap_string.reduce(UPPER(p_trigger_type), 16);
+425  	 l_trigger_event   := otap_string.reduce(UPPER(p_trigger_event), 246);
+426  	 l_table_owner	   := otap_string.reduce(p_table_owner, 128);
+427  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
+428  	 IF	l_trigger_name	      IS NOT NULL
+429  	    AND LENGTH(l_trigger_name) > 0
+430  	 THEN
+431  	   -- schema
+432  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+433  	   -- check
+434  	   SELECT COUNT(*)
+435  	     INTO l_has_trigger
+436  	     FROM dba_triggers
+437  	    WHERE owner 		       = l_schema_to_use
+438  	      AND trigger_name		       = l_trigger_name
+439  	      AND NVL(trigger_type, 'n/a')     = NVL(l_trigger_type, NVL(trigger_type, 'n/a'))
+440  	      AND NVL(triggering_event, 'n/a') = NVL(l_trigger_event, NVL(triggering_event, 'n/a'))
+441  	      AND NVL(table_owner, 'n/a')      = NVL(l_table_owner, NVL(table_owner, 'n/a'))
+442  	      AND NVL(table_name, 'n/a')       = NVL(l_table_name, NVL(table_name, 'n/a'))
+443  	   ;
+444  	   -- we should find one or zero entries
+445  	   l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
+446  	 ELSE
+447  	   -- invalid package name, type or state
+448  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+449  	   l_errors	       := 'Not allowed: p_trigger_name(NULL)';
+450  	   otap_log.log(l_errors, l_script, 'Trigger name NULL');
+451  	 END IF;
+452  	 -- now decide on the expected result the final state and if errors are returned
+453  	 IF l_test_passed != l_expected
+454  	 THEN
+455  	   o_errors := otap_string.reduce(l_errors, 4000);
+456  	 ELSE
+457  	   -- overwrite states from before, as we fulfill expected
+458  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+459  	   -- overwrite errors expected
+460  	   o_errors := NULL;
+461  	 END IF;
+462  	 RETURN l_test_passed;
+463    EXCEPTION
+464  	 WHEN OTHERS THEN
+465  	   IF SQLCODE != -20099
+466  	   THEN
+467  	     -- log unhandled exceptions
+468  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+469  	   END IF;
+470  	   RAISE;
+471    END has_trigger;
+472  
+473    FUNCTION has_object( p_object_name     IN	    VARCHAR2
+474  			  , p_object_type     IN	    VARCHAR2
+475  			  , o_errors		 OUT NOCOPY VARCHAR2
+476  			  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+477  			  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+478  			  )
+479  	 RETURN INTEGER
+480    IS
+481  	 l_script	  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_object';
+482  	 l_test_passed	  INTEGER;
+483  	 l_expected	  INTEGER;
+484  	 l_has_object	  INTEGER;
+485  	 l_object_name	  VARCHAR2(128 CHAR);
+486  	 l_object_type	  VARCHAR2(23 CHAR);
+487  	 l_schema_to_use  VARCHAR2(128 CHAR);
+488  	 l_errors	  VARCHAR2(32767 CHAR);
+489    BEGIN
+490  	 l_errors	   := NULL;
+491  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+492  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+493  	 l_object_name	   := otap_string.reduce(p_object_name, 128);
+494  	 l_object_type	   := otap_string.reduce(UPPER(p_object_type), 23);
+495  	 IF	l_object_name	     IS NOT NULL
+496  	    AND LENGTH(l_object_name) > 0
+497  	    AND l_object_type	     IS NOT NULL
+498  	    AND LENGTH(l_object_type) > 0
+499  	 THEN
+500  	   -- schema
+501  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+502  	   -- check
+503  	   SELECT COUNT(*)
+504  	     INTO l_has_object
+505  	     FROM dba_objects
+506  	    WHERE owner       = l_schema_to_use
+507  	      AND object_name = l_object_name
+508  	      AND object_type = l_object_type
+509  	   ;
+510  	   -- we should find one or zero entries
+511  	   l_test_passed := count_chk(l_has_object, l_errors, l_script);
+512  	 ELSE
+513  	   -- invalid package name, type or state
+514  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+515  	   l_errors	       := 'Not allowed: ' || CASE
+516  						       WHEN l_object_name IS NULL OR LENGTH(l_object_name) = 0
+517  						       THEN 'p_object_name(NULL) '
+518  						     END ||
+519  						     CASE
+520  						       WHEN l_object_type IS NULL OR LENGTH(l_object_type) = 0
+521  						       THEN 'p_object_type(NULL)'
+522  						     END
+523  	   ;
+524  	   otap_log.log(l_errors, l_script, 'Object name NULL or type NULL');
+525  	 END IF;
+526  	 -- now decide on the expected result the final state and if errors are returned
+527  	 IF l_test_passed != l_expected
+528  	 THEN
+529  	   o_errors := otap_string.reduce(l_errors, 4000);
+530  	 ELSE
+531  	   -- overwrite states from before, as we fulfill expected
+532  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+533  	   -- overwrite errors expected
+534  	   o_errors := NULL;
+535  	 END IF;
+536  	 RETURN l_test_passed;
+537    EXCEPTION
+538  	 WHEN OTHERS THEN
+539  	   IF SQLCODE != -20099
+540  	   THEN
+541  	     -- log unhandled exceptions
+542  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+543  	   END IF;
+544  	   RAISE;
+545    END has_object;
+546  
+547    FUNCTION has_constraint( p_table_name	  IN		VARCHAR2
+548  			      , o_errors	     OUT NOCOPY VARCHAR2
+549  			      , p_constraint_type IN		VARCHAR2 DEFAULT 'C'
+550  			      , p_column_name	  IN		VARCHAR2 DEFAULT NULL
+551  			      , p_constraint	  IN		VARCHAR2 DEFAULT NULL
+552  			      , p_schema	  IN		VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+553  			      , p_expected_result IN		NUMBER	 DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+554  			      )
+555  	 RETURN INTEGER
+556    IS
+557  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_constraint';
+558  	 l_test_passed	   INTEGER;
+559  	 l_expected	   INTEGER;
+560  	 l_has_constraint  INTEGER;
+561  	 l_constraint_type CHAR(1 CHAR);
+562  	 l_table_name	   VARCHAR2(128 CHAR);
+563  	 l_column_name	   VARCHAR2(128 CHAR);
+564  	 l_constraint_name VARCHAR2(128 CHAR);
+565  	 l_schema_to_use   VARCHAR2(128 CHAR);
+566  	 l_errors	   VARCHAR2(32767 CHAR);
+567    BEGIN
+568  	 l_errors	   := NULL;
+569  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+570  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+571  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
+572  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
+573  	 l_constraint_name := otap_string.reduce(p_constraint, 128);
+574  	 l_constraint_type := otap_string.reduce(UPPER(p_constraint_type), 1);
+575  	 IF	l_table_name	    IS NOT NULL
+576  	    AND LENGTH(l_table_name) > 0
+577  	    AND l_constraint_type   IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
+578  	 THEN
+579  	   -- schema
+580  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+581  	   -- check
+582  	   SELECT COUNT(*)
+583  	     INTO l_has_constraint
+584  	     FROM dba_constraints dco
+585  	     LEFT OUTER JOIN dba_cons_columns dcc
+586  	       ON dco.owner			   = dcc.owner
+587  	      AND dco.constraint_name		   = dcc.constraint_name
+588  	      AND dco.table_name		   = dcc.table_name
+589  	    WHERE dco.owner			   = l_schema_to_use
+590  	      AND dco.table_name		   = l_table_name
+591  	      AND NVL(dcc.column_name, 'n/a')	   = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+592  	      AND dco.constraint_name		   = NVL(l_constraint_name, dco.constraint_name)
+593  	      AND dco.constraint_type		   = l_constraint_type
+594  	   ;
+595  	   -- we may find more than one entry for combined primary keys
+596  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+597  	 ELSE
+598  	   -- missing mandatory table name
+599  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+600  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+601  						     CASE
+602  						       WHEN l_constraint_type NOT IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
+603  						       THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ') '
+604  						     END
+605  	   ;
+606  	   otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
+607  	 END IF;
+608  	 -- now decide on the expected result the final state and if errors are returned
+609  	 IF l_test_passed != l_expected
+610  	 THEN
+611  	   o_errors := otap_string.reduce(l_errors, 4000);
+612  	 ELSE
+613  	   -- overwrite states from before, as we fulfill expected
+614  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+615  	   -- overwrite errors expected
+616  	   o_errors := NULL;
+617  	 END IF;
+618  	 RETURN l_test_passed;
+619    EXCEPTION
+620  	 WHEN OTHERS THEN
+621  	   IF SQLCODE != -20099
+622  	   THEN
+623  	     -- log unhandled exceptions
+624  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+625  	   END IF;
+626  	   RAISE;
+627    END has_constraint;
+628  
+629    FUNCTION has_ref_constraint( p_table_name      IN	    VARCHAR2
+630  				  , o_errors		 OUT NOCOPY VARCHAR2
+631  				  , p_constraint_type IN	    VARCHAR2 DEFAULT 'R'
+632  				  , p_column_name     IN	    VARCHAR2 DEFAULT NULL
+633  				  , p_constraint      IN	    VARCHAR2 DEFAULT NULL
+634  				  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+635  				  , p_r_table_name    IN	    VARCHAR2 DEFAULT NULL
+636  				  , p_r_column_name   IN	    VARCHAR2 DEFAULT NULL
+637  				  , p_r_constraint    IN	    VARCHAR2 DEFAULT NULL
+638  				  , p_r_schema	      IN	    VARCHAR2 DEFAULT NULL
+639  				  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+640  				  )
+641  	 RETURN INTEGER
+642    IS
+643  	 l_script	     VARCHAR2(1024 CHAR)    := 'otap_schema.has_ref_constraint';
+644  	 l_test_passed	     INTEGER;
+645  	 l_expected	     INTEGER;
+646  	 l_has_constraint    INTEGER;
+647  	 l_constraint_type   CHAR(1 CHAR);
+648  	 l_table_name	     VARCHAR2(128 CHAR);
+649  	 l_column_name	     VARCHAR2(128 CHAR);
+650  	 l_constraint_name   VARCHAR2(128 CHAR);
+651  	 l_schema_to_use     VARCHAR2(128 CHAR);
+652  	 l_r_table_name      VARCHAR2(128 CHAR);
+653  	 l_r_column_name     VARCHAR2(128 CHAR);
+654  	 l_r_constraint_name VARCHAR2(128 CHAR);
+655  	 l_r_schema	     VARCHAR2(128 CHAR);
+656  	 l_errors	     VARCHAR2(32767 CHAR);
+657    BEGIN
+658  	 l_errors	     := NULL;
+659  	 l_test_passed	     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+660  	 l_expected	     := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+661  	 l_table_name	     := otap_string.reduce(p_table_name, 128);
+662  	 l_column_name	     := otap_string.reduce(p_column_name, 128);
+663  	 l_constraint_name   := otap_string.reduce(p_constraint, 128);
+664  	 l_r_table_name      := otap_string.reduce(p_r_table_name, 128);
+665  	 l_r_column_name     := otap_string.reduce(p_r_column_name, 128);
+666  	 l_r_constraint_name := otap_string.reduce(p_r_constraint, 128);
+667  	 l_r_schema	     := otap_string.reduce(p_r_schema, 128);
+668  	 l_constraint_type   := otap_string.reduce(UPPER(p_constraint_type), 1);
+669  	 IF	l_table_name	    IS NOT NULL
+670  	    AND LENGTH(l_table_name) > 0
+671  	    AND l_constraint_type   IN ('R', 'F')
+672  	 THEN
+673  	   -- schema
+674  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+675  	   -- check
+676  	   SELECT COUNT(*)
+677  	     INTO l_has_constraint
+678  	     FROM dba_constraints dco
+679  	     LEFT OUTER JOIN dba_cons_columns dcc
+680  	       ON dco.owner	      = dcc.owner
+681  	      AND dco.constraint_name = dcc.constraint_name
+682  	      AND dco.table_name      = dcc.table_name
+683  	     LEFT OUTER JOIN dba_cons_columns dcr
+684  	       ON dco.r_owner			     = dcr.owner
+685  	      AND dco.r_constraint_name 	     = dcr.constraint_name
+686  	    WHERE dco.owner			     = l_schema_to_use
+687  	      AND dco.table_name		     = l_table_name
+688  	      AND NVL(dcc.column_name, 'n/a')	     = NVL(l_column_name, NVL(dcc.column_name, 'n/a'))
+689  	      AND dco.constraint_name		     = NVL(l_constraint_name, dco.constraint_name)
+690  	      AND NVL(dco.r_owner, 'n/a')	     = NVL(l_r_schema, NVL(dco.r_owner, 'n/a'))
+691  	      AND NVL(dco.r_constraint_name, 'n/a')  = NVL(l_r_constraint_name, NVL(dco.r_constraint_name, 'n/a'))
+692  	      AND NVL(dcr.table_name, 'n/a')	     = NVL(l_r_table_name, NVL(dcr.table_name, 'n/a'))
+693  	      AND NVL(dcr.column_name, 'n/a')	     = NVL(l_r_column_name, NVL(dcr.column_name, 'n/a'))
+694  	      AND dco.constraint_type		     = l_constraint_type
+695  	   ;
+696  	   -- we may find more than one entry for combined primary keys
+697  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+698  	 ELSE
+699  	   -- missing mandatory table name
+700  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+701  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+702  						     CASE
+703  						       WHEN l_constraint_type NOT IN ('R', 'F')
+704  						       THEN 'p_constraint_type(' || NVL(p_constraint_type, 'NULL') || ')'
+705  						     END
+706  	   ;
+707  	   otap_log.log(l_errors, l_script, 'Table name NULL or invalid constraint type');
+708  	 END IF;
+709  	 -- now decide on the expected result the final state and if errors are returned
+710  	 IF l_test_passed != l_expected
+711  	 THEN
+712  	   o_errors := otap_string.reduce(l_errors, 4000);
+713  	 ELSE
+714  	   -- overwrite states from before, as we fulfill expected
+715  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+716  	   -- overwrite errors expected
+717  	   o_errors := NULL;
+718  	 END IF;
+719  	 RETURN l_test_passed;
+720    EXCEPTION
+721  	 WHEN OTHERS THEN
+722  	   IF SQLCODE != -20099
+723  	   THEN
+724  	     -- log unhandled exceptions
+725  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+726  	   END IF;
+727  	   RAISE;
+728    END has_ref_constraint;
+729  
+730    FUNCTION has_not_null_constraint( p_table_name	   IN		 VARCHAR2
+731  				       , p_column_name	   IN		 VARCHAR2
+732  				       , o_errors	      OUT NOCOPY VARCHAR2
+733  				       , p_constraint	   IN		 VARCHAR2 DEFAULT NULL
+734  				       , p_schema	   IN		 VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+735  				       , p_expected_result IN		 NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+736  				       )
+737  	 RETURN INTEGER
+738    IS
+739  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_not_null_constraint';
+740  	 l_test_passed	   INTEGER;
+741  	 l_expected	   INTEGER;
+742  	 l_has_constraint  INTEGER;
+743  	 l_constraint_type CHAR(1 CHAR);
+744  	 l_table_name	   VARCHAR2(128 CHAR);
+745  	 l_column_name	   VARCHAR2(128 CHAR);
+746  	 l_constraint_name VARCHAR2(128 CHAR);
+747  	 l_schema_to_use   VARCHAR2(128 CHAR);
+748  	 l_errors	   VARCHAR2(32767 CHAR);
+749    BEGIN
+750  	 l_errors	   := NULL;
+751  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+752  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+753  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
+754  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
+755  	 l_constraint_name := otap_string.reduce(p_constraint, 128);
+756  	 l_constraint_type := 'C';
+757  	 IF	l_table_name	     IS NOT NULL
+758  	    AND LENGTH(l_table_name)  > 0
+759  	    AND l_column_name	     IS NOT NULL
+760  	    AND LENGTH(l_column_name) > 0
+761  	 THEN
+762  	   -- schema
+763  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+764  	   -- check
+765  	   SELECT COUNT(*)
+766  	     INTO l_has_constraint
+767  	     FROM dba_constraints dco
+768  	     LEFT OUTER JOIN dba_cons_columns dcc
+769  	       ON dco.owner						      = dcc.owner
+770  	      AND dco.constraint_name					      = dcc.constraint_name
+771  	      AND dco.table_name					      = dcc.table_name
+772  	    WHERE dco.owner						      = l_schema_to_use
+773  	      AND dco.table_name					      = l_table_name
+774  	      AND dcc.column_name					      = l_column_name
+775  	      AND INSTR(UPPER(dco.search_condition_vc), UPPER(l_column_name)) > 0
+776  	      AND INSTR( otap_string.flatten( UPPER(dco.search_condition_vc)
+777  					    , 4000)
+778  		       , 'IS NOT NULL'
+779  		       )						      > 0
+780  	      AND dco.constraint_name					      = NVL(l_constraint_name, dco.constraint_name)
+781  	      AND dco.constraint_type					      = l_constraint_type
 782  	   ;
-783  	   otap_log.log(l_errors, l_script, 'Table name or column name NULL');
-784  	 END IF;
-785  	 -- now decide on the expected result the final state and if errors are returned
-786  	 IF l_test_passed != l_expected
-787  	 THEN
-788  	   o_errors := otap_string.reduce(l_errors, 4000);
-789  	 ELSE
-790  	   -- overwrite states from before, as we fulfill expected
-791  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-792  	   -- overwrite errors expected
-793  	   o_errors := NULL;
-794  	 END IF;
-795  	 RETURN l_test_passed;
-796    EXCEPTION
-797  	 WHEN OTHERS THEN
-798  	   IF SQLCODE != -20099
-799  	   THEN
-800  	     -- log unhandled exceptions
-801  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-802  	   END IF;
-803  	   RAISE;
-804    END has_not_null_constraint;
-805  
-806    FUNCTION has_index( p_table_name      IN 	   VARCHAR2
-807  			 , o_errors		OUT NOCOPY VARCHAR2
-808  			 , p_column_name     IN 	   VARCHAR2 DEFAULT NULL
-809  			 , p_index_name      IN 	   VARCHAR2 DEFAULT NULL
-810  			 , p_index_type      IN 	   VARCHAR2 DEFAULT NULL
-811  			 , p_table_type      IN 	   VARCHAR2 DEFAULT NULL
-812  			 , p_uniqueness      IN 	   VARCHAR2 DEFAULT NULL
-813  			 , p_tablespace_name IN 	   VARCHAR2 DEFAULT NULL
-814  			 , p_partitioned     IN 	   VARCHAR2 DEFAULT NULL
-815  			 , p_schema	     IN 	   VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-816  			 , p_expected_result IN 	   NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-817  			 )
-818  	 RETURN INTEGER
-819    IS
-820  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_index';
-821  	 l_test_passed	   INTEGER;
-822  	 l_expected	   INTEGER;
-823  	 l_has_index	   INTEGER;
-824  	 l_table_name	   VARCHAR2(128 CHAR);
-825  	 l_column_name	   VARCHAR2(128 CHAR);
-826  	 l_index_name	   VARCHAR2(128 CHAR);
-827  	 l_index_type	   VARCHAR2(27 CHAR);
-828  	 l_table_type	   VARCHAR2(11 CHAR);
-829  	 l_uniqueness	   VARCHAR2(9 CHAR);
-830  	 l_tablespace_name VARCHAR2(30 CHAR);
-831  	 l_partitioned	   VARCHAR2(3 CHAR);
-832  	 l_schema_to_use   VARCHAR2(128 CHAR);
-833  	 l_errors	   VARCHAR2(32767 CHAR);
-834    BEGIN
-835  	 l_errors	   := NULL;
-836  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-837  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-838  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
-839  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
-840  	 l_index_name	   := otap_string.reduce(p_index_name, 128);
-841  	 l_index_type	   := otap_string.reduce(UPPER(p_index_type), 27);
-842  	 l_table_type	   := otap_string.reduce(UPPER(p_table_type), 11);
-843  	 l_uniqueness	   := otap_string.reduce(UPPER(p_uniqueness), 9);
-844  	 l_tablespace_name := otap_string.reduce(p_tablespace_name, 30);
-845  	 l_partitioned	   := otap_string.reduce(UPPER(p_partitioned), 3);
-846  	 IF    (    l_table_name	IS NOT NULL
-847  		AND LENGTH(l_table_name) > 0
-848  	       )
-849  	    OR (    l_index_name	IS NOT NULL
-850  		AND LENGTH(l_index_name) > 0
-851  	       )
-852  	 THEN
-853  	   -- schema
-854  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-855  	   -- check
-856  	   SELECT COUNT(*)
-857  	     INTO l_has_index
-858  	     FROM dba_indexes dix
-859  	     LEFT OUTER JOIN dba_ind_columns dic
-860  	       ON dix.owner	  = dic.index_owner
-861  	      AND dix.index_name  = dic.index_name
-862  	      AND dix.table_owner = dic.table_owner
-863  	      AND dix.table_name  = dic.table_name
-864  	    WHERE dix.owner			  = l_schema_to_use
-865  	      AND dix.index_name		  = NVL(l_index_name, dix.index_name)
-866  	      AND dix.table_name		  = NVL(l_table_name, dix.table_name)
-867  	      AND NVL(dic.column_name, 'n/a')	  = NVL(l_column_name, NVL(dic.column_name, 'n/a'))
-868  	      AND NVL(dix.index_type, 'n/a')	  = NVL(l_index_type, NVL(dix.index_type, 'n/a'))
-869  	      AND NVL(dix.table_type, 'n/a')	  = NVL(l_table_type, NVL(dix.table_type, 'n/a'))
-870  	      AND NVL(dix.uniqueness, 'n/a')	  = NVL(l_uniqueness, NVL(dix.uniqueness, 'n/a'))
-871  	      AND NVL(dix.tablespace_name, 'n/a') = NVL(l_tablespace_name, NVL(dix.tablespace_name, 'n/a'))
-872  	      AND NVL(dix.partitioned, 'n/a')	  = NVL(l_partitioned, NVL(dix.partitioned, 'n/a'))
-873  	   ;
-874  	   -- we may find more than one entry for index columns
-875  	   l_test_passed := CASE WHEN l_has_index = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
-876  	 ELSE
-877  	   -- table name or index name missing
-878  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-879  	   l_errors	       := 'Not allowed: p_table_name AND p_index_name NULL';
-880  	   otap_log.log(l_errors, l_script, 'Table name and index name NULL');
-881  	 END IF;
-882  	 -- now decide on the expected result the final state and if errors are returned
-883  	 IF l_test_passed != l_expected
-884  	 THEN
-885  	   o_errors := otap_string.reduce(l_errors, 4000);
-886  	 ELSE
-887  	   -- overwrite states from before, as we fulfill expected
-888  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-889  	   -- overwrite errors expected
-890  	   o_errors := NULL;
-891  	 END IF;
-892  	 RETURN l_test_passed;
-893    EXCEPTION
-894  	 WHEN OTHERS THEN
-895  	   IF SQLCODE != -20099
-896  	   THEN
-897  	     -- log unhandled exceptions
-898  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-899  	   END IF;
-900  	   RAISE;
-901    END has_index;
-902  
-903    FUNCTION has_type( p_type_name	    IN		  VARCHAR2
-904  			, o_errors	       OUT NOCOPY VARCHAR2
-905  			, p_typecode	    IN		  VARCHAR2 DEFAULT NULL
-906  			, p_attributes	    IN		  NUMBER   DEFAULT NULL
-907  			, p_methods	    IN		  NUMBER   DEFAULT NULL
-908  			, p_predefined	    IN		  VARCHAR2 DEFAULT NULL
-909  			, p_incomplete	    IN		  VARCHAR2 DEFAULT NULL
-910  			, p_final	    IN		  VARCHAR2 DEFAULT NULL
-911  			, p_persistable     IN		  VARCHAR2 DEFAULT NULL
-912  			, p_schema	    IN		  VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-913  			, p_expected_result IN		  NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-914  			)
-915  	 RETURN INTEGER
-916    IS
-917  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_type';
-918  	 l_test_passed	   INTEGER;
-919  	 l_expected	   INTEGER;
-920  	 l_has_type	   INTEGER;
-921  	 l_type_name	   VARCHAR2(128 CHAR);
-922  	 l_typecode	   VARCHAR2(128 CHAR);
-923  	 l_predefined	   VARCHAR2(3 CHAR);
-924  	 l_incomplete	   VARCHAR2(3 CHAR);
-925  	 l_final	   VARCHAR2(3 CHAR);
-926  	 l_persistable	   VARCHAR2(3 CHAR);
-927  	 l_schema_to_use   VARCHAR2(128 CHAR);
-928  	 l_errors	   VARCHAR2(32767 CHAR);
-929    BEGIN
-930  	 l_errors	   := NULL;
-931  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-932  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-933  	 l_type_name	   := otap_string.reduce(p_type_name, 128);
-934  	 l_typecode	   := otap_string.reduce(UPPER(p_typecode), 128);
-935  	 l_predefined	   := otap_string.reduce(UPPER(p_predefined), 3);
-936  	 l_incomplete	   := otap_string.reduce(UPPER(p_incomplete), 3);
-937  	 l_final	   := otap_string.reduce(UPPER(p_final), 3);
-938  	 l_persistable	   := otap_string.reduce(UPPER(p_persistable), 3);
-939  	 IF	l_type_name	   IS NOT NULL
-940  	    AND LENGTH(l_type_name) > 0
-941  	 THEN
-942  	   -- schema
-943  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-944  	   -- check
-945  	   SELECT COUNT(*)
-946  	     INTO l_has_type
-947  	     FROM dba_types
-948  	    WHERE owner 		  = l_schema_to_use
-949  	      AND type_name		  = l_type_name
-950  	      AND NVL(typecode, 'n/a')	  = NVL(l_typecode, NVL(typecode, 'n/a'))
-951  	      AND NVL(attributes, -1)	  = NVL(p_attributes, NVL(attributes, -1))
-952  	      AND NVL(methods, -1)	  = NVL(p_methods, NVL(methods, -1))
-953  	      AND NVL(predefined, 'n/a')  = NVL(l_predefined, NVL(predefined, 'n/a'))
-954  	      AND NVL(incomplete, 'n/a')  = NVL(l_incomplete, NVL(incomplete, 'n/a'))
-955  	      AND NVL(final, 'n/a')	  = NVL(l_final, NVL(final, 'n/a'))
-956  	      AND NVL(persistable, 'n/a') = NVL(l_persistable, NVL(persistable, 'n/a'))
-957  	   ;
-958  	   -- we should find one or zero entries
-959  	   l_test_passed := count_chk(l_has_type, l_errors, l_script);
-960  	 ELSE
-961  	   -- type name missing
-962  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-963  	   l_errors	       := 'Not allowed: p_type_name(NULL)';
-964  	   otap_log.log(l_errors, l_script, 'Type name NULL');
-965  	 END IF;
-966  	 -- now decide on the expected result the final state and if errors are returned
-967  	 IF l_test_passed != l_expected
-968  	 THEN
-969  	   o_errors := otap_string.reduce(l_errors, 4000);
-970  	 ELSE
-971  	   -- overwrite states from before, as we fulfill expected
-972  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-973  	   -- overwrite errors expected
-974  	   o_errors := NULL;
-975  	 END IF;
-976  	 RETURN l_test_passed;
-977    EXCEPTION
-978  	 WHEN OTHERS THEN
-979  	   IF SQLCODE != -20099
-980  	   THEN
-981  	     -- log unhandled exceptions
-982  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-983  	   END IF;
-984  	   RAISE;
-985    END has_type;
-986  
-987    FUNCTION has_sequence( p_sequence_name	IN	      VARCHAR2
-988  			    , o_errors		   OUT NOCOPY VARCHAR2
-989  			    , p_table_name	IN	      VARCHAR2 DEFAULT NULL
-990  			    , p_column_name	IN	      VARCHAR2 DEFAULT NULL
-991  			    , p_min_value	IN	      NUMBER   DEFAULT NULL
-992  			    , p_max_value	IN	      NUMBER   DEFAULT NULL
-993  			    , p_increment_by	IN	      NUMBER   DEFAULT NULL
-994  			    , p_cycle_flag	IN	      VARCHAR2 DEFAULT NULL
-995  			    , p_order_flag	IN	      VARCHAR2 DEFAULT NULL
-996  			    , p_cache_size	IN	      NUMBER   DEFAULT NULL
-997  			    , p_scale_flag	IN	      VARCHAR2 DEFAULT NULL
-998  			    , p_extend_flag	IN	      VARCHAR2 DEFAULT NULL
-999  			    , p_sharded_flag	IN	      VARCHAR2 DEFAULT NULL
-1000  			     , p_session_flag	 IN	       VARCHAR2 DEFAULT NULL
-1001  			     , p_keep_value	 IN	       VARCHAR2 DEFAULT NULL
-1002  			     , p_table_owner	 IN	       VARCHAR2 DEFAULT NULL
-1003  			     , p_schema 	 IN	       VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1004  			     , p_expected_result IN	       NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-1005  			     )
-1006  	  RETURN INTEGER
-1007  	IS
-1008  	  l_script	    VARCHAR2(1024 CHAR)    := 'otap_schema.has_sequence';
-1009  	  l_test_passed     INTEGER;
-1010  	  l_expected	    INTEGER;
-1011  	  l_has_sequence    INTEGER;
-1012  	  l_sequence_name   VARCHAR2(128 CHAR);
-1013  	  l_table_name	    VARCHAR2(128 CHAR);
-1014  	  l_column_name     VARCHAR2(128 CHAR);
-1015  	  l_table_owner     VARCHAR2(128 CHAR);
-1016  	  l_cycle_flag	    VARCHAR2(1 CHAR);
-1017  	  l_order_flag	    VARCHAR2(1 CHAR);
-1018  	  l_scale_flag	    VARCHAR2(1 CHAR);
-1019  	  l_extend_flag     VARCHAR2(1 CHAR);
-1020  	  l_sharded_flag    VARCHAR2(1 CHAR);
-1021  	  l_session_flag    VARCHAR2(1 CHAR);
-1022  	  l_keep_value	    VARCHAR2(1 CHAR);
-1023  	  l_schema_to_use   VARCHAR2(128 CHAR);
-1024  	  l_errors	    VARCHAR2(32767 CHAR);
-1025  	BEGIN
-1026  	  l_errors	    := NULL;
-1027  	  l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1028  	  l_expected	    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-1029  	  l_sequence_name   := otap_string.reduce(p_sequence_name, 128);
-1030  	  l_table_name	    := otap_string.reduce(p_table_name, 128);
-1031  	  l_column_name     := otap_string.reduce(p_column_name, 128);
-1032  	  l_table_owner     := otap_string.reduce(p_table_owner, 128);
-1033  	  l_cycle_flag	    := otap_string.reduce(UPPER(p_cycle_flag), 1);
-1034  	  l_order_flag	    := otap_string.reduce(UPPER(p_order_flag), 1);
-1035  	  l_scale_flag	    := otap_string.reduce(UPPER(p_scale_flag), 1);
-1036  	  l_extend_flag     := otap_string.reduce(UPPER(p_extend_flag), 1);
-1037  	  l_sharded_flag    := otap_string.reduce(UPPER(p_sharded_flag), 1);
-1038  	  l_session_flag    := otap_string.reduce(UPPER(p_session_flag), 1);
-1039  	  l_keep_value	    := otap_string.reduce(UPPER(p_keep_value), 1);
-1040  	  IF	(    l_sequence_name	    IS NOT NULL
-1041  		 AND LENGTH(l_sequence_name) > 0
-1042  		)
-1043  	     OR (    l_table_name	  IS NOT NULL
-1044  		 AND LENGTH(l_table_name)  > 0
-1045  		 AND l_column_name	  IS NOT NULL
-1046  		 AND LENGTH(l_column_name) > 0
-1047  		)
-1048  	  THEN
-1049  	    -- schema
-1050  	    l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-1051  	    -- check
-1052  	    SELECT COUNT(*)
-1053  	      INTO l_has_sequence
-1054  	      FROM dba_sequences dbs
-1055  	      LEFT OUTER JOIN dba_tab_identity_cols dti
-1056  		ON dbs.sequence_name  = dti.sequence_name
-1057  	       AND dti.owner = NVL(l_table_owner, l_schema_to_use)
-1058  	     WHERE dbs.sequence_owner = l_schema_to_use
-1059  	       AND dbs.sequence_name  = NVL(l_sequence_name, dbs.sequence_name)
-1060  	       AND NVL(dti.table_name, 'n/a')	= NVL(l_table_name, NVL(dti.table_name, 'n/a'))
-1061  	       AND NVL(dti.column_name, 'n/a')	= NVL(l_column_name, NVL(dti.column_name, 'n/a'))
-1062  	       AND NVL(cycle_flag, 'n/a')	= NVL(l_cycle_flag, NVL(cycle_flag, 'n/a'))
-1063  	       AND NVL(order_flag, 'n/a')	= NVL(l_order_flag, NVL(order_flag, 'n/a'))
-1064  	       AND NVL(scale_flag, 'n/a')	= NVL(l_scale_flag, NVL(scale_flag, 'n/a'))
-1065  	       AND NVL(extend_flag, 'n/a')	= NVL(l_extend_flag, NVL(extend_flag, 'n/a'))
-1066  	       AND NVL(sharded_flag, 'n/a')	= NVL(l_sharded_flag, NVL(sharded_flag, 'n/a'))
-1067  	       AND NVL(session_flag, 'n/a')	= NVL(l_session_flag, NVL(session_flag, 'n/a'))
-1068  	       AND NVL(keep_value, 'n/a')	= NVL(l_keep_value, NVL(keep_value, 'n/a'))
-1069  	    ;
-1070  	    -- we should find one or zero entries
-1071  	    l_test_passed := count_chk(l_has_sequence, l_errors, l_script);
-1072  	  ELSE
-1073  	    -- either sequence name or table and column name must be
-1074  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1075  	    l_errors		:= 'Not allowed: p_sequence_name and (p_table_name or p_column_name) NULL';
-1076  	    otap_log.log(l_errors, l_script, 'Sequence name and table or column name is NULL');
-1077  	  END IF;
-1078  	  -- now decide on the expected result the final state and if errors are returned
-1079  	  IF l_test_passed != l_expected
-1080  	  THEN
-1081  	    o_errors := otap_string.reduce(l_errors, 4000);
-1082  	  ELSE
-1083  	    -- overwrite states from before, as we fulfill expected
-1084  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-1085  	    -- overwrite errors expected
-1086  	    o_errors := NULL;
-1087  	  END IF;
-1088  	  RETURN l_test_passed;
-1089  	EXCEPTION
-1090  	  WHEN OTHERS THEN
-1091  	    IF SQLCODE != -20099
-1092  	    THEN
-1093  	      -- log unhandled exceptions
-1094  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-1095  	    END IF;
-1096  	    RAISE;
-1097  	END has_sequence;
-1098  
-1099  	FUNCTION has_scheduler_job( p_job_name	      IN	    VARCHAR2
-1100  				  , o_errors		 OUT NOCOPY VARCHAR2
-1101  				  , p_job_style       IN	    VARCHAR2 DEFAULT NULL
-1102  				  , p_job_type	      IN	    VARCHAR2 DEFAULT NULL
-1103  				  , p_job_action      IN	    VARCHAR2 DEFAULT NULL
-1104  				  , p_schedule_type   IN	    VARCHAR2 DEFAULT NULL
-1105  				  , p_repeat_interval IN	    VARCHAR2 DEFAULT NULL
-1106  				  , p_job_class       IN	    VARCHAR2 DEFAULT NULL
-1107  				  , p_logging_level   IN	    VARCHAR2 DEFAULT NULL
-1108  				  , p_store_output    IN	    VARCHAR2 DEFAULT NULL
-1109  				  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
-1110  				  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-1111  				  )
-1112  	  RETURN INTEGER
-1113  	IS
-1114  	  l_script	    VARCHAR2(1024 CHAR)    := 'otap_schema.has_scheduler_job';
-1115  	  l_test_passed     INTEGER;
-1116  	  l_expected	    INTEGER;
-1117  	  l_has_job	    INTEGER;
-1118  	  l_job_name	    VARCHAR2(128 CHAR);
-1119  	  l_job_style	    VARCHAR2(17 CHAR);
-1120  	  l_job_type	    VARCHAR2(16 CHAR);
-1121  	  l_job_action	    VARCHAR2(4000 CHAR);
-1122  	  l_schedule_type   VARCHAR2(12 CHAR);
-1123  	  l_repeat_interval VARCHAR2(4000 CHAR);
-1124  	  l_job_class	    VARCHAR2(128 CHAR);
-1125  	  l_logging_level   VARCHAR2(11 CHAR);
-1126  	  l_store_output    VARCHAR2(5 CHAR);
-1127  	  l_schema_to_use   VARCHAR2(128 CHAR);
-1128  	  l_errors	    VARCHAR2(32767 CHAR);
-1129  	BEGIN
-1130  	  l_errors	    := NULL;
-1131  	  l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1132  	  l_expected	    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-1133  	  l_job_name	    := otap_string.reduce(p_job_name, 128);
-1134  	  l_job_style	    := otap_string.reduce(UPPER(p_job_style), 17);
-1135  	  l_job_type	    := otap_string.reduce(UPPER(p_job_type), 16);
-1136  	  l_job_action	    := otap_string.reduce(otap_string.flatten(UPPER(p_job_action), 4000), 4000);
-1137  	  l_schedule_type   := otap_string.reduce(UPPER(p_schedule_type), 12);
-1138  	  l_repeat_interval := otap_string.reduce(UPPER(p_repeat_interval), 4000);
-1139  	  l_job_class	    := otap_string.reduce(UPPER(p_job_class), 128);
-1140  	  l_logging_level   := otap_string.reduce(UPPER(p_logging_level), 11);
-1141  	  l_store_output    := otap_string.reduce(UPPER(p_store_output), 5);
-1142  	  IF	 l_job_name	   IS NOT NULL
-1143  	     AND LENGTH(l_job_name) > 0
-1144  	  THEN
-1145  	    -- schema
-1146  	    l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
-1147  	    -- check
-1148  	    SELECT COUNT(*)
-1149  	      INTO l_has_job
-1150  	      FROM dba_scheduler_jobs
-1151  	     WHERE owner				    = l_schema_to_use
-1152  	       AND job_name				    = l_job_name
-1153  	       AND NVL(job_style, 'n/a')		    = NVL(l_job_style, NVL(job_style, 'n/a'))
-1154  	       AND NVL(job_type, 'n/a') 		    = NVL(l_job_type, NVL(job_type, 'n/a'))
-1155  	       AND NVL( otap_string.reduce( otap_string.flatten( UPPER(job_action)
-1156  							       , 4000
-1157  							       )
-1158  					  , 4000
-1159  					  )
-1160  		      , 'n/a'
-1161  		      ) 				    = NVL(l_job_action, NVL(otap_string.reduce(otap_string.flatten(UPPER(job_action), 4000), 4000), 'n/a'))
-1162  	       AND NVL(schedule_type, 'n/a')		    = NVL(l_schedule_type, NVL(schedule_type, 'n/a'))
-1163  	       AND NVL(TRIM(UPPER(repeat_interval)), 'n/a') = NVL(l_repeat_interval, NVL(TRIM(UPPER(repeat_interval)), 'n/a'))
-1164  	       AND NVL(job_class, 'n/a')		    = NVL(l_job_class, NVL(job_class, 'n/a'))
-1165  	       AND NVL(logging_level, 'n/a')		    = NVL(l_logging_level, NVL(logging_level, 'n/a'))
-1166  	       AND NVL(store_output, 'n/a')		    = NVL(l_store_output, NVL(store_output, 'n/a'))
-1167  	    ;
-1168  	    -- we should find one or zero entries
-1169  	    l_test_passed := count_chk(l_has_job, l_errors, l_script);
-1170  	  ELSE
-1171  	    -- job name must be set
-1172  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1173  	    l_errors		:= 'Not allowed: p_job_name(NULL)';
-1174  	    otap_log.log(l_errors, l_script, 'Scheduler job name is NULL');
-1175  	  END IF;
-1176  	  -- now decide on the expected result the final state and if errors are returned
-1177  	  IF l_test_passed != l_expected
-1178  	  THEN
-1179  	    o_errors := otap_string.reduce(l_errors, 4000);
-1180  	  ELSE
-1181  	    -- overwrite states from before, as we fulfill expected
-1182  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-1183  	    -- overwrite errors expected
-1184  	    o_errors := NULL;
-1185  	  END IF;
-1186  	  RETURN l_test_passed;
-1187  	EXCEPTION
-1188  	  WHEN OTHERS THEN
-1189  	    IF SQLCODE != -20099
-1190  	    THEN
-1191  	      -- log unhandled exceptions
-1192  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-1193  	    END IF;
-1194  	    RAISE;
-1195  	END has_scheduler_job;
-1196  
-1197  	FUNCTION has_user( p_username		   IN		 VARCHAR2
-1198  			 , o_errors		      OUT NOCOPY VARCHAR2
-1199  			 , p_account_status	   IN		 VARCHAR2 DEFAULT NULL
-1200  			 , p_default_tablespace    IN		 VARCHAR2 DEFAULT NULL
-1201  			 , p_temporary_tablespace  IN		 VARCHAR2 DEFAULT NULL
-1202  			 , p_local_temp_tablespace IN		 VARCHAR2 DEFAULT NULL
-1203  			 , p_profile		   IN		 VARCHAR2 DEFAULT NULL
-1204  			 , p_password_versions	   IN		 VARCHAR2 DEFAULT NULL
-1205  			 , p_authentication_type   IN		 VARCHAR2 DEFAULT NULL
-1206  			 , p_proxy_only_connect    IN		 VARCHAR2 DEFAULT NULL
-1207  			 , p_protected		   IN		 VARCHAR2 DEFAULT NULL
-1208  			 , p_read_only		   IN		 VARCHAR2 DEFAULT NULL
-1209  			 , p_expected_result	   IN		 NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
-1210  			 )
-1211  	  RETURN INTEGER
-1212  	IS
-1213  	  l_script		  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_user';
-1214  	  l_test_passed 	  INTEGER;
-1215  	  l_expected		  INTEGER;
-1216  	  l_has_user		  INTEGER;
-1217  	  l_username		  VARCHAR2(128 CHAR);
-1218  	  l_account_status	  VARCHAR2(32 CHAR);
-1219  	  l_default_tablespace	  VARCHAR2(30 CHAR);
-1220  	  l_temporary_tablespace  VARCHAR2(30 CHAR);
-1221  	  l_local_temp_tablespace VARCHAR2(30 CHAR);
-1222  	  l_profile		  VARCHAR2(128 CHAR);
-1223  	  l_password_versions	  VARCHAR2(17 CHAR);
-1224  	  l_authentication_type   VARCHAR2(8 CHAR);
-1225  	  l_proxy_only_connect	  VARCHAR2(1 CHAR);
-1226  	  l_protected		  VARCHAR2(3 CHAR);
-1227  	  l_read_only		  VARCHAR2(3 CHAR);
-1228  	  l_errors		  VARCHAR2(32767 CHAR);
-1229  	BEGIN
-1230  	  l_errors		  := NULL;
-1231  	  l_test_passed 	  := otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1232  	  l_expected		  := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
-1233  	  l_username		  := otap_string.reduce(p_username, 128);
-1234  	  l_account_status	  := otap_string.reduce(UPPER(p_account_status), 32);
-1235  	  l_default_tablespace	  := otap_string.reduce(p_default_tablespace, 30);
-1236  	  l_temporary_tablespace  := otap_string.reduce(p_temporary_tablespace, 30);
-1237  	  l_local_temp_tablespace := otap_string.reduce(p_local_temp_tablespace, 30);
-1238  	  l_profile		  := otap_string.reduce(UPPER(p_profile), 128);
-1239  	  l_password_versions	  := otap_string.reduce(p_password_versions, 17);
-1240  	  l_authentication_type   := otap_string.reduce(UPPER(p_authentication_type), 8);
-1241  	  l_proxy_only_connect	  := otap_string.reduce(UPPER(p_proxy_only_connect), 1);
-1242  	  l_protected		  := otap_string.reduce(UPPER(p_protected), 3);
-1243  	  l_read_only		  := otap_string.reduce(UPPER(p_read_only), 3);
-1244  	  IF	 p_username	   IS NOT NULL
-1245  	     AND LENGTH(p_username) > 0
-1246  	  THEN
-1247  	    -- check
-1248  	    SELECT COUNT(*)
-1249  	      INTO l_has_user
-1250  	      FROM dba_users
-1251  	     WHERE username			       = l_username
-1252  	       AND account_status		       = NVL(l_account_status, account_status)
-1253  	       AND default_tablespace		       = NVL(l_default_tablespace, default_tablespace)
-1254  	       AND temporary_tablespace 	       = NVL(l_temporary_tablespace, temporary_tablespace)
-1255  	       AND NVL(local_temp_tablespace, 'n/a')   = NVL(l_local_temp_tablespace, NVL(local_temp_tablespace, 'n/a'))
-1256  	       AND profile			       = NVL(l_profile, profile)
-1257  	       AND TRIM(NVL(password_versions, 'n/a')) = NVL(l_password_versions, TRIM(NVL(password_versions, 'n/a')))
-1258  	       AND NVL(authentication_type, 'n/a')     = NVL(l_authentication_type, NVL(authentication_type, 'n/a'))
-1259  	       AND NVL(proxy_only_connect, 'n/a')      = NVL(l_proxy_only_connect, NVL(proxy_only_connect, 'n/a'))
-1260  	       AND NVL(protected, 'n/a')	       = NVL(l_protected, NVL(protected, 'n/a'))
-1261  	       AND NVL(read_only, 'n/a')	       = NVL(l_read_only, NVL(read_only, 'n/a'))
-1262  	    ;
-1263  	    -- we should find one or zero entries
-1264  	    l_test_passed := count_chk(l_has_user, l_errors, l_script);
-1265  	  ELSE
-1266  	    -- job name must be set
-1267  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
-1268  	    l_errors		:= 'Not allowed: p_username(NULL)';
-1269  	    otap_log.log(l_errors, l_script, 'User name is NULL');
-1270  	  END IF;
-1271  	  -- now decide on the expected result the final state and if errors are returned
-1272  	  IF l_test_passed != l_expected
-1273  	  THEN
-1274  	    o_errors := otap_string.reduce(l_errors, 4000);
-1275  	  ELSE
-1276  	    -- overwrite states from before, as we fulfill expected
-1277  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
-1278  	    -- overwrite errors expected
-1279  	    o_errors := NULL;
-1280  	  END IF;
-1281  	  RETURN l_test_passed;
-1282  	EXCEPTION
-1283  	  WHEN OTHERS THEN
-1284  	    IF SQLCODE != -20099
-1285  	    THEN
-1286  	      -- log unhandled exceptions
-1287  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-1288  	    END IF;
-1289  	    RAISE;
-1290  	END has_user;
-1291  
-1292  END;
-1293  /
+783  	   -- we may find more than one entry for combined primary keys
+784  	   l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+785  	 ELSE
+786  	   -- missing mandatory table name
+787  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+788  	   l_errors	       := 'Not allowed: ' || CASE WHEN l_table_name IS NULL THEN 'p_table_name(NULL) ' END ||
+789  						     CASE WHEN l_column_name IS NULL THEN 'p_column_name(NULL) ' END
+790  	   ;
+791  	   otap_log.log(l_errors, l_script, 'Table name or column name NULL');
+792  	 END IF;
+793  	 -- now decide on the expected result the final state and if errors are returned
+794  	 IF l_test_passed != l_expected
+795  	 THEN
+796  	   o_errors := otap_string.reduce(l_errors, 4000);
+797  	 ELSE
+798  	   -- overwrite states from before, as we fulfill expected
+799  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+800  	   -- overwrite errors expected
+801  	   o_errors := NULL;
+802  	 END IF;
+803  	 RETURN l_test_passed;
+804    EXCEPTION
+805  	 WHEN OTHERS THEN
+806  	   IF SQLCODE != -20099
+807  	   THEN
+808  	     -- log unhandled exceptions
+809  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+810  	   END IF;
+811  	   RAISE;
+812    END has_not_null_constraint;
+813  
+814    FUNCTION has_index( p_table_name      IN 	   VARCHAR2
+815  			 , o_errors		OUT NOCOPY VARCHAR2
+816  			 , p_column_name     IN 	   VARCHAR2 DEFAULT NULL
+817  			 , p_index_name      IN 	   VARCHAR2 DEFAULT NULL
+818  			 , p_index_type      IN 	   VARCHAR2 DEFAULT NULL
+819  			 , p_table_type      IN 	   VARCHAR2 DEFAULT NULL
+820  			 , p_uniqueness      IN 	   VARCHAR2 DEFAULT NULL
+821  			 , p_tablespace_name IN 	   VARCHAR2 DEFAULT NULL
+822  			 , p_partitioned     IN 	   VARCHAR2 DEFAULT NULL
+823  			 , p_schema	     IN 	   VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+824  			 , p_expected_result IN 	   NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+825  			 )
+826  	 RETURN INTEGER
+827    IS
+828  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_index';
+829  	 l_test_passed	   INTEGER;
+830  	 l_expected	   INTEGER;
+831  	 l_has_index	   INTEGER;
+832  	 l_table_name	   VARCHAR2(128 CHAR);
+833  	 l_column_name	   VARCHAR2(128 CHAR);
+834  	 l_index_name	   VARCHAR2(128 CHAR);
+835  	 l_index_type	   VARCHAR2(27 CHAR);
+836  	 l_table_type	   VARCHAR2(11 CHAR);
+837  	 l_uniqueness	   VARCHAR2(9 CHAR);
+838  	 l_tablespace_name VARCHAR2(30 CHAR);
+839  	 l_partitioned	   VARCHAR2(3 CHAR);
+840  	 l_schema_to_use   VARCHAR2(128 CHAR);
+841  	 l_errors	   VARCHAR2(32767 CHAR);
+842    BEGIN
+843  	 l_errors	   := NULL;
+844  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+845  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+846  	 l_table_name	   := otap_string.reduce(p_table_name, 128);
+847  	 l_column_name	   := otap_string.reduce(p_column_name, 128);
+848  	 l_index_name	   := otap_string.reduce(p_index_name, 128);
+849  	 l_index_type	   := otap_string.reduce(UPPER(p_index_type), 27);
+850  	 l_table_type	   := otap_string.reduce(UPPER(p_table_type), 11);
+851  	 l_uniqueness	   := otap_string.reduce(UPPER(p_uniqueness), 9);
+852  	 l_tablespace_name := otap_string.reduce(p_tablespace_name, 30);
+853  	 l_partitioned	   := otap_string.reduce(UPPER(p_partitioned), 3);
+854  	 IF    (    l_table_name	IS NOT NULL
+855  		AND LENGTH(l_table_name) > 0
+856  	       )
+857  	    OR (    l_index_name	IS NOT NULL
+858  		AND LENGTH(l_index_name) > 0
+859  	       )
+860  	 THEN
+861  	   -- schema
+862  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+863  	   -- check
+864  	   SELECT COUNT(*)
+865  	     INTO l_has_index
+866  	     FROM dba_indexes dix
+867  	     LEFT OUTER JOIN dba_ind_columns dic
+868  	       ON dix.owner	  = dic.index_owner
+869  	      AND dix.index_name  = dic.index_name
+870  	      AND dix.table_owner = dic.table_owner
+871  	      AND dix.table_name  = dic.table_name
+872  	    WHERE dix.owner			  = l_schema_to_use
+873  	      AND dix.index_name		  = NVL(l_index_name, dix.index_name)
+874  	      AND dix.table_name		  = NVL(l_table_name, dix.table_name)
+875  	      AND NVL(dic.column_name, 'n/a')	  = NVL(l_column_name, NVL(dic.column_name, 'n/a'))
+876  	      AND NVL(dix.index_type, 'n/a')	  = NVL(l_index_type, NVL(dix.index_type, 'n/a'))
+877  	      AND NVL(dix.table_type, 'n/a')	  = NVL(l_table_type, NVL(dix.table_type, 'n/a'))
+878  	      AND NVL(dix.uniqueness, 'n/a')	  = NVL(l_uniqueness, NVL(dix.uniqueness, 'n/a'))
+879  	      AND NVL(dix.tablespace_name, 'n/a') = NVL(l_tablespace_name, NVL(dix.tablespace_name, 'n/a'))
+880  	      AND NVL(dix.partitioned, 'n/a')	  = NVL(l_partitioned, NVL(dix.partitioned, 'n/a'))
+881  	   ;
+882  	   -- we may find more than one entry for index columns
+883  	   l_test_passed := CASE WHEN l_has_index = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+884  	 ELSE
+885  	   -- table name or index name missing
+886  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+887  	   l_errors	       := 'Not allowed: p_table_name AND p_index_name NULL';
+888  	   otap_log.log(l_errors, l_script, 'Table name and index name NULL');
+889  	 END IF;
+890  	 -- now decide on the expected result the final state and if errors are returned
+891  	 IF l_test_passed != l_expected
+892  	 THEN
+893  	   o_errors := otap_string.reduce(l_errors, 4000);
+894  	 ELSE
+895  	   -- overwrite states from before, as we fulfill expected
+896  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+897  	   -- overwrite errors expected
+898  	   o_errors := NULL;
+899  	 END IF;
+900  	 RETURN l_test_passed;
+901    EXCEPTION
+902  	 WHEN OTHERS THEN
+903  	   IF SQLCODE != -20099
+904  	   THEN
+905  	     -- log unhandled exceptions
+906  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+907  	   END IF;
+908  	   RAISE;
+909    END has_index;
+910  
+911    FUNCTION has_type( p_type_name	    IN		  VARCHAR2
+912  			, o_errors	       OUT NOCOPY VARCHAR2
+913  			, p_typecode	    IN		  VARCHAR2 DEFAULT NULL
+914  			, p_attributes	    IN		  NUMBER   DEFAULT NULL
+915  			, p_methods	    IN		  NUMBER   DEFAULT NULL
+916  			, p_predefined	    IN		  VARCHAR2 DEFAULT NULL
+917  			, p_incomplete	    IN		  VARCHAR2 DEFAULT NULL
+918  			, p_final	    IN		  VARCHAR2 DEFAULT NULL
+919  			, p_persistable     IN		  VARCHAR2 DEFAULT NULL
+920  			, p_schema	    IN		  VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+921  			, p_expected_result IN		  NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+922  			)
+923  	 RETURN INTEGER
+924    IS
+925  	 l_script	   VARCHAR2(1024 CHAR)	  := 'otap_schema.has_type';
+926  	 l_test_passed	   INTEGER;
+927  	 l_expected	   INTEGER;
+928  	 l_has_type	   INTEGER;
+929  	 l_type_name	   VARCHAR2(128 CHAR);
+930  	 l_typecode	   VARCHAR2(128 CHAR);
+931  	 l_predefined	   VARCHAR2(3 CHAR);
+932  	 l_incomplete	   VARCHAR2(3 CHAR);
+933  	 l_final	   VARCHAR2(3 CHAR);
+934  	 l_persistable	   VARCHAR2(3 CHAR);
+935  	 l_schema_to_use   VARCHAR2(128 CHAR);
+936  	 l_errors	   VARCHAR2(32767 CHAR);
+937    BEGIN
+938  	 l_errors	   := NULL;
+939  	 l_test_passed	   := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+940  	 l_expected	   := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+941  	 l_type_name	   := otap_string.reduce(p_type_name, 128);
+942  	 l_typecode	   := otap_string.reduce(UPPER(p_typecode), 128);
+943  	 l_predefined	   := otap_string.reduce(UPPER(p_predefined), 3);
+944  	 l_incomplete	   := otap_string.reduce(UPPER(p_incomplete), 3);
+945  	 l_final	   := otap_string.reduce(UPPER(p_final), 3);
+946  	 l_persistable	   := otap_string.reduce(UPPER(p_persistable), 3);
+947  	 IF	l_type_name	   IS NOT NULL
+948  	    AND LENGTH(l_type_name) > 0
+949  	 THEN
+950  	   -- schema
+951  	   l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+952  	   -- check
+953  	   SELECT COUNT(*)
+954  	     INTO l_has_type
+955  	     FROM dba_types
+956  	    WHERE owner 		  = l_schema_to_use
+957  	      AND type_name		  = l_type_name
+958  	      AND NVL(typecode, 'n/a')	  = NVL(l_typecode, NVL(typecode, 'n/a'))
+959  	      AND NVL(attributes, -1)	  = NVL(p_attributes, NVL(attributes, -1))
+960  	      AND NVL(methods, -1)	  = NVL(p_methods, NVL(methods, -1))
+961  	      AND NVL(predefined, 'n/a')  = NVL(l_predefined, NVL(predefined, 'n/a'))
+962  	      AND NVL(incomplete, 'n/a')  = NVL(l_incomplete, NVL(incomplete, 'n/a'))
+963  	      AND NVL(final, 'n/a')	  = NVL(l_final, NVL(final, 'n/a'))
+964  	      AND NVL(persistable, 'n/a') = NVL(l_persistable, NVL(persistable, 'n/a'))
+965  	   ;
+966  	   -- we should find one or zero entries
+967  	   l_test_passed := count_chk(l_has_type, l_errors, l_script);
+968  	 ELSE
+969  	   -- type name missing
+970  	   l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+971  	   l_errors	       := 'Not allowed: p_type_name(NULL)';
+972  	   otap_log.log(l_errors, l_script, 'Type name NULL');
+973  	 END IF;
+974  	 -- now decide on the expected result the final state and if errors are returned
+975  	 IF l_test_passed != l_expected
+976  	 THEN
+977  	   o_errors := otap_string.reduce(l_errors, 4000);
+978  	 ELSE
+979  	   -- overwrite states from before, as we fulfill expected
+980  	   l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+981  	   -- overwrite errors expected
+982  	   o_errors := NULL;
+983  	 END IF;
+984  	 RETURN l_test_passed;
+985    EXCEPTION
+986  	 WHEN OTHERS THEN
+987  	   IF SQLCODE != -20099
+988  	   THEN
+989  	     -- log unhandled exceptions
+990  	     otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+991  	   END IF;
+992  	   RAISE;
+993    END has_type;
+994  
+995    FUNCTION has_sequence( p_sequence_name	IN	      VARCHAR2
+996  			    , o_errors		   OUT NOCOPY VARCHAR2
+997  			    , p_table_name	IN	      VARCHAR2 DEFAULT NULL
+998  			    , p_column_name	IN	      VARCHAR2 DEFAULT NULL
+999  			    , p_min_value	IN	      NUMBER   DEFAULT NULL
+1000  			     , p_max_value	 IN	       NUMBER	DEFAULT NULL
+1001  			     , p_increment_by	 IN	       NUMBER	DEFAULT NULL
+1002  			     , p_cycle_flag	 IN	       VARCHAR2 DEFAULT NULL
+1003  			     , p_order_flag	 IN	       VARCHAR2 DEFAULT NULL
+1004  			     , p_cache_size	 IN	       NUMBER	DEFAULT NULL
+1005  			     , p_scale_flag	 IN	       VARCHAR2 DEFAULT NULL
+1006  			     , p_extend_flag	 IN	       VARCHAR2 DEFAULT NULL
+1007  			     , p_sharded_flag	 IN	       VARCHAR2 DEFAULT NULL
+1008  			     , p_session_flag	 IN	       VARCHAR2 DEFAULT NULL
+1009  			     , p_keep_value	 IN	       VARCHAR2 DEFAULT NULL
+1010  			     , p_table_owner	 IN	       VARCHAR2 DEFAULT NULL
+1011  			     , p_schema 	 IN	       VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1012  			     , p_expected_result IN	       NUMBER	DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1013  			     )
+1014  	  RETURN INTEGER
+1015  	IS
+1016  	  l_script	    VARCHAR2(1024 CHAR)    := 'otap_schema.has_sequence';
+1017  	  l_test_passed     INTEGER;
+1018  	  l_expected	    INTEGER;
+1019  	  l_has_sequence    INTEGER;
+1020  	  l_sequence_name   VARCHAR2(128 CHAR);
+1021  	  l_table_name	    VARCHAR2(128 CHAR);
+1022  	  l_column_name     VARCHAR2(128 CHAR);
+1023  	  l_table_owner     VARCHAR2(128 CHAR);
+1024  	  l_cycle_flag	    VARCHAR2(1 CHAR);
+1025  	  l_order_flag	    VARCHAR2(1 CHAR);
+1026  	  l_scale_flag	    VARCHAR2(1 CHAR);
+1027  	  l_extend_flag     VARCHAR2(1 CHAR);
+1028  	  l_sharded_flag    VARCHAR2(1 CHAR);
+1029  	  l_session_flag    VARCHAR2(1 CHAR);
+1030  	  l_keep_value	    VARCHAR2(1 CHAR);
+1031  	  l_schema_to_use   VARCHAR2(128 CHAR);
+1032  	  l_errors	    VARCHAR2(32767 CHAR);
+1033  	BEGIN
+1034  	  l_errors	    := NULL;
+1035  	  l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1036  	  l_expected	    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+1037  	  l_sequence_name   := otap_string.reduce(p_sequence_name, 128);
+1038  	  l_table_name	    := otap_string.reduce(p_table_name, 128);
+1039  	  l_column_name     := otap_string.reduce(p_column_name, 128);
+1040  	  l_table_owner     := otap_string.reduce(p_table_owner, 128);
+1041  	  l_cycle_flag	    := otap_string.reduce(UPPER(p_cycle_flag), 1);
+1042  	  l_order_flag	    := otap_string.reduce(UPPER(p_order_flag), 1);
+1043  	  l_scale_flag	    := otap_string.reduce(UPPER(p_scale_flag), 1);
+1044  	  l_extend_flag     := otap_string.reduce(UPPER(p_extend_flag), 1);
+1045  	  l_sharded_flag    := otap_string.reduce(UPPER(p_sharded_flag), 1);
+1046  	  l_session_flag    := otap_string.reduce(UPPER(p_session_flag), 1);
+1047  	  l_keep_value	    := otap_string.reduce(UPPER(p_keep_value), 1);
+1048  	  IF	(    l_sequence_name	    IS NOT NULL
+1049  		 AND LENGTH(l_sequence_name) > 0
+1050  		)
+1051  	     OR (    l_table_name	  IS NOT NULL
+1052  		 AND LENGTH(l_table_name)  > 0
+1053  		 AND l_column_name	  IS NOT NULL
+1054  		 AND LENGTH(l_column_name) > 0
+1055  		)
+1056  	  THEN
+1057  	    -- schema
+1058  	    l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+1059  	    -- check
+1060  	    SELECT COUNT(*)
+1061  	      INTO l_has_sequence
+1062  	      FROM dba_sequences dbs
+1063  	      LEFT OUTER JOIN dba_tab_identity_cols dti
+1064  		ON dbs.sequence_name  = dti.sequence_name
+1065  	       AND dti.owner = NVL(l_table_owner, l_schema_to_use)
+1066  	     WHERE dbs.sequence_owner = l_schema_to_use
+1067  	       AND dbs.sequence_name  = NVL(l_sequence_name, dbs.sequence_name)
+1068  	       AND NVL(dti.table_name, 'n/a')	= NVL(l_table_name, NVL(dti.table_name, 'n/a'))
+1069  	       AND NVL(dti.column_name, 'n/a')	= NVL(l_column_name, NVL(dti.column_name, 'n/a'))
+1070  	       AND NVL(cycle_flag, 'n/a')	= NVL(l_cycle_flag, NVL(cycle_flag, 'n/a'))
+1071  	       AND NVL(order_flag, 'n/a')	= NVL(l_order_flag, NVL(order_flag, 'n/a'))
+1072  	       AND NVL(scale_flag, 'n/a')	= NVL(l_scale_flag, NVL(scale_flag, 'n/a'))
+1073  	       AND NVL(extend_flag, 'n/a')	= NVL(l_extend_flag, NVL(extend_flag, 'n/a'))
+1074  	       AND NVL(sharded_flag, 'n/a')	= NVL(l_sharded_flag, NVL(sharded_flag, 'n/a'))
+1075  	       AND NVL(session_flag, 'n/a')	= NVL(l_session_flag, NVL(session_flag, 'n/a'))
+1076  	       AND NVL(keep_value, 'n/a')	= NVL(l_keep_value, NVL(keep_value, 'n/a'))
+1077  	    ;
+1078  	    -- we should find one or zero entries
+1079  	    l_test_passed := count_chk(l_has_sequence, l_errors, l_script);
+1080  	  ELSE
+1081  	    -- either sequence name or table and column name must be
+1082  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1083  	    l_errors		:= 'Not allowed: p_sequence_name and (p_table_name or p_column_name) NULL';
+1084  	    otap_log.log(l_errors, l_script, 'Sequence name and table or column name is NULL');
+1085  	  END IF;
+1086  	  -- now decide on the expected result the final state and if errors are returned
+1087  	  IF l_test_passed != l_expected
+1088  	  THEN
+1089  	    o_errors := otap_string.reduce(l_errors, 4000);
+1090  	  ELSE
+1091  	    -- overwrite states from before, as we fulfill expected
+1092  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+1093  	    -- overwrite errors expected
+1094  	    o_errors := NULL;
+1095  	  END IF;
+1096  	  RETURN l_test_passed;
+1097  	EXCEPTION
+1098  	  WHEN OTHERS THEN
+1099  	    IF SQLCODE != -20099
+1100  	    THEN
+1101  	      -- log unhandled exceptions
+1102  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+1103  	    END IF;
+1104  	    RAISE;
+1105  	END has_sequence;
+1106  
+1107  	FUNCTION has_scheduler_job( p_job_name	      IN	    VARCHAR2
+1108  				  , o_errors		 OUT NOCOPY VARCHAR2
+1109  				  , p_job_style       IN	    VARCHAR2 DEFAULT NULL
+1110  				  , p_job_type	      IN	    VARCHAR2 DEFAULT NULL
+1111  				  , p_job_action      IN	    VARCHAR2 DEFAULT NULL
+1112  				  , p_schedule_type   IN	    VARCHAR2 DEFAULT NULL
+1113  				  , p_repeat_interval IN	    VARCHAR2 DEFAULT NULL
+1114  				  , p_job_class       IN	    VARCHAR2 DEFAULT NULL
+1115  				  , p_logging_level   IN	    VARCHAR2 DEFAULT NULL
+1116  				  , p_store_output    IN	    VARCHAR2 DEFAULT NULL
+1117  				  , p_schema	      IN	    VARCHAR2 DEFAULT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')
+1118  				  , p_expected_result IN	    NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1119  				  )
+1120  	  RETURN INTEGER
+1121  	IS
+1122  	  l_script	    VARCHAR2(1024 CHAR)    := 'otap_schema.has_scheduler_job';
+1123  	  l_test_passed     INTEGER;
+1124  	  l_expected	    INTEGER;
+1125  	  l_has_job	    INTEGER;
+1126  	  l_job_name	    VARCHAR2(128 CHAR);
+1127  	  l_job_style	    VARCHAR2(17 CHAR);
+1128  	  l_job_type	    VARCHAR2(16 CHAR);
+1129  	  l_job_action	    VARCHAR2(4000 CHAR);
+1130  	  l_schedule_type   VARCHAR2(12 CHAR);
+1131  	  l_repeat_interval VARCHAR2(4000 CHAR);
+1132  	  l_job_class	    VARCHAR2(128 CHAR);
+1133  	  l_logging_level   VARCHAR2(11 CHAR);
+1134  	  l_store_output    VARCHAR2(5 CHAR);
+1135  	  l_schema_to_use   VARCHAR2(128 CHAR);
+1136  	  l_errors	    VARCHAR2(32767 CHAR);
+1137  	BEGIN
+1138  	  l_errors	    := NULL;
+1139  	  l_test_passed     := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1140  	  l_expected	    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+1141  	  l_job_name	    := otap_string.reduce(p_job_name, 128);
+1142  	  l_job_style	    := otap_string.reduce(UPPER(p_job_style), 17);
+1143  	  l_job_type	    := otap_string.reduce(UPPER(p_job_type), 16);
+1144  	  l_job_action	    := otap_string.reduce(otap_string.flatten(UPPER(p_job_action), 4000), 4000);
+1145  	  l_schedule_type   := otap_string.reduce(UPPER(p_schedule_type), 12);
+1146  	  l_repeat_interval := otap_string.reduce(UPPER(p_repeat_interval), 4000);
+1147  	  l_job_class	    := otap_string.reduce(UPPER(p_job_class), 128);
+1148  	  l_logging_level   := otap_string.reduce(UPPER(p_logging_level), 11);
+1149  	  l_store_output    := otap_string.reduce(UPPER(p_store_output), 5);
+1150  	  IF	 l_job_name	   IS NOT NULL
+1151  	     AND LENGTH(l_job_name) > 0
+1152  	  THEN
+1153  	    -- schema
+1154  	    l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
+1155  	    -- check
+1156  	    SELECT COUNT(*)
+1157  	      INTO l_has_job
+1158  	      FROM dba_scheduler_jobs
+1159  	     WHERE owner				    = l_schema_to_use
+1160  	       AND job_name				    = l_job_name
+1161  	       AND NVL(job_style, 'n/a')		    = NVL(l_job_style, NVL(job_style, 'n/a'))
+1162  	       AND NVL(job_type, 'n/a') 		    = NVL(l_job_type, NVL(job_type, 'n/a'))
+1163  	       AND NVL( otap_string.reduce( otap_string.flatten( UPPER(job_action)
+1164  							       , 4000
+1165  							       )
+1166  					  , 4000
+1167  					  )
+1168  		      , 'n/a'
+1169  		      ) 				    = NVL(l_job_action, NVL(otap_string.reduce(otap_string.flatten(UPPER(job_action), 4000), 4000), 'n/a'))
+1170  	       AND NVL(schedule_type, 'n/a')		    = NVL(l_schedule_type, NVL(schedule_type, 'n/a'))
+1171  	       AND NVL(TRIM(UPPER(repeat_interval)), 'n/a') = NVL(l_repeat_interval, NVL(TRIM(UPPER(repeat_interval)), 'n/a'))
+1172  	       AND NVL(job_class, 'n/a')		    = NVL(l_job_class, NVL(job_class, 'n/a'))
+1173  	       AND NVL(logging_level, 'n/a')		    = NVL(l_logging_level, NVL(logging_level, 'n/a'))
+1174  	       AND NVL(store_output, 'n/a')		    = NVL(l_store_output, NVL(store_output, 'n/a'))
+1175  	    ;
+1176  	    -- we should find one or zero entries
+1177  	    l_test_passed := count_chk(l_has_job, l_errors, l_script);
+1178  	  ELSE
+1179  	    -- job name must be set
+1180  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1181  	    l_errors		:= 'Not allowed: p_job_name(NULL)';
+1182  	    otap_log.log(l_errors, l_script, 'Scheduler job name is NULL');
+1183  	  END IF;
+1184  	  -- now decide on the expected result the final state and if errors are returned
+1185  	  IF l_test_passed != l_expected
+1186  	  THEN
+1187  	    o_errors := otap_string.reduce(l_errors, 4000);
+1188  	  ELSE
+1189  	    -- overwrite states from before, as we fulfill expected
+1190  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+1191  	    -- overwrite errors expected
+1192  	    o_errors := NULL;
+1193  	  END IF;
+1194  	  RETURN l_test_passed;
+1195  	EXCEPTION
+1196  	  WHEN OTHERS THEN
+1197  	    IF SQLCODE != -20099
+1198  	    THEN
+1199  	      -- log unhandled exceptions
+1200  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+1201  	    END IF;
+1202  	    RAISE;
+1203  	END has_scheduler_job;
+1204  
+1205  	FUNCTION has_user( p_username		   IN		 VARCHAR2
+1206  			 , o_errors		      OUT NOCOPY VARCHAR2
+1207  			 , p_account_status	   IN		 VARCHAR2 DEFAULT NULL
+1208  			 , p_default_tablespace    IN		 VARCHAR2 DEFAULT NULL
+1209  			 , p_temporary_tablespace  IN		 VARCHAR2 DEFAULT NULL
+1210  			 , p_local_temp_tablespace IN		 VARCHAR2 DEFAULT NULL
+1211  			 , p_profile		   IN		 VARCHAR2 DEFAULT NULL
+1212  			 , p_password_versions	   IN		 VARCHAR2 DEFAULT NULL
+1213  			 , p_authentication_type   IN		 VARCHAR2 DEFAULT NULL
+1214  			 , p_proxy_only_connect    IN		 VARCHAR2 DEFAULT NULL
+1215  			 , p_protected		   IN		 VARCHAR2 DEFAULT NULL
+1216  			 , p_read_only		   IN		 VARCHAR2 DEFAULT NULL
+1217  			 , p_expected_result	   IN		 NUMBER   DEFAULT otap_constants.OTAP_NUM_TEST_PASSED
+1218  			 )
+1219  	  RETURN INTEGER
+1220  	IS
+1221  	  l_script		  VARCHAR2(1024 CHAR)	 := 'otap_schema.has_user';
+1222  	  l_test_passed 	  INTEGER;
+1223  	  l_expected		  INTEGER;
+1224  	  l_has_user		  INTEGER;
+1225  	  l_username		  VARCHAR2(128 CHAR);
+1226  	  l_account_status	  VARCHAR2(32 CHAR);
+1227  	  l_default_tablespace	  VARCHAR2(30 CHAR);
+1228  	  l_temporary_tablespace  VARCHAR2(30 CHAR);
+1229  	  l_local_temp_tablespace VARCHAR2(30 CHAR);
+1230  	  l_profile		  VARCHAR2(128 CHAR);
+1231  	  l_password_versions	  VARCHAR2(17 CHAR);
+1232  	  l_authentication_type   VARCHAR2(8 CHAR);
+1233  	  l_proxy_only_connect	  VARCHAR2(1 CHAR);
+1234  	  l_protected		  VARCHAR2(3 CHAR);
+1235  	  l_read_only		  VARCHAR2(3 CHAR);
+1236  	  l_errors		  VARCHAR2(32767 CHAR);
+1237  	BEGIN
+1238  	  l_errors		  := NULL;
+1239  	  l_test_passed 	  := otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1240  	  l_expected		  := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
+1241  	  l_username		  := otap_string.reduce(p_username, 128);
+1242  	  l_account_status	  := otap_string.reduce(UPPER(p_account_status), 32);
+1243  	  l_default_tablespace	  := otap_string.reduce(p_default_tablespace, 30);
+1244  	  l_temporary_tablespace  := otap_string.reduce(p_temporary_tablespace, 30);
+1245  	  l_local_temp_tablespace := otap_string.reduce(p_local_temp_tablespace, 30);
+1246  	  l_profile		  := otap_string.reduce(UPPER(p_profile), 128);
+1247  	  l_password_versions	  := otap_string.reduce(p_password_versions, 17);
+1248  	  l_authentication_type   := otap_string.reduce(UPPER(p_authentication_type), 8);
+1249  	  l_proxy_only_connect	  := otap_string.reduce(UPPER(p_proxy_only_connect), 1);
+1250  	  l_protected		  := otap_string.reduce(UPPER(p_protected), 3);
+1251  	  l_read_only		  := otap_string.reduce(UPPER(p_read_only), 3);
+1252  	  IF	 p_username	   IS NOT NULL
+1253  	     AND LENGTH(p_username) > 0
+1254  	  THEN
+1255  	    -- check
+1256  	    SELECT COUNT(*)
+1257  	      INTO l_has_user
+1258  	      FROM dba_users
+1259  	     WHERE username			       = l_username
+1260  	       AND account_status		       = NVL(l_account_status, account_status)
+1261  	       AND default_tablespace		       = NVL(l_default_tablespace, default_tablespace)
+1262  	       AND temporary_tablespace 	       = NVL(l_temporary_tablespace, temporary_tablespace)
+1263  	       AND NVL(local_temp_tablespace, 'n/a')   = NVL(l_local_temp_tablespace, NVL(local_temp_tablespace, 'n/a'))
+1264  	       AND profile			       = NVL(l_profile, profile)
+1265  	       AND TRIM(NVL(password_versions, 'n/a')) = NVL(l_password_versions, TRIM(NVL(password_versions, 'n/a')))
+1266  	       AND NVL(authentication_type, 'n/a')     = NVL(l_authentication_type, NVL(authentication_type, 'n/a'))
+1267  	       AND NVL(proxy_only_connect, 'n/a')      = NVL(l_proxy_only_connect, NVL(proxy_only_connect, 'n/a'))
+1268  	       AND NVL(protected, 'n/a')	       = NVL(l_protected, NVL(protected, 'n/a'))
+1269  	       AND NVL(read_only, 'n/a')	       = NVL(l_read_only, NVL(read_only, 'n/a'))
+1270  	    ;
+1271  	    -- we should find one or zero entries
+1272  	    l_test_passed := count_chk(l_has_user, l_errors, l_script);
+1273  	  ELSE
+1274  	    -- job name must be set
+1275  	    l_test_passed	:= otap_constants.OTAP_NUM_TEST_UNDEFINED;
+1276  	    l_errors		:= 'Not allowed: p_username(NULL)';
+1277  	    otap_log.log(l_errors, l_script, 'User name is NULL');
+1278  	  END IF;
+1279  	  -- now decide on the expected result the final state and if errors are returned
+1280  	  IF l_test_passed != l_expected
+1281  	  THEN
+1282  	    o_errors := otap_string.reduce(l_errors, 4000);
+1283  	  ELSE
+1284  	    -- overwrite states from before, as we fulfill expected
+1285  	    l_test_passed := otap_constants.OTAP_NUM_TEST_PASSED;
+1286  	    -- overwrite errors expected
+1287  	    o_errors := NULL;
+1288  	  END IF;
+1289  	  RETURN l_test_passed;
+1290  	EXCEPTION
+1291  	  WHEN OTHERS THEN
+1292  	    IF SQLCODE != -20099
+1293  	    THEN
+1294  	      -- log unhandled exceptions
+1295  	      otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+1296  	    END IF;
+1297  	    RAISE;
+1298  	END has_user;
+1299  
+1300  END;
+1301  /
 
 Package body created.
 
@@ -9252,7 +9260,7 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
 766    ;
 767  
 768    /** FUNCTION otap_api.test_error
-769    * @see otap_test.test_error
+769    * @see otap_test.test_error, otap_objects.otap_session_test_setup and otap_plan.write_test_result
 770    */
 771    FUNCTION test_error( p_description     IN	    VARCHAR2
 772  			  , p_errors	      IN	    VARCHAR2
@@ -9263,13 +9271,13 @@ SQL> CREATE OR REPLACE PACKAGE otap_api
 777    ;
 778  
 779    /** FUNCTION otap_api.test_error_check
-780    * @see otap_test.test_error_check
+780    * @see otap_test.test_error_check, otap_objects.otap_session_test_setup and otap_api.is_eq
 781    */
-782    FUNCTION test_error_check( p_have	IN NUMBER
-783  				, p_want	IN NUMBER
-784  				, p_description IN VARCHAR2
-785  				, o_otap_session    IN OUT NOCOPY OTAP_SESSION
-786  				, p_schema	IN VARCHAR2 DEFAULT NULL
+782    FUNCTION test_error_check( p_have	 IN	       NUMBER
+783  				, p_want	 IN	       NUMBER
+784  				, p_description  IN	       VARCHAR2
+785  				, o_otap_session IN OUT NOCOPY OTAP_SESSION
+786  				, p_schema	 IN	       VARCHAR2      DEFAULT NULL
 787  				)
 788  	 RETURN VARCHAR2
 789    ;
@@ -12248,11 +12256,11 @@ SQL> CREATE OR REPLACE PACKAGE BODY otap_api
 2963  	  RETURN l_return;
 2964  	END test_error;
 2965  
-2966  	FUNCTION test_error_check( p_have	 IN NUMBER
-2967  				 , p_want	 IN NUMBER
-2968  				 , p_description IN VARCHAR2
-2969  				 , o_otap_session    IN OUT NOCOPY OTAP_SESSION
-2970  				 , p_schema	 IN VARCHAR2 DEFAULT NULL
+2966  	FUNCTION test_error_check( p_have	  IN		NUMBER
+2967  				 , p_want	  IN		NUMBER
+2968  				 , p_description  IN		VARCHAR2
+2969  				 , o_otap_session IN OUT NOCOPY OTAP_SESSION
+2970  				 , p_schema	  IN		VARCHAR2      DEFAULT NULL
 2971  				 )
 2972  	  RETURN VARCHAR2
 2973  	IS
@@ -18940,6 +18948,24 @@ SQL> * - only valid test procedures are considered
 SQL> * - test packages are identified by matching package procedures, if include packages is configured in the otap session record
 SQL> * - the executor must have the necessary rights on the objects to test
 SQL> * - if name precedence is set (default), the names of the procedures must match the naming rule
+SQL> * - other schema/user need direct execute grant on otap_test package and run_tests procedure to use them in packages and procedures,
+SQL> *	 role is not sufficient
+SQL> * - in reverse, other schema/user must directly grant execute on test functions to otap
+SQL> *
+SQL> * SECURITY IMPLICATIONS
+SQL> * The need of direct grants makes grants at a certain level not manageable anymore. So procedures is a bad choice, if not
+SQL> * assembled in a package. The package should ensure, that functionality called is not exposed to OTAP only to the user executing
+SQL> * the test. Right management can get difficult and cause security breaches. Best way to deal with this, is a test user with
+SQL> * access to the functions and procedures to test, that only has the test package granted to OTAP and no test object in its schema.
+SQL> * Before calling, the default schema of the test user should be set to the schema to test. Nevertheless a lot of direct grants
+SQL> * will be needed:
+SQL> * - direct execute grant to the test user for all functions, procedures and packages from the application to test
+SQL> * - direct execute grant to otap for all test procedures and packages of the test user to execute
+SQL> * - direct execute grant to otap for all application objects that should be dynamically executed by otap, e.g. throw tests
+SQL> *
+SQL> * In any case the sqlplus script access is much more safer and reliable. It supports roles better and therefore is recommended.
+SQL> * If used on a save test system, global EXECUTE ANY PROCEDURE rights for otap may help to overcome the restrictions, but are,
+SQL> * anyway, a risk.
 SQL> *
 SQL> * Naming rules for test procedures:
 SQL> * - general
@@ -18955,7 +18981,7 @@ SQL> * As this can be overwritten by test procedures, no guarantee is given, tha
 SQL> * can be used for ordering the test procedures, used order is procedure name ASC
 SQL> *
 SQL> * @param p_like The like expression for procedures and packages to execute. The like expression is applied after the prefix,
-SQL> * e.g. using defaults results to pattern TEST\_%, where TEST is the prefix and escape char is \.
+SQL> * e.g. using defaults results to pattern TEST\_%, where TEST is the prefix, escape char is \ and % is the like expression.
 SQL> *
 SQL> * @exception -20099 unhandled otap exception, procedure call exceptions will result in test errors.
 SQL> */
@@ -19040,75 +19066,62 @@ SQL> create or replace PROCEDURE run_tests(p_like IN VARCHAR2 DEFAULT '%')
  78  	   l_chunks := LEAST(4, rec.chunks);
  79  	   FOR i IN 1..l_chunks
  80  	   LOOP
- 81  	     --DBMS_OUTPUT.PUT_LINE('--------Loop Start--------');
- 82  	     IF i = l_chunks
- 83  	     THEN
- 84  	       -- end reached
- 85  	       l_end := 256;
- 86  	     ELSE
- 87  	       l_end := INSTR(rec.procedure_name, otap_constants.OTAP_INTERNAL_DELIMITER, l_start);
- 88  	       l_len := l_end - l_start;
- 89  	     END IF;
- 90  	     -- get current chunk
- 91  	     l_chunk := NVL(SUBSTR(rec.procedure_name, l_start, l_len), 'Undefined');
- 92  	     --DBMS_OUTPUT.PUT_LINE('Chunk: ' || l_chunk);
- 93  	     --DBMS_OUTPUT.PUT_LINE('Start POS: ' || l_start);
- 94  	     --DBMS_OUTPUT.PUT_LINE('End POS: ' || l_end);
- 95  	     --DBMS_OUTPUT.PUT_LINE('Length: ' || l_len);
- 96  	     --DBMS_OUTPUT.PUT_LINE('Relative POS: ' || l_pos);
- 97  	     --DBMS_OUTPUT.PUT_LINE('Iteration: ' || i);
- 98  	     --DBMS_OUTPUT.PUT_LINE('Max Iteration: ' || l_chunks);
- 99  	     IF i = 1 AND REGEXP_INSTR(l_chunk, '[^0123456789]') = 0
-100  	     THEN
-101  	       -- ignore optional order number, relative position stays 1
-102  	       l_start := l_end + 1;
-103  	     ELSE
-104  	       -- process chunk
-105  	       IF l_pos = 1
-106  	       THEN
-107  		 --DBMS_OUTPUT.PUT_LINE('Would execute set test set: ' || l_chunk);
-108  		 l_return := otap_test.set_test_set(l_chunk);
-109  	       ELSIF l_pos = 2
-110  	       THEN
-111  		 --DBMS_OUTPUT.PUT_LINE('Would execute set test group: ' || l_chunk);
-112  		 l_return := otap_test.set_test_group(l_chunk);
-113  	       ELSE
-114  		 --DBMS_OUTPUT.PUT_LINE('Would execute set test name: ' || l_chunk);
-115  		 l_return := otap_test.set_test_name(l_chunk);
-116  	       END IF;
-117  	       l_pos   := l_pos + 1;
-118  	       l_start := l_end + 1;
-119  	     END IF;
-120  	     --DBMS_OUTPUT.PUT_LINE('--------Loop End--------');
-121  	   END LOOP;
-122  	 END IF;
-123  	 -- decide if to consider, ignore otherwise
-124  	 IF (	rec.object_type = 'PROCEDURE'
-125  	     OR (    rec.object_type = 'PACKAGE'
-126  		 AND otap_test.include_packages
-127  		)
-128  	    )
-129  	 THEN
-130  	   l_block := l_header || rec.qualified_name || ';' || l_footer;
-131  	   -- do extra block for exception handling
-132  	   BEGIN
-133  	     --DBMS_OUTPUT.PUT_LINE('Would execute: ' || l_block);
-134  	     EXECUTE IMMEDIATE l_block;
-135  	   EXCEPTION
-136  	     WHEN OTHERS THEN
-137  	       l_return := otap_test.test_error('Procedure ' || rec.qualified_name || ' failed', SQLERRM);
-138  	   END;
-139  	 END IF;
-140    END LOOP;
-141  EXCEPTION
-142    WHEN OTHERS THEN
-143  	 IF SQLCODE != -20099
-144  	 THEN
-145  	   otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
-146  	 END IF;
-147  	 RAISE;
-148  END run_tests;
-149  /
+ 81  	     IF i = l_chunks
+ 82  	     THEN
+ 83  	       -- end reached
+ 84  	       l_end := 256;
+ 85  	     ELSE
+ 86  	       l_end := INSTR(rec.procedure_name, otap_constants.OTAP_INTERNAL_DELIMITER, l_start);
+ 87  	       l_len := l_end - l_start;
+ 88  	     END IF;
+ 89  	     -- get current chunk
+ 90  	     l_chunk := NVL(SUBSTR(rec.procedure_name, l_start, l_len), 'Undefined');
+ 91  	     IF i = 1 AND REGEXP_INSTR(l_chunk, '[^0123456789]') = 0
+ 92  	     THEN
+ 93  	       -- ignore optional order number, relative position stays 1
+ 94  	       l_start := l_end + 1;
+ 95  	     ELSE
+ 96  	       -- process chunk
+ 97  	       IF l_pos = 1
+ 98  	       THEN
+ 99  		 l_return := otap_test.set_test_set(l_chunk);
+100  	       ELSIF l_pos = 2
+101  	       THEN
+102  		 l_return := otap_test.set_test_group(l_chunk);
+103  	       ELSE
+104  		 l_return := otap_test.set_test_name(l_chunk);
+105  	       END IF;
+106  	       l_pos   := l_pos + 1;
+107  	       l_start := l_end + 1;
+108  	     END IF;
+109  	   END LOOP;
+110  	 END IF;
+111  	 -- decide if to consider, ignore otherwise
+112  	 IF (	rec.object_type = 'PROCEDURE'
+113  	     OR (    rec.object_type = 'PACKAGE'
+114  		 AND otap_test.include_packages
+115  		)
+116  	    )
+117  	 THEN
+118  	   l_block := l_header || rec.qualified_name || ';' || l_footer;
+119  	   -- do extra block for exception handling
+120  	   BEGIN
+121  	     EXECUTE IMMEDIATE l_block;
+122  	   EXCEPTION
+123  	     WHEN OTHERS THEN
+124  	       l_return := otap_test.test_error('Procedure ' || rec.qualified_name || ' failed', SQLERRM);
+125  	   END;
+126  	 END IF;
+127    END LOOP;
+128  EXCEPTION
+129    WHEN OTHERS THEN
+130  	 IF SQLCODE != -20099
+131  	 THEN
+132  	   otap_log.log(SQLERRM, l_script, 'Unhandled exception ' || l_script || ' call');
+133  	 END IF;
+134  	 RAISE;
+135  END run_tests;
+136  /
 
 Procedure created.
 
