@@ -47,8 +47,8 @@ AS
     l_test_passed := otap_constants.OTAP_NUM_TEST_UNDEFINED;
     l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
     l_table_name  := otap_string.reduce(p_table_name, 128);
-    IF     l_table_name        IS NOT NULL
-       AND LENGTH(l_table_name) > 0
+    IF     l_table_name                IS NOT NULL
+       AND NVL(LENGTH(l_table_name), 0) > 0
     THEN
       -- check description
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -119,10 +119,10 @@ AS
     l_expected    := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
     l_table_name  := otap_string.reduce(p_table_name, 128);
     l_column_name := otap_string.reduce(p_column_name, 128);
-    IF     l_table_name         IS NOT NULL
-       AND LENGTH(l_table_name)  > 0
-       AND l_column_name        IS NOT NULL
-       AND LENGTH(l_column_name) > 0
+    IF     l_table_name                 IS NOT NULL
+       AND NVL(LENGTH(l_table_name), 0)  > 0
+       AND l_column_name                IS NOT NULL
+       AND NVL(LENGTH(l_column_name), 0) > 0
     THEN
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
       -- test column exists
@@ -150,11 +150,11 @@ AS
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
       l_errors            := 'Missing: ' ||
                              CASE
-                               WHEN l_table_name IS NULL OR LENGTH(l_table_name) = 0
+                               WHEN l_table_name IS NULL OR NVL(LENGTH(l_table_name), 0) = 0
                                THEN 'p_table_name(NULL) '
                              END ||
                              CASE
-                               WHEN l_column_name IS NULL OR LENGTH(l_column_name) = 0
+                               WHEN l_column_name IS NULL OR NVL(LENGTH(l_column_name), 0) = 0
                                THEN 'p_column_name(NULL) '
                              END
       ;
@@ -206,9 +206,9 @@ AS
     l_expected      := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
     l_package_name  := otap_string.reduce(p_package_name, 128);
     l_package_type  := otap_string.reduce(UPPER(p_package_type), 12);
-    IF     l_package_name         IS NOT NULL
-       AND LENGTH(l_package_name)  > 0
-       AND l_package_type         IN (l_header, l_body)
+    IF     l_package_name                 IS NOT NULL
+       AND NVL(LENGTH(l_package_name), 0)  > 0
+       AND l_package_type                 IN (l_header, l_body)
     THEN
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
       SELECT COUNT(*)
@@ -221,11 +221,15 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_package, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Package does not exist: ' || l_schema_to_use || '.' || l_package_name;
+      END IF;
     ELSE
       -- invalid package name or type
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
       l_errors            := 'Not allowed: ' || CASE
-                                                  WHEN l_package_name IS NULL OR LENGTH(l_package_name) = 0
+                                                  WHEN l_package_name IS NULL OR NVL(LENGTH(l_package_name), 0) = 0
                                                   THEN 'p_package_name(NULL) '
                                                 END ||
                                                 CASE
@@ -286,9 +290,9 @@ AS
     l_package_name    := otap_string.reduce(p_package_name, 128);
     l_procedure_type  := otap_string.reduce(UPPER(p_procedure_type), 9);
     l_return_type     := otap_string.reduce(UPPER(p_return_type), 128);
-    IF     l_procedure_name        IS NOT NULL
-       AND LENGTH(l_procedure_name) > 0
-       AND l_procedure_type        IN (l_procedure, l_function)
+    IF     l_procedure_name                IS NOT NULL
+       AND NVL(LENGTH(l_procedure_name), 0) > 0
+       AND l_procedure_type                IN (l_procedure, l_function)
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -362,11 +366,15 @@ AS
       ;
       -- we may find more than 1 entry, if function or procedure has same name but different signature
       l_test_passed := CASE WHEN l_has_procedure = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Procedure does not exist: ' || l_schema_to_use || '.' || l_procedure_name;
+      END IF;
     ELSE
       -- invalid package name, type or state
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
       l_errors            := 'Not allowed: ' || CASE
-                                                  WHEN l_procedure_name IS NULL OR LENGTH(l_procedure_name) = 0
+                                                  WHEN l_procedure_name IS NULL OR NVL(LENGTH(l_procedure_name), 0) = 0
                                                   THEN 'p_procedure_name(NULL) '
                                                 END ||
                                                 CASE
@@ -374,7 +382,7 @@ AS
                                                   THEN 'p_procedure_type(' || l_procedure_type || ') '
                                                 END
       ;
-      otap_log.log(l_errors, l_script, 'Package name NULL or type invalid');
+      otap_log.log(l_errors, l_script, 'Procedure name NULL or type invalid');
     END IF;
     -- now decide on the expected result the final state and if errors are returned
     IF l_test_passed != l_expected
@@ -428,8 +436,8 @@ AS
     l_trigger_event   := otap_string.reduce(UPPER(p_trigger_event), 246);
     l_table_owner     := otap_string.reduce(p_table_owner, 128);
     l_table_name      := otap_string.reduce(p_table_name, 128);
-    IF     l_trigger_name        IS NOT NULL
-       AND LENGTH(l_trigger_name) > 0
+    IF     l_trigger_name                IS NOT NULL
+       AND NVL(LENGTH(l_trigger_name), 0) > 0
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -446,6 +454,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_trigger, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Trigger does not exist: ' || l_schema_to_use || '.' || l_trigger_name;
+      END IF;
     ELSE
       -- invalid package name, type or state
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -495,10 +507,10 @@ AS
     l_expected        := NVL(p_expected_result, otap_constants.OTAP_NUM_TEST_PASSED);
     l_object_name     := otap_string.reduce(p_object_name, 128);
     l_object_type     := otap_string.reduce(UPPER(p_object_type), 23);
-    IF     l_object_name        IS NOT NULL
-       AND LENGTH(l_object_name) > 0
-       AND l_object_type        IS NOT NULL
-       AND LENGTH(l_object_type) > 0
+    IF     l_object_name                IS NOT NULL
+       AND NVL(LENGTH(l_object_name), 0) > 0
+       AND l_object_type                IS NOT NULL
+       AND NVL(LENGTH(l_object_type), 0) > 0
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -512,15 +524,19 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_object, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Object does not exist: ' || l_schema_to_use || '.' || l_object_name || ' type: ' || l_object_type;
+      END IF;
     ELSE
       -- invalid package name, type or state
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
       l_errors            := 'Not allowed: ' || CASE
-                                                  WHEN l_object_name IS NULL OR LENGTH(l_object_name) = 0
+                                                  WHEN l_object_name IS NULL OR NVL(LENGTH(l_object_name), 0) = 0
                                                   THEN 'p_object_name(NULL) '
                                                 END ||
                                                 CASE
-                                                  WHEN l_object_type IS NULL OR LENGTH(l_object_type) = 0
+                                                  WHEN l_object_type IS NULL OR NVL(LENGTH(l_object_type), 0) = 0
                                                   THEN 'p_object_type(NULL)'
                                                 END
       ;
@@ -575,9 +591,9 @@ AS
     l_column_name     := otap_string.reduce(p_column_name, 128);
     l_constraint_name := otap_string.reduce(p_constraint, 128);
     l_constraint_type := otap_string.reduce(UPPER(p_constraint_type), 1);
-    IF     l_table_name        IS NOT NULL
-       AND LENGTH(l_table_name) > 0
-       AND l_constraint_type   IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
+    IF     l_table_name                IS NOT NULL
+       AND NVL(LENGTH(l_table_name), 0) > 0
+       AND l_constraint_type           IN ('P', 'U', 'R', 'C', 'F', 'O', 'V', 'H')
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -597,6 +613,10 @@ AS
       ;
       -- we may find more than one entry for combined primary keys
       l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Constraint does not exist for table: ' || l_schema_to_use || '.' || l_table_name || ' type: ' || l_constraint_type;
+      END IF;
     ELSE
       -- missing mandatory table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -669,9 +689,9 @@ AS
     l_r_constraint_name := otap_string.reduce(p_r_constraint, 128);
     l_r_schema          := otap_string.reduce(p_r_schema, 128);
     l_constraint_type   := otap_string.reduce(UPPER(p_constraint_type), 1);
-    IF     l_table_name        IS NOT NULL
-       AND LENGTH(l_table_name) > 0
-       AND l_constraint_type   IN ('R', 'F')
+    IF     l_table_name                IS NOT NULL
+       AND NVL(LENGTH(l_table_name), 0) > 0
+       AND l_constraint_type           IN ('R', 'F')
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -698,6 +718,10 @@ AS
       ;
       -- we may find more than one entry for combined primary keys
       l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Reference constraint does not exist for table: ' || l_schema_to_use || '.' || l_table_name || ' type: ' || l_constraint_type;
+      END IF;
     ELSE
       -- missing mandatory table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -757,10 +781,10 @@ AS
     l_column_name     := otap_string.reduce(p_column_name, 128);
     l_constraint_name := otap_string.reduce(p_constraint, 128);
     l_constraint_type := 'C';
-    IF     l_table_name         IS NOT NULL
-       AND LENGTH(l_table_name)  > 0
-       AND l_column_name        IS NOT NULL
-       AND LENGTH(l_column_name) > 0
+    IF     l_table_name                 IS NOT NULL
+       AND NVL(LENGTH(l_table_name), 0)  > 0
+       AND l_column_name                IS NOT NULL
+       AND NVL(LENGTH(l_column_name), 0) > 0
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -785,6 +809,10 @@ AS
       ;
       -- we may find more than one entry for combined primary keys
       l_test_passed := CASE WHEN l_has_constraint = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'NOT NULL constraint does not exist for column: ' || l_schema_to_use || '.' || l_table_name || '.' || l_column_name;
+      END IF;
     ELSE
       -- missing mandatory table name
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -854,11 +882,11 @@ AS
     l_uniqueness      := otap_string.reduce(UPPER(p_uniqueness), 9);
     l_tablespace_name := otap_string.reduce(p_tablespace_name, 30);
     l_partitioned     := otap_string.reduce(UPPER(p_partitioned), 3);
-    IF    (    l_table_name        IS NOT NULL
-           AND LENGTH(l_table_name) > 0
+    IF    (    l_table_name                IS NOT NULL
+           AND NVL(LENGTH(l_table_name), 0) > 0
           )
-       OR (    l_index_name        IS NOT NULL
-           AND LENGTH(l_index_name) > 0
+       OR (    l_index_name                IS NOT NULL
+           AND NVL(LENGTH(l_index_name), 0) > 0
           )
     THEN
       -- schema
@@ -884,6 +912,10 @@ AS
       ;
       -- we may find more than one entry for index columns
       l_test_passed := CASE WHEN l_has_index = 0 THEN otap_constants.OTAP_NUM_TEST_FAILED ELSE otap_constants.OTAP_NUM_TEST_PASSED END;
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Index does not exist for table: ' || l_schema_to_use || '.' || l_table_name || ' index name: ' || NVL(l_index_name, 'NULL');
+      END IF;
     ELSE
       -- table name or index name missing
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -947,8 +979,8 @@ AS
     l_incomplete      := otap_string.reduce(UPPER(p_incomplete), 3);
     l_final           := otap_string.reduce(UPPER(p_final), 3);
     l_persistable     := otap_string.reduce(UPPER(p_persistable), 3);
-    IF     l_type_name        IS NOT NULL
-       AND LENGTH(l_type_name) > 0
+    IF     l_type_name                IS NOT NULL
+       AND NVL(LENGTH(l_type_name), 0) > 0
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -968,6 +1000,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_type, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Type does not exist: ' || l_schema_to_use || '.' || l_type_name;
+      END IF;
     ELSE
       -- type name missing
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -1048,13 +1084,13 @@ AS
     l_sharded_flag    := otap_string.reduce(UPPER(p_sharded_flag), 1);
     l_session_flag    := otap_string.reduce(UPPER(p_session_flag), 1);
     l_keep_value      := otap_string.reduce(UPPER(p_keep_value), 1);
-    IF    (    l_sequence_name        IS NOT NULL
-           AND LENGTH(l_sequence_name) > 0
+    IF    (    l_sequence_name                IS NOT NULL
+           AND NVL(LENGTH(l_sequence_name), 0) > 0
           )
-       OR (    l_table_name         IS NOT NULL
-           AND LENGTH(l_table_name)  > 0
-           AND l_column_name        IS NOT NULL
-           AND LENGTH(l_column_name) > 0
+       OR (    l_table_name                 IS NOT NULL
+           AND NVL(LENGTH(l_table_name), 0)  > 0
+           AND l_column_name                IS NOT NULL
+           AND NVL(LENGTH(l_column_name), 0) > 0
           )
     THEN
       -- schema
@@ -1080,6 +1116,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_sequence, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Sequence does not exist: ' || l_schema_to_use || '.' || l_sequence_name;
+      END IF;
     ELSE
       -- either sequence name or table and column name must be
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -1150,8 +1190,8 @@ AS
     l_job_class       := otap_string.reduce(UPPER(p_job_class), 128);
     l_logging_level   := otap_string.reduce(UPPER(p_logging_level), 11);
     l_store_output    := otap_string.reduce(UPPER(p_store_output), 5);
-    IF     l_job_name        IS NOT NULL
-       AND LENGTH(l_job_name) > 0
+    IF     l_job_name                IS NOT NULL
+       AND NVL(LENGTH(l_job_name), 0) > 0
     THEN
       -- schema
       l_schema_to_use := otap_string.reduce(TRIM(NVL(p_schema, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'))), 128);
@@ -1178,6 +1218,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_job, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'Scheduler job does not exist: ' || l_schema_to_use || '.' || l_job_name;
+      END IF;
     ELSE
       -- job name must be set
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;
@@ -1252,8 +1296,8 @@ AS
     l_proxy_only_connect    := otap_string.reduce(UPPER(p_proxy_only_connect), 1);
     l_protected             := otap_string.reduce(UPPER(p_protected), 3);
     l_read_only             := otap_string.reduce(UPPER(p_read_only), 3);
-    IF     p_username        IS NOT NULL
-       AND LENGTH(p_username) > 0
+    IF     p_username                IS NOT NULL
+       AND NVL(LENGTH(p_username), 0) > 0
     THEN
       -- check
       SELECT COUNT(*)
@@ -1273,6 +1317,10 @@ AS
       ;
       -- we should find one or zero entries
       l_test_passed := count_chk(l_has_user, l_errors, l_script);
+      IF l_test_passed = otap_constants.OTAP_NUM_TEST_FAILED
+      THEN
+        l_errors := 'User does not exist: ' || l_username;
+      END IF;
     ELSE
       -- job name must be set
       l_test_passed       := otap_constants.OTAP_NUM_TEST_UNDEFINED;

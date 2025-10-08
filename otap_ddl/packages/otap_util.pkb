@@ -191,8 +191,8 @@ AS
     l_config_value := TRIM(p_config_value);
     l_config_name  := otap_string.reduce(p_config_name, 128);
     -- we must check against NULL as we are in a before trigger
-    IF    l_config_value        IS NULL
-       OR LENGTH(l_config_value) = 0
+    IF    l_config_value                IS NULL
+       OR NVL(LENGTH(l_config_value), 0) = 0
     THEN
       -- no defaults for NULL values, always raise
       otap_log.log('-20002 The given config_value is not supported. Empty or only spaces.', l_script);

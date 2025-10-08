@@ -1,12 +1,12 @@
 SQL> -- init the session
 SQL> -- do not make a count test, set some defaults
-SQL> SELECT otap_test.init_test( p_test_count => 2438
+SQL> SELECT otap_test.init_test( p_test_count => 2450
   2  			       , p_test_set => 'OTAP full system test'
   3  			       )
   4    FROM dual
   5  ;
 Current test settings
-Test session id: 1780
+Test session id: 2164
 Test set: OTAP full system test
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16,12 +16,12 @@ DB schema: OTAP
 Test identifier prefix: TEST
 Session language: N/A
 Current tests:0
-Expected tests: 2438
+Expected tests: 2450
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1780
-Test start: 2025-10-05 14:12:24
+Current view id: 2164
+Test start: 2025-10-08 19:32:58
 
 
 1 row selected.
@@ -9492,28 +9492,144 @@ SQL> DECLARE
   6    l_have	     VARCHAR2(4000 CHAR);
   7    l_error_msg   VARCHAR2(32767 CHAR);
   8  BEGIN
-  9    l_return := otap_test.is_eq(otap_schema.has_table('OTAP_RESULTS', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_table simple check');
- 10    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_table error message check');
- 11    l_return := otap_test.is_eq(otap_schema.has_table('otap_results', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_table case sensitive check');
- 12    l_return := otap_test.alike(l_error_msg, 'Table does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_table case sensitive error message check');
- 13    l_return := otap_test.is_eq(otap_schema.has_table(NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_table NULL check');
- 14    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_table NULL error message check');
- 15    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_column simple check');
- 16    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_column error message check');
- 17    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'to_delete', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_column case sensitive check');
- 18    l_return := otap_test.alike(l_error_msg, 'Column does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_column case sensitive error message check');
- 19    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column column NULL check');
- 20    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_column_name(NULL)', 'otap_schema.has_column NULL column error message check');
- 21    l_return := otap_test.is_eq(otap_schema.has_column(NULL, 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column table NULL check');
- 22    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_column NULL table name error message check');
- 23    l_return := otap_test.is_eq(otap_schema.has_column(NULL, NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column full NULL check');
- 24    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL) p_column_name(NULL)', 'otap_schema.has_column full NULL error message check');
- 25  EXCEPTION
- 26    WHEN OTHERS THEN
- 27  	 otap_log.log('Test block OTAP_SCHEMA failed', 'otap_report.sql', SQLERRM);
- 28  	 l_return := otap_test.test_error('Complete test block OTAP_SCHEMA failed', SQLERRM);
- 29  END;
- 30  /
+  9    -- has_table
+ 10    l_return := otap_test.is_eq(otap_schema.has_table('OTAP_RESULTS', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_table simple check');
+ 11    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_table error message check');
+ 12    l_return := otap_test.is_eq(otap_schema.has_table('otap_results', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_table case sensitive check');
+ 13    l_return := otap_test.alike(l_error_msg, 'Table does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_table case sensitive error message check');
+ 14    l_return := otap_test.is_eq(otap_schema.has_table(NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_table NULL check');
+ 15    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_table NULL error message check');
+ 16    l_return := otap_test.is_eq(otap_schema.has_table('otap_results', l_error_msg, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_table inverse logic check');
+ 17    l_return := otap_test.is_eq(otap_schema.has_table('OTAP_IDENTIFIERS_V', l_error_msg, SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), otap_constants.OTAP_NUM_TEST_FAILED), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_table ignore views check');
+ 18    -- has_column
+ 19    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_PASSED, 'otap_schema.has_column simple check');
+ 20    l_return := otap_test.ok((l_error_msg IS NULL), 'otap_schema.has_column error message check');
+ 21    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', 'to_delete', l_error_msg), otap_constants.OTAP_NUM_TEST_FAILED, 'otap_schema.has_column case sensitive check');
+ 22    l_return := otap_test.alike(l_error_msg, 'Column does not exist:%', otap_constants.OTAP_NUM_FALSE, 'otap_schema.has_column case sensitive error message check');
+ 23    l_return := otap_test.is_eq(otap_schema.has_column('OTAP_RESULTS', NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column column NULL check');
+ 24    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_column_name(NULL)', 'otap_schema.has_column NULL column error message check');
+ 25    l_return := otap_test.is_eq(otap_schema.has_column(NULL, 'TO_DELETE', l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column table NULL check');
+ 26    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL)', 'otap_schema.has_column NULL table name error message check');
+ 27    l_return := otap_test.is_eq(otap_schema.has_column(NULL, NULL, l_error_msg), otap_constants.OTAP_NUM_TEST_UNDEFINED, 'otap_schema.has_column full NULL check');
+ 28    l_return := otap_test.is_eq(l_error_msg, 'Missing: p_table_name(NULL) p_column_name(NULL)', 'otap_schema.has_column full NULL error message check');
+ 29    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 30  							  , p_column_name => 'to_delete'
+ 31  							  , o_errors => l_error_msg
+ 32  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
+ 33  							  )
+ 34  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 35  				  , 'otap_schema.has_column inverse logic check'
+ 36  				  )
+ 37    ;
+ 38    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 39  							  , p_column_name => 'TO_DELETE'
+ 40  							  , o_errors => l_error_msg
+ 41  							  , p_data_type => 'NUMBER'
+ 42  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 43  							  )
+ 44  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 45  				  , 'otap_schema.has_column data type check'
+ 46  				  )
+ 47    ;
+ 48    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 49  							  , p_column_name => 'TO_DELETE'
+ 50  							  , o_errors => l_error_msg
+ 51  							  , p_data_length => 22
+ 52  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 53  							  )
+ 54  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 55  				  , 'otap_schema.has_column data length check'
+ 56  				  )
+ 57    ;
+ 58    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 59  							  , p_column_name => 'TO_DELETE'
+ 60  							  , o_errors => l_error_msg
+ 61  							  , p_data_scale => 0
+ 62  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 63  							  )
+ 64  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 65  				  , 'otap_schema.has_column data scale check'
+ 66  				  )
+ 67    ;
+ 68    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 69  							  , p_column_name => 'TO_DELETE'
+ 70  							  , o_errors => l_error_msg
+ 71  							  , p_data_precision => 1
+ 72  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 73  							  )
+ 74  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 75  				  , 'otap_schema.has_column data precision check'
+ 76  				  )
+ 77    ;
+ 78    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 79  							  , p_column_name => 'TO_DELETE'
+ 80  							  , o_errors => l_error_msg
+ 81  							  , p_nullable => 'N'
+ 82  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 83  							  )
+ 84  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 85  				  , 'otap_schema.has_column nullable check'
+ 86  				  )
+ 87    ;
+ 88    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 89  							  , p_column_name => 'TO_DELETE'
+ 90  							  , o_errors => l_error_msg
+ 91  							  , p_data_default => '0'
+ 92  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+ 93  							  )
+ 94  				  , otap_constants.OTAP_NUM_TEST_PASSED
+ 95  				  , 'otap_schema.has_column data default check'
+ 96  				  )
+ 97    ;
+ 98    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+ 99  							  , p_column_name => 'TO_DELETE'
+100  							  , o_errors => l_error_msg
+101  							  , p_data_type => 'NUMBER'
+102  							  , p_data_length => 22
+103  							  , p_data_precision => 1
+104  							  , p_data_scale => 0
+105  							  , p_nullable => 'N'
+106  							  , p_data_default => '0'
+107  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+108  							  )
+109  				  , otap_constants.OTAP_NUM_TEST_PASSED
+110  				  , 'otap_schema.has_column all parameters check'
+111  				  )
+112    ;
+113    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_RESULTS'
+114  							  , p_column_name => 'TO_DELETE'
+115  							  , o_errors => l_error_msg
+116  							  , p_data_type => 'NUMBER'
+117  							  , p_data_length => 22
+118  							  , p_data_precision => 2
+119  							  , p_data_scale => 0
+120  							  , p_nullable => 'N'
+121  							  , p_data_default => '0'
+122  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_FAILED
+123  							  )
+124  				  , otap_constants.OTAP_NUM_TEST_PASSED
+125  				  , 'otap_schema.has_column fail if a parameter is wrong'
+126  				  )
+127    ;
+128    l_return := otap_test.is_eq( otap_schema.has_column( p_table_name => 'OTAP_IDENTIFIERS_V'
+129  							  , p_column_name => 'LANGUAGE_ID'
+130  							  , o_errors => l_error_msg
+131  							  , p_data_type => 'VARCHAR2'
+132  							  , p_data_length => 12
+133  							  , p_nullable => 'Y'
+134  							  , p_expected_result => otap_constants.OTAP_NUM_TEST_PASSED
+135  							  )
+136  				  , otap_constants.OTAP_NUM_TEST_PASSED
+137  				  , 'otap_schema.has_column verify view column'
+138  				  )
+139    ;
+140  
+141  EXCEPTION
+142    WHEN OTHERS THEN
+143  	 otap_log.log('Test block OTAP_SCHEMA failed', 'otap_report.sql', SQLERRM);
+144  	 l_return := otap_test.test_error('Complete test block OTAP_SCHEMA failed', SQLERRM);
+145  END;
+146  /
 
 PL/SQL procedure successfully completed.
 
@@ -12581,7 +12697,7 @@ SQL> DECLARE
 129  	 l_return := otap_test.test_error('Complete test block OTAP_UTIL maintenance intrusive failed', SQLERRM);
 130  END;
 131  /
-Processed 1001 records for delete. Started at 2025-10-05 14:14:59 finished at 2025-10-05 14:15:09
+Processed 1001 records for delete. Started at 2025-10-08 19:35:31 finished at 2025-10-08 19:35:42
 
 PL/SQL procedure successfully completed.
 
@@ -16924,7 +17040,7 @@ SQL> SELECT otap_test.test_error_check(COUNT(*), 0, 'Check script errors in SPER
   3   WHERE identifier = '&IDENT'
   4  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20251005141223'
+new   3:  WHERE identifier = 'otap_test_run20251008193258'
 Passed Check script errors in SPERRORLOG
 
 1 row selected.
@@ -16936,16 +17052,16 @@ SQL> SELECT otap_test.test_error('Script errors ' || TO_CHAR(TRIM(script)), TO_C
   4   ORDER BY timestamp
   5  ;
 old   3:  WHERE identifier = '&IDENT'
-new   3:  WHERE identifier = 'otap_test_run20251005141223'
+new   3:  WHERE identifier = 'otap_test_run20251008193258'
 
 no rows selected
 
 SQL> 
 SQL> -- finish test
 SQL> SELECT otap_test.finish_test FROM dual;
-Summary id: 1780 tests: 2439 from 2438 errors: 0 run time: +000000000 00:03:12.000000000 started: 2025-10-05 14:12:24
+Summary id: 2164 tests: 2451 from 2450 errors: 0 run time: +000000000 00:03:07.000000000 started: 2025-10-08 19:32:58
 Current test settings
-Test session id: 1807
+Test session id: 2191
 Test set: OTAP test set
 Test group: OTAP test group
 Test name: OTAP test name
@@ -16959,8 +17075,8 @@ Expected tests: Not set
 Name precedence: Yes
 Include packages: No
 Persist: No
-Current view id: 1780
-Test start: 2025-10-05 14:15:36
+Current view id: 2164
+Test start: 2025-10-08 19:36:05
 
 
 1 row selected.

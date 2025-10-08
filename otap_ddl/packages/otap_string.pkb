@@ -401,7 +401,7 @@ AS
     l_min_length    := otap_string.check_line_size(p_min_length);
     l_deco          := ' ';
     l_title         := NVL(p_string, otap_constants.OTAP_INTERNAL_ERROR);
-    l_title_length  := LENGTH(l_title);
+    l_title_length  := NVL(LENGTH(l_title), 0);
     l_line_size     := GREATEST(l_min_length, l_title_length);
     l_line_size     := CASE WHEN l_line_size <= otap_constants.OTAP_NUM_MAX_FILL_LENGTH THEN l_line_size ELSE otap_constants.OTAP_NUM_MAX_FILL_LENGTH END;
     l_line_size     := CASE WHEN l_line_size >= otap_constants.OTAP_NUM_MIN_FILL_LENGTH THEN l_line_size ELSE otap_constants.OTAP_NUM_MIN_FILL_LENGTH END;
